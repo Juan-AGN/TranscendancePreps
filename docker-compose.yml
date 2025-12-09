@@ -2,18 +2,11 @@ services:
   pong-front:
     container_name: pong-front
     build:
-      context: ./pong/front
-    networks:
-      - pong_network
-    ports:
-      - 8888:8888
-
-  pong-back:
-    container_name: pong-back
-    build:
       context: ./pong/back
     networks:
       - pong_network
+    ports:
+      - "8888:8888"
 
 networks:
   pong_network:
