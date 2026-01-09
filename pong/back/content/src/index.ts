@@ -60,7 +60,7 @@ app.get("/game/state/:sessionId", (req: Request, res: Response) => {
 */
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-	res.status(500).send({ error: err.message });
+	res.status(500).send({ error: err.message });a
 });
 
 app.listen(port, () => {
