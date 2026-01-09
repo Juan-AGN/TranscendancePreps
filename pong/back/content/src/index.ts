@@ -1,25 +1,25 @@
 import express, { NextFunction, Request, Response } from "express";
 import { lobbyManager } from "./lobbyManager";
 import { gameManager } from "./gameManager";
+import http from "http";
+import url from "url";
+import { WebSocketServer, WebSocket } from "ws";
 var cors = require('cors');
 
 const app = express();
 const port = 8888;
 
+const server = http.createServer(app);
+
+const wss = new WebSocketServer({ server })
+
 app.use(express.json());
 
 app.use(cors());
 
-/**
- * Health check
- */
 app.get("/", (req: Request, res: Response) => {
 	res.send({ message: "Game Service Running" });
 });
-
-/**
- * ─── LOBBY ROUTES ───────────────────────────────
- */
 
 app.get("/lobbies", (req: Request, res: Response) => {
 	res.send(lobbyManager.getlobbies());
@@ -65,4 +65,27 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 app.listen(port, () => {
 	console.log(`Game service running on port ${port}`);
+});
+
+wss.on("connection", (ws: WebSocket, req) => {
+  const parsedUrl = url.parse(req.url || "", true);
+  const userId = parsedUrl.query.userId as string;
+
+  if (!userId) {
+    ws.close(1008, "User ID required");
+    return;
+  }
+
+  lobbyManager.newws(userId, ws);
+
+  console.log(`User ${userId} connected`);
+
+  ws.on("message", (data) => {
+    console.log(`Message from ${userId}:`, data.toString());
+  });
+
+  ws.on("close", () => {
+    lobbyManager.deletews(userId, ws);
+    console.log(`User ${userId} disconnected`);
+  });
 });

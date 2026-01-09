@@ -19,6 +19,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.6",
+    "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.49.0",
     "@typescript-eslint/parser": "^8.49.0",
     "cors": "2.8.5",
@@ -33,6 +34,6 @@
   "description": "",
   "dependencies": {
     "express": "^5.2.1",
-    "websocket": "^1.0.35"
+    "ws": "^8.19.0"
   }
 }
