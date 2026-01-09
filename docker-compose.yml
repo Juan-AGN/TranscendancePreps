@@ -1,8 +1,8 @@
 services:
   pong-front:
-    container_name: pong-front
+    container_name: game-back
     build:
-      context: ./pong/back
+      context: ./game/back
     networks:
       - pong_network
     ports:
