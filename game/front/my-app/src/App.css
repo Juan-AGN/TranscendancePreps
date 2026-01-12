@@ -63,7 +63,7 @@ html {
   align-content: center;
   background-color: #72303a;
   width: 90vw;
-  height: 50vh;
+  height: 60vh;
   margin: auto;
   overflow-y: scroll;
   border-radius: 15px;
@@ -79,14 +79,17 @@ html {
   overflow-y: scroll;
   align-content: center;
   border-radius: 15px;
+  justify-content: center
 }
 
 .player {
-  margin: auto;
   width: 30vw;
   height: 12vh;
-  margin: auto;
-  padding: 3px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  margin: 5px;
+  text-align: center;
+  align-content: center;
   background-color: #a85f6a;
   overflow-y: scroll;
   border-radius: 15px;
@@ -95,14 +98,15 @@ html {
 
 .spectators {
   width: 80vw;
-  height: 30px;
+  height: 40px;
   margin: auto;
-  padding: 3px;
+  padding: auto;
+  padding-top: 2px;
+  font-size: 10px;
   background-color: #a85f6a;
   overflow-x: scroll;
   color:white;
   border-radius: 15px;
-  margin: 5px;
 }
 
 strong {
