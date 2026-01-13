@@ -112,3 +112,23 @@ html {
 strong {
   color: #d3959e
 }
+
+.notification-box {
+  z-index: 100;
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  width: 20%;
+  height: auto;
+}
+
+.notification {
+  z-index: 100;
+  width: 100%;
+  height: 8vh;
+
+  background-color: gray;
+  color: white;
+  margin-bottom: 10px;
+  
+}

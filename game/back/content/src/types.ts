@@ -10,10 +10,29 @@ export interface Lobbys {
   all: Lobby[];
 }
 
+export interface alive {
+  player: string;
+  x: number;
+  y: number;
+  hitbox: number;
+  speed: number;
+}
+
+export interface ball {
+  x: number;
+  y: number;
+  angle: number; 
+  hitbox: number;
+  speed: number;
+}
+
 export interface GameSession {
   id: string;
-  players: string[];
-  state: any;
+  alive: alive[];
+  dead: string[];
+  ball: ball[];
+  borderx: number;
+  bordery: number;
 }
 
 export enum LobbyAction {

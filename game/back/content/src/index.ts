@@ -34,7 +34,19 @@ app.post("/lobbies/create", (req: Request, res: Response) => {
 
 app.post("/lobbies/checkout", (req: Request, res: Response) => {
 	const { lobbyId, hostId } = req.body;
-	return (res.send(lobbyManager.get(lobbyId)));
+
+	if (lobbyId != "")
+	{
+		if (!lobbyManager.has(lobbyId))
+			return (res.status(500).json({ message: "Couldn't get lobby." }));
+		return (res.send(lobbyManager.get(lobbyId)));
+	}
+	else
+	{
+		if (!lobbyManager.hasplayer(hostId))
+			return (res.status(500).json({ message: "Couldn't get lobby." }));
+		return (res.send(lobbyManager.whereis(hostId)));
+	}
 });
 
 app.post("/lobbies/join", (req: Request, res: Response) => {
@@ -48,7 +60,7 @@ app.post("/lobbies/leave", (req: Request, res: Response) => {
 	const { lobbyId, hostId } = req.body;
 	if (!lobbyManager.leaveplayer(lobbyId, hostId))
 		return (res.status(500).json({ message: "Couldn't leave lobby." }));
-	return (res.send(lobbyManager.get(lobbyId)));
+	return (res.send(lobbyManager.getlobbies()));
 });
 
 /*

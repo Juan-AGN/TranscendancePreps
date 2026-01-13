@@ -72,7 +72,7 @@ function Lobbyes({ response, setResponse }) {
 	return (
 		<div id="lobbyes-box">
 		{response.all.map((lobbyItem) => (
-        	<div class="lobby" key={lobbyItem.id}>
+        	<div className="lobby" key={lobbyItem.id}>
         		<div><strong>Name:</strong> {lobbyItem.id}</div>
         		<div><strong>Host:</strong> {lobbyItem.hostId}</div>
         		<div><strong>Players:</strong> {lobbyItem.players.length}</div>
@@ -92,12 +92,12 @@ function Lobby({ response }) {
    			<div>
         	<strong>Players:</strong>
 			<div id="players">
-        	{response.players.map((p) => <div key={p} class="player">{p}</div>)}
+        	{response.players.map((p) => <div key={p} className="player">{p}</div>)}
       		</div>
 			</div>
    			<div>
         	<strong>Spectators:</strong>
-			<div class="spectators">
+			<div className="spectators">
         	<p>{response.spectators.map((p) => `${p}     `)}</p>
 			</div>
       		</div>
@@ -111,12 +111,26 @@ function App() {
 	const [clobby, setClobby] = useState("");
 	const [user, setUser] = useState("");
 	const [ws, setWs] = useState(null);
+	const [notification, setNotification] = useState([]);
 	const [response, setResponse] = useState("");
 	const clobbyRef = useRef(clobby);
 
 	useEffect(() => {
 		clobbyRef.current = clobby;
 	}, [clobby]);
+
+	function NotificationBox({notification}) {
+		if (notification.length == 0)
+			return (<></>);
+		return (
+		<div className="notification-box">
+    		{notification.map((p, index) => (
+        	<div key={index} className="notification">
+          		{p}
+        	</div>
+      ))}
+		</div>);
+	}
 
 	async function createLobby() {
 		try {
@@ -159,6 +173,28 @@ function App() {
 		}
 	}
 
+	async function isinlobby() {
+		try {
+			const res = await fetch(`${apiBase}/lobbies/checkout`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ lobbyId: "", hostId: user })
+			});
+			if (!res.ok) {
+				const text = await res.text();
+    			throw new Error(`HTTP ${res.status}: ${text}`);
+    		}
+			const data = await res.json();
+			setLobby(data.id);
+			setClobby(data.id);
+			setResponse(data);
+		}
+		catch (error)
+		{
+			console.log(error);
+		}
+	}
+
 	async function joinLobby() {
 		try {
 			const res = await fetch(`${apiBase}/lobbies/join`, {
@@ -193,6 +229,10 @@ function App() {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ lobbyId: clobby, hostId: user })
 			});
+			if (!res.ok) {
+    			const text = await res.text();
+    			throw new Error(`HTTP ${res.status}: ${text}`);
+    		}
 			const data = await res.json();
 			setClobby("");
 			listLobbies();
@@ -210,6 +250,8 @@ function App() {
 
     	socket.onopen = () => {
       		console.log("WebSocket connected as", user);
+
+			isinlobby();
     	};
 
 		socket.onmessage = (event) => {
@@ -217,9 +259,22 @@ function App() {
 
 			if (msg.type == "LOBBYUPDATE")
 			{
+				if (msg.action == "LEAVE")
+				{
+					if (msg.user == user)
+					{
+						setClobby("")
+						listLobbies();
+						return ;
+					}
+				}
 				console.log(`${msg.lobby} ${msg.user} ${msg.action}`)
+				setNotification(prev => [...prev, `${msg.user} ${msg.action}`]);
+				setTimeout(() => {
+					setNotification(prev => prev.slice(1));
+				}, 4000);
 				stateLobby();
-			}	
+			}
 		};
 
 		socket.onclose = () => console.log("WebSocket disconnected");
@@ -238,6 +293,7 @@ function App() {
 
 	return (
 	<div>
+		<NotificationBox notification={notification}/>
 		<h1>Lobby Test</h1>
 
 		<Log user={user} setUser={setUser}/>

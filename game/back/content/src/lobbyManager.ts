@@ -1,5 +1,6 @@
 import { Lobby, Lobbys, LobbyAction, WsAction } from "./types";
 import { WebSocketServer, WebSocket } from "ws";
+import { gameManager } from "./gameManager";
 
 class LobbyManager {
     //map of lobbys by id
@@ -20,7 +21,18 @@ class LobbyManager {
 
     //checking if lobby exists from id
     has(id: string) {
-        return this.lobbymap.has(id);
+        return (this.lobbymap.has(id));
+    }
+
+    hasplayer(id: string) {
+        return (this.clientlobby.has(id));
+    }
+
+    //checking if where an user is
+    whereis(id: string) {
+        if (this.clientlobby.has(id))
+            return (this.lobbymap.get(this.clientlobby.get(id)!));
+        return (undefined);
     }
 
     //creating lobby with id name and player as host
@@ -79,6 +91,7 @@ class LobbyManager {
             let torem = lob.spectators.indexOf(player);
             if (torem != -1)
                 lob.spectators.splice(torem, 1);
+            this.clientlobby.delete(player);
             this.broadcastlobby(id, player, LobbyAction.LEAVESPECTATOR);
             return (true);
         }
