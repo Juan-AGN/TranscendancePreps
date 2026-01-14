@@ -4,6 +4,7 @@ import { gameManager } from "./gameManager";
 import http from "http";
 import url from "url";
 import { WebSocketServer, WebSocket } from "ws";
+import { Errors } from "./types";
 var cors = require('cors');
 
 const app = express();
@@ -63,6 +64,18 @@ app.post("/lobbies/leave", (req: Request, res: Response) => {
 	return (res.send(lobbyManager.getlobbies()));
 });
 
+app.post("/lobbies/start", (req: Request, res: Response) => {
+	const { lobbyId, hostId } = req.body;
+	const result = lobbyManager.able(lobbyId, hostId);
+
+	if (result !== null) 
+		return res.status(400).send({ messaje: result });
+
+	res.send("starting");
+
+	lobbyManager.setupgame(lobbyId, hostId);
+});
+
 /*
 app.post("/game/start", (req: Request, res: Response) => {
 	const { lobbyId } = req.body;
@@ -81,26 +94,29 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 wss.on("connection", (ws: WebSocket, req) => {
-  const parsedUrl = url.parse(req.url || "", true);
-  const userId = parsedUrl.query.userId as string;
+	const parsedUrl = url.parse(req.url || "", true);
+	const userId = parsedUrl.query.userId as string;
 
-  if (!userId) {
-    ws.close(1008, "User ID required");
-    return;
-  }
+	if (!userId) {
+		ws.close(1008, "User ID required");
+		return;
+	}
 
-  lobbyManager.newws(userId, ws);
+	lobbyManager.newws(userId, ws);
 
-  console.log(`User ${userId} connected`);
+	console.log(`User ${userId} connected`);
 
-  ws.on("message", (data) => {
-    console.log(`Message from ${userId}:`, data.toString());
-  });
+	ws.on("message", (data) => {
+		const message = data.toString();
 
-  ws.on("close", () => {
-    lobbyManager.deletews(userId, ws);
-    console.log(`User ${userId} disconnected`);
-  });
+		if (message === "W" || message === "A" || message === "S" || message === "D")
+			lobbyManager.playermovement(message, userId);
+	});
+
+	ws.on("close", () => {
+		lobbyManager.deletews(userId, ws);
+		console.log(`User ${userId} disconnected`);
+	});
 });
 
 server.listen(port, () => {

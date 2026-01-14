@@ -33,17 +33,31 @@ export interface GameSession {
   ball: ball[];
   borderx: number;
   bordery: number;
+  status: "in-game" | "finished";
 }
 
 export enum LobbyAction {
-    JOIN = "JOIN",
-    SPECTATOR = "SPECTATOR",
-    LEAVE = "LEAVE",
-    HOST = "HOST",
-    SWITCHTOPLAYER = "SWITCHTOPLAYER",
-    LEAVESPECTATOR = "LEAVESPECTATOR"
+  JOIN = "JOIN",
+  SPECTATOR = "SPECTATOR",
+  LEAVE = "LEAVE",
+  HOST = "HOST",
+  SWITCHTOPLAYER = "SWITCHTOPLAYER",
+  LEAVESPECTATOR = "LEAVESPECTATOR",
+  STARTGAME = "STARTGAME",
+}
+
+export enum GameAction {
+  START = "START",
+  END = "END",
+  STATE = "STATE",
 }
 
 export enum WsAction {
-    LOBBYUPDATE = "LOBBYUPDATE"
+    LOBBYUPDATE = "LOBBYUPDATE",
+    GAMESTATE = "GAMESTATE",
+}
+
+export enum Errors {
+    NOTHOST = "NOTHOST",
+    NOLOBBY = "NOLOBBY",
 }

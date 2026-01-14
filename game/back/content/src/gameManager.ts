@@ -1,17 +1,16 @@
 import { alive, ball, GameSession, Lobby } from "./types";
 import { lobbyManager } from "./lobbyManager";
 
-
-function randomIntFromInterval(min: number, max: number) { 
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
 class GameManager {
-    start(clobby: Lobby, maxx: number, maxy: number, ballhitbox: number, playerhitbox: number, ballspeed: number, playerspeed: number) {
+    randomIntFromInterval(min: number, max: number) { 
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    setup(clobby: Lobby, maxx: number, maxy: number, ballhitbox: number, playerhitbox: number, ballspeed: number, playerspeed: number) {
         const newball: ball = {
             x: maxx / 2,
             y: maxy / 2,
-            angle: randomIntFromInterval(0, 360),
+            angle: this.randomIntFromInterval(0, 360) * (Math.PI / 180),
             hitbox: ballhitbox,
             speed: ballspeed,
         }
@@ -25,6 +24,7 @@ class GameManager {
             ball: [ newball ],
             borderx: maxx,
             bordery: maxy,
+            status: "in-game",
         };
 
         for (const player of clobby.players)
@@ -55,6 +55,210 @@ class GameManager {
         }
 
         return (game);
+    }
+
+    checkPlayerb(player: alive, tocheck: ball): boolean {
+        const dx = player.x - tocheck.x;
+        const dy = player.y - tocheck.y;
+
+        const distanceSquared = dx * dx + dy * dy;
+
+        const radiusSum = (player.hitbox / 2) + (tocheck.hitbox / 2);
+        const radiusSumSquared = radiusSum * radiusSum;
+
+        return (distanceSquared <= radiusSumSquared);
+    }
+
+    checkPlayerp(x: number, y: number, rad: number, tocheck: alive): boolean {
+        const dx = x - tocheck.x;
+        const dy = y - tocheck.y;
+
+        const distanceSquared = dx * dx + dy * dy;
+
+        const radiusSum = (rad / 2) + (tocheck.hitbox / 2);
+        const radiusSumSquared = radiusSum * radiusSum;
+
+        return (distanceSquared <= radiusSumSquared);
+    }
+
+
+    checkcolission(game: GameSession)
+    {
+        game.alive = game.alive.filter(player => {
+        for (const ball of game.ball) {
+                if (this.checkPlayerb(player, ball))
+                {
+                    game.dead.push(player.player);
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+
+    flipXangle(angle: number) {
+        return (Math.PI - angle + 2 * Math.PI) % (2 * Math.PI);
+    }
+
+    flipYangle(angle: number) {
+        return (2 * Math.PI - angle) % (2 * Math.PI);
+    }
+
+    flipangle(angle: number) {
+        return (angle + Math.PI) % (2 * Math.PI);
+    }
+
+    calculateNewPosition(current: ball, maxx: number, maxy: number) {
+        let vx = current.speed * Math.cos(current.angle);
+        let vy = current.speed * Math.sin(current.angle);
+
+        /* just in case i decide to add deltatime later
+        const dx = vx * deltaTime;
+        const dy = vy * deltaTime;
+        */
+    
+        if (current.x + vx + (current.hitbox / 2) > maxx)
+        {
+            current.x = maxx - (current.hitbox / 2)
+            current.angle = this.flipXangle(current.angle);
+        }
+        else if (current.x + vx - (current.hitbox / 2) < 0)
+        {
+            current.x = 0 + (current.hitbox / 2)
+            current.angle = this.flipXangle(current.angle);  
+        }
+        else
+            current.x += vx;
+
+        if (current.y + vy + (current.hitbox / 2) >= maxy)
+        {
+            current.y = maxy - (current.hitbox / 2)
+            current.angle = this.flipYangle(current.angle);
+        }
+        else if (current.y + vy - (current.hitbox / 2) <= 0)
+        {
+            current.y = 0 + (current.hitbox / 2)
+            current.angle = this.flipYangle(current.angle);  
+        }
+        else
+            current.y += vy;
+    }
+
+    playframe(game: GameSession)
+    {
+        this.checkcolission(game);
+        for (const balls of game.ball)
+            this.calculateNewPosition(balls, game.borderx, game.bordery);
+        this.checkcolission(game);
+    }
+
+    spawnball(game: GameSession, maxx: number, maxy: number, ballhitbox: number, ballspeed: number)
+    {
+        const newball: ball = {
+            x: maxx / 2,
+            y: maxy / 2,
+            angle: this.randomIntFromInterval(0, 360) * (Math.PI / 180),
+            hitbox: ballhitbox,
+            speed: ballspeed,
+        }
+
+        game.ball.push(newball);
+    }
+
+    moveplayerdown(game: GameSession, userId: string) {
+        let newy = -1;
+
+        for (const player of game.alive)
+        {
+            if (userId === player.player)
+            {
+                newy = player.y;
+                newy += player.speed;
+                if (newy + (player.hitbox / 2) > game.bordery)
+                    newy = game.bordery - (player.hitbox / 2);
+                for (const otplayer of game.alive)
+                {
+                    if (otplayer.player !== userId)
+                    {
+                        if (this.checkPlayerp(player.x, newy, player.hitbox, otplayer))
+                            newy = otplayer.y - (player.hitbox);
+                    }
+                }
+                player.y = newy;
+            }
+        }
+    }
+
+    moveplayerleft(game: GameSession, userId: string) {
+        let newx = -1;
+ 
+        for (const player of game.alive)
+        {
+            if (userId === player.player)
+            {
+                newx = player.x;
+                newx -= player.speed;
+                if (newx - (player.hitbox / 2) < 0)
+                    newx = 0 + (player.hitbox / 2);
+                for (const otplayer of game.alive)
+                {
+                    if (otplayer.player !== userId)
+                    {
+                        if (this.checkPlayerp(newx, player.y, player.hitbox, otplayer))
+                            newx = otplayer.x + (player.hitbox);
+                    }
+                }
+                player.x = newx;
+            }
+        }
+    }
+
+    moveplayerup(game: GameSession, userId: string) {
+        let newy = -1;
+
+        for (const player of game.alive)
+        {
+            if (userId === player.player)
+            {
+                newy = player.y;
+                newy -= player.speed;
+                if (newy - (player.hitbox / 2) < 0)
+                    newy = 0 + (player.hitbox / 2);
+                for (const otplayer of game.alive)
+                {
+                    if (otplayer.player !== userId)
+                    {
+                        if (this.checkPlayerp(player.x, newy, player.hitbox, otplayer))
+                            newy = otplayer.y + (player.hitbox);
+                    }
+                }
+                player.y = newy;
+            }
+        }
+    }
+
+    moveplayerright(game: GameSession, userId: string) {
+        let newx = -1;
+
+        for (const player of game.alive)
+        {
+            if (userId === player.player)
+            {
+                newx = player.x;
+                newx += player.speed;
+                if (newx + (player.hitbox / 2) > game.borderx)
+                    newx = game.borderx - (player.hitbox);
+                for (const otplayer of game.alive)
+                {
+                    if (otplayer.player !== userId)
+                    {
+                        if (this.checkPlayerp(newx, player.y, player.hitbox, otplayer))
+                            newx = otplayer.x - (player.hitbox);
+                    }
+                }
+                player.x = newx;
+            }
+        }
     }
 }
 

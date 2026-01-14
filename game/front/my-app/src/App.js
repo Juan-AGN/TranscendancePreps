@@ -108,16 +108,42 @@ function Lobby({ response }) {
 
 function App() {
 	const [lobby, setLobby] = useState("");
+	const [game, setGame] = useState("");
 	const [clobby, setClobby] = useState("");
 	const [user, setUser] = useState("");
+	const [sizex, setSizex] = useState("1000");
+	const [sizey, setSizey] = useState("1000");
 	const [ws, setWs] = useState(null);
 	const [notification, setNotification] = useState([]);
 	const [response, setResponse] = useState("");
+	const [gameState, setGameState] = useState(null);
 	const clobbyRef = useRef(clobby);
+	const sizexRef = useRef(sizex);
+	const sizeyRef = useRef(sizey);
+	const userRef = useRef(user);
+	const canvasRef = useRef(null);
+
+
+	useEffect(() => {
+    	if (!gameState) return;
+    		drawgame(gameState);
+	}, [gameState]);
 
 	useEffect(() => {
 		clobbyRef.current = clobby;
 	}, [clobby]);
+
+	useEffect(() => {
+		sizexRef.current = sizex;
+	}, [sizex]);
+
+	useEffect(() => {
+		sizeyRef.current = sizey;
+	}, [sizey]);
+
+	useEffect(() => {
+		userRef.current = user;
+	}, [user]);
 
 	function NotificationBox({notification}) {
 		if (notification.length == 0)
@@ -130,6 +156,46 @@ function App() {
         	</div>
       ))}
 		</div>);
+	}
+
+	function drawgame(msg) {
+		const c = canvasRef.current;
+ 		if (!c) return;
+    	const ctx = c.getContext("2d");
+    	if (!ctx) return;
+	
+		ctx.clearRect(0, 0, sizexRef.current, sizeyRef.current);
+		ctx.moveTo(0,0);
+		ctx.lineTo(sizexRef.current, 0);
+		ctx.lineTo(sizexRef.current, sizeyRef.current);
+		ctx.lineTo(0, sizeyRef.current);
+		ctx.moveTo(0,0);
+		ctx.fill();
+
+		for (let player of msg.game.alive)
+		{
+			ctx.beginPath();
+			ctx.fillStyle = "purple";
+			ctx.arc(player.x, player.y, player.hitbox / 2, 0, 2 * Math.PI);
+			ctx.fill();
+			if (player.player == userRef.current)
+			{
+				ctx.strokeStyle = "blue";
+				ctx.beginPath();
+				ctx.arc(player.x, player.y, player.hitbox / 2, 0, 2 * Math.PI);
+				ctx.arc(player.x, player.y, player.hitbox / 3, 0, 2 * Math.PI);
+				ctx.stroke();
+			}
+		}
+		for (let ball of msg.game.ball)
+		{
+			ctx.beginPath();
+			ctx.fillStyle = "red";
+			ctx.arc(ball.x, ball.y, ball.hitbox / 2, 0, 2 * Math.PI);
+			ctx.fill();
+		}
+		ctx.fillStyle= "black";
+		ctx.strockeStyle = "black";
 	}
 
 	async function createLobby() {
@@ -243,6 +309,53 @@ function App() {
 		}
 	}
 
+	async function startGame() {
+		try {
+			const res = await fetch(`${apiBase}/lobbies/start`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ lobbyId: clobby, hostId: user })
+			});
+			const data = await res.json();
+			setNotification(prev => [...prev, `${data.message}`]);
+			setTimeout(() => {
+				setNotification(prev => prev.slice(1));
+			}, 4000);
+		}
+		catch (error)
+		{
+			console.log(error);
+		}
+	}
+
+	function Game({ ws }) {
+		useEffect(() => {
+			const handleKeyDown = (e) => {
+    			switch (e.key.toUpperCase()) {
+    				case "W":
+    					ws?.send("W");
+    					break;
+    				case "A":
+    					ws?.send("A");
+    					break;
+    				case "S":
+    					ws?.send("S");
+      					break;
+    				case "D":
+        				ws?.send("D");
+						break;
+				}
+			};
+
+  			document.addEventListener('keydown', handleKeyDown);
+			document.addEventListener('keyup', handleKeyDown);
+  			return () => {
+				window.removeEventListener("keydown", handleKeyDown);
+				window.removeEventListener("keyup'", handleKeyDown);
+			};
+		}, [ws]);
+	}
+
 	useEffect(() => {
     	if (!user) return;
 	
@@ -275,6 +388,15 @@ function App() {
 				}, 4000);
 				stateLobby();
 			}
+			if (msg.type == "GAMESTATE")
+			{
+				setGame(msg.context);
+				if (msg.game.borderx != sizex)
+					setSizex(msg.game.borderx);
+				if (msg.game.bordery != sizey)
+					setSizey(msg.game.bordery);
+				setGameState(msg);
+			}
 		};
 
 		socket.onclose = () => console.log("WebSocket disconnected");
@@ -293,13 +415,13 @@ function App() {
 
 	return (
 	<div>
+		{!game && (<>
 		<NotificationBox notification={notification}/>
 		<h1>Lobby Test</h1>
 
 		<Log user={user} setUser={setUser}/>
 		<Lob lobby={lobby} setLobby={setLobby}/>
 		{user && lobby && !clobby &&
-		
 			<div>
 				<h2>Create Lobby</h2>
 				<button onClick={createLobby}>Create Lobby</button>
@@ -312,6 +434,7 @@ function App() {
 			<div>
 				<h2>Leave Lobby</h2>
 				<button onClick={leaveLobby}>Leave Lobby</button>
+				<button onClick={startGame}>Start Game</button>
 
 				<h2>Response</h2>
 				<Lobby response={response} setResponse={setResponse}/>
@@ -326,6 +449,13 @@ function App() {
 						<Lobbyes response={response} setResponse={setResponse}/>
 					</div>
 				}
+			</div>
+		}
+		</>)}
+		{game &&
+			<div>
+    			<canvas ref={canvasRef} width={Number(sizex)} height={Number(sizey)}/>
+				<Game ws={ws}/>
 			</div>
 		}
 	</div>

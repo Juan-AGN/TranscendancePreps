@@ -1,6 +1,10 @@
-import { Lobby, Lobbys, LobbyAction, WsAction } from "./types";
+import { Lobby, Lobbys, LobbyAction, WsAction, Errors, GameSession, GameAction } from "./types";
 import { WebSocketServer, WebSocket } from "ws";
 import { gameManager } from "./gameManager";
+
+function delay(ms: number) {
+    return new Promise( resolve => setTimeout(resolve, ms) );
+}
 
 class LobbyManager {
     //map of lobbys by id
@@ -11,6 +15,10 @@ class LobbyManager {
 
     //map of all userswith their corresponding websockets (array in case of multiple ws for one user)
     userrelmap = new Map<string, WebSocket[]>();
+
+    gamemap = new Map<string, GameSession>();
+
+    movedPlayers : string[] = [];
 
     maxsize = 4;
 
@@ -161,7 +169,7 @@ class LobbyManager {
                 for (const ws of wsarr)
                 {
                     if (ws && ws.readyState === WebSocket.OPEN) 
-                        ws.send(JSON.stringify( {type: WsAction.LOBBYUPDATE, lobby: id, user: player, action: action} ))
+                        ws.send(JSON.stringify( {type: WsAction.LOBBYUPDATE, lobby: id, user: player, action: action} ));
                 } 
             }
         }
@@ -174,8 +182,40 @@ class LobbyManager {
                 for (const ws of wsarr)
                 {
                     if (ws && ws.readyState === WebSocket.OPEN) 
-                        ws.send(JSON.stringify( {type: WsAction.LOBBYUPDATE, lobby: id, user: player, action: action} ))
+                        ws.send(JSON.stringify( {type: WsAction.LOBBYUPDATE, lobby: id, user: player, action: action} ));
+                }
+            }
+        }
+    }
+
+    broadcastgame(id: string, game: GameSession, action: GameAction)
+    {
+        const lob = this.get(id);
+        if (lob == undefined)
+            return ;
+        for (const uniplayer of lob.players)
+        {
+            const wsarr = this.userrelmap.get(uniplayer);
+            if (wsarr)
+            {
+                for (const ws of wsarr)
+                {
+                    if (ws && ws.readyState === WebSocket.OPEN) 
+                        ws.send(JSON.stringify( {type: WsAction.GAMESTATE, context: action, game: game }));
                 } 
+            }
+        }
+
+        for (const unispecter of lob.spectators)
+        {
+            const wsarr = this.userrelmap.get(unispecter);
+            if (wsarr)
+            {
+                for (const ws of wsarr)
+                {
+                    if (ws && ws.readyState === WebSocket.OPEN) 
+                        ws.send(JSON.stringify( {type: WsAction.GAMESTATE, context: action, game: game }));
+                }
             }
         }
     }
@@ -202,6 +242,99 @@ class LobbyManager {
                 if (this.clientlobby.has(user))
                     this.leaveplayer(this.clientlobby.get(user)!, user)
             }
+        }
+    }
+
+    setupgame(lobbyId: string, playerId: string) {
+        let maxx = 1000;
+        let maxy = 750;
+        let ballhitbox = 80;
+        let playerhitbox = 90;
+        let ballspeed = 10;
+        let playerspeed = 10;
+
+        if (!this.has(lobbyId))
+            return (Errors.NOLOBBY);
+
+        let lob = this.get(lobbyId)!;
+
+        lob.status = "in-game";
+        this.broadcastlobby(lobbyId, playerId, LobbyAction.STARTGAME);
+        let game = gameManager.setup(lob, maxx, maxy, ballhitbox, playerhitbox, ballspeed, playerspeed);
+        this.gamemap.set(lobbyId, game);
+        this.startgame(game, lob);
+        return (null);
+    }
+
+    able(lobbyId: string, hostId: string) {
+        if (!this.has(lobbyId))
+            return (Errors.NOLOBBY);
+
+        let lob = this.get(lobbyId)!;
+
+        if (hostId != lob.hostId)
+            return (Errors.NOTHOST);
+        return (null);
+    }
+
+    playermovement(keycode: string, userid: string) {
+        if (this.movedPlayers.indexOf(userid) > -1)
+            return ;
+        if (!this.clientlobby.has(userid))
+            return ;
+        const lob = this.clientlobby.get(userid)!;
+        if (!this.gamemap.has(lob))
+            return ;
+        let game = this.gamemap.get(lob)!;
+        if (this.lobbymap.get(lob)?.players.indexOf(userid)! < 0)
+            return ;
+
+        switch (keycode) {
+            case "W": {
+                gameManager.moveplayerup(game, userid);
+                break ;
+            }
+            case "A": {
+                gameManager.moveplayerleft(game, userid);
+                break ;
+            }
+            case "S": {
+                gameManager.moveplayerdown(game, userid);
+                break ;
+            }
+            case "D": {
+                gameManager.moveplayerright(game, userid);
+                break ;
+            }
+        }
+        this.movedPlayers.push(userid);
+    }
+
+    async startgame(game: GameSession, tlobby: Lobby) {
+        let waitingtime = 3000;
+        let fps = 20;
+        let framesonmiliseconds = 1000 / fps;
+        let i = 0;
+        let waitingnewball = 5000;
+        let speed = game.ball[0].speed;
+
+        this.broadcastgame(game.id, game, GameAction.START);
+        await delay(waitingtime);
+
+        while (game.status === "in-game")
+        {
+            await delay(framesonmiliseconds);
+            gameManager.playframe(game);
+            i += framesonmiliseconds;
+            if (i >= waitingnewball)
+            {
+                gameManager.spawnball(game, game.borderx, game.bordery, game.ball[0].hitbox, gameManager.randomIntFromInterval(speed - 10, speed + 10));
+                i = 0;
+            }
+            this.broadcastgame(game.id, game, GameAction.STATE);
+            for (const user of tlobby.players)
+                if (this.movedPlayers.indexOf(user) > -1)
+                    this.movedPlayers.splice(this.movedPlayers.indexOf(user), 1);
         }
     }
 }
