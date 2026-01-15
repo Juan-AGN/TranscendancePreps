@@ -1,4 +1,4 @@
-import { Lobby, Lobbys, LobbyAction, WsAction, Errors, GameSession, GameAction } from "./types";
+import { Lobby, Lobbys, LobbyAction, WsAction, Errors, GameSession, GameAction, GameResults } from "./types";
 import { WebSocketServer, WebSocket } from "ws";
 import { gameManager } from "./gameManager";
 
@@ -91,8 +91,6 @@ class LobbyManager {
             return (false);
         if (!lob.players.includes(player) && !lob.spectators.includes(player))
             return (false);
-        if (lob.status == "in-game")
-            return (false);
 
         if (lob.spectators.includes(player))
         {
@@ -102,6 +100,18 @@ class LobbyManager {
             this.clientlobby.delete(player);
             this.broadcastlobby(id, player, LobbyAction.LEAVESPECTATOR);
             return (true);
+        }
+
+        if (lob.status == "in-game")
+        {
+            let game = this.gamemap.get(id)!;
+
+            if (this.lobbymap.get(id)?.players.indexOf(player)! < 0)
+                return (false);
+            
+            let index = gameManager.getplayer(player, game);
+            if (index != -1)
+                gameManager.killplayer(index, game);
         }
     
         let torem = lob.players.indexOf(player);
@@ -220,6 +230,38 @@ class LobbyManager {
         }
     }
 
+    broadcastresult(id: string, result: GameResults)
+    {
+        const lob = this.get(id);
+        if (lob == undefined)
+            return ;
+        for (const uniplayer of lob.players)
+        {
+            const wsarr = this.userrelmap.get(uniplayer);
+            if (wsarr)
+            {
+                for (const ws of wsarr)
+                {
+                    if (ws && ws.readyState === WebSocket.OPEN) 
+                        ws.send(JSON.stringify( { type: WsAction.GAMERESULT, results: result }));
+                } 
+            }
+        }
+
+        for (const unispecter of lob.spectators)
+        {
+            const wsarr = this.userrelmap.get(unispecter);
+            if (wsarr)
+            {
+                for (const ws of wsarr)
+                {
+                    if (ws && ws.readyState === WebSocket.OPEN) 
+                        ws.send(JSON.stringify( { type: WsAction.GAMERESULT, results: result }));
+                }
+            }
+        }
+    }
+
     //adding/creating ws for user
     newws(user: string, ws: WebSocket) {
         if (this.userrelmap.has(user))
@@ -248,15 +290,17 @@ class LobbyManager {
     setupgame(lobbyId: string, playerId: string) {
         let maxx = 1000;
         let maxy = 750;
-        let ballhitbox = 80;
+        let ballhitbox = 50; // prev: 90
         let playerhitbox = 90;
         let ballspeed = 10;
         let playerspeed = 10;
 
         if (!this.has(lobbyId))
             return (Errors.NOLOBBY);
-
+        
         let lob = this.get(lobbyId)!;
+        if (lob.players.length < 2)
+            return (Errors.NOPLAYERS);
 
         lob.status = "in-game";
         this.broadcastlobby(lobbyId, playerId, LobbyAction.STARTGAME);
@@ -321,7 +365,7 @@ class LobbyManager {
         this.broadcastgame(game.id, game, GameAction.START);
         await delay(waitingtime);
 
-        while (game.status === "in-game")
+        while (game.alive.length > 1)
         {
             await delay(framesonmiliseconds);
             gameManager.playframe(game);
@@ -336,6 +380,35 @@ class LobbyManager {
                 if (this.movedPlayers.indexOf(user) > -1)
                     this.movedPlayers.splice(this.movedPlayers.indexOf(user), 1);
         }
+
+        for (const player of game.alive)
+            game.dead.push(player.player);
+
+
+        let first = "", second = "", third = "", fourth = "";
+        game.dead.reverse();
+
+        if (game.dead.length > 3)
+            fourth = game.dead[3];
+
+        if (game.dead.length > 2)
+            third = game.dead[2];
+
+        if (game.dead.length > 1)
+            second = game.dead[1];
+
+        first = game.dead[0];
+
+        tlobby.status = "waiting";
+
+        const result: GameResults = {
+            first: first,
+            second: second,
+            third: third,
+            fourth: fourth,
+        }
+        this.gamemap.delete(tlobby.id);
+        this.broadcastresult(tlobby.id, result);
     }
 }
 

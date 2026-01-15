@@ -36,6 +36,13 @@ export interface GameSession {
   status: "in-game" | "finished";
 }
 
+export interface GameResults {
+  first: string;
+  second: string;
+  third: string;
+  fourth: string;
+}
+
 export enum LobbyAction {
   JOIN = "JOIN",
   SPECTATOR = "SPECTATOR",
@@ -52,12 +59,26 @@ export enum GameAction {
   STATE = "STATE",
 }
 
+export enum GameResult {
+  WIN = "WIN",
+  LOSE = "LOSE",
+}
+
+export enum GamePlacement {
+  FIRST = "FIRST",
+  SECOND = "SECOND",
+  THIRD = "THIRD",
+  FOURTH = "FOURTH",
+}
+
 export enum WsAction {
     LOBBYUPDATE = "LOBBYUPDATE",
     GAMESTATE = "GAMESTATE",
+    GAMERESULT = "GAMERESULT",
 }
 
 export enum Errors {
     NOTHOST = "NOTHOST",
     NOLOBBY = "NOLOBBY",
+    NOPLAYERS = "NOTENOUGHPLAYERS",
 }

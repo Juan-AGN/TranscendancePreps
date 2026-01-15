@@ -29,7 +29,11 @@ function Log({ user, setUser }) {
 		content = <p>Current user: <strong>{user}</strong></p>;
 	}
 
-	return content;
+	return (content);
+}
+
+function Res({ result }) {
+	return (<p>{result}</p>);
 }
 
 function Lob({ lobby, setLobby }) {
@@ -62,7 +66,7 @@ function Lob({ lobby, setLobby }) {
 		);
 	}
 
-	return content;
+	return (content);
 }
 
 function Lobbyes({ response, setResponse }) {
@@ -117,6 +121,7 @@ function App() {
 	const [notification, setNotification] = useState([]);
 	const [response, setResponse] = useState("");
 	const [gameState, setGameState] = useState(null);
+	const [result, setResults] = useState("");
 	const clobbyRef = useRef(clobby);
 	const sizexRef = useRef(sizex);
 	const sizeyRef = useRef(sizey);
@@ -301,6 +306,7 @@ function App() {
     		}
 			const data = await res.json();
 			setClobby("");
+			setGame("");
 			listLobbies();
 		}
 		catch (error)
@@ -397,6 +403,12 @@ function App() {
 					setSizey(msg.game.bordery);
 				setGameState(msg);
 			}
+			if (msg.type == "GAMERESULT")
+			{
+				setGame("");
+				isinlobby();
+				setResults(JSON.stringify(msg.results, null, 2));
+			}
 		};
 
 		socket.onclose = () => console.log("WebSocket disconnected");
@@ -414,7 +426,13 @@ function App() {
 	}, [])
 
 	return (
-	<div>
+		<div>
+		{result &&
+			<div>
+				<h2>Last results:</h2>
+				<Res result={result}/>
+			</div>
+		}
 		{!game && (<>
 		<NotificationBox notification={notification}/>
 		<h1>Lobby Test</h1>
@@ -454,11 +472,12 @@ function App() {
 		</>)}
 		{game &&
 			<div>
+				<button onClick={leaveLobby}>Leave Lobby</button>
     			<canvas ref={canvasRef} width={Number(sizex)} height={Number(sizey)}/>
 				<Game ws={ws}/>
 			</div>
 		}
-	</div>
+		</div>
 	);
 }
 

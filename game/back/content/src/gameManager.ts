@@ -81,9 +81,21 @@ class GameManager {
         return (distanceSquared <= radiusSumSquared);
     }
 
+    getplayer(user: string, game: GameSession) {
+        for (const player of game.alive)
+            if (player.player === user)
+                return (game.alive.indexOf(player));
+        return (-1);
+    }
 
-    checkcolission(game: GameSession)
-    {
+    killplayer(index: number, game: GameSession) {
+        game.dead.push(game.alive[index].player);
+        game.alive.splice(index, 1);
+
+        return (-1);
+    }
+
+    checkcolission(game: GameSession) {
         game.alive = game.alive.filter(player => {
         for (const ball of game.ball) {
                 if (this.checkPlayerb(player, ball))
