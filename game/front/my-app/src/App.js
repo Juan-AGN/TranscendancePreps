@@ -354,10 +354,8 @@ function App() {
 			};
 
   			document.addEventListener('keydown', handleKeyDown);
-			document.addEventListener('keyup', handleKeyDown);
   			return () => {
 				window.removeEventListener("keydown", handleKeyDown);
-				window.removeEventListener("keyup'", handleKeyDown);
 			};
 		}, [ws]);
 	}
