@@ -69,6 +69,26 @@ class GameManager {
         return (distanceSquared <= radiusSumSquared);
     }
 
+    calcPlayerdisx(x: number, y: number, rad: number, tocheck: alive): number {
+        const dx = x - tocheck.x;
+        const dy = y - tocheck.y;
+
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const radiusSum = (rad / 2) + (tocheck.hitbox / 2);
+
+        return (Math.sign(dx) * (radiusSum - distance));
+    }
+
+    calcPlayerdisy(x: number, y: number, rad: number, tocheck: alive): number {
+        const dx = x - tocheck.x;
+        const dy = y - tocheck.y;
+
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const radiusSum = (rad / 2) + (tocheck.hitbox / 2);
+
+        return (Math.sign(dy) * (radiusSum - distance));
+    }
+
     checkPlayerp(x: number, y: number, rad: number, tocheck: alive): boolean {
         const dx = x - tocheck.x;
         const dy = y - tocheck.y;
@@ -193,7 +213,7 @@ class GameManager {
                     if (otplayer.player !== userId)
                     {
                         if (this.checkPlayerp(player.x, newy, player.hitbox, otplayer))
-                            newy = otplayer.y - (player.hitbox);
+                            newy += this.calcPlayerdisy(player.x, newy, player.hitbox, otplayer);
                     }
                 }
                 player.y = newy;
@@ -217,7 +237,7 @@ class GameManager {
                     if (otplayer.player !== userId)
                     {
                         if (this.checkPlayerp(newx, player.y, player.hitbox, otplayer))
-                            newx = otplayer.x + (player.hitbox);
+                            newx += this.calcPlayerdisx(newx, player.y, player.hitbox, otplayer);
                     }
                 }
                 player.x = newx;
@@ -241,7 +261,7 @@ class GameManager {
                     if (otplayer.player !== userId)
                     {
                         if (this.checkPlayerp(player.x, newy, player.hitbox, otplayer))
-                            newy = otplayer.y + (player.hitbox);
+                            newy += this.calcPlayerdisy(player.x, newy, player.hitbox, otplayer);
                     }
                 }
                 player.y = newy;
@@ -265,7 +285,7 @@ class GameManager {
                     if (otplayer.player !== userId)
                     {
                         if (this.checkPlayerp(newx, player.y, player.hitbox, otplayer))
-                            newx = otplayer.x - (player.hitbox);
+                            newx += this.calcPlayerdisx(newx, player.y, player.hitbox, otplayer);
                     }
                 }
                 player.x = newx;
