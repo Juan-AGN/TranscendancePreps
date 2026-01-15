@@ -129,7 +129,7 @@ class GameManager {
         const dy = vy * deltaTime;
         */
     
-        if (current.x + vx + (current.hitbox / 2) > maxx)
+        if (current.x + vx + (current.hitbox / 2) >= maxx)
         {
             current.x = maxx - (current.hitbox / 2)
             current.angle = this.flipXangle(current.angle);
@@ -259,7 +259,7 @@ class GameManager {
                 newx = player.x;
                 newx += player.speed;
                 if (newx + (player.hitbox / 2) > game.borderx)
-                    newx = game.borderx - (player.hitbox);
+                    newx = game.borderx - (player.hitbox / 2);
                 for (const otplayer of game.alive)
                 {
                     if (otplayer.player !== userId)
