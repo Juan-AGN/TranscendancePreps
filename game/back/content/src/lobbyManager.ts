@@ -302,7 +302,6 @@ class LobbyManager {
         if (lob.players.length < 2)
             return (Errors.NOPLAYERS);
 
-        lob.status = "in-game";
         this.broadcastlobby(lobbyId, playerId, LobbyAction.STARTGAME);
         let game = gameManager.setup(lob, maxx, maxy, ballhitbox, playerhitbox, ballspeed, playerspeed);
         this.gamemap.set(lobbyId, game);
@@ -318,6 +317,9 @@ class LobbyManager {
 
         if (hostId != lob.hostId)
             return (Errors.NOTHOST);
+        if (lob.status == "in-game")
+            return (Errors.INGAME);
+        lob.status = "in-game";
         return (null);
     }
 
@@ -355,8 +357,8 @@ class LobbyManager {
     }
 
     async startgame(game: GameSession, tlobby: Lobby) {
-        let waitingtime = 3000;
-        let fps = 20;
+        let waitingtime = 2000;
+        let fps = 30;
         let framesonmiliseconds = 1000 / fps;
         let i = 0;
         let waitingnewball = 5000;

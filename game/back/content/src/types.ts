@@ -81,4 +81,5 @@ export enum Errors {
     NOTHOST = "NOTHOST",
     NOLOBBY = "NOLOBBY",
     NOPLAYERS = "NOTENOUGHPLAYERS",
+    INGAME = "INGAME",
 }

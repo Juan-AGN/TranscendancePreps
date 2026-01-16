@@ -180,15 +180,22 @@ function App() {
 		for (let player of msg.game.alive)
 		{
 			ctx.beginPath();
+			ctx.strokeStyle = "blue";
 			ctx.fillStyle = "purple";
 			ctx.arc(player.x, player.y, player.hitbox / 2, 0, 2 * Math.PI);
 			ctx.fill();
+			ctx.stroke();
 			if (player.player == userRef.current)
 			{
-				ctx.strokeStyle = "blue";
 				ctx.beginPath();
+				ctx.strokeStyle = "blue";
+				ctx.fillStyle = "blue";
 				ctx.arc(player.x, player.y, player.hitbox / 2, 0, 2 * Math.PI);
 				ctx.arc(player.x, player.y, player.hitbox / 3, 0, 2 * Math.PI);
+				ctx.stroke();
+				ctx.beginPath();
+				ctx.arc(player.x, player.y, player.hitbox / 3, 0, 2 * Math.PI);
+				ctx.fill();
 				ctx.stroke();
 			}
 		}
@@ -196,8 +203,10 @@ function App() {
 		{
 			ctx.beginPath();
 			ctx.fillStyle = "red";
+			ctx.strokeStyle = "grey";
 			ctx.arc(ball.x, ball.y, ball.hitbox / 2, 0, 2 * Math.PI);
 			ctx.fill();
+			ctx.stroke();
 		}
 		ctx.fillStyle= "black";
 		ctx.strockeStyle = "black";
