@@ -332,6 +332,8 @@ class LobbyManager {
             return (Errors.NOTHOST);
         if (lob.status == "in-game")
             return (Errors.INGAME);
+        if (lob.players.length < 2)
+            return (Errors.NOPLAYERS);
         lob.status = "in-game";
         return (null);
     }
