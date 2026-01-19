@@ -11,6 +11,21 @@ if (address.includes(":"))
 const wsbase = `ws://${noport}:8888`;
 const apiBase = `http://${noport}:8888`;
 
+export const useInputEvent = () => {
+  const [key, setKey] = useState(null);
+  useEffect(() => {
+    const keyDownHandler = ({ code }) => setKey(code);
+    const keyUpHandler = () => setKey(null);
+    global.addEventListener('keydown', keyDownHandler);
+    global.addEventListener('keyup', keyUpHandler);
+    return () => {
+      global.removeEventListener("keydown", keyDownHandler);
+      global.removeEventListener("keyup", keyUpHandler)
+    }
+  }, []);
+  return key;
+}
+
 function Log({ user, setUser }) {
 	let content;
 
@@ -34,6 +49,10 @@ function Log({ user, setUser }) {
 
 function Res({ result }) {
 	return (<p>{result}</p>);
+}
+
+function Roulx({ rules }) {
+	return (<p>{rules}</p>);
 }
 
 function Lob({ lobby, setLobby }) {
@@ -68,6 +87,93 @@ function Lob({ lobby, setLobby }) {
 
 	return (content);
 }
+
+function Ruleset({ Crules, setCrules, changeRules }) {
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+
+		setCrules(prev => ({
+			...prev,
+			[name]: Number(value),
+		}));
+	};
+
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		changeRules();
+	};
+
+	return (
+		<form onSubmit={handleSubmit}>
+			<p>Ball cooldown</p>
+			<input
+				name="waitingnewball"
+				value={Crules.waitingnewball}
+				onChange={handleChange}
+			/>
+
+			<p>Max X</p>
+			<input
+				name="maxx"
+				value={Crules.maxx}
+				onChange={handleChange}
+			/>
+
+			<p>Max Y</p>
+			<input
+				name="maxy"
+				value={Crules.maxy}
+				onChange={handleChange}
+			/>
+
+			<p>Ball hitbox</p>
+			<input
+				name="ballhitbox"
+				value={Crules.ballhitbox}
+				onChange={handleChange}
+			/>
+
+			<p>Player hitbox</p>
+			<input
+				name="playerhitbox"
+				value={Crules.playerhitbox}
+				onChange={handleChange}
+			/>
+
+			<p>Ball speed</p>
+			<input
+				name="ballspeed"
+				value={Crules.ballspeed}
+				onChange={handleChange}
+			/>
+
+			<p>Player speed</p>
+			<input
+				name="playerspeed"
+				value={Crules.playerspeed}
+				onChange={handleChange}
+			/>
+
+			<p>Speed random</p>
+			<input
+				name="speedrandom"
+				value={Crules.speedrandom}
+				onChange={handleChange}
+			/>
+
+			<p>Hitbox random</p>
+			<input
+				name="hitboxrandom"
+				value={Crules.hitboxrandom}
+				onChange={handleChange}
+			/>
+
+			<button type="submit">Apply Rules</button>
+		</form>
+	);
+}
+
+
 
 function Lobbyes({ response, setResponse }) {
 	if (!response?.all)
@@ -122,11 +228,24 @@ function App() {
 	const [response, setResponse] = useState("");
 	const [gameState, setGameState] = useState(null);
 	const [result, setResults] = useState("");
+	const [rules, setRules] = useState("");
 	const clobbyRef = useRef(clobby);
 	const sizexRef = useRef(sizex);
 	const sizeyRef = useRef(sizey);
 	const userRef = useRef(user);
 	const canvasRef = useRef(null);
+
+	const [Crules, setCrules] = useState({
+		waitingnewball: 5000,
+		maxx: 1000,
+		maxy: 750,
+		ballhitbox: 50,
+		playerhitbox: 90,
+		ballspeed: 10,
+		playerspeed: 10,
+		speedrandom: 10,
+		hitboxrandom: 0,
+	});
 
 
 	useEffect(() => {
@@ -324,6 +443,26 @@ function App() {
 		}
 	}
 
+	async function changeRules() {
+		try {
+			const res = await fetch(`${apiBase}/lobbies/ruleset`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ lobbyId: clobby, hostId: user, ruleset: Crules })
+			});
+			if (!res.ok) {
+    			const text = await res.text();
+    			throw new Error(`HTTP ${res.status}: ${text}`);
+    		}
+			const data = await res.json();
+			setRules(JSON.stringify(data, null, 2));
+		}
+		catch (error)
+		{
+			console.log(error);
+		}
+	}
+
 	async function startGame() {
 		try {
 			const res = await fetch(`${apiBase}/lobbies/start`, {
@@ -343,6 +482,7 @@ function App() {
 		}
 	}
 
+	/*
 	function Game({ ws }) {
 		useEffect(() => {
 			const handleKeyDown = (e) => {
@@ -367,6 +507,28 @@ function App() {
 				window.removeEventListener("keydown", handleKeyDown);
 			};
 		}, [ws]);
+	}*/
+
+	function UseControlls() {
+		const key = useInputEvent();
+
+		useEffect(() => {
+			console.log(key);
+    		switch (key) {
+    			case "KeyW":
+    				ws?.send("W");
+    				break;
+    			case "KeyA":
+    				ws?.send("A");
+    				break;
+    			case "KeyS":
+    				ws?.send("S");
+    				break;
+    			case "KeyD":
+       				ws?.send("D");
+					break;
+			}
+		}, [ws][key]);
 	}
 
 	useEffect(() => {
@@ -404,9 +566,9 @@ function App() {
 			if (msg.type == "GAMESTATE")
 			{
 				setGame(msg.context);
-				if (msg.game.borderx != sizex)
+				if (msg.game.borderx != sizexRef.current)
 					setSizex(msg.game.borderx);
-				if (msg.game.bordery != sizey)
+				if (msg.game.bordery != sizeyRef.current)
 					setSizey(msg.game.bordery);
 				setGameState(msg);
 			}
@@ -460,9 +622,11 @@ function App() {
 				<h2>Leave Lobby</h2>
 				<button onClick={leaveLobby}>Leave Lobby</button>
 				<button onClick={startGame}>Start Game</button>
-
 				<h2>Response</h2>
 				<Lobby response={response} setResponse={setResponse}/>
+				<h2>Rules stuff</h2>
+				<Roulx rules={rules}/>
+				<Ruleset Crules={Crules} setCrules={setCrules} changeRules={changeRules}/>
 			</div>
 		:
 			<div>
@@ -481,11 +645,12 @@ function App() {
 			<div>
 				<button onClick={leaveLobby}>Leave Lobby</button>
     			<canvas ref={canvasRef} width={Number(sizex)} height={Number(sizey)}/>
-				<Game ws={ws}/>
+				<UseControlls/>
 			</div>
 		}
 		</div>
 	);
 }
+//<Game ws={ws}/>
 
 export default App;

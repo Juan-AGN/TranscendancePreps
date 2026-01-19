@@ -1,6 +1,9 @@
-import { Lobby, Lobbys, LobbyAction, WsAction, Errors, GameSession, GameAction, GameResults } from "./types";
+import { Lobby, Lobbys, LobbyAction, WsAction, Errors, GameSession, GameAction, GameResults, Ruleset, RulesState, changeErrors } from "./types";
 import { WebSocketServer, WebSocket } from "ws";
 import { gameManager } from "./gameManager";
+import { rulesetHandler } from "./rulesetHandler";
+import { stat } from "fs";
+import { isNumberObject } from "util/types";
 
 function delay(ms: number) {
     return new Promise( resolve => setTimeout(resolve, ms) );
@@ -53,6 +56,7 @@ class LobbyManager {
                 players: [player],
                 spectators: [],
                 status: "waiting",
+                rules: rulesetHandler.defaultruleset(),
             };
             this.clientlobby.set(player, id);
             this.lobbymap.set(id, newlobby);
@@ -79,6 +83,21 @@ class LobbyManager {
                 this.broadcastlobby(id, player, LobbyAction.JOIN);
             }
             return (true);
+        }
+        return (false);
+    }
+
+    changeruleset(id: string, player: string, rules: Ruleset) {
+        if (this.lobbymap.has(id) && this.clientlobby.has(player))
+        {
+            const lob = this.get(id);
+            if (lob!.hostId! != player || lob!.status == "in-game")
+                return (false);
+            const ruleset = rulesetHandler.newrules(lob!, rules);
+            if (ruleset == undefined)
+                return (false);
+            this.broadcastlobby(id, player, LobbyAction.UPDATERULESET);
+            return (ruleset);
         }
         return (false);
     }
@@ -288,13 +307,6 @@ class LobbyManager {
     }
 
     setupgame(lobbyId: string, playerId: string) {
-        let maxx = 1000;
-        let maxy = 750;
-        let ballhitbox = 50; // prev: 90
-        let playerhitbox = 90;
-        let ballspeed = 10;
-        let playerspeed = 10;
-
         if (!this.has(lobbyId))
             return (Errors.NOLOBBY);
         
@@ -303,7 +315,8 @@ class LobbyManager {
             return (Errors.NOPLAYERS);
 
         this.broadcastlobby(lobbyId, playerId, LobbyAction.STARTGAME);
-        let game = gameManager.setup(lob, maxx, maxy, ballhitbox, playerhitbox, ballspeed, playerspeed);
+        let game;
+        game = gameManager.setup(lob, lob.rules.maxx, lob.rules.maxy, lob.rules.ballhitbox, lob.rules.playerhitbox, lob.rules.ballspeed, lob.rules.playerspeed);
         this.gamemap.set(lobbyId, game);
         this.startgame(game, lob);
         return (null);
@@ -361,8 +374,8 @@ class LobbyManager {
         let fps = 30;
         let framesonmiliseconds = 1000 / fps;
         let i = 0;
-        let waitingnewball = 5000;
-        let speed = game.ball[0].speed;
+        let waitingnewball = tlobby.rules.waitingnewball;
+        let speed = tlobby.rules.ballspeed;
 
         this.broadcastgame(game.id, game, GameAction.START);
         await delay(waitingtime);
@@ -374,7 +387,7 @@ class LobbyManager {
             i += framesonmiliseconds;
             if (i >= waitingnewball)
             {
-                gameManager.spawnball(game, game.borderx, game.bordery, game.ball[0].hitbox, gameManager.randomIntFromInterval(speed - 10, speed + 10));
+                gameManager.spawnball(game, game.borderx, game.bordery, gameManager.randomIntFromInterval(speed - tlobby.rules.hitboxrandom, speed + tlobby.rules.hitboxrandom), gameManager.randomIntFromInterval(speed - tlobby.rules.speedrandom, speed + tlobby.rules.speedrandom));
                 i = 0;
             }
             this.broadcastgame(game.id, game, GameAction.STATE);

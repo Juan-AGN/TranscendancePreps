@@ -4,7 +4,7 @@ import { gameManager } from "./gameManager";
 import http from "http";
 import url from "url";
 import { WebSocketServer, WebSocket } from "ws";
-import { Errors } from "./types";
+import { Errors, changeErrors } from "./types";
 var cors = require('cors');
 
 const app = express();
@@ -63,6 +63,16 @@ app.post("/lobbies/leave", (req: Request, res: Response) => {
 		return (res.status(500).json({ message: "Couldn't leave lobby." }));
 	return (res.send(lobbyManager.getlobbies()));
 });
+
+app.post("/lobbies/ruleset", (req: Request, res: Response) => {
+	const { lobbyId, hostId, ruleset } = req.body;
+
+	let toret = lobbyManager.changeruleset(lobbyId, hostId, ruleset);
+	if (toret == false)
+		return (res.status(500).json({ message: "Couldn't change lobby ruleset." }));
+	return (res.send({message: changeErrors.SUCCESS, status: toret}));
+});
+
 
 app.post("/lobbies/start", (req: Request, res: Response) => {
 	const { lobbyId, hostId } = req.body;

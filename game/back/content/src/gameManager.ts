@@ -2,7 +2,9 @@ import { alive, ball, GameSession, Lobby } from "./types";
 import { lobbyManager } from "./lobbyManager";
 
 class GameManager {
-    randomIntFromInterval(min: number, max: number) { 
+    randomIntFromInterval(min: number, max: number) {
+        if (min < 0)
+            min = 0;
         return Math.floor(Math.random() * (max - min + 1) + min);
     }
 

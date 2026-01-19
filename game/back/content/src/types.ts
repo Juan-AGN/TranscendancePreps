@@ -4,6 +4,7 @@ export interface Lobby {
   players: string[];
   spectators: string[];
   status: "waiting" | "in-game";
+  rules: Ruleset;
 }
 
 export interface Lobbys {
@@ -24,6 +25,30 @@ export interface ball {
   angle: number; 
   hitbox: number;
   speed: number;
+}
+
+export interface Ruleset {
+  waitingnewball: number; // 5000
+  maxx: number; // 1000
+  maxy: number;  // 750
+  ballhitbox: number; // 50 -- prev 90
+  playerhitbox: number; // 90
+  ballspeed: number; // 10
+  playerspeed: number; // 10
+  speedrandom: number; // 10
+  hitboxrandom: number; // 0 
+}
+
+export interface RulesState {
+  waitingnewball: changeErrors; // 5000
+  maxx: changeErrors; // 1000
+  maxy: changeErrors;  // 750
+  ballhitbox: changeErrors; // 50 -- prev 90
+  playerhitbox: changeErrors; // 90
+  ballspeed: changeErrors; // 10
+  playerspeed: changeErrors; // 10
+  speedrandom: changeErrors; // 10
+  hitboxrandom: changeErrors; // 0 
 }
 
 export interface GameSession {
@@ -51,6 +76,7 @@ export enum LobbyAction {
   SWITCHTOPLAYER = "SWITCHTOPLAYER",
   LEAVESPECTATOR = "LEAVESPECTATOR",
   STARTGAME = "STARTGAME",
+  UPDATERULESET = "UPDATERULESET",
 }
 
 export enum GameAction {
@@ -82,4 +108,13 @@ export enum Errors {
     NOLOBBY = "NOLOBBY",
     NOPLAYERS = "NOTENOUGHPLAYERS",
     INGAME = "INGAME",
+}
+
+export enum changeErrors {
+    TOOLOW = "TOOLOW",
+    SUCCESS= "SUCCESS",
+    UNKNOWN = "UNKNOWN",
+    TOOHIGH = "TOOHIGH",
+    NOCHANGE = "NOCHANGE",
+    NOTNUMBER = "NOTNUMBER",
 }
