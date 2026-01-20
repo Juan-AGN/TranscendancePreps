@@ -7,6 +7,10 @@ services:
       - game_network
     ports:
       - "8888:8888"
+    environment:
+      DATABASE_URL: postgresql://trans_user:trans_pass@db:5432/transcendence?schema=public
+    depends_on:
+      - db
 
   game-front:
     container_name: game-front
@@ -17,6 +21,29 @@ services:
     ports:
       - "7777:3000"
 
+  db:
+    image: postgres:16-alpine
+    container_name: transcendence-db
+    environment:
+      POSTGRES_USER: trans_user
+      POSTGRES_PASSWORD: trans_pass
+      POSTGRES_DB: transcendence
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - game_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trans_user -d transcendence"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
 networks:
   game_network:
     name: game_network
+
+volumes:
+  db_data:
+
