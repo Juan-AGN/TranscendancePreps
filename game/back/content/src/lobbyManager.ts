@@ -389,7 +389,7 @@ class LobbyManager {
             i += framesonmiliseconds;
             if (i >= waitingnewball)
             {
-                gameManager.spawnball(game, game.borderx, game.bordery, gameManager.randomIntFromInterval(speed - tlobby.rules.hitboxrandom, speed + tlobby.rules.hitboxrandom), gameManager.randomIntFromInterval(speed - tlobby.rules.speedrandom, speed + tlobby.rules.speedrandom));
+                gameManager.spawnball(game, game.borderx, game.bordery, gameManager.randomIntFromInterval(tlobby.rules.ballhitbox - tlobby.rules.hitboxrandom, tlobby.rules.ballhitbox + tlobby.rules.hitboxrandom), gameManager.randomIntFromInterval(speed - tlobby.rules.speedrandom, speed + tlobby.rules.speedrandom));
                 i = 0;
             }
             this.broadcastgame(game.id, game, GameAction.STATE);
