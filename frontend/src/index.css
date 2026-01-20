@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+/*Regla para juego 3d */
+@layer base {
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  #root {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Canvas de Babylon.js */
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    outline: none; /* Quita el borde al hacer focus */
+    touch-action: none; /* Mejor control táctil, si decidimos hacer el juego en movil tambien tactil (aun por decidir) o 2d */
+  }
+}
+
+/* Configuración de fuentes estándar */
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* Clases utilitarias para UI overlay sobre 3D */
+@layer utilities {
+  .overlay-ui {
+    position: absolute;
+    pointer-events: auto;
+    z-index: 10;
+  }
+  
+  .fullscreen-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: auto;
+  }
+}
