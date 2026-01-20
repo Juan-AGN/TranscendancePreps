@@ -14,6 +14,7 @@ class RulesetHandler {
     playerspeed = 10;
     speedrandom = 10;
     hitboxrandom = 0;
+    maxballs = 0;
 
     capwaitingnewball = 100000;
     lowcapwaitingnewball = 500;
@@ -37,10 +38,12 @@ class RulesetHandler {
     lowcapplayerspeed = 1; 
 
     capspeedrandom = 15;
-    lowcapspeedrandom = 1;
+    lowcapspeedrandom = 0;
 
     caphitboxrandom = 20;
     lowcaphitboxrandom = 0;
+
+    lowcapmaxballs = 0;
 
     defaultruleset() {
         const toset: Ruleset = {
@@ -53,6 +56,7 @@ class RulesetHandler {
             playerspeed: this.playerspeed,
             speedrandom: this.speedrandom,
             hitboxrandom: this.hitboxrandom,
+            maxballs: this.maxballs,
         }
 
         return (toset);
@@ -71,6 +75,7 @@ class RulesetHandler {
             playerspeed: changeErrors.NOCHANGE,
             speedrandom: changeErrors.NOCHANGE,
             hitboxrandom: changeErrors.NOCHANGE,
+            maxballs: changeErrors.NOCHANGE,
         }
 
         if (!rules)
@@ -161,7 +166,7 @@ class RulesetHandler {
                 status.ballspeed  = changeErrors.TOOLOW;
             else
             {
-                toset.ballspeed  = rules.ballspeed ;
+                toset.ballspeed  = rules.ballspeed;
                 status.ballspeed  = changeErrors.SUCCESS;
             }
         }
@@ -208,6 +213,19 @@ class RulesetHandler {
             {
                 toset.hitboxrandom = rules.hitboxrandom;
                 status.hitboxrandom = changeErrors.SUCCESS;
+            }
+        }
+    
+        if (rules.maxballs != undefined)
+        {
+            if (!Number.isFinite(rules.maxballs))
+                status.maxballs = changeErrors.NOTNUMBER;
+            else if (rules.maxballs < this.lowcapmaxballs)
+                status.maxballs = changeErrors.TOOLOW;
+            else
+            {
+                toset.maxballs = rules.maxballs;
+                status.maxballs = changeErrors.SUCCESS;
             }
         }
 

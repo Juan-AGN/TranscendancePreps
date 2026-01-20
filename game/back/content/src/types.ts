@@ -37,6 +37,7 @@ export interface Ruleset {
   playerspeed: number; // 10
   speedrandom: number; // 10
   hitboxrandom: number; // 0 
+  maxballs: number; // 0
 }
 
 export interface RulesState {
@@ -49,6 +50,7 @@ export interface RulesState {
   playerspeed: changeErrors; // 10
   speedrandom: changeErrors; // 10
   hitboxrandom: changeErrors; // 0 
+  maxballs: changeErrors;
 }
 
 export interface GameSession {

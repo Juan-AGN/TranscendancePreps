@@ -168,6 +168,13 @@ function Ruleset({ Crules, setCrules, changeRules }) {
 				onChange={handleChange}
 			/>
 
+			<p>Max balls</p>
+			<input
+				name="maxballs"
+				value={Crules.maxballs}
+				onChange={handleChange}
+			/>
+
 			<button type="submit">Apply Rules</button>
 		</form>
 	);
@@ -245,6 +252,7 @@ function App() {
 		playerspeed: 10,
 		speedrandom: 10,
 		hitboxrandom: 0,
+		maxballs: 0,
 	});
 
 
