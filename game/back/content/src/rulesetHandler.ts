@@ -16,7 +16,7 @@ class RulesetHandler {
     hitboxrandom = 0;
 
     capwaitingnewball = 100000;
-    lowcapwaitingnewball = 1000;
+    lowcapwaitingnewball = 500;
 
     capmaxx = 2000;
     lowcapmaxx = 600;
@@ -39,7 +39,7 @@ class RulesetHandler {
     capspeedrandom = 15;
     lowcapspeedrandom = 1;
 
-    caphitboxrandom = 10;
+    caphitboxrandom = 20;
     lowcaphitboxrandom = 0;
 
     defaultruleset() {
