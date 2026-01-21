@@ -133,3 +133,41 @@
       Verifica la ruta del archivo en /public
       Comprueba en la consola si hay errores 404
       Asegúrate de que Draco esté configurado correctamente
+      ojo! Draco habra que ponerlo dentro, para que comprima bien y no haya errores.
+
+
+
+
+###  Dependencias instaladass 
+    **Dependencias de Producción**
+            @babylonjs/core (^8.46.2) - Motor 3D para el juego
+            @babylonjs/loaders (^8.46.2) - Cargadores de modelos 3D
+            clsx (^2.1.1) - Utilidad para manejar clases CSS condicionales
+            draco3d (^1.5.7) - Compresión de geometría 3D
+            react (^19.2.0) - Librería de interfaz de usuario
+            react-dom (^19.2.0) - Renderizado de React en el DOM
+            react-router-dom (^7.12.0) - Enrutamiento para React
+            tailwind-merge (^3.4.0) - Fusión de clases Tailwind
+            zustand (^5.0.10) - Gestión de estado
+   **Dependencias de Desarrollo**
+            @eslint/js (^9.39.1) - ESLint configuración JS
+            @tailwindcss/postcss (^4.1.18) - Plugin PostCSS de Tailwind
+            @types/node (^24.10.1) - Tipos TypeScript para Node
+            @types/react (^19.2.5) - Tipos TypeScript para React
+            @types/react-dom (^19.2.3) - Tipos TypeScript para React DOM
+            @vitejs/plugin-react (^5.1.1) - Plugin React para Vite
+            autoprefixer (^10.4.23) - Prefijos CSS automáticos
+            eslint (^9.39.1) - Linter de código
+            eslint-plugin-react-hooks (^7.0.1) - Reglas ESLint para hooks
+            eslint-plugin-react-refresh (^0.4.24) - Plugin ESLint para React Refresh
+            globals (^16.5.0) - Variables globales
+            **postcss (^8.5.6) - Procesador CSS**
+            tailwindcss (^4.1.18) - Framework CSS
+            typescript (~5.9.3) - Superset de JavaScript tipado
+            typescript-eslint (^8.46.4) - ESLint para TypeScript
+            vite (^7.2.4) - Build tool y servidor de desarrollo
+
+
+
+##### UPDATES 
+      instalacion del paquete postcss para TAILWIND 4, no viene por defecto en tailwind. es un procesador de CSS

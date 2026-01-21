@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/*Regla para juego 3d */
+/* Regla para juego 3D */
 @layer base {
   html, body {
     width: 100%;
@@ -19,16 +19,18 @@
     width: 100%;
     height: 100%;
     display: block;
-    outline: none; /* Quita el borde al hacer focus */
-    touch-action: none; /* Mejor control táctil, si decidimos hacer el juego en movil tambien tactil (aun por decidir) o 2d */
+    outline: none;
+    touch-action: none;
   }
 }
 
 /* Configuración de fuentes estándar */
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, 
+    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  color: #333333;
 }
 
 /* Clases utilitarias para UI overlay sobre 3D */
