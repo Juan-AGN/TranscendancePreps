@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <style>
+            body {
+                background-color: black;
+                color: aliceblue;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Postear nombre</h2>
+        <input id="nombre">
+        <button onclick="enviarNombre()">Enviar nombre</button>
+
+        <h2>Obtener Nombre</h2>
+        <button onclick="obtenerNombre()">Obtener</button>
+        <p id="resultado"></p>
+    </body>
+    <script>a
+        function enviarNombre()
+        {
+            const nombre = document.getElementById('nombre').value;
+            fetch('http://localhost:3000/post', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({nombre})
+            })    
+        }
+        
+        function obtenerNombre(){
+            fetch('http://localhost:3000/users')
+            // cuando el servidor responde: 
+            .then(respuesta => respuesta.text())
+            // resp.text devuelve un valor que se usa aqui:
+            .then(valorDevuelto => document.getElementById('resultado').innerText = valorDevuelto);
+        }
+    </script>
+</html>
