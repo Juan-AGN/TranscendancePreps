@@ -7,13 +7,15 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import type { RouteObject } from './types'
 // Layout principal
 import { RootLayout } from '../components/layout/RootLayout'
+//Paginas a mdedida que las vamos creando poner aqui!
+import { HomePage } from "../pages/HomePage"
 
 
 
 
 // componentes del menu
 
-const HomePage = () => <div>Home Page o Hub3D</div>
+
 const GamePage = () => <div>Game Page</div>
 const TournamentPage = () => <div>Tournament PAge</div>
 const SettingsPage = () => <div>Settings Page</div>
