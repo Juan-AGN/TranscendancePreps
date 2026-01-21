@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Crea una tabla llamada "Usuario" con 'x' columnas
+model Usuario {
+  id                     Int      @id @default(autoincrement())
+  nombre                 String
+  email                  String   @unique
+  password               String
+  amigos                 String   @default("[]")
+  solicitudes_enviadas   String   @default("[]")
+  solicitudes_recibidas  String   @default("[]")
+  posts                  Post[]
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  
+  // las BD x convención trabajan con nombres en plural y minúscula
+  // solo para el uso de la BD cambio el nombre de la tabla
+  @@map("usuarios")
+}
+// Crea una tabla llamada "Post" con 'x' columnas
+model Post {
+  id          Int      @id @default(autoincrement())
+  contenido   String
+  usuario_id  Int
+  usuario     Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  
+  // las BD x convención trabajan con nombres en plural y minúscula
+  // solo para el uso de la BD cambio el nombre de la tabla
+  @@map("posts")
+}
