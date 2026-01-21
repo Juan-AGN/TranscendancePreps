@@ -1,0 +1,82 @@
+[
+  {
+    "id_user": 1,
+    "nombre": "daniel2",
+    "email": "email@email2"
+  },
+  {
+    "id_user": 2,
+    "nombre": "daniel3",
+    "email": "daniel3@email"
+  },
+  {
+    "id_user": 3,
+    "nombre": "daniel3",
+    "email": "daniel3@email"
+  },
+  {
+    "id_user": 4,
+    "nombre": "daniel4",
+    "email": "daniel4",
+    "password": "password4"
+  },
+  {
+    "id_user": 5,
+    "nombre": "dani5",
+    "email": "email5",
+    "password": "pass5"
+  },
+  {
+    "id_user": 6,
+    "nombre": "dani6",
+    "email": "email6",
+    "password": "pass6"
+  },
+  {
+    "id_user": 7,
+    "nombre": "pepe",
+    "email": "emaildepepe",
+    "password": "pasDpepe",
+    "amigos": [],
+    "solicitudes_enviadas": [
+      8,
+      8
+    ],
+    "solicitudes_recibidas": [
+      8,
+      8
+    ]
+  },
+  {
+    "id_user": 8,
+    "nombre": "nuevoNombre",
+    "email": "email",
+    "password": "pasDpepe2",
+    "amigos": [],
+    "solicitudes_enviadas": [
+      7,
+      7
+    ],
+    "solicitudes_recibidas": [
+      7,
+      7
+    ]
+  },
+  {
+    "id_user": 9,
+    "nombre": "pepe9",
+    "email": "email9@email",
+    "amigos": [],
+    "solicitudes_enviadas": [],
+    "solicitudes_recibidas": []
+  },
+  {
+    "id_user": 10,
+    "nombre": "pepe10",
+    "email": "email10@email",
+    "password": "pass10",
+    "amigos": [],
+    "solicitudes_enviadas": [],
+    "solicitudes_recibidas": []
+  }
+]
