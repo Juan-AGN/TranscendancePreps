@@ -1,103 +1,86 @@
 import type { FastifyInstance } from 'fastify';
-import { leerUsuarios, leerPosts, guardarPosts, generarIdPost } from '../utils/archivos';
+import { PrismaClient } from '@prisma/client';
 
+const prisma = new PrismaClient();
 const TOKEN = 'mi_token';
 
 export async function postsRoutes(fastify: FastifyInstance) {
-    
-    // ==================== CREAR POST ====================
+
+    // CREAR POST
     fastify.post('/usuarios/:userId/posts', async (request, response) => {
         const token = request.headers['authorization'];
-        if(!token || token !== TOKEN)
+        if (!token || token !== TOKEN)
             return response.status(401).send('Unauthorized');
 
-        const {userId} = request.params as {userId: string};
-        const {contenido} = request.body as {contenido: string};
+        const { userId } = request.params as { userId: string };
+        const { contenido } = request.body as { contenido: string };
 
-        const array_Usuarios = await leerUsuarios();
-        const usuario = array_Usuarios.find(u => u.id_user === parseInt(userId));
+        const usuario = await prisma.usuario.findUnique({ where: { id: parseInt(userId) } });
 
-        if(!usuario)
+        if (!usuario)
             return response.status(404).send('Usuario no encontrado');
 
-        const array_Posts = await leerPosts();
-        const nuevo_post = {
-            id_post: generarIdPost(array_Posts),
-            user_id: parseInt(userId),
-            contenido
-        };
-
-        array_Posts.push(nuevo_post);
-        await guardarPosts(array_Posts);
-
-        response.send({
-            mensaje: 'Post creado',
-            post: nuevo_post
+        const nuevoPost = await prisma.post.create({
+            data: {
+                contenido,
+                usuario_id: parseInt(userId)
+            }
         });
+
+        response.send({ mensaje: 'Post creado', post: nuevoPost });
     });
 
-    // ==================== LISTAR POSTS DE UN USUARIO ====================
+    // OBTENER POSTS DE UN USUARIO
     fastify.get('/usuarios/:userId/posts', async (request, response) => {
-        const {userId} = request.params as {userId: string};
+        const { userId } = request.params as { userId: string };
 
-        const array_Posts = await leerPosts();
-        const posts_usuario = array_Posts.filter(p => p.user_id === parseInt(userId));
-
-        response.send({
-            totalPosts: posts_usuario.length,
-            posts: posts_usuario
+        const posts = await prisma.post.findMany({
+            where: { usuario_id: parseInt(userId) },
+            include: { usuario: { select: { nombre: true, email: true } } },
+            orderBy: { createdAt: 'desc' }
         });
+
+        response.send(posts);
     });
 
-    // ==================== OBTENER UN POST ====================
+    // OBTENER UN POST ESPECÍFICO
     fastify.get('/usuarios/:userId/posts/:postId', async (request, response) => {
-        const {userId, postId} = request.params as {userId: string, postId: string};
+        const { postId } = request.params as { postId: string };
 
-        const array_Posts = await leerPosts();
-        const post = array_Posts.find(p => 
-            p.id_post === parseInt(postId) && p.user_id === parseInt(userId)
-        );
+        const post = await prisma.post.findUnique({
+            where: { id: parseInt(postId) },
+            include: { usuario: { select: { nombre: true, email: true } } }
+        });
 
-        if(!post)
+        if (!post)
             return response.status(404).send('Post no encontrado');
 
         response.send(post);
     });
 
-    // ==================== ELIMINAR POST ====================
+    // ELIMINAR UN POST
     fastify.delete('/usuarios/:userId/posts/:postId', async (request, response) => {
         const token = request.headers['authorization'];
-        if(!token || token !== TOKEN)
+        if (!token || token !== TOKEN)
             return response.status(401).send('Unauthorized');
 
-        const {userId, postId} = request.params as {userId: string, postId: string};
+        const { postId } = request.params as { postId: string };
 
-        const array_Posts = await leerPosts();
-        const pos_post = array_Posts.findIndex(p => 
-            p.id_post === parseInt(postId) && p.user_id === parseInt(userId)
-        );
+        await prisma.post.delete({ where: { id: parseInt(postId) } });
 
-        if(pos_post === -1)
-            return response.status(404).send('Post no encontrado');
-
-        array_Posts.splice(pos_post, 1);
-        await guardarPosts(array_Posts);
-
-        response.send({mensaje: 'Post eliminado'});
+        response.send({ mensaje: 'Post eliminado' });
     });
 
-    // ==================== ELIMINAR TODOS LOS POSTS ====================
+    // ELIMINAR TODOS LOS POSTS DE UN USUARIO
     fastify.delete('/usuarios/:userId/posts', async (request, response) => {
         const token = request.headers['authorization'];
-        if(!token || token !== TOKEN)
+        if (!token || token !== TOKEN)
             return response.status(401).send('Unauthorized');
 
-        const {userId} = request.params as {userId: string};
+        const { userId } = request.params as { userId: string };
 
-        const array_Posts = await leerPosts();
-        const posts_restantes = array_Posts.filter(p => p.user_id !== parseInt(userId));
+        await prisma.post.deleteMany({ where: { usuario_id: parseInt(userId) } });
 
-        await guardarPosts(posts_restantes);
-        response.send({mensaje: 'Todos los posts eliminados'});
+        response.send({ mensaje: 'Posts eliminados' });
     });
 }

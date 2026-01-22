@@ -1,123 +1,144 @@
 import type { FastifyInstance } from 'fastify';
-import { leerUsuarios, guardarUsuarios } from '../utils/archivos';
+import { PrismaClient } from '@prisma/client';
 
+const prisma = new PrismaClient();
 const TOKEN = 'mi_token';
 
 export async function amigosRoutes(fastify: FastifyInstance) {
     
-    // ==================== ENVIAR SOLICITUD DE AMISTAD ====================
-    fastify.post('/usuarios/:userId/enviar_solicitud/:amigo_id', async (request, response) => {
+    // ENVIAR SOLICITUD
+    fastify.post('/usuarios/:id/solicitud_amistad/:id_amigo', async (request, response) => {
         const token = request.headers['authorization'];
-        if(!token || token !== TOKEN)
+        if (!token || token !== TOKEN)
             return response.status(401).send('Unauthorized');
 
-        const {userId, amigo_id} = request.params as {userId: string, amigo_id: string};
-        const array_Usuarios = await leerUsuarios();
+        const { id, id_amigo } = request.params as { id: string; id_amigo: string };
+        
+        const usuario = await prisma.usuario.findUnique({ where: { id: parseInt(id) } });
+        const amigo = await prisma.usuario.findUnique({ where: { id: parseInt(id_amigo) } });
 
-        const usuario = array_Usuarios.find(u => u.id_user === parseInt(userId));
-        const amigo = array_Usuarios.find(u => u.id_user === parseInt(amigo_id));
-
-        if(!usuario || !amigo)
+        if (!usuario || !amigo)
             return response.status(404).send('Usuario no encontrado');
 
-        if(usuario.solicitudes_enviadas.includes(parseInt(amigo_id)))
-            return response.status(400).send('Solicitud ya enviada');
+        // Actualizar arrays JSON
+        const solicitudesEnviadas = JSON.parse(usuario.solicitudes_enviadas);
+        const solicitudesRecibidas = JSON.parse(amigo.solicitudes_recibidas);
 
-        if(usuario.amigos.includes(parseInt(amigo_id)))
-            return response.status(400).send('Ya son amigos');
+        if (solicitudesEnviadas.includes(parseInt(id_amigo)))
+            return response.status(400).send('Ya enviaste solicitud');
 
-        usuario.solicitudes_enviadas.push(parseInt(amigo_id));
-        amigo.solicitudes_recibidas.push(parseInt(userId));
+        solicitudesEnviadas.push(parseInt(id_amigo));
+        solicitudesRecibidas.push(parseInt(id));
 
-        await guardarUsuarios(array_Usuarios);
-        response.send({mensaje: 'Solicitud enviada'});
+        await prisma.usuario.update({
+            where: { id: parseInt(id) },
+            data: { solicitudes_enviadas: JSON.stringify(solicitudesEnviadas) }
+        });
+
+        await prisma.usuario.update({
+            where: { id: parseInt(id_amigo) },
+            data: { solicitudes_recibidas: JSON.stringify(solicitudesRecibidas) }
+        });
+
+        response.send({ mensaje: 'Solicitud enviada' });
     });
 
-    // ==================== ACEPTAR SOLICITUD DE AMISTAD ====================
-    fastify.post('/usuarios/:userId/aceptar_solicitud/:amigo_id', async (request, response) => {
+    // ACEPTAR SOLICITUD
+    fastify.post('/usuarios/:id_recibido/aceptar_amistad/:id_enviado', async (request, response) => {
         const token = request.headers['authorization'];
-        if(!token || token !== TOKEN)
+        if (!token || token !== TOKEN)
             return response.status(401).send('Unauthorized');
 
-        const {userId, amigo_id} = request.params as {userId: string, amigo_id: string};
-        const array_Usuarios = await leerUsuarios();
+        const { id_recibido, id_enviado } = request.params as { id_recibido: string; id_enviado: string };
 
-        const usuario = array_Usuarios.find(u => u.id_user === parseInt(userId));
-        const amigo = array_Usuarios.find(u => u.id_user === parseInt(amigo_id));
+        const receptor = await prisma.usuario.findUnique({ where: { id: parseInt(id_recibido) } });
+        const emisor = await prisma.usuario.findUnique({ where: { id: parseInt(id_enviado) } });
 
-        if(!usuario || !amigo)
+        if (!receptor || !emisor)
             return response.status(404).send('Usuario no encontrado');
 
-        const pos_solicitud = usuario.solicitudes_recibidas.indexOf(parseInt(amigo_id));
-        if(pos_solicitud === -1)
-            return response.status(400).send('No hay solicitud pendiente');
+        const solicitudesRecibidas = JSON.parse(receptor.solicitudes_recibidas);
+        const solicitudesEnviadas = JSON.parse(emisor.solicitudes_enviadas);
+        const amigosReceptor = JSON.parse(receptor.amigos);
+        const amigosEmisor = JSON.parse(emisor.amigos);
 
         // Eliminar de solicitudes
-        usuario.solicitudes_recibidas.splice(pos_solicitud, 1);
-        const pos_enviada = amigo.solicitudes_enviadas.indexOf(parseInt(userId));
-        if(pos_enviada !== -1)
-            amigo.solicitudes_enviadas.splice(pos_enviada, 1);
+        const newSolicitudesRecibidas = solicitudesRecibidas.filter((id: number) => id !== parseInt(id_enviado));
+        const newSolicitudesEnviadas = solicitudesEnviadas.filter((id: number) => id !== parseInt(id_recibido));
 
-        // Añadir como amigos
-        usuario.amigos.push(parseInt(amigo_id));
-        amigo.amigos.push(parseInt(userId));
+        // Agregar a amigos
+        amigosReceptor.push(parseInt(id_enviado));
+        amigosEmisor.push(parseInt(id_recibido));
 
-        await guardarUsuarios(array_Usuarios);
-        response.send({mensaje: 'Solicitud aceptada, ahora son amigos'});
-    });
-
-    // ==================== VER MIS AMIGOS ====================
-    fastify.get('/usuarios/:userId/mis_amigos', async (request, response) => {
-        const token = request.headers['authorization'];
-        if(!token || token !== TOKEN)
-            return response.status(401).send('Unauthorized');
-
-        const {userId} = request.params as {userId: string};
-        const array_Usuarios = await leerUsuarios();
-
-        const usuario = array_Usuarios.find(u => u.id_user === parseInt(userId));
-        if(!usuario)
-            return response.status(404).send('Usuario no encontrado');
-
-        const mis_amigos = array_Usuarios.filter(u => 
-            usuario.amigos.includes(u.id_user)
-        );
-
-        response.send({
-            totalAmigos: mis_amigos.length,
-            amigos: mis_amigos.map(a => ({
-                id: a.id_user,
-                nombre: a.nombre,
-                email: a.email
-            }))
+        await prisma.usuario.update({
+            where: { id: parseInt(id_recibido) },
+            data: {
+                solicitudes_recibidas: JSON.stringify(newSolicitudesRecibidas),
+                amigos: JSON.stringify(amigosReceptor)
+            }
         });
+
+        await prisma.usuario.update({
+            where: { id: parseInt(id_enviado) },
+            data: {
+                solicitudes_enviadas: JSON.stringify(newSolicitudesEnviadas),
+                amigos: JSON.stringify(amigosEmisor)
+            }
+        });
+
+        response.send({ mensaje: 'Amistad aceptada' });
     });
 
-    // ==================== ELIMINAR AMIGO ====================
-    fastify.delete('/usuarios/:userId/eliminar_amigo/:amigo_id', async (request, response) => {
+    // VER MIS AMIGOS
+    fastify.get('/api/users/:user_id/mis_amigos', async (request, response) => {
         const token = request.headers['authorization'];
-        if(!token || token !== TOKEN)
+        if (!token || token !== TOKEN)
             return response.status(401).send('Unauthorized');
 
-        const {userId, amigo_id} = request.params as {userId: string, amigo_id: string};
-        const array_Usuarios = await leerUsuarios();
+        const { user_id } = request.params as { user_id: string };
 
-        const usuario = array_Usuarios.find(u => u.id_user === parseInt(userId));
-        const amigo = array_Usuarios.find(u => u.id_user === parseInt(amigo_id));
+        const usuario = await prisma.usuario.findUnique({ where: { id: parseInt(user_id) } });
 
-        if(!usuario || !amigo)
+        if (!usuario)
             return response.status(404).send('Usuario no encontrado');
 
-        const pos_amigo = usuario.amigos.indexOf(parseInt(amigo_id));
-        if(pos_amigo === -1)
-            return response.status(400).send('No son amigos');
+        const amigosIds = JSON.parse(usuario.amigos);
+        
+        const amigos = await prisma.usuario.findMany({
+            where: { id: { in: amigosIds } },
+            select: { id: true, nombre: true, email: true }
+        });
 
-        usuario.amigos.splice(pos_amigo, 1);
-        const pos_amigo2 = amigo.amigos.indexOf(parseInt(userId));
-        if(pos_amigo2 !== -1)
-            amigo.amigos.splice(pos_amigo2, 1);
+        response.send({ totalAmigos: amigos.length, amigos });
+    });
 
-        await guardarUsuarios(array_Usuarios);
-        response.send({mensaje: 'Amigo eliminado'});
+    // ELIMINAR AMIGO
+    fastify.delete('/api/users/:id/eliminar_amigo/:id_amigo', async (request, response) => {
+        const token = request.headers['authorization'];
+        if (!token || token !== TOKEN)
+            return response.status(401).send('Unauthorized');
+
+        const { id, id_amigo } = request.params as { id: string; id_amigo: string };
+
+        const usuario = await prisma.usuario.findUnique({ where: { id: parseInt(id) } });
+        const amigo = await prisma.usuario.findUnique({ where: { id: parseInt(id_amigo) } });
+
+        if (!usuario || !amigo)
+            return response.status(404).send('Usuario no encontrado');
+
+        const amigosUsuario = JSON.parse(usuario.amigos).filter((aid: number) => aid !== parseInt(id_amigo));
+        const amigosAmigo = JSON.parse(amigo.amigos).filter((aid: number) => aid !== parseInt(id));
+
+        await prisma.usuario.update({
+            where: { id: parseInt(id) },
+            data: { amigos: JSON.stringify(amigosUsuario) }
+        });
+
+        await prisma.usuario.update({
+            where: { id: parseInt(id_amigo) },
+            data: { amigos: JSON.stringify(amigosAmigo) }
+        });
+
+        response.send({ mensaje: 'Amigo eliminado' });
     });
 }
