@@ -79,7 +79,7 @@ app.post("/lobbies/start", (req: Request, res: Response) => {
 	const result = lobbyManager.able(lobbyId, hostId);
 
 	if (result !== null) 
-		return res.status(400).send({ messaje: result });
+		return res.status(400).send({ message: result });
 
 	res.send("starting");
 

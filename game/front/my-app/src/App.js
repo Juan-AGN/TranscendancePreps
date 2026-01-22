@@ -12,19 +12,19 @@ const wsbase = `ws://${noport}:8888`;
 const apiBase = `http://${noport}:8888`;
 
 export const useInputEvent = () => {
-  const [key, setKey] = useState(null);
-  useEffect(() => {
-    const keyDownHandler = ({ code }) => setKey(code);
-    const keyUpHandler = () => setKey(null);
-    global.addEventListener('keydown', keyDownHandler);
-    global.addEventListener('keyup', keyUpHandler);
-    return () => {
-      global.removeEventListener("keydown", keyDownHandler);
-      global.removeEventListener("keyup", keyUpHandler)
-    }
-  }, []);
-  return key;
-}
+	const [key, setKey] = useState(null);
+	useEffect(() => {
+		const keyDownHandler = ({ code }) => setKey(code);
+		const keyUpHandler = () => setKey(null);
+		global.addEventListener('keydown', keyDownHandler);
+		global.addEventListener('keyup', keyUpHandler);
+		return () => {
+		global.removeEventListener("keydown", keyDownHandler);
+		global.removeEventListener("keyup", keyUpHandler)
+		}
+	}, []);
+	return (key);
+	}
 
 function Log({ user, setUser }) {
 	let content;
@@ -479,7 +479,7 @@ function App() {
 				body: JSON.stringify({ lobbyId: clobby, hostId: user })
 			});
 			const data = await res.json();
-			setNotification(prev => [...prev, `${data.message}`]);
+			setNotification(prev => [...prev, JSON.stringify(data.message)]);
 			setTimeout(() => {
 				setNotification(prev => prev.slice(1));
 			}, 4000);
