@@ -1,184 +1,273 @@
 // ============================================================================
 // IMPORTACIONES
 // ============================================================================
-// IMPORTAR TIPO DE TYPESCRIPT
-// 'type' -> solo importa el tipo, nada de código ejecutable
-// 'FastifyInstance' -> Nombre del tipo a importar
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';  // Tipo para TypeScript
+import { PrismaClient } from '@prisma/client';   // Cliente de base de datos
 
-// IMPORTAR CLASE DE PRISMA
-// 'PrismaClient' -> Clase para conectarse a la base de datos
-import { PrismaClient } from '@prisma/client';
-
-// ============================================================================
-// CONFIGURACIÓN
-// ============================================================================
-// CREAR INSTANCIA DE PRISMA (prisma)
-// 'new' -> crea una nueva instancia
-// 'PrismaClient()' -> Clase importada (arriba)
+// Crear conexión con la base de datos
 const prisma = new PrismaClient();
-const TOKEN = 'mi_token';
 
 // ============================================================================
-// FUNCIÓN QUE EMPAQUETA TODOS LOS ENDPOINTS (RUTAS) DE POSTS (MODULARIDAD)
+// FUNCIÓN PRINCIPAL: Registrar todas las rutas de usuarios
 // ============================================================================
-// Sirve para poder usar las rutas desde otros archivos
-// 'export' -> para que permita la exportación
-// Como se importa desde otro archivo: import { postsRoutes } from './routes/posts';
-// ============================================================================
-export async function postsRoutes(fastify: FastifyInstance) {
-
-    // ============================================================================
-    // CREAR POST
-    // ============================================================================
-    // POST /usuarios/:userId/posts
-    // Permite a un usuario crear un nuevo post
-    // ============================================================================
-    fastify.post('/usuarios/:userId/posts', async (request, response) => {
+export async function usuariosRoutes(fastify: FastifyInstance) {
+    
+    // ========================================================================
+    // RUTA 1: REGISTRO DE USUARIOS
+    // ========================================================================
+    fastify.post('/registro', async (request, response) => {
         
-        // 1️⃣ AUTENTICACIÓN
-        // Verificar que el token sea válido
-        const token = request.headers['authorization'];
-        if (!token || token !== TOKEN)
-            return response.status(401).send('Unauthorized');
-
-        // 2️⃣ EXTRAER PARÁMETROS Y BODY
-        // Extraer userId de la URL
-        const { userId } = request.params as { userId: string };
-        // Extraer contenido del cuerpo de la petición
-        const { contenido } = request.body as { contenido: string };
-
-        // 3️⃣ VERIFICAR QUE EL USUARIO EXISTE
-        // Buscar usuario en la base de datos
-        const usuario = await prisma.usuario.findUnique({ 
-            where: { id: parseInt(userId) } 
+        // Obtener datos del body de la petición
+        const body = request.body as { 
+            nombre: string, 
+            email: string, 
+            password: string 
+        };
+        
+        const nombre = body.nombre;
+        const email = body.email;
+        const password = body.password;
+        
+        // PASO 1: Verificar que el email no esté ya registrado
+        const usuarioExiste = await prisma.usuario.findUnique({
+            where: { email: email }
         });
-
-        // 4️⃣ VALIDAR EXISTENCIA
-        if (!usuario)
-            return response.status(404).send('Usuario no encontrado');
-
-        // 5️⃣ CREAR POST EN LA BASE DE DATOS
-        // prisma.post.create() → Crea un nuevo post
-        // data → Datos del nuevo post
-        const nuevoPost = await prisma.post.create({
+        
+        // Si el email ya existe, retornar error
+        if (usuarioExiste) {
+            return response.status(400).send({
+                error: 'El email ya está registrado',
+                mensaje: 'Usa otro email o haz login'
+            });
+        }
+        
+        // PASO 2: Crear el nuevo usuario en la base de datos
+        const nuevoUsuario = await prisma.usuario.create({
             data: {
-                contenido,
-                usuario_id: parseInt(userId)
+                nombre: nombre,
+                email: email,
+                password: password  // ⚠️ En producción, cifrar la contraseña
             }
         });
-
-        // 6️⃣ RESPONDER AL CLIENTE
-        response.send({ mensaje: 'Post creado', post: nuevoPost });
-    });
-
-
-    // ============================================================================
-    // OBTENER POSTS DE UN USUARIO
-    // ============================================================================
-    // GET /usuarios/:userId/posts
-    // Devuelve todos los posts de un usuario específico
-    // ============================================================================
-    fastify.get('/usuarios/:userId/posts', async (request, response) => {
         
-        // 1️⃣ EXTRAER PARÁMETRO
-        const { userId } = request.params as { userId: string };
-
-        // 2️⃣ BUSCAR POSTS EN LA BASE DE DATOS
-        // prisma.post.findMany() → Busca VARIOS posts
-        // where → Filtra por usuario_id
-        // include → Incluye datos del usuario relacionado
-        // orderBy → Ordena por fecha de creación descendente (más recientes primero)
-        const posts = await prisma.post.findMany({
-            where: { usuario_id: parseInt(userId) },
-            include: { usuario: { select: { nombre: true, email: true } } },
-            orderBy: { createdAt: 'desc' }
+        // PASO 3: Retornar respuesta exitosa (sin mostrar el password)
+        response.send({
+            mensaje: 'Usuario registrado exitosamente',
+            usuario: {
+                id: nuevoUsuario.id,
+                nombre: nuevoUsuario.nombre,
+                email: nuevoUsuario.email,
+                fechaCreacion: nuevoUsuario.createdAt
+            }
         });
-
-        // 3️⃣ RESPONDER CON LISTA DE POSTS
-        response.send(posts);
     });
-
-
-    // ============================================================================
-    // OBTENER UN POST ESPECÍFICO
-    // ============================================================================
-    // GET /usuarios/:userId/posts/:postId
-    // Devuelve un post específico por su ID
-    // ============================================================================
-    fastify.get('/usuarios/:userId/posts/:postId', async (request, response) => {
+    
+    // ========================================================================
+    // RUTA 2: LOGIN (Iniciar sesión)
+    // ========================================================================
+    fastify.post('/login', async (request, response) => {
         
-        // 1️⃣ EXTRAER PARÁMETRO
-        const { postId } = request.params as { postId: string };
-
-        // 2️⃣ BUSCAR POST POR ID
-        // prisma.post.findUnique() → Busca UN post por ID
-        // include → Incluye datos del usuario que lo creó
-        const post = await prisma.post.findUnique({
-            where: { id: parseInt(postId) },
-            include: { usuario: { select: { nombre: true, email: true } } }
+        // Obtener email y password del body
+        const body = request.body as { email: string, password: string };
+        const email = body.email;
+        const password = body.password;
+        
+        // PASO 1: Buscar el usuario por email
+        const usuario = await prisma.usuario.findUnique({
+            where: { email: email }
         });
-
-        // 3️⃣ VALIDAR EXISTENCIA
-        if (!post)
-            return response.status(404).send('Post no encontrado');
-
-        // 4️⃣ RESPONDER CON EL POST
-        response.send(post);
+        
+        // Si no existe el usuario, retornar error
+        if (!usuario) {
+            return response.status(401).send({
+                error: 'Usuario no encontrado',
+                mensaje: 'El email no está registrado'
+            });
+        }
+        
+        // PASO 2: Verificar que la contraseña sea correcta
+        if (password !== usuario.password) {
+            return response.status(401).send({
+                error: 'Contraseña incorrecta',
+                mensaje: 'Verifica tu contraseña'
+            });
+        }
+        
+        // PASO 3: Crear un token JWT con los datos del usuario
+        const token = fastify.jwt.sign(
+            {
+                id: usuario.id,
+                email: usuario.email,
+                nombre: usuario.nombre
+            },
+            {
+                expiresIn: '7d'  // El token expira en 7 días
+            }
+        );
+        
+        // PASO 4: Retornar el token y los datos del usuario
+        response.send({
+            mensaje: 'Login exitoso',
+            token: token,  // Este token se usa en todas las peticiones protegidas
+            usuario: {
+                id: usuario.id,
+                nombre: usuario.nombre,
+                email: usuario.email
+            }
+        });
     });
-
-
-    // ============================================================================
-    // ELIMINAR UN POST
-    // ============================================================================
-    // DELETE /usuarios/:userId/posts/:postId
-    // Elimina un post específico por su ID
-    // ============================================================================
-    fastify.delete('/usuarios/:userId/posts/:postId', async (request, response) => {
+    
+    // ========================================================================
+    // RUTA 3: LISTAR TODOS LOS USUARIOS (ruta pública)
+    // ========================================================================
+    fastify.get('/get_usuarios', async (request, response) => {
         
-        // 1️⃣ AUTENTICACIÓN
-        const token = request.headers['authorization'];
-        if (!token || token !== TOKEN)
-            return response.status(401).send('Unauthorized');
-
-        // 2️⃣ EXTRAER PARÁMETRO
-        const { postId } = request.params as { postId: string };
-
-        // 3️⃣ ELIMINAR POST DE LA BASE DE DATOS
-        // prisma.post.delete() → Elimina UN post
-        await prisma.post.delete({ 
-            where: { id: parseInt(postId) } 
+        // Obtener todos los usuarios de la base de datos
+        const usuarios = await prisma.usuario.findMany({
+            select: {
+                id: true,
+                nombre: true,
+                email: true,
+                createdAt: true,
+                password: false  // NO enviar las contraseñas
+            }
         });
-
-        // 4️⃣ RESPONDER AL CLIENTE
-        response.send({ mensaje: 'Post eliminado' });
+        
+        // Retornar la lista de usuarios
+        response.send({
+            total: usuarios.length,
+            usuarios: usuarios
+        });
     });
-
-
-    // ============================================================================
-    // ELIMINAR TODOS LOS POSTS DE UN USUARIO
-    // ============================================================================
-    // DELETE /usuarios/:userId/posts
-    // Elimina todos los posts de un usuario específico
-    // ============================================================================
-    fastify.delete('/usuarios/:userId/posts', async (request, response) => {
+    
+    // ========================================================================
+    // RUTA 4: OBTENER UN USUARIO POR ID (ruta pública)
+    // ========================================================================
+    fastify.get('/get_usuario/:id', async (request, response) => {
         
-        // 1️⃣ AUTENTICACIÓN
-        const token = request.headers['authorization'];
-        if (!token || token !== TOKEN)
-            return response.status(401).send('Unauthorized');
-
-        // 2️⃣ EXTRAER PARÁMETRO
-        const { userId } = request.params as { userId: string };
-
-        // 3️⃣ ELIMINAR TODOS LOS POSTS DEL USUARIO
-        // prisma.post.deleteMany() → Elimina VARIOS posts que cumplan la condición
-        // where → Filtra por usuario_id
-        await prisma.post.deleteMany({ 
-            where: { usuario_id: parseInt(userId) } 
+        // Obtener el ID de los parámetros de la URL
+        const params = request.params as { id: string };
+        const id = parseInt(params.id);  // Convertir string a número
+        
+        // Buscar el usuario en la base de datos
+        const usuario = await prisma.usuario.findUnique({
+            where: { id: id },
+            select: {
+                id: true,
+                nombre: true,
+                email: true,
+                createdAt: true,
+                password: false  // NO enviar la contraseña
+            }
         });
-
-        // 4️⃣ RESPONDER AL CLIENTE
-        response.send({ mensaje: 'Posts eliminados' });
+        
+        // Si no existe, retornar error
+        if (!usuario) {
+            return response.status(404).send({
+                error: 'Usuario no encontrado',
+                mensaje: `No existe un usuario con ID ${id}`
+            });
+        }
+        
+        // Retornar el usuario encontrado
+        response.send(usuario);
+    });
+    
+    // ========================================================================
+    // RUTA 5: ACTUALIZAR USUARIO (ruta protegida - necesita token)
+    // ========================================================================
+    fastify.put('/put_usuario/:id', {
+        onRequest: [fastify.authenticate]  // ← Verificar token antes de ejecutar
+    }, async (request, response) => {
+        
+        // PASO 1: Obtener datos del token JWT verificado
+        const tokenData = request.user as { 
+            id: number, 
+            email: string, 
+            nombre: string 
+        };
+        
+        // PASO 2: Obtener el ID de la URL
+        const params = request.params as { id: string };
+        const idUrl = parseInt(params.id);
+        
+        // PASO 3: Verificar que el usuario solo pueda editar SU propio perfil
+        if (tokenData.id !== idUrl) {
+            return response.status(403).send({
+                error: 'Acceso denegado',
+                mensaje: 'Solo puedes editar tu propio perfil'
+            });
+        }
+        
+        // PASO 4: Obtener los nuevos datos del body
+        const body = request.body as { nombre?: string, email?: string };
+        
+        // PASO 5: Actualizar el usuario en la base de datos
+        const usuarioActualizado = await prisma.usuario.update({
+            where: { id: idUrl },
+            data: {
+                // Solo actualizar si se envió el campo
+                ...(body.nombre && { nombre: body.nombre }),
+                ...(body.email && { email: body.email })
+            }
+        });
+        
+        // PASO 6: Retornar respuesta exitosa
+        response.send({
+            mensaje: 'Usuario actualizado correctamente',
+            usuario: {
+                id: usuarioActualizado.id,
+                nombre: usuarioActualizado.nombre,
+                email: usuarioActualizado.email
+            }
+        });
+    });
+    
+    // ========================================================================
+    // RUTA 6: ELIMINAR USUARIO (ruta protegida - necesita token)
+    // ========================================================================
+    fastify.delete('/delete_usuarios/:id', {
+        onRequest: [fastify.authenticate]  // ← Verificar token antes de ejecutar
+    }, async (request, response) => {
+        
+        // PASO 1: Obtener datos del token JWT
+        const tokenData = request.user as { id: number };
+        
+        // PASO 2: Obtener el ID de la URL
+        const params = request.params as { id: string };
+        const idUrl = parseInt(params.id);
+        
+        // PASO 3: Verificar que el usuario solo pueda eliminar SU propia cuenta
+        if (tokenData.id !== idUrl) {
+            return response.status(403).send({
+                error: 'Acceso denegado',
+                mensaje: 'Solo puedes eliminar tu propia cuenta'
+            });
+        }
+        
+        // PASO 4: Verificar que el usuario exista
+        const usuario = await prisma.usuario.findUnique({
+            where: { id: idUrl }
+        });
+        
+        if (!usuario) {
+            return response.status(404).send({
+                error: 'Usuario no encontrado'
+            });
+        }
+        
+        // PASO 5: Eliminar el usuario de la base de datos
+        await prisma.usuario.delete({
+            where: { id: idUrl }
+        });
+        
+        // PASO 6: Retornar respuesta exitosa
+        response.send({
+            mensaje: 'Usuario eliminado correctamente',
+            usuarioEliminado: {
+                id: usuario.id,
+                nombre: usuario.nombre
+            }
+        });
     });
 }
