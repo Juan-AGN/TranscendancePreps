@@ -30,22 +30,22 @@ export const MODELS = {
   CHARACTER: getAssetPath('stickman.glb'),
 
   // Estos son los objetos especificos de tu proyecto Transcendence.
-  ARCADE: getAssetPath('arcade.glb'),
-  COMPUTER: getAssetPath('computer.glb'),
-  PING_PONG: getAssetPath('ping_pong.glb'),
+  ARCADE: getAssetPath('1.glb'),
+  COMPUTER: getAssetPath('2.glb'),
+  PING_PONG: getAssetPath('3.glb'),
   
   // Modelos de entorno
-  STADIUM: getAssetPath('stadium.glb'),
-  STADIUM1: getAssetPath('stadium1.glb'),
-  TROPHY: getAssetPath('trphy.glb'),
+  STADIUM: getAssetPath('4.glb'),
+  STADIUM1: getAssetPath('4.glb'),
+  TROPHY: getAssetPath('5.glb'),
   
-  TOWN_HOUSE: getAssetPath('TownHouse.glb'),
-  LA_FAROLA: getAssetPath('lafarola.glb'),
-  LA_ROSALEDA: getAssetPath('larosaleda.glb'),
-  TORRE_MONICA: getAssetPath('TorreMonica.glb'),
+  TOWN_HOUSE: getAssetPath('6.glb'),
+  LA_FAROLA: getAssetPath('7.glb'),
+  LA_ROSALEDA: getAssetPath('8.glb'),
+  TORRE_MONICA: getAssetPath('9.glb'),
 
-  SAND: getAssetPath('sand.glb'),
-  LOW_TABLE: getAssetPath('lowtable.glb'),
+  SAND: getAssetPath('4.glb'),
+  LOW_TABLE: getAssetPath('4.glb'),
 
  } as const
 //   - ESTO ES CRITICO EN TYPESCRIPT.
