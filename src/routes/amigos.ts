@@ -1,244 +1,367 @@
+// ============================================================================
+// IMPORTACIONES
+// ============================================================================
 import type { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import { leerUsuarios, guardarUsuarios } from '../utils/archivos';
 
-const prisma = new PrismaClient();
-const TOKEN = 'mi_token';
-
+// ============================================================================
+// FUNCIÓN PRINCIPAL: Registrar todas las rutas de amigos
+// ============================================================================
 export async function amigosRoutes(fastify: FastifyInstance) {
     
-    // ============================================================================
-    // ENVIAR SOLICITUD DE AMISTAD
-    // ============================================================================
-    // POST /usuarios/:id/solicitud_amistad/:id_amigo
-    // Permite a un usuario enviar una solicitud de amistad a otro
-    // ============================================================================
-    fastify.post('/usuarios/:id/solicitud_amistad/:id_amigo', async (request, response) => {
+    // ========================================================================
+    // RUTA 1: ENVIAR SOLICITUD DE AMISTAD
+    // ========================================================================
+    // URL: POST /usuarios/:userId/enviar_solicitud/:amigoId
+    // Ejemplo: POST /usuarios/1/enviar_solicitud/5
+    fastify.post('/usuarios/:userId/enviar_solicitud/:amigoId', {
+        onRequest: [fastify.authenticate]  // ← Necesita token
+    }, async (request, response) => {
         
-        // 1️⃣ AUTENTICACIÓN
-        // Verificar que el token sea válido
-        const token = request.headers['authorization'];
-        if (!token || token !== TOKEN)
-            return response.status(401).send('Unauthorized');
-
-        // 2️⃣ EXTRAER PARÁMETROS
-        // Los nombres deben coincidir con los de la ruta (:id, :id_amigo)
-        const { id, id_amigo } = request.params as { id: string; id_amigo: string };
+        // PASO 1: Obtener los IDs de la URL
+        const params = request.params as { userId: string, amigoId: string };
+        const miId = parseInt(params.userId);        // Mi ID
+        const idAmigo = parseInt(params.amigoId);    // ID del amigo
         
-        // 3️⃣ BUSCAR USUARIOS EN BD
-        // prisma.usuario.findUnique() → Busca UN usuario por ID
-        // where: { id: 5 } → Condición de búsqueda
-        // await → Espera respuesta de la base de datos
-        const usuario = await prisma.usuario.findUnique({ 
-            where: { id: parseInt(id) }  // Convertir "5" → 5 (de string a numero)
-        });
-        
-        const amigo = await prisma.usuario.findUnique({ 
-            where: { id: parseInt(id_amigo) }  // Convertir "10" → 10
-        });
-
-        // 4️⃣ VALIDAR EXISTENCIA
-        // Si alguno no existe, retornar error 404
-        if (!usuario || !amigo)
-            return response.status(404).send('Usuario no encontrado');
-
-        // 5️⃣ PROCESAR ARRAYS JSON
-        // Las solicitudes se guardan como strings JSON: "[1, 5, 10]"
-        // JSON.parse() convierte string → array: [1, 5, 10]
-        const solicitudesEnviadas = JSON.parse(usuario.solicitudes_enviadas);
-        const solicitudesRecibidas = JSON.parse(amigo.solicitudes_recibidas);
-
-        // 6️⃣ VALIDAR SOLICITUD DUPLICADA
-        // .includes() verifica si el ID ya está en el array
-        if (solicitudesEnviadas.includes(parseInt(id_amigo)))
-            return response.status(400).send('Ya enviaste solicitud');
-
-        // 7️⃣ AGREGAR IDs A LOS ARRAYS
-        // .push() añade un elemento al final del array
-        solicitudesEnviadas.push(parseInt(id_amigo));  // Usuario envía a amigo
-        solicitudesRecibidas.push(parseInt(id));       // Amigo recibe de usuario
-
-        // 8️⃣ ACTUALIZAR BASE DE DATOS
-        // prisma.usuario.update() → Modifica un usuario existente
-        // JSON.stringify() convierte array → string: [1,5,10] → "[1,5,10]"
-        await prisma.usuario.update({
-            where: { id: parseInt(id) },
-            data: { solicitudes_enviadas: JSON.stringify(solicitudesEnviadas) }
-        });
-
-        await prisma.usuario.update({
-            where: { id: parseInt(id_amigo) },
-            data: { solicitudes_recibidas: JSON.stringify(solicitudesRecibidas) }
-        });
-
-        // 9️⃣ RESPONDER AL CLIENTE
-        response.send({ mensaje: 'Solicitud enviada' });
-    });
-
-    
-    // ============================================================================
-    // ACEPTAR SOLICITUD DE AMISTAD
-    // ============================================================================
-    // POST /usuarios/:id_recibido/aceptar_amistad/:id_enviado
-    // El receptor acepta la solicitud del emisor
-    // ============================================================================
-    fastify.post('/usuarios/:id_recibido/aceptar_amistad/:id_enviado', async (request, response) => {
-        
-        // 1️⃣ AUTENTICACIÓN
-        const token = request.headers['authorization'];
-        if (!token || token !== TOKEN)
-            return response.status(401).send('Unauthorized');
-
-        // 2️⃣ EXTRAER PARÁMETROS
-        const { id_recibido, id_enviado } = request.params as { id_recibido: string; id_enviado: string };
-
-        // 3️⃣ BUSCAR USUARIOS
-                        // id -> es el nombre que tiene la propiedad del objeto en el que se busca
-        const receptor = await prisma.usuario.findUnique({ where: { id: parseInt(id_recibido) } });
-        const emisor = await prisma.usuario.findUnique({ where: { id: parseInt(id_enviado) } });
-
-        // 4️⃣ VALIDAR EXISTENCIA
-        if (!receptor || !emisor)
-            return response.status(404).send('Usuario no encontrado');
-
-        // 5️⃣ PARSEAR ARRAYS JSON
-                                    // JSON.parese -> de JSON a JS
-                                    // JSON.stringify -> de JS a JSON
-        const solicitudesRecibidas = JSON.parse(receptor.solicitudes_recibidas);
-        const solicitudesEnviadas = JSON.parse(emisor.solicitudes_enviadas);
-        const amigosReceptor = JSON.parse(receptor.amigos);
-        const amigosEmisor = JSON.parse(emisor.amigos);
-
-        // 6️⃣ ELIMINAR DE SOLICITUDES
-        // .filter() crea un nuevo array excluyendo el ID especificado 
-        // por eso es: si es distinto (!==) lo saltas (si es TRUE) 
-        // (id: number) => id !== 10  →  Mantener todos menos el 10
-        const newSolicitudesRecibidas = solicitudesRecibidas.filter((id: number) => id !== parseInt(id_enviado));
-        const newSolicitudesEnviadas = solicitudesEnviadas.filter((id: number) => id !== parseInt(id_recibido));
-
-        // 7️⃣ AGREGAR A AMIGOS
-        // Ambos se añaden mutuamente como amigos
-        amigosReceptor.push(parseInt(id_enviado));
-        amigosEmisor.push(parseInt(id_recibido));
-
-        // 8️⃣ ACTUALIZAR BASE DE DATOS
-        // Actualizar ambos usuarios con las nuevas listas
-        await prisma.usuario.update({
-            where: { id: parseInt(id_recibido) },
-            data: {
-                solicitudes_recibidas: JSON.stringify(newSolicitudesRecibidas),
-                amigos: JSON.stringify(amigosReceptor)
-            }
-        });
-
-        await prisma.usuario.update({
-            where: { id: parseInt(id_enviado) },
-            data: {
-                solicitudes_enviadas: JSON.stringify(newSolicitudesEnviadas),
-                amigos: JSON.stringify(amigosEmisor)
-            }
-        });
-
-        // 9️⃣ RESPONDER AL CLIENTE
-        response.send({ mensaje: 'Amistad aceptada' });
-    });
-
-    
-    // ============================================================================
-    // VER MIS AMIGOS
-    // ============================================================================
-    // GET /api/users/:user_id/mis_amigos
-    // Devuelve la lista de amigos de un usuario
-    // ============================================================================
-    fastify.get('/api/users/:user_id/mis_amigos', async (request, response) => {
-        
-        // 1️⃣ AUTENTICACIÓN
-        const token = request.headers['authorization'];
-        if (!token || token !== TOKEN)
-            return response.status(401).send('Unauthorized');
-
-        // 2️⃣ EXTRAER PARÁMETRO
-        const { user_id } = request.params as { user_id: string };
-
-        // 3️⃣ BUSCAR USUARIO
-        const usuario = await prisma.usuario.findUnique({ 
-            where: { 
-                id: parseInt(user_id) } 
+        // PASO 2: Verificar que no me envíe solicitud a mí mismo
+        if (miId === idAmigo) {
+            return response.status(400).send({
+                error: 'No puedes enviarte solicitud a ti mismo'
             });
-
-        // 4️⃣ VALIDAR EXISTENCIA
-        if (!usuario)
-            return response.status(404).send('Usuario no encontrado');
-
-        // 5️⃣ OBTENER IDs DE AMIGOS
-        // Convertir "[1, 5, 10]" → [1, 5, 10]
-        const amigosIds = JSON.parse(usuario.amigos);
+        }
         
-        // 6️⃣ BUSCAR MÚLTIPLES USUARIOS EN LA TABLA 'USUARIO'
-        // prisma.usuario.findMany() → Busca VARIOS usuarios en la tabla 'usuario'
-        // where: { id: { in: [1, 5, 10] } } → Busca IDs que estén EN el array
-        // select → Especifica qué campos devolver
-              // En TS no es necesario especificar qué contendrá la variable
-        const amigos = await prisma.usuario.findMany({
-            where: { id: { in: amigosIds } },
-            select: { id: true, nombre: true, email: true }
-        });
-        /* Devuelve un array de objetos: amigos = [
-            { id: 1, nombre: "Alice", email: "alice@test.com" },
-            { id: 5, nombre: "Bob", email: "bob@test.com" },
-            { id: 10, nombre: "Charlie", email: "charlie@test.com" }] */
-
-
-        // 7️⃣ RESPONDER CON LISTA
-        response.send({ 
-            totalAmigos: amigos.length, 
-            amigos // el array de objetos 'amigos'
+        // PASO 3: Leer todos los usuarios del archivo JSON
+        const usuarios = leerUsuarios();
+        
+        // PASO 4: Buscar mi usuario en la lista
+        const miUsuario = usuarios.find(u => u.id_user === miId);
+        if (!miUsuario) {
+            return response.status(404).send({
+                error: 'Tu usuario no existe'
+            });
+        }
+        
+        // PASO 5: Buscar al usuario que quiero agregar
+        const usuarioAmigo = usuarios.find(u => u.id_user === idAmigo);
+        if (!usuarioAmigo) {
+            return response.status(404).send({
+                error: 'El usuario que quieres agregar no existe'
+            });
+        }
+        
+        // PASO 6: Inicializar arrays de amigos si no existen
+        if (!miUsuario.amigos) {
+            miUsuario.amigos = [];
+        }
+        if (!miUsuario.solicitudes_enviadas) {
+            miUsuario.solicitudes_enviadas = [];
+        }
+        if (!usuarioAmigo.solicitudes_recibidas) {
+            usuarioAmigo.solicitudes_recibidas = [];
+        }
+        
+        // PASO 7: Verificar si ya son amigos
+        const yaSonAmigos = miUsuario.amigos.includes(idAmigo);
+        if (yaSonAmigos) {
+            return response.status(400).send({
+                error: 'Ya son amigos'
+            });
+        }
+        
+        // PASO 8: Verificar si ya envié una solicitud antes
+        const yaEnvie = miUsuario.solicitudes_enviadas.includes(idAmigo);
+        if (yaEnvie) {
+            return response.status(400).send({
+                error: 'Ya enviaste una solicitud a este usuario'
+            });
+        }
+        
+        // PASO 9: Verificar si él ya me envió una solicitud
+        const elMeEnvio = usuarioAmigo.solicitudes_enviadas?.includes(miId);
+        if (elMeEnvio) {
+            return response.status(400).send({
+                error: 'Este usuario ya te envió una solicitud',
+                mensaje: 'Mejor acepta su solicitud'
+            });
+        }
+        
+        // PASO 10: Enviar la solicitud
+        // Añadir a MIS solicitudes enviadas
+        miUsuario.solicitudes_enviadas.push(idAmigo);
+        
+        // Añadir a SUS solicitudes recibidas
+        usuarioAmigo.solicitudes_recibidas.push(miId);
+        
+        // PASO 11: Guardar los cambios en el archivo JSON
+        guardarUsuarios(usuarios);
+        
+        // PASO 12: Retornar respuesta exitosa
+        response.send({
+            mensaje: 'Solicitud de amistad enviada',
+            de: miUsuario.nombre,
+            para: usuarioAmigo.nombre
         });
     });
-
     
-    // ============================================================================
-    // ELIMINAR AMIGO
-    // ============================================================================
-    // DELETE /api/users/:id/eliminar_amigo/:id_amigo
-    // Elimina la relación de amistad entre dos usuarios
-    // ============================================================================
-    fastify.delete('/api/users/:id/eliminar_amigo/:id_amigo', async (request, response) => {
+    // ========================================================================
+    // RUTA 2: ACEPTAR SOLICITUD DE AMISTAD
+    // ========================================================================
+    // URL: POST /usuarios/:userId/aceptar_solicitud/:amigoId
+    // Ejemplo: POST /usuarios/5/aceptar_solicitud/1
+    fastify.post('/usuarios/:userId/aceptar_solicitud/:amigoId', {
+        onRequest: [fastify.authenticate]  // ← Necesita token
+    }, async (request, response) => {
         
-        // 1️⃣ AUTENTICACIÓN
-        const token = request.headers['authorization'];
-        if (!token || token !== TOKEN)
-            return response.status(401).send('Unauthorized');
-
-        // 2️⃣ EXTRAER PARÁMETROS
-        const { id, id_amigo } = request.params as { id: string; id_amigo: string };
-
-        // 3️⃣ BUSCAR USUARIOS
-        const usuario = await prisma.usuario.findUnique({ where: { id: parseInt(id) } });
-        const amigo = await prisma.usuario.findUnique({ where: { id: parseInt(id_amigo) } });
-
-        // 4️⃣ VALIDAR EXISTENCIA
-        if (!usuario || !amigo)
-            return response.status(404).send('Usuario no encontrado');
-
-        // 5️⃣ FILTRAR AMIGOS
-        // Eliminar el ID del amigo de la lista de cada usuario
-        // [1, 5, 10] → Eliminar 5 → [1, 10]
-        const amigosUsuario = JSON.parse(usuario.amigos).filter((aid: number) => aid !== parseInt(id_amigo));
-        const amigosAmigo = JSON.parse(amigo.amigos).filter((aid: number) => aid !== parseInt(id));
-
-        // 6️⃣ ACTUALIZAR BASE DE DATOS
-        // Guardar las nuevas listas sin el ID del otro
-        await prisma.usuario.update({
-            where: { id: parseInt(id) },
-            data: { amigos: JSON.stringify(amigosUsuario) }
+        // PASO 1: Obtener los IDs de la URL
+        const params = request.params as { userId: string, amigoId: string };
+        const miId = parseInt(params.userId);
+        const idAmigo = parseInt(params.amigoId);
+        
+        // PASO 2: Leer todos los usuarios
+        const usuarios = leerUsuarios();
+        
+        // PASO 3: Buscar mi usuario
+        const miUsuario = usuarios.find(u => u.id_user === miId);
+        if (!miUsuario) {
+            return response.status(404).send({
+                error: 'Tu usuario no existe'
+            });
+        }
+        
+        // PASO 4: Buscar al usuario que me envió la solicitud
+        const usuarioAmigo = usuarios.find(u => u.id_user === idAmigo);
+        if (!usuarioAmigo) {
+            return response.status(404).send({
+                error: 'El usuario no existe'
+            });
+        }
+        
+        // PASO 5: Inicializar arrays si no existen
+        if (!miUsuario.solicitudes_recibidas) {
+            miUsuario.solicitudes_recibidas = [];
+        }
+        if (!miUsuario.amigos) {
+            miUsuario.amigos = [];
+        }
+        if (!usuarioAmigo.amigos) {
+            usuarioAmigo.amigos = [];
+        }
+        if (!usuarioAmigo.solicitudes_enviadas) {
+            usuarioAmigo.solicitudes_enviadas = [];
+        }
+        
+        // PASO 6: Verificar que tengo una solicitud de este usuario
+        const tengoSolicitud = miUsuario.solicitudes_recibidas.includes(idAmigo);
+        if (!tengoSolicitud) {
+            return response.status(400).send({
+                error: 'No tienes ninguna solicitud de este usuario'
+            });
+        }
+        
+        // PASO 7: Aceptar la solicitud
+        // Quitar de MIS solicitudes recibidas
+        miUsuario.solicitudes_recibidas = miUsuario.solicitudes_recibidas.filter(
+            id => id !== idAmigo
+        );
+        
+        // Quitar de SUS solicitudes enviadas
+        usuarioAmigo.solicitudes_enviadas = usuarioAmigo.solicitudes_enviadas.filter(
+            id => id !== miId
+        );
+        
+        // Añadir a MIS amigos
+        miUsuario.amigos.push(idAmigo);
+        
+        // Añadir a SUS amigos
+        usuarioAmigo.amigos.push(miId);
+        
+        // PASO 8: Guardar los cambios
+        guardarUsuarios(usuarios);
+        
+        // PASO 9: Retornar respuesta exitosa
+        response.send({
+            mensaje: 'Solicitud aceptada, ahora son amigos',
+            tuAmigo: usuarioAmigo.nombre
         });
-
-        await prisma.usuario.update({
-            where: { id: parseInt(id_amigo) },
-            data: { amigos: JSON.stringify(amigosAmigo) }
+    });
+    
+    // ========================================================================
+    // RUTA 3: VER MIS AMIGOS
+    // ========================================================================
+    // URL: GET /usuarios/:userId/mis_amigos
+    // Ejemplo: GET /usuarios/1/mis_amigos
+    fastify.get('/usuarios/:userId/mis_amigos', {
+        onRequest: [fastify.authenticate]  // ← Necesita token
+    }, async (request, response) => {
+        
+        // PASO 1: Obtener el ID de la URL
+        const params = request.params as { userId: string };
+        const miId = parseInt(params.userId);
+        
+        // PASO 2: Leer todos los usuarios
+        const usuarios = leerUsuarios();
+        
+        // PASO 3: Buscar mi usuario
+        const miUsuario = usuarios.find(u => u.id_user === miId);
+        if (!miUsuario) {
+            return response.status(404).send({
+                error: 'Usuario no encontrado'
+            });
+        }
+        
+        // PASO 4: Verificar si tengo amigos
+        if (!miUsuario.amigos || miUsuario.amigos.length === 0) {
+            return response.send({
+                mensaje: 'Aún no tienes amigos',
+                total: 0,
+                amigos: []
+            });
+        }
+        
+        // PASO 5: Buscar la información de cada amigo
+        const listaAmigos = miUsuario.amigos.map(idAmigo => {
+            // Buscar el amigo en la lista de usuarios
+            const amigo = usuarios.find(u => u.id_user === idAmigo);
+            
+            // Si el amigo existe, retornar sus datos
+            if (amigo) {
+                return {
+                    id: amigo.id_user,
+                    nombre: amigo.nombre,
+                    email: amigo.email
+                };
+            }
+            
+            // Si el amigo no existe (usuario eliminado), retornar null
+            return null;
         });
-
-        // 7️⃣ RESPONDER AL CLIENTE
-        response.send({ mensaje: 'Amigo eliminado' });
+        
+        // PASO 6: Filtrar los amigos que no existen (null)
+        const amigosFiltrados = listaAmigos.filter(amigo => amigo !== null);
+        
+        // PASO 7: Retornar la lista de amigos
+        response.send({
+            mensaje: `Tienes ${amigosFiltrados.length} amigos`,
+            total: amigosFiltrados.length,
+            amigos: amigosFiltrados
+        });
+    });
+    
+    // ========================================================================
+    // RUTA 4: VER SOLICITUDES PENDIENTES
+    // ========================================================================
+    // URL: GET /usuarios/:userId/solicitudes_pendientes
+    // Ejemplo: GET /usuarios/1/solicitudes_pendientes
+    fastify.get('/usuarios/:userId/solicitudes_pendientes', {
+        onRequest: [fastify.authenticate]  // ← Necesita token
+    }, async (request, response) => {
+        
+        // PASO 1: Obtener el ID de la URL
+        const params = request.params as { userId: string };
+        const miId = parseInt(params.userId);
+        
+        // PASO 2: Leer todos los usuarios
+        const usuarios = leerUsuarios();
+        
+        // PASO 3: Buscar mi usuario
+        const miUsuario = usuarios.find(u => u.id_user === miId);
+        if (!miUsuario) {
+            return response.status(404).send({
+                error: 'Usuario no encontrado'
+            });
+        }
+        
+        // PASO 4: Verificar si tengo solicitudes
+        if (!miUsuario.solicitudes_recibidas || miUsuario.solicitudes_recibidas.length === 0) {
+            return response.send({
+                mensaje: 'No tienes solicitudes pendientes',
+                total: 0,
+                solicitudes: []
+            });
+        }
+        
+        // PASO 5: Buscar información de cada usuario que me envió solicitud
+        const listaSolicitudes = miUsuario.solicitudes_recibidas.map(idRemitente => {
+            const remitente = usuarios.find(u => u.id_user === idRemitente);
+            
+            if (remitente) {
+                return {
+                    id: remitente.id_user,
+                    nombre: remitente.nombre,
+                    email: remitente.email
+                };
+            }
+            
+            return null;
+        });
+        
+        // PASO 6: Filtrar solicitudes de usuarios eliminados
+        const solicitudesFiltradas = listaSolicitudes.filter(s => s !== null);
+        
+        // PASO 7: Retornar la lista de solicitudes
+        response.send({
+            mensaje: `Tienes ${solicitudesFiltradas.length} solicitudes pendientes`,
+            total: solicitudesFiltradas.length,
+            solicitudes: solicitudesFiltradas
+        });
+    });
+    
+    // ========================================================================
+    // RUTA 5: ELIMINAR AMIGO
+    // ========================================================================
+    // URL: DELETE /usuarios/:userId/eliminar_amigo/:amigoId
+    // Ejemplo: DELETE /usuarios/1/eliminar_amigo/5
+    fastify.delete('/usuarios/:userId/eliminar_amigo/:amigoId', {
+        onRequest: [fastify.authenticate]  // ← Necesita token
+    }, async (request, response) => {
+        
+        // PASO 1: Obtener los IDs de la URL
+        const params = request.params as { userId: string, amigoId: string };
+        const miId = parseInt(params.userId);
+        const idAmigo = parseInt(params.amigoId);
+        
+        // PASO 2: Leer todos los usuarios
+        const usuarios = leerUsuarios();
+        
+        // PASO 3: Buscar mi usuario
+        const miUsuario = usuarios.find(u => u.id_user === miId);
+        if (!miUsuario) {
+            return response.status(404).send({
+                error: 'Tu usuario no existe'
+            });
+        }
+        
+        // PASO 4: Buscar al amigo que quiero eliminar
+        const usuarioAmigo = usuarios.find(u => u.id_user === idAmigo);
+        if (!usuarioAmigo) {
+            return response.status(404).send({
+                error: 'El usuario no existe'
+            });
+        }
+        
+        // PASO 5: Verificar que sean amigos
+        if (!miUsuario.amigos || !miUsuario.amigos.includes(idAmigo)) {
+            return response.status(400).send({
+                error: 'No son amigos'
+            });
+        }
+        
+        // PASO 6: Eliminar la amistad (bidireccional)
+        // Quitar de MI lista de amigos
+        miUsuario.amigos = miUsuario.amigos.filter(id => id !== idAmigo);
+        
+        // Quitar de SU lista de amigos
+        if (usuarioAmigo.amigos) {
+            usuarioAmigo.amigos = usuarioAmigo.amigos.filter(id => id !== miId);
+        }
+        
+        // PASO 7: Guardar los cambios
+        guardarUsuarios(usuarios);
+        
+        // PASO 8: Retornar respuesta exitosa
+        response.send({
+            mensaje: 'Amigo eliminado correctamente',
+            amigoEliminado: usuarioAmigo.nombre
+        });
     });
 }
