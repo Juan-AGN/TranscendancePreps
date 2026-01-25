@@ -26,7 +26,7 @@ export class LightingSetup {
 		// Simula la luz del cielo y evita zonas completamente negras
     	// Se usa como base para que los modelos GLB no se vean planos
 		const ambientLight = new HemisphericLight(
-			'ambient',					//nom interno de la luz
+			'ambient',					// name interno de la luz
 			new Vector3(0, 1, 0),		// direccion dsde arriba
 			this.scene					// escena donde se aplica
 		);
