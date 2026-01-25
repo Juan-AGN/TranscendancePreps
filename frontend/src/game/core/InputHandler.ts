@@ -46,7 +46,7 @@ export class InputHandler {
             // Sin esto, las flechas harian scroll en la pagina (muy molesto durante el juego)
             e.preventDefault();
             
-            // Normalizamos la tecla a un formato consistente:
+            // Normalizams la tecla a un formato consistente:
             // - Si es flecha, dejamos "ArrowUp", "ArrowLeft", etc. tal cual
             // - Si es letra, la convertimos a minuscula: "W" → "w", "A" → "a"
             // Esto evita tener q comprobar mayusculas y minusculas por separado
