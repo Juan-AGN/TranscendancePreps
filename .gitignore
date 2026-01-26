@@ -1,3 +1,7 @@
 node_modules/
 
+game/back/node_modules/
+
+game/front/node_modules/
+
 test.html
