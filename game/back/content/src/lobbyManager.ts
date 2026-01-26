@@ -401,7 +401,6 @@ class LobbyManager {
         for (const player of game.alive)
             game.dead.push(player.player);
 
-
         let first = "", second = "", third = "", fourth = "";
         game.dead.reverse();
 

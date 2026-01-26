@@ -521,7 +521,6 @@ function App() {
 		const key = useInputEvent();
 
 		useEffect(() => {
-			console.log(key);
     		switch (key) {
     			case "KeyW":
     				ws?.send("W");
