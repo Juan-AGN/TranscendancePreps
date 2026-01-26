@@ -1,7 +1,8 @@
 import express, { NextFunction, Request, Response } from "express";
 import { lobbyManager } from "./lobbyManager";
 import { gameManager } from "./gameManager";
-import http from "http";
+var fs = require('fs');
+var https = require('https');
 import url from "url";
 import { WebSocketServer, WebSocket } from "ws";
 import { Errors, changeErrors } from "./types";
@@ -9,8 +10,10 @@ var cors = require('cors');
 
 const app = express();
 const port = 8888;
-
-const server = http.createServer(app);
+const server = https.createServer({
+   cert: fs.readFileSync('gameback.crt'),
+   key: fs.readFileSync('gameback.key')
+ }, app);
 
 const wss = new WebSocketServer({ server })
 
