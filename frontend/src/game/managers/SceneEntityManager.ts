@@ -18,7 +18,7 @@ import { Computer } from '../entities/objects/Computer';
 import { LaRosaleda } from '../entities/objects/LaRosaleda';
 import { LaFarola } from '../entities/objects/LaFarola';
 import { Arcade } from '../entities/objects/Arcade';
-import { GroundSignTrophy } from '../ui/sign/GroundSignTrophy';
+//import { GroundSignTrophy } from '../ui/sign/GroundSignTrophy';
 import { MenuInteraction } from '../interaction/MenuInteraction';
 
 
@@ -49,7 +49,7 @@ export class SceneEntityManager {
 	) {
 		this.scene = scene;
 		this.shadowGenerator = shadowGenerator;
-		this.menuInteraction = MenuInteraction;
+		this.menuInteraction = menuInteraction;
 	}
 
 
@@ -112,13 +112,14 @@ export class SceneEntityManager {
 			this.scene,
 			SCENE_CONFIG.trophy.pos,
 			() =>navigate(SCENE_CONFIG.trophy.route),
-			this.shadowGenerator,
-			() => { // si dejamos el circulo si , si quietamos el circulo que rodea el trofeo no
-                if (this.trophy?.getMesh()) {
-                    const trophyPos = this.trophy.getMesh()!.position.clone();
-                    new GroundSignTrophy(this.scene, trophyPos);
-                }
-            }
+			this.shadowGenerator
+			// Callback de GroundSignTrophy comentado x ahora (no se usa)
+			// () => { 
+            //     if (this.trophy?.getMesh()) {
+            //         const trophyPos = this.trophy.getMesh()!.position.clone();
+            //         new GroundSignTrophy(this.scene, trophyPos);
+            //     }
+            // }
         );
         this.registerInteractiveObject(
 			SCENE_CONFIG.trophy.route,
@@ -303,7 +304,7 @@ export class SceneEntityManager {
                 }
             } catch (error) {
                 // Si algo falla al cargar, lo mostramos en consola con un emoji
-                console.error('❌ Error loading the asset:', error);
+                console.error(' Error loading the asset:', error);
                 // Contamos la tarea como "cargada" igualmente pa no bloquear el juego
                 loaded++; // Contar como "cargado" para no bloquear
                 // Actualizamos el progreso aunque haya fallado

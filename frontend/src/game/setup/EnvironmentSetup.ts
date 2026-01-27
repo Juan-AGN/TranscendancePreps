@@ -47,19 +47,12 @@ export class EnvironmentSetup {
     }
 
     public setupHDRI(): void {
-        // HDRI para iluminacion global y reflejos
-        // NO se usa skybox para mejorar rendimiento
+        // HDRI pa iluminacion global y reflejos (formato .env compatible con Babylon)
         const hdrTexture = CubeTexture.CreateFromPrefilteredData(
-            '/environment/environment.dds', // archivo HDRI optimizado
+            '/environment/studio.env',
             this.scene
         );
-
-        this.scene.environmentTexture = hdrTexture; 
-        // asignamos el HDRI a la escena
-        this.scene.environmentIntensity = 0.6;      
-        // intensidad moderada para no sobreiluminar
-
-        // NO crear skybox para mejor rendimiento
-        // menos draw calls y mas FPS en el hub
+        this.scene.environmentTexture = hdrTexture;
+        this.scene.environmentIntensity = 0.8;
     }
 }

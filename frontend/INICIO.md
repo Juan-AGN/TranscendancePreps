@@ -171,3 +171,6 @@
 
 ##### UPDATES 
       instalacion del paquete postcss para TAILWIND 4, no viene por defecto en tailwind. es un procesador de CSS
+
+#### Fix iluminación Babylon 8.46:
+El HDRI environment.dds era incompatible con Babylon 8.46 (manejo DDS más estricto), provocando escena negra y PBR sin reflejos. Se sustituyó por studio.env oficial de Babylon (formato nativo y estable), se ajustaron intensidades de luces, se corrigió un useEffect que recreaba la escena infinitamente y un error de asignación de instancia en SceneEntityManager. Resultado: iluminación correcta, PBR funcional y sin warning

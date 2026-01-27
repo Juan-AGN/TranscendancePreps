@@ -14,10 +14,10 @@ export function HomePage() {
   useBabylonScene({
     canvasId: 'homeCanvas',
     // Conectamos los eventos de carga del motor con nuestra UI
-    onProgress: (loaded, total) => {
-      updateProgress(loaded, total, `Setup all the cositas ${loaded}/${total}`)
+    onProgress: (percentage, newLabel) => {
+      updateProgress(percentage, 100, newLabel)
     },
-    onReady: () => {
+    onComplete: () => {
       complete() //Carga COmpleta
     }
   })

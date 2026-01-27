@@ -30,7 +30,7 @@ export class LightingSetup {
 			new Vector3(0, 1, 0),		// direccion dsde arriba
 			this.scene					// escena donde se aplica
 		);
-        ambientLight.intensity = 0.4;	// intensidad suave para no quemar colores
+        ambientLight.intensity = 0.5;	// intensidad media (con HDRI activo)
         ambientLight.groundColor = new Color3(0.9, 0.9, 0.9);
 		// color de rebote del suelo, hace sombras mas realistas
 
@@ -41,7 +41,7 @@ export class LightingSetup {
 			this.scene
 		);
         directionalLight.position = new Vector3(20, 40, 20); // posicion usada para calcular correctamente las sombras
-        directionalLight.intensity = 0.8; 					// mas fuerte que la ambiental para marcar volumen
+        directionalLight.intensity = 0.9;					// intensidad media (con HDRI activo) 					// mas fuerte que la ambiental para marcar volumen
 
         // Generador de sombras
         this.shadowGenerator = new ShadowGenerator(
