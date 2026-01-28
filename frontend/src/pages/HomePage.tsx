@@ -1,75 +1,90 @@
-import { useState } from 'react'
-import { SplashScreen } from '../components/ui/SplashScreen'
 import { useLoadingProgress } from '../hooks/useLoadingProgress'
 import { useBabylonScene } from '../hooks/useBabylonScene'
 
 export function HomePage() {
-  // Estado para controlar la visibilidad de la pantalla de carga
-  const [showSplash, setShowSplash] = useState(true)
-
   // Hook que gestiona la lógica matemática de la barra de progreso
-  const { progress, label, updateProgress, complete } = useLoadingProgress()
+  const { updateProgress, complete } = useLoadingProgress()
 
   // Inicializamos el motor 3D
   useBabylonScene({
     canvasId: 'homeCanvas',
+    enabled: true,
     // Conectamos los eventos de carga del motor con nuestra UI
     onProgress: (percentage, newLabel) => {
       updateProgress(percentage, 100, newLabel)
     },
     onComplete: () => {
-      complete() //Carga COmpleta
+      complete() //Carga Completa
     }
   })
 
   return (
     <>
-      {/* Renderizado condicional: La Splash Screen se desmonta del DOM al terminar */}
-      {showSplash && (
-        <SplashScreen 
-          progress={progress} 
-          label={label}
-          onComplete={() => setShowSplash(false)}
-        />
-      )}
+      <div className="relative w-full h-[calc(100vh-88px)] via-slate-800 to-slate-900 flex flex-col items-center justify-center p-8">
+          {/* 
+            relative: Posicionamiento relativo para que los hijos absolutos se posicionen respecto a este contenedor
+            w-full: Ancho 100%
+            h-[calc(100vh-88px)]: Altura = 100% viewport - 88px del header (evita scroll vertical)
+            via-slate-800 to-slate-900: Colores del gradiente de fondo
+            flex flex-col: Diseño flexbox vertical
+            items-center: Centra horizontalmente los elementos hijos
+            justify-center: Centra verticalmente los elementos hijos
+            p-8: Padding de 2rem (32px) en todos los lados
+          */}
+          
+          {/* Título y instrucciones arriba del canvas */}
+          <div className="text-center mb-10">
+            {/* mb-6: Margen inferior de 1.5rem (24px) para separar del canvas */}
+            
+            <h2 className="text-5xl font-bold text-black mb-2 drop-shadow-lg">
+              {/* 
+                text-5xl: Tamaño de fuente 3rem (48px)
+                font-bold: Peso de fuente en negrita
+                text-black: Color negro
+                mb-2: Margen inferior de 0.5rem (8px)
+                drop-shadow-lg: Sombra para que el texto sea legible sobre el canvas
+              */}
+              TRANSCENDENCE
+            </h2>
+            
+            <p className="text-black text-base opacity-90 drop-shadow-md">
+              {/* 
+                text-base: Tamaño de fuente 1rem (16px)
+                opacity-90: 90% de opacidad (ligeramente transparente)
+                drop-shadow-md: Sombra mediana para legibilidad
+              */}
+              Usa las flechas canio ↑ ↓ ← →
+            </p>
+          </div>
 
-      {/* Contenedor principal */}
-      {/* h-[calc(100vh-88px)]: Restamos la altura del Header para evitar scroll vertical */}
-      <div className="relative w-full h-[calc(100vh-88px)] flex flex-col">
-        
-        {/* HUD / Overlay: Texto flotante sobre el 3D */}
-        {/* z-10 asegura que el texto quede por encima del canvas */}
-        <div className="text-center py-8 z-10 relative">
-          <h2 
-            className="text-5xl font-bold text-white mb-2"
-            style={{
-              // Sombra para asegurar legibilidad sobre cualquier fondo 3D
-              textShadow: `
-                0 2px 4px rgba(0, 0, 0, 0.8),
-                0 4px 8px rgba(0, 0, 0, 0.6),
-                0 0 20px rgba(255, 255, 255, 0.5)
-              `
-            }}
-          >
-            TRANSCENDENCE
-          </h2>
-          <p 
-            className="text-white text-base tracking-wider opacity-90"
-            style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.6)' }}
-          >
-            Usa las flechas ↑ ↓ ← → para mover, lo de mirar arriba y abajo luego lo pongo
-          </p>
-        </div>
+          {/* Contenedor del Canvas - Aquí controlas el tamaño del mundo 3D */}
+          <div className="relative w-full max-w-[100rem] aspect-square bg-black/30 rounded-2xl overflow-hidden shadow-2xl">
+            {/* 
+              relative: Posicionamiento relativo
+              w-full: Ancho 100% del contenedor padre
+              max-w-6xl: Ancho máximo de 72rem (~1152px) - CAMBIA ESTO para ajustar el tamaño
+              aspect-square: Mantiene proporción 1:1 (cuadrado) - CAMBIA a aspect-video para 16:9
+              bg-black/30: Fondo negro con 30% de opacidad (por si el canvas no carga)
+              rounded-2xl: Bordes redondeados de 1rem (16px)
+              overflow-hidden: Oculta cualquier contenido que sobresalga (necesario para bordes redondeados)
+              shadow-2xl: Sombra grande para destacar el canvas del fondo
+            */}
+            
+            <canvas
+              id="homeCanvas"
+              className="w-full h-full outline-none"
+              style={{ touchAction: 'none' }}
+            />
+            {/* 
+              id="homeCanvas": ID único para que Babylon.js pueda encontrar y renderizar en este canvas
+              w-full h-full: Canvas ocupa 100% del ancho y alto del contenedor padre
+              outline-none: Quita el borde de enfoque cuando el canvas está activo
+              touchAction: 'none': Previene gestos táctiles predeterminados del navegador (importante para controles en móviles)
+            */}
+          </div>
 
-        {/* Contenedor del Canvas 3D */}
-        <div className="flex-1 relative">
-          <canvas 
-            id="homeCanvas" 
-            className="w-full h-full outline-none"
-            style={{ touchAction: 'none' }} // Deshabilita gestos táctiles del navegador oJOJo
-          />
         </div>
-      </div>
     </>
   )
+
 }

@@ -180,17 +180,28 @@ export class HomeScene3D {
             this.cameraController.followTarget(characterPos);
 
             // Zoom dinamico segun proximidad a objetos
-            // calculamos la distancia al objeto mas cercano
+            // Calculamos la distancia a TODOS los meshes de la escena (no solo menu)
             let minDistance = 999;  // distancia inicial muy grande
-            for (const obj of this.menuInteraction.getMenuObjects().values()) {
-                if (obj.mesh) {
-                    // calculamos distancia entre personaje y objeto
-                    const distance = Vector3.Distance(characterPos, obj.mesh.position);
-                    if (distance < minDistance) {
-                        minDistance = distance;  // guardamos la menor distancia
+            
+            // Recorremos todos los meshes de la escena
+            for (const mesh of this.scene.meshes) {
+                // Ignoramos el suelo, el personaje mismo, y meshes sin nombre
+                if (mesh.name !== 'ground' && 
+                    mesh.name !== 'stickman' && 
+                    !mesh.name.includes('__root__') &&
+                    mesh.name !== '') {
+                    // Calculamos distancia entre personaje y este objeto
+                    const distance = Vector3.Distance(characterPos, mesh.position);
+                    if (distance < minDistance && distance > 1) {  // > 1 para ignorar partes del propio personaje
+                        minDistance = distance;
+                        // Log solo cuando cambia significativamente
+                        if (Math.abs(distance - minDistance) > 5) {
+                            console.log('🎯 Objeto cercano:', mesh.name, 'distancia:', distance.toFixed(1));
+                        }
                     }
                 }
             }
+            
             // aplicamos zoom segun distancia al objeto mas cercano
             this.cameraController.dynamicZoom(minDistance);
 

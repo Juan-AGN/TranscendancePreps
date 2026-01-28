@@ -28,9 +28,9 @@ export function Header() {
       {/* Navegación */}
       <nav className="flex gap-12">
         <Link 
-          to="/" 
+          to="/start" 
           className={`text-base font-medium transition-colors duration-200 hover:text-blue-600 ${
-            isActive('/') ? 'text-blue-600' : 'text-gray-700'
+            isActive('/start') ? 'text-blue-600' : 'text-gray-700'
           }`}
         >
           Home

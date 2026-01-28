@@ -11,6 +11,7 @@ import { useGameStore } from '../store/gameStore';
 // Interface q define los props del hook (parametros de entrada)
 interface UseBabylonSceneProps {
   canvasId: string;  // id del canvas HTML donde se renderiza el 3D
+  enabled?: boolean;
   onProgress?: (progress: number, label: string) => void;  // callback opcional pa reportar progreso
   onComplete?: () => void;  // callback opcional cuando termina la carga
 }
@@ -18,7 +19,8 @@ interface UseBabylonSceneProps {
 /** Hook pa crear y gestionar la escena 3D de Babylon
   * Maneja el ciclo de vida completo: creacion, carga, cleanup */
 export const useBabylonScene = ({ 
-  canvasId, 
+  canvasId,
+  enabled = true,
   onProgress, 
   onComplete 
 }: UseBabylonSceneProps) => {
@@ -32,10 +34,13 @@ export const useBabylonScene = ({
   // useEffect -> ejecuta codigo cuando el componente se monta/desmonta
   // se ejecuta 1 vez cuando el componente aparece en pantalla
   useEffect(() => {
+    if (!enabled) return;
+    
     // Flag pa evitar actualizaciones de estado si el componente se desmonta
     // esto previene memory leaks y warnings de React
     let isCancelled = false;
     
+
     /** Inicializa la escena 3D de forma asincrona */
     const initScene = async () => {
       try {
@@ -103,7 +108,7 @@ export const useBabylonScene = ({
         sceneRef.current = null;  // eliminamos la referencia
       }
     };
-  }, [canvasId]);
+  }, [canvasId, enabled]);
   // Array de dependencias -> solo canvasId
   // NO incluimos onProgress/onComplete xq cambian en cada render y causan bucle infinito
   // usamos las referencias mas recientes con closures

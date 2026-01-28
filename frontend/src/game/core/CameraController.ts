@@ -1,6 +1,7 @@
 // importamos de babilon.js las 3 tools que necesitamos auqi
 //  ArcR.. camara para 3a persona, Scene, el lugar(universo()) donde se desallra todo, Vector, calcular las posiciones
 import { ArcRotateCamera, Scene, Vector3 } from "@babylonjs/core";
+import { CAMERA_CONFIG } from "../config/SceneConfig";
         // SCENE: El "Universo" del juego.
             //  Viene de Babylon.js (@babylonjs/core).
             // Es un objeto contenedor (como un struct gigante).
@@ -25,12 +26,12 @@ export class CameraController {
         //    Si no hiciéramos 'this.camera =', la cámara se crearía dentro de esta función
         //    pero se PERDERÍA inmediatamente al terminar el constructor (Scope local).
         this.camera = new ArcRotateCamera(
-            `camera`,     // nombre interno de la camara
-            -Math.PI / 2, // angulo horizontal: desde que lado mira al objetivo (aqui desde atras)
-            Math.PI / 3,  // angulo vertical: la altura o inclinacion (aqui una vista 3a persona estandar)
-            35,           // el radio: la distancia fisica al objetivo (el zoom)
-            initialTarget,// el objetivo: el punto central al que miramos fijamente
-            this.scene    // la escena: le decimos en que mundo debe aparecer
+            `camera`,                      // nombre interno de la camara
+            CAMERA_CONFIG.initialAlpha,    // angulo horizontal: desde que lado mira al objetivo (aqui desde atras)
+            CAMERA_CONFIG.initialBeta,     // angulo vertical: la altura o inclinacion (aqui una vista 3a persona estandar)
+            CAMERA_CONFIG.initialRadius,   // el radio: la distancia fisica al objetivo (el zoom) - AHORA USA CONFIG
+            initialTarget,                 // el objetivo: el punto central al que miramos fijamente
+            this.scene                     // la escena: le decimos en que mundo debe aparecer
         );
         // Desconectamos el control por defecto (ratón/teclado) de la cámara.
         // Si no hacemos esto, al pulsar las teclas para mover al PERSONAJE,
@@ -41,12 +42,12 @@ export class CameraController {
         // LIMITES FISICOS (CLAMPING)
         // Babylon restringe estos valores automaticamente (como un if > max then = max).
         // ZOOM (RADIUS)
-        this.camera.lowerRadiusLimit = 15; // Minima distancia: Evita atravesar la malla del personaje (Clipping).
-        this.camera.upperRadiusLimit = 80; // Maxima distancia: Evita ver el vacio (el "skybox" negro).
+        this.camera.lowerRadiusLimit = CAMERA_CONFIG.lowerRadiusLimit; // Minima distancia: Evita atravesar la malla del personaje (Clipping).
+        this.camera.upperRadiusLimit = CAMERA_CONFIG.upperRadiusLimit; // Maxima distancia: Evita ver el vacio (el "skybox" negro).
         // ANGULO VERTICAL (BETA)
         // Nota: Beta 0 es arriba (cenital), Beta PI es abajo.  
-        this.camera.lowerBetaLimit = Math.PI / 6;   // Tope Superior (~30º): Evita ponerse totalmente vertical sobre la cabeza.
-        this.camera.upperBetaLimit = Math.PI / 2.1; // Tope Inferior: PI/2 es 90º (el suelo plano).
+        this.camera.lowerBetaLimit = CAMERA_CONFIG.lowerBetaLimit;   // Tope Superior (~30º): Evita ponerse totalmente vertical sobre la cabeza.
+        this.camera.upperBetaLimit = CAMERA_CONFIG.upperBetaLimit; // Tope Inferior: PI/2 es 90º (el suelo plano).
                                                     // Usamos 2.1 para frenar la camara justo ANTES de que atraviese el terreno.
     }
 
@@ -116,20 +117,29 @@ export class CameraController {
     // Zoom inteligente (Logica de juego)(raycast).
     // Si el raycast dice q hay pared cerca (<15), hacemos zoom in automatico.
     public dynamicZoom(minDistanceToObjects: number): void {
-        let targetRadius = 35;
+        // Valores de zoom segun proximidad a objetos
+        let targetRadius = 35;  // distancia normal/lejos
         
         if (minDistanceToObjects < 15) {
-            targetRadius = 20; 
+            // MUY CERCA de objeto -> acerca camara pa ver mejor al personaje
+            targetRadius = 20;
+            console.log('🔍 MUY CERCA - targetRadius:', targetRadius, 'distance:', minDistanceToObjects);
         } else if (minDistanceToObjects < 25) {
+            // DISTANCIA MEDIA -> interpola suavemente entre cerca y lejos
             const t = (minDistanceToObjects - 15) / 10;
             targetRadius = 20 + (15 * t);
+            console.log('📏 DISTANCIA MEDIA - targetRadius:', targetRadius, 'distance:', minDistanceToObjects);
         } else if (minDistanceToObjects > 30) {
+            // LEJOS de objetos -> aleja camara pa vista panoramica
             targetRadius = 40;
+            console.log('🔭 LEJOS - targetRadius:', targetRadius, 'distance:', minDistanceToObjects);
         }
         
         // Aplicamos el zoom con suavizado (Lerp) igual q el movimiento.
         const zoomLerp = 0.05;
+        const oldRadius = this.camera.radius;
         this.camera.radius += (targetRadius - this.camera.radius) * zoomLerp;
+        console.log('📹 Camera radius:', oldRadius.toFixed(1), '→', this.camera.radius.toFixed(1), 'target:', targetRadius);
     }
 
     // EVENTOS DEL NAVEGADOR (INTERRUPCIONES)

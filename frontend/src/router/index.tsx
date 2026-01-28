@@ -9,6 +9,8 @@ import type { RouteObject } from './types'
 import { RootLayout } from '../components/layout/RootLayout'
 //Paginas a mdedida que las vamos creando poner aqui!
 import { HomePage } from "../pages/HomePage"
+import { SplashScreen } from '../components/ui/SplashScreen'
+import { StartGate } from '../components/ui/StartGate'
 
 
 
@@ -20,27 +22,42 @@ const GamePage = () => <div>Game Page</div>
 const TournamentPage = () => <div>Tournament PAge</div>
 const SettingsPage = () => <div>Settings Page</div>
 
+// Página StartGate
+const StartPage = () => (
+  <StartGate
+    onStart3D={() => window.location.href = '/home'}
+    onGo2DMenu={() => console.log('Go to 2D menu')}
+  />
+)
 
 // definimos rutas (mapa)
 const routes: RouteObject[] = [
     {
         path: '/',
+        element: <SplashScreen />,
+    },
+    {
+        path: '/',
         element: <RootLayout />,
         children: [
             {
-                path: '/',
+                path: 'start',
+                element: <StartPage />,
+            },
+            {
+                path: 'home',
                 element: <HomePage />,
             },
             {
-                path: '/game',
+                path: 'game',
                 element: <GamePage />,
             },
             {
-                path: '/tournament',
+                path: 'tournament',
                 element: <TournamentPage />,
             },
             {
-                path: '/settings',
+                path: 'settings',
                 element: <SettingsPage />,
             },
         ]
