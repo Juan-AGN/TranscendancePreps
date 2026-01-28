@@ -8,8 +8,8 @@ let noport = "";
 if (address.includes(":"))
 	noport = address.split(":")[0];
 
-const wsbase = `wss://${noport}:8888`;
-const apiBase = `https://${noport}:8888`;
+const wsbase = `ws://${noport}:8888`;
+const apiBase = `http://${noport}:8888`;
 
 export const useInputEvent = () => {
 	const [key, setKey] = useState(null);
