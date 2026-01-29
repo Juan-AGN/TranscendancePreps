@@ -1,3 +1,5 @@
+import { Footer } from './Footer'
+
 interface StartGateProps {
   onStart3D: () => void
   onGo2DMenu?: () => void
@@ -10,7 +12,7 @@ export function StartGate({ onStart3D, onGo2DMenu }: StartGateProps) {
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="w-full max-w-xl text-center">
           <h1 className="text-5xl font-bold text-black mb-4">
-            TRANSCENDENCE 42
+            TRANSCENDENCE
           </h1>
 
           {/* Boton principal */}
@@ -34,10 +36,7 @@ export function StartGate({ onStart3D, onGo2DMenu }: StartGateProps) {
       </div>
 
       {/* Footer legal */}
-      <footer className="w-full px-6 py-4 text-sm text-black/60 flex items-center justify-center gap-6 border-t border-white/10">
-        <a href="/privacy" className="hover:text-black transition">Privacy Policy</a>
-        <a href="/terms" className="hover:text-black transition">Terms of Service</a>
-      </footer>
+      <Footer />
     </div>
   )
 }
