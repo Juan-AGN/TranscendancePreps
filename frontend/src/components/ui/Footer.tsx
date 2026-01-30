@@ -1,4 +1,7 @@
 //foooooter
+
+import { Link } from 'react-router-dom'
+
 export function Footer() {
     return (
     <footer className="
@@ -50,7 +53,7 @@ export function Footer() {
 				 gap-6
 				 items-center
 				 ">
-					 <a href="/privacy" className="
+					 <Link to="/privacy" className="
 					 text-white/80
 					 hover:text-white
 					 hover:scale-110
@@ -58,11 +61,11 @@ export function Footer() {
 					 duration-300
 					 font-medium
 					 drop-shadow-md
-					 ">Privacy Policy</a>
+					 ">Privacy Policy</Link>
 					 
 					 <span className="text-white/40">|</span>
 					 
-					 <a href="/terms" className="
+					 <Link to="/terms" className="
 					 text-white/80
 					 hover:text-white
 					 hover:scale-110
@@ -70,7 +73,7 @@ export function Footer() {
 					 duration-300
 					 font-medium
 					 drop-shadow-md
-					 ">Terms of Service</a>
+					 ">Terms of Service</Link>
 				 </div>
 
 				 {/* Copyright */}

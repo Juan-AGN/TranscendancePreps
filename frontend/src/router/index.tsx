@@ -12,6 +12,9 @@ import { HomePage } from "../pages/HomePage"
 import { SplashScreen } from '../components/ui/SplashScreen'
 import { StartGate } from '../components/ui/StartGate'
 
+import { PrivacyPolicyPage } from "../pages/PrivacyPolicyPage"
+import { TermsOfServicePage } from "../pages/TermsOfServicePage"
+
 
 
 
@@ -59,6 +62,14 @@ const routes: RouteObject[] = [
             {
                 path: 'settings',
                 element: <SettingsPage />,
+            },
+            {
+                path:'privacy',
+                element: <PrivacyPolicyPage />,
+            },
+            {
+                path:'terms',
+                element: <TermsOfServicePage />,
             },
         ]
     }
