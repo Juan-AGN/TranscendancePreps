@@ -295,7 +295,9 @@ function App() {
  		if (!c) return;
     	const ctx = c.getContext("2d");
     	if (!ctx) return;
-	
+
+		ctx.textBaseline = "middle";
+		ctx.textAlign = "center";
 		ctx.clearRect(0, 0, sizexRef.current, sizeyRef.current);
 		ctx.moveTo(0,0);
 		ctx.lineTo(sizexRef.current, 0);
@@ -334,6 +336,23 @@ function App() {
 			ctx.arc(ball.x, ball.y, ball.hitbox / 2, 0, 2 * Math.PI);
 			ctx.fill();
 			ctx.stroke();
+		}
+		ctx.fillStyle= "white";
+		ctx.strockeStyle = "grey";
+		for (let player of msg.game.alive)
+		{
+			ctx.font = `${30}px Arial`;
+			
+			if (player.y > sizeyRef.current / 2)
+			{
+				ctx.strokeText(player.player.substring(0, 8), player.x, player.y - (player.hitbox / 2) - 20);
+				ctx.fillText(player.player.substring(0, 8), player.x, player.y - (player.hitbox / 2) - 20);
+			}
+			else
+			{
+				ctx.strokeText(player.player.substring(0, 8), player.x, player.y + (player.hitbox / 2) + 20);
+				ctx.fillText(player.player.substring(0, 8), player.x, player.y + (player.hitbox / 2) + 20);
+			}
 		}
 		ctx.fillStyle= "black";
 		ctx.strockeStyle = "black";
