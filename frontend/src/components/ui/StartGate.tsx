@@ -1,4 +1,6 @@
+//stargate.tsx
 import { Footer } from './Footer'
+import { Enter3DButton } from './Button3DWorld'
 
 
 interface StartGateProps {
@@ -17,19 +19,9 @@ export function StartGate({ onStart3D, onGo2DMenu }: StartGateProps) {
 				</h1>
 				
 				{/* Boton principal */}
-				<button
-				type="button"
-				onClick={onStart3D}
-				className="w-full py-10 rounded-2xl font-bold text-lg bg-white text-black hover:opacity-90 transition flex items-center justify-center"
-				>
-					<img
-					src="/WorldPong3D.png"
-					alt="Enter 3D"
-					className="w-90 h-90 rounded-full object-cover"
-					style={{objectPosition: '50% 26%'}}
-					/>
-				</button>
-				
+				<div className ="animate-fade-in-up-pro delay-150">
+					<Enter3DButton onClick={onStart3D} />
+				</div>
 				{/* Boton secundario */}
 				<button
 				type="button"
