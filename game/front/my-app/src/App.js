@@ -11,20 +11,35 @@ if (address.includes(":"))
 const wsbase = `ws://${noport}:8888`;
 const apiBase = `http://${noport}:8888`;
 
-export const useInputEvent = () => {
-	const [key, setKey] = useState(null);
+export const useHeldKey = () => {
+	const [heldKey, setHeldKey] = useState(null);
+
 	useEffect(() => {
-		const keyDownHandler = ({ code }) => setKey(code);
-		const keyUpHandler = () => setKey(null);
-		global.addEventListener('keydown', keyDownHandler);
-		global.addEventListener('keyup', keyUpHandler);
-		return () => {
-		global.removeEventListener("keydown", keyDownHandler);
-		global.removeEventListener("keyup", keyUpHandler)
+		const keyDownHandler = (e) => {
+		// Only track the first press, ignore OS repeat
+		if (e.repeat) return;
+		if (["KeyW", "KeyA", "KeyS", "KeyD"].includes(e.code)) {
+			setHeldKey(e.code);
 		}
-	}, []);
-	return (key);
-	}
+		};
+
+		const keyUpHandler = (e) => {
+		if (heldKey === e.code) {
+			setHeldKey(null);
+		}
+		};
+
+		window.addEventListener("keydown", keyDownHandler);
+		window.addEventListener("keyup", keyUpHandler);
+
+		return () => {
+		window.removeEventListener("keydown", keyDownHandler);
+		window.removeEventListener("keyup", keyUpHandler);
+		};
+	}, [heldKey]);
+
+	return heldKey;
+};
 
 function Log({ user, setUser }) {
 	let content;
@@ -241,6 +256,12 @@ function App() {
 	const sizeyRef = useRef(sizey);
 	const userRef = useRef(user);
 	const canvasRef = useRef(null);
+	const heldKey = useHeldKey();
+	const heldKeyRef = useRef(null);
+
+	useEffect(() => {
+		heldKeyRef.current = heldKey;
+	}, [heldKey]);
 
 	const [Crules, setCrules] = useState({
 		waitingnewball: 5000,
@@ -536,27 +557,6 @@ function App() {
 		}, [ws]);
 	}*/
 
-	function UseControlls() {
-		const key = useInputEvent();
-
-		useEffect(() => {
-    		switch (key) {
-    			case "KeyW":
-    				ws?.send("W");
-    				break;
-    			case "KeyA":
-    				ws?.send("A");
-    				break;
-    			case "KeyS":
-    				ws?.send("S");
-    				break;
-    			case "KeyD":
-       				ws?.send("D");
-					break;
-			}
-		}, [ws][key]);
-	}
-
 	useEffect(() => {
     	if (!user) return;
 	
@@ -597,6 +597,17 @@ function App() {
 				if (msg.game.bordery != sizeyRef.current)
 					setSizey(msg.game.bordery);
 				setGameState(msg);
+
+				if (heldKeyRef.current) {
+					const keyMap = {
+						KeyW: "W",
+						KeyA: "A",
+						KeyS: "S",
+						KeyD: "D",
+					};
+
+					socket.send(keyMap[heldKeyRef.current]);
+				}
 			}
 			if (msg.type == "GAMERESULT")
 			{
@@ -671,7 +682,6 @@ function App() {
 			<div>
 				<button onClick={leaveLobby}>Leave Lobby</button>
     			<canvas ref={canvasRef} width={Number(sizex)} height={Number(sizey)}/>
-				<UseControlls/>
 			</div>
 		}
 		</div>
