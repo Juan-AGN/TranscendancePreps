@@ -307,7 +307,7 @@ function App() {
         	<div key={index} className="notification">
           		{p}
         	</div>
-      ))}
+    	))}
 		</div>);
 	}
 

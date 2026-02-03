@@ -8,6 +8,12 @@ class GameManager {
         return Math.floor(Math.random() * (max - min + 1) + min);
     }
 
+    randomIntFromNoZero(min: number, max: number) {
+        if (min < 5)
+            min = 5;
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
     setup(clobby: Lobby, maxx: number, maxy: number, ballhitbox: number, playerhitbox: number, ballspeed: number, playerspeed: number) {
         const newball: ball = {
             x: maxx / 2,

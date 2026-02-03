@@ -25,8 +25,8 @@ class RulesetHandler {
     capmaxy = 2000;
     lowcapmaxy = 600;
 
-    capballhitbox = 300;
-    lowcapballhitbox = 30; 
+    capballhitbox = 200;
+    lowcapballhitbox = 5; 
 
     capplayerhitbox = 300;
     lowcapplayerhitbox = 30;
@@ -40,7 +40,7 @@ class RulesetHandler {
     capspeedrandom = 15;
     lowcapspeedrandom = 0;
 
-    caphitboxrandom = 20;
+    caphitboxrandom = 100;
     lowcaphitboxrandom = 0;
 
     lowcapmaxballs = 0;
