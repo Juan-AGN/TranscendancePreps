@@ -1,190 +1,441 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- ========================================================================
+         META TAGS (informacion sobre la pagina)
+         ======================================================================== -->
+    
+    <!-- Esto dice que usamos caracteres UTF-8 (para acentos, ñ, etc) -->
     <meta charset="UTF-8">
+    
+    <!-- Esto hace que la pagina se vea bien en moviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transcendence - Usuarios</title>
+    
+    <!-- El titulo que aparece en la pestanya del navegador -->
+    <title>Transcendence - Sistema de Gestion de Usuarios</title>
+    
+    <!-- ========================================================================
+         ESTILOS CSS (como se ve la pagina)
+         ======================================================================== -->
     <style>
+        /* ---------------------------------------------------------------------
+           ESTILO DEL BODY (todo el fondo de la pagina)
+           --------------------------------------------------------------------- */
         body {
+            /* Tipo de letra que usamos en toda la pagina */
             font-family: Arial, sans-serif;
+            
+            /* Fondo con gradiente morado (de arriba-izquierda a abajo-derecha) */
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            
+            /* Color del texto: blanco */
             color: white;
+            
+            /* Espacio alrededor de todo el contenido (40px por todos los lados) */
             padding: 40px;
+            
+            /* Altura minima: todo el alto de la ventana */
             min-height: 100vh;
+            
+            /* Sin margen exterior */
             margin: 0;
         }
         
+        /* ---------------------------------------------------------------------
+           CONTENEDOR PRINCIPAL (la caja central blanca transparente)
+           --------------------------------------------------------------------- */
         .container {
+            /* Ancho maximo: 600 pixeles (no se hace mas grande que esto) */
             max-width: 600px;
+            
+            /* Centrar horizontalmente en la pagina */
             margin: 0 auto;
+            
+            /* Fondo blanco semi-transparente (10% de opacidad) */
             background: rgba(255, 255, 255, 0.1);
+            
+            /* Espacio interno de 30px por todos los lados */
             padding: 30px;
+            
+            /* Bordes redondeados de 10px */
             border-radius: 10px;
+            
+            /* Efecto de desenfoque del fondo (efecto "cristal esmerilado") */
             backdrop-filter: blur(10px);
         }
         
+        /* ---------------------------------------------------------------------
+           TITULO PRINCIPAL (el h1 grande de arriba)
+           --------------------------------------------------------------------- */
         h1 {
+            /* Centrar el texto */
             text-align: center;
+            
+            /* Espacio debajo del titulo (30px) */
             margin-bottom: 30px;
         }
         
+        /* ---------------------------------------------------------------------
+           SECCIONES (cada recuadro: registro, lista de usuarios)
+           --------------------------------------------------------------------- */
         .section {
+            /* Espacio debajo de cada seccion (30px) */
             margin-bottom: 30px;
+            
+            /* Espacio interno de 20px */
             padding: 20px;
+            
+            /* Fondo blanco semi-transparente (10% de opacidad) */
             background: rgba(255, 255, 255, 0.1);
+            
+            /* Bordes redondeados de 8px */
             border-radius: 8px;
         }
         
+        /* ---------------------------------------------------------------------
+           SUBTITULOS (los h2 de cada seccion)
+           --------------------------------------------------------------------- */
         h2 {
+            /* Sin margen arriba (pegado al borde de la seccion) */
             margin-top: 0;
+            
+            /* Tamanyo de letra: 1.3 veces el tamanyo normal */
             font-size: 1.3em;
         }
         
+        /* ---------------------------------------------------------------------
+           CAMPOS DE TEXTO (inputs para escribir nombre, email, password)
+           --------------------------------------------------------------------- */
         input {
+            /* Ancho: 100% del contenedor (ocupa todo el ancho) */
             width: 100%;
+            
+            /* Espacio interno: 12px por todos los lados */
             padding: 12px;
+            
+            /* Margen arriba y abajo: 10px (para separar los inputs) */
             margin: 10px 0;
+            
+            /* Sin borde visible */
             border: none;
+            
+            /* Bordes redondeados de 5px */
             border-radius: 5px;
+            
+            /* Tamanyo de letra: 16px */
             font-size: 16px;
+            
+            /* Necesario para que width: 100% funcione correctamente */
+            box-sizing: border-box;
         }
         
+        /* ---------------------------------------------------------------------
+           BOTONES (boton de registrar, obtener usuarios)
+           --------------------------------------------------------------------- */
         button {
+            /* Ancho: 100% del contenedor */
             width: 100%;
+            
+            /* Espacio interno: 12px por todos los lados */
             padding: 12px;
+            
+            /* Color de fondo: morado */
             background: #667eea;
+            
+            /* Color del texto: blanco */
             color: white;
+            
+            /* Sin borde */
             border: none;
+            
+            /* Bordes redondeados de 5px */
             border-radius: 5px;
+            
+            /* Tamanyo de letra: 16px */
             font-size: 16px;
+            
+            /* El cursor se convierte en manita cuando pasas por encima */
             cursor: pointer;
+            
+            /* Transicion suave del color de fondo (0.3 segundos) */
             transition: background 0.3s;
         }
         
+        /* ---------------------------------------------------------------------
+           BOTON AL PASAR EL RATON POR ENCIMA (hover)
+           --------------------------------------------------------------------- */
         button:hover {
+            /* Color mas oscuro cuando pasas el raton por encima */
             background: #5568d3;
         }
         
+        /* ---------------------------------------------------------------------
+           AREA DE RESULTADOS (donde se muestra la lista de usuarios)
+           --------------------------------------------------------------------- */
         #resultado {
+            /* Espacio arriba: 15px */
             margin-top: 15px;
+            
+            /* Espacio interno: 15px */
             padding: 15px;
+            
+            /* Fondo negro semi-transparente (30% de opacidad) */
             background: rgba(0, 0, 0, 0.3);
+            
+            /* Bordes redondeados de 5px */
             border-radius: 5px;
+            
+            /* Altura minima: 50px */
             min-height: 50px;
+            
+            /* Permite saltos de linea y espacios */
             white-space: pre-wrap;
+            
+            /* Fuente monoespaciada (como codigo) */
             font-family: monospace;
         }
         
+        /* ---------------------------------------------------------------------
+           INDICADOR DE ESTADO (verde = OK, rojo = ERROR)
+           --------------------------------------------------------------------- */
         .status {
+            /* Centrar el texto */
             text-align: center;
+            
+            /* Espacio interno: 10px */
             padding: 10px;
+            
+            /* Espacio debajo: 20px */
             margin-bottom: 20px;
+            
+            /* Bordes redondeados de 5px */
             border-radius: 5px;
         }
         
+        /* ---------------------------------------------------------------------
+           ESTADO OK (fondo verde cuando la conexion funciona)
+           --------------------------------------------------------------------- */
         .status.ok {
+            /* Fondo verde semi-transparente (30% de opacidad) */
             background: rgba(46, 204, 113, 0.3);
         }
         
+        /* ---------------------------------------------------------------------
+           ESTADO ERROR (fondo rojo cuando hay problemas)
+           --------------------------------------------------------------------- */
         .status.error {
+            /* Fondo rojo semi-transparente (30% de opacidad) */
             background: rgba(231, 76, 60, 0.3);
         }
     </style>
 </head>
+
+<!-- ============================================================================
+     BODY (contenido visible de la pagina)
+     ============================================================================ -->
 <body>
+    <!-- Contenedor principal que centra todo -->
     <div class="container">
-        <h1> Transcendence - Gestión de Usuarios</h1>
         
-        <div id="status" class="status">Verificando conexión...</div>
+        <!-- ====================================================================
+             TITULO PRINCIPAL
+             ==================================================================== -->
+        <h1>Transcendence - Sistema de Gestion de Usuarios</h1>
         
-        <!-- SECCIÓN: REGISTRO -->
+        <!-- ====================================================================
+             INDICADOR DE ESTADO DE CONEXION
+             ==================================================================== -->
+        <!-- Este div muestra si el backend esta funcionando o no -->
+        <!-- Se actualiza automaticamente al cargar la pagina -->
+        <div id="status" class="status">Verificando conexion con el servidor...</div>
+        
+        <!-- ====================================================================
+             SECCION 1: FORMULARIO DE REGISTRO
+             ==================================================================== -->
         <div class="section">
-            <h2> Registrar Usuario</h2>
-            <input type="text" id="nombre" placeholder="Nombre">
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Contraseña">
-            <button onclick="registrarUsuario()">Registrar</button>
+            <!-- Titulo de la seccion -->
+            <h2>Registrar Nuevo Usuario</h2>
+            
+            <!-- Campo de texto para el nombre del usuario -->
+            <!-- id="nombre" para acceder desde JavaScript -->
+            <input type="text" id="nombre" placeholder="Escribe tu nombre completo">
+            
+            <!-- Campo de texto para el email -->
+            <!-- type="email" valida que sea un email valido -->
+            <input type="email" id="email" placeholder="Escribe tu email">
+            
+            <!-- Campo de texto para la contrasenya -->
+            <!-- type="password" oculta los caracteres con asteriscos -->
+            <input type="password" id="password" placeholder="Escribe tu contrasenya">
+            
+            <!-- Boton que llama a la funcion registrarUsuario() al hacer clic -->
+            <button onclick="registrarUsuario()">Registrar Usuario</button>
         </div>
         
-        <!-- SECCIÓN: OBTENER USUARIOS -->
+        <!-- ====================================================================
+             SECCION 2: LISTA DE USUARIOS
+             ==================================================================== -->
         <div class="section">
-            <h2> Lista de Usuarios</h2>
+            <!-- Titulo de la seccion -->
+            <h2>Lista de Usuarios Registrados</h2>
+            
+            <!-- Boton que llama a la funcion obtenerUsuarios() al hacer clic -->
             <button onclick="obtenerUsuarios()">Obtener Usuarios</button>
+            
+            <!-- Area donde se mostraran los usuarios (inicialmente vacia) -->
             <div id="resultado"></div>
         </div>
     </div>
 
+    <!-- ========================================================================
+         CODIGO JAVASCRIPT (logica de la aplicacion)
+         ======================================================================== -->
     <script>
-        // Verificar conexión al cargar la página
+        // ====================================================================
+        // FUNCION QUE SE EJECUTA AL CARGAR LA PAGINA
+        // ====================================================================
+        // Esta linea hace que al cargar la pagina se ejecute verificarConexion()
         window.onload = verificarConexion;
         
+        // ====================================================================
+        // FUNCION: VERIFICAR CONEXION CON EL BACKEND
+        // ====================================================================
+        // Esta funcion comprueba si el servidor backend esta funcionando
+        // Se ejecuta automaticamente al cargar la pagina
         async function verificarConexion() {
             try {
-                const response = await fetch('/get_usuarios');
-                if (response.ok) {
-                    mostrarStatus(' Backend conectado', 'ok');
+                // PASO 1: Intentar hacer una peticion GET a /get_usuarios
+                // fetch() es como hacer una peticion HTTP al servidor
+                const respuestaDelServidor = await fetch('/get_usuarios');
+                
+                // PASO 2: Comprobar si la respuesta es correcta (codigo 200)
+                if (respuestaDelServidor.ok) {
+                    // Si todo esta bien, mostrar mensaje verde
+                    mostrarEstadoDeConexion('Backend conectado correctamente', 'ok');
                 } else {
-                    mostrarStatus(' Backend respondió con error', 'error');
+                    // Si hay error, mostrar mensaje rojo
+                    mostrarEstadoDeConexion('Backend respondio con error', 'error');
                 }
             } catch (error) {
-                mostrarStatus(' No se puede conectar al backend', 'error');
+                // Si no se puede conectar al servidor, mostrar mensaje rojo
+                mostrarEstadoDeConexion('No se puede conectar al backend', 'error');
             }
         }
         
-        function mostrarStatus(mensaje, tipo) {
-            const statusDiv = document.getElementById('status');
-            statusDiv.textContent = mensaje;
-            statusDiv.className = `status ${tipo}`;
+        // ====================================================================
+        // FUNCION: MOSTRAR ESTADO DE CONEXION
+        // ====================================================================
+        // Esta funcion actualiza el div de estado con un mensaje y color
+        // Parametros:
+        //   - mensaje: el texto que se mostrara (ej: "Backend conectado")
+        //   - tipo: "ok" para verde o "error" para rojo
+        function mostrarEstadoDeConexion(mensaje, tipo) {
+            // PASO 1: Obtener el div con id="status"
+            const divDeEstado = document.getElementById('status');
+            
+            // PASO 2: Cambiar el texto del div
+            divDeEstado.textContent = mensaje;
+            
+            // PASO 3: Cambiar la clase CSS para cambiar el color
+            // Si tipo = "ok" entonces fondo verde
+            // Si tipo = "error" entonces fondo rojo
+            divDeEstado.className = `status ${tipo}`;
         }
         
+        // ====================================================================
+        // FUNCION: REGISTRAR NUEVO USUARIO
+        // ====================================================================
+        // Esta funcion se ejecuta cuando haces clic en "Registrar Usuario"
+        // Toma los valores de los inputs y los envia al backend
         async function registrarUsuario() {
-            const nombre = document.getElementById('nombre').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            // PASO 1: Obtener los valores de los inputs
+            // document.getElementById('nombre').value = lo que escribiste en el campo nombre
+            const nombreDelUsuario = document.getElementById('nombre').value;
+            const emailDelUsuario = document.getElementById('email').value;
+            const passwordDelUsuario = document.getElementById('password').value;
             
-            if (!nombre || !email || !password) {
+            // PASO 2: Validar que todos los campos esten llenos
+            if (!nombreDelUsuario || !emailDelUsuario || !passwordDelUsuario) {
+                // Si falta algun campo, mostrar alerta y no continuar
                 alert('Por favor, rellena todos los campos');
-                return;
+                return;  // Salir de la funcion
             }
             
             try {
-                const response = await fetch('/registro', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ nombre, email, password })
+                // PASO 3: Hacer una peticion POST al backend
+                // Enviamos los datos en formato JSON
+                const respuestaDelServidor = await fetch('/registro', {
+                    method: 'POST',  // Tipo de peticion: POST (para crear)
+                    headers: {
+                        'Content-Type': 'application/json'  // Decimos que enviamos JSON
+                    },
+                    body: JSON.stringify({
+                        // Convertir los datos a formato JSON
+                        nombre: nombreDelUsuario,
+                        email: emailDelUsuario,
+                        contrasenya: passwordDelUsuario
+                    })
                 });
                 
-                const data = await response.json();
+                // PASO 4: Convertir la respuesta del servidor a JSON
+                const datosRecibidos = await respuestaDelServidor.json();
                 
-                if (response.ok) {
-                    alert(' Usuario registrado exitosamente');
+                // PASO 5: Comprobar si el registro fue exitoso
+                if (respuestaDelServidor.ok) {
+                    // Si todo salio bien:
+                    
+                    // 5.1: Mostrar alerta de exito
+                    alert('Usuario registrado exitosamente');
+                    
+                    // 5.2: Limpiar los campos del formulario
                     document.getElementById('nombre').value = '';
                     document.getElementById('email').value = '';
                     document.getElementById('password').value = '';
-                    obtenerUsuarios(); // Actualizar lista
+                    
+                    // 5.3: Actualizar la lista de usuarios automaticamente
+                    obtenerUsuarios();
+                    
                 } else {
-                    alert(' Error: ' + (data.error || 'Error desconocido'));
+                    // Si hubo un error, mostrar el mensaje de error
+                    alert('Error: ' + (datosRecibidos.error || 'Error desconocido'));
                 }
+                
             } catch (error) {
-                alert(' Error de conexión: ' + error.message);
+                // Si hay error de conexion, mostrar alerta
+                alert('Error de conexion: ' + error.message);
             }
         }
         
+        // ====================================================================
+        // FUNCION: OBTENER LISTA DE USUARIOS
+        // ====================================================================
+        // Esta funcion se ejecuta cuando haces clic en "Obtener Usuarios"
+        // Hace una peticion al backend y muestra la lista de usuarios
         async function obtenerUsuarios() {
             try {
-                const response = await fetch('/get_usuarios');
-                const data = await response.json();
+                // PASO 1: Hacer peticion GET al backend para obtener usuarios
+                const respuestaDelServidor = await fetch('/get_usuarios');
                 
-                const resultadoDiv = document.getElementById('resultado');
+                // PASO 2: Convertir la respuesta a JSON
+                const listaDeTodosLosUsuarios = await respuestaDelServidor.json();
                 
-                if (data.length === 0) {
-                    resultadoDiv.textContent = 'No hay usuarios registrados';
+                // PASO 3: Obtener el div donde mostraremos los usuarios
+                const divDeResultados = document.getElementById('resultado');
+                
+                // PASO 4: Comprobar si hay usuarios o no
+                if (listaDeTodosLosUsuarios.length === 0) {
+                    // Si no hay usuarios, mostrar mensaje
+                    divDeResultados.textContent = 'No hay usuarios registrados todavia';
                 } else {
-                    resultadoDiv.textContent = JSON.stringify(data, null, 2);
+                    // Si hay usuarios, mostrarlos en formato JSON bonito
+                    // JSON.stringify(data, null, 2) convierte el objeto a texto con indentacion
+                    divDeResultados.textContent = JSON.stringify(listaDeTodosLosUsuarios, null, 2);
                 }
+                
             } catch (error) {
+                // Si hay error, mostrar mensaje de error en el div
                 document.getElementById('resultado').textContent = 
-                    ' Error: ' + error.message;
+                    'Error al obtener usuarios: ' + error.message;
             }
         }
     </script>

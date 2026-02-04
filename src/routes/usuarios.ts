@@ -1,277 +1,337 @@
 // ============================================================================
-// IMPORTACIONES
+// IMPORTACIONES NECESARIAS
 // ============================================================================
-import type { FastifyInstance } from 'fastify';  // Tipo para TypeScript
-import { PrismaClient } from '@prisma/client';   // Cliente de base de datos
+// FastifyInstance: Es el tipo de dato que representa el servidor Fastify
+import type { FastifyInstance } from 'fastify';
 
-// Crear conexión con la base de datos
-const prisma = new PrismaClient();
+// PrismaClient: Es el cliente para conectarnos a la base de datos PostgreSQL
+import { PrismaClient } from '@prisma/client';
+
+// Crear una instancia del cliente de Prisma
+// Esta variable nos permite hacer consultas a la base de datos
+const clienteDePrisma = new PrismaClient();
 
 // ============================================================================
-// FUNCIÓN PRINCIPAL: Registrar todas las rutas de usuarios
+// FUNCION PRINCIPAL: Registrar todas las rutas relacionadas con usuarios
 // ============================================================================
-export async function usuariosRoutes(fastify: FastifyInstance) {
+// Esta funcion se llama desde index.ts para registrar todas las rutas
+// Parametro: fastify = el servidor donde registramos las rutas
+export async function usuariosRoutes(servidorFastify: FastifyInstance) {
     
     // ========================================================================
-    // RUTA 1: REGISTRO DE USUARIOS
+    // RUTA NUMERO 1: REGISTRO DE NUEVOS USUARIOS
     // ========================================================================
-    fastify.post('/registro', async (request, response) => {
+    // Metodo HTTP: POST (para crear datos nuevos)
+    // URL completa: http://localhost:3000/registro
+    // Que hace: Permite que un usuario nuevo se registre en la aplicacion
+    servidorFastify.post('/registro', async (peticionDelCliente, respuestaAlCliente) => {
         
-        // Obtener datos del body de la petición
-        const body = request.body as { 
+        // PASO 1: Extraer los datos que el cliente envio en el body
+        // IMPORTANTE: El HTML envia "contrasenya", no "password"
+        const datosDelBody = peticionDelCliente.body as { 
             nombre: string, 
             email: string, 
-            password: string 
+            contrasenya: string  // ← CORREGIDO: ahora coincide con el HTML
         };
         
-        const nombre = body.nombre;
-        const email = body.email;
-        const password = body.password;
+        // Guardar cada dato en una variable separada para mas claridad
+        const nombreDelNuevoUsuario = datosDelBody.nombre;
+        const emailDelNuevoUsuario = datosDelBody.email;
+        const passwordDelNuevoUsuario = datosDelBody.contrasenya;  // ← CORREGIDO
         
-        // PASO 1: Verificar que el email no esté ya registrado
-        const usuarioExiste = await prisma.usuario.findUnique({
-            where: { email: email }
+        // PASO 1.5: VALIDAR que todos los campos existan
+        if (!nombreDelNuevoUsuario || !emailDelNuevoUsuario || !passwordDelNuevoUsuario) {
+            return respuestaAlCliente.status(400).send({
+                error: 'Faltan campos obligatorios',
+                mensaje: 'Debes enviar nombre, email y contrasenya'
+            });
+        }
+        
+        // PASO 2: Verificar si el email ya esta registrado en la base de datos
+        // Hacemos una consulta a PostgreSQL para buscar si existe un usuario con ese email
+        const usuarioYaExiste = await clienteDePrisma.usuario.findUnique({
+            where: { email: emailDelNuevoUsuario }
         });
         
-        // Si el email ya existe, retornar error
-        if (usuarioExiste) {
-            return response.status(400).send({
-                error: 'El email ya está registrado',
+        // PASO 3: Si el email ya existe, retornar un error
+        if (usuarioYaExiste) {
+            return respuestaAlCliente.status(400).send({
+                error: 'El email ya esta registrado',
                 mensaje: 'Usa otro email o haz login'
             });
         }
         
-        // PASO 2: Crear el nuevo usuario en la base de datos
-        const nuevoUsuario = await prisma.usuario.create({
+        // PASO 4: Crear el nuevo usuario en la base de datos PostgreSQL
+        // IMPORTANTE: Los nombres de campos deben coincidir con el schema.prisma
+        const usuarioRecienCreado = await clienteDePrisma.usuario.create({
             data: {
-                nombre: nombre,
-                email: email,
-                password: password  //  En producción, cifrar la contraseña
+                nombreCompleto: nombreDelNuevoUsuario,        // ← Schema usa "nombreCompleto"
+                email: emailDelNuevoUsuario,
+                passwordHasheado: passwordDelNuevoUsuario     // ← Schema usa "passwordHasheado"
+                // NOTA IMPORTANTE: En produccion, la password deberia estar cifrada con bcrypt
             }
         });
         
-        // PASO 3: Retornar respuesta exitosa (sin mostrar el password)
-        response.send({
+        // PASO 5: Retornar una respuesta exitosa al cliente
+        // NO enviamos la password en la respuesta (seguridad)
+        respuestaAlCliente.send({
             mensaje: 'Usuario registrado exitosamente',
             usuario: {
-                id: nuevoUsuario.id,
-                nombre: nuevoUsuario.nombre,
-                email: nuevoUsuario.email,
-                fechaCreacion: nuevoUsuario.createdAt
+                id: usuarioRecienCreado.id,
+                nombre: usuarioRecienCreado.nombreCompleto,
+                email: usuarioRecienCreado.email,
+                fechaCreacion: usuarioRecienCreado.fechaDeCreacion
             }
         });
     });
     
     // ========================================================================
-    // RUTA 2: LOGIN (Iniciar sesión)
+    // RUTA NUMERO 2: LOGIN (Iniciar sesion)
     // ========================================================================
-    fastify.post('/login', async (request, response) => {
+    // Metodo HTTP: POST
+    // URL completa: http://localhost:3000/login
+    // Que hace: Verifica email y password, y devuelve un token JWT
+    servidorFastify.post('/login', async (peticionDelCliente, respuestaAlCliente) => {
         
-        // Obtener email y password del body
-        const body = request.body as { email: string, password: string };
-        const email = body.email;
-        const password = body.password;
+        // PASO 1: Obtener el email y password que el cliente envio
+        const datosDelBody = peticionDelCliente.body as { 
+            email: string, 
+            contrasenya: string  // ← CORREGIDO: coincide con HTML
+        };
+        const emailIngresado = datosDelBody.email;
+        const passwordIngresada = datosDelBody.contrasenya;  // ← CORREGIDO
         
-        // PASO 1: Buscar el usuario por email
-        const usuario = await prisma.usuario.findUnique({
-            where: { email: email }
+        // PASO 2: Buscar el usuario en la base de datos por su email
+        const usuarioEncontrado = await clienteDePrisma.usuario.findUnique({
+            where: { email: emailIngresado }
         });
         
-        // Si no existe el usuario, retornar error
-        if (!usuario) {
-            return response.status(401).send({
+        // PASO 3: Si el usuario no existe, retornar error
+        if (!usuarioEncontrado) {
+            return respuestaAlCliente.status(401).send({
                 error: 'Usuario no encontrado',
-                mensaje: 'El email no está registrado'
+                mensaje: 'El email no esta registrado'
             });
         }
         
-        // PASO 2: Verificar que la contraseña sea correcta
-        if (password !== usuario.password) {
-            return response.status(401).send({
-                error: 'Contraseña incorrecta',
-                mensaje: 'Verifica tu contraseña'
+        // PASO 4: Verificar que la password sea correcta
+        // Comparamos la password ingresada con la guardada en la base de datos
+        const passwordEsCorrecta = (passwordIngresada === usuarioEncontrado.passwordHasheado);  // ← CORREGIDO
+        
+        if (!passwordEsCorrecta) {
+            return respuestaAlCliente.status(401).send({
+                error: 'Password incorrecta',
+                mensaje: 'Verifica tu password'
             });
         }
         
-        // PASO 3: Crear un token JWT con los datos del usuario
-            // TOKEN JWT - el cliente lo guardará en su navegador
-            // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwiZW1haWwiOiJkYW5pZWxAZW1haWwuY29tIiwibm9tYnJlIjoiRGFuaWVsIn0.x7Kj9mP2qR8sN5tL3vW6zA
-            // ↑                                    ↑                                                                      ↑
-            // PARTE 1: Header                      PARTE 2: Payload (DATOS - después del '.')                             PARTE 3: Firma
-            //                                      (codificado en base64) contiene los datos del usuario codificados    
-        const token = fastify.jwt.sign(
+        // PASO 5: Crear un token JWT con los datos del usuario
+        // Este token es como un "carnet de identidad" digital
+        // El cliente guardara este token y lo enviara en cada peticion protegida
+        const tokenJWT = servidorFastify.jwt.sign(
             {
-                id: usuario.id,
-                email: usuario.email,
-                nombre: usuario.nombre
+                // Datos que guardamos en el token
+                id: usuarioEncontrado.id,
+                email: usuarioEncontrado.email,
+                nombre: usuarioEncontrado.nombreCompleto  // ← CORREGIDO
             },
             {
-                expiresIn: '7d'  // El token expira en 7 días
+                // Tiempo de expiracion del token
+                expiresIn: '7d'  // El token dura 7 dias
             }
         );
         
-        // PASO 4: Retornar el token y los datos del usuario
-        response.send({
+        // PASO 6: Retornar el token y los datos del usuario
+        respuestaAlCliente.send({
             mensaje: 'Login exitoso',
-            token: token,  // Este token se usa en todas las peticiones protegidas
+            token: tokenJWT,
             usuario: {
-                id: usuario.id,
-                nombre: usuario.nombre,
-                email: usuario.email
+                id: usuarioEncontrado.id,
+                nombre: usuarioEncontrado.nombreCompleto,  // ← CORREGIDO
+                email: usuarioEncontrado.email
             }
         });
     });
     
     // ========================================================================
-    // RUTA 3: LISTAR TODOS LOS USUARIOS (ruta pública)
+    // RUTA NUMERO 3: LISTAR TODOS LOS USUARIOS (ruta publica, no necesita token)
     // ========================================================================
-    fastify.get('/get_usuarios', async (request, response) => {
+    // Metodo HTTP: GET (para obtener datos)
+    // URL completa: http://localhost:3000/get_usuarios
+    // Que hace: Retorna la lista completa de usuarios registrados
+    servidorFastify.get('/get_usuarios', async (peticionDelCliente, respuestaAlCliente) => {
         
-        // Obtener todos los usuarios de la base de datos
-        const usuarios = await prisma.usuario.findMany({
+        // PASO 1: Obtener todos los usuarios de la base de datos
+        // findMany() = "SELECT * FROM usuarios"
+        const listaDeTodosLosUsuarios = await clienteDePrisma.usuario.findMany({
             select: {
-                id: true,
-                nombre: true,
-                email: true,
-                createdAt: true,
-                password: false  // NO enviar las contraseñas
+                // Especificamos que campos queremos obtener
+                id: true,                     // SI queremos el ID
+                nombreCompleto: true,         // SI queremos el nombre (CORREGIDO)
+                email: true,                  // SI queremos el email
+                fechaDeCreacion: true,        // SI queremos la fecha de creacion (CORREGIDO)
+                passwordHasheado: false       // NO queremos la password (seguridad)
             }
         });
         
-        // Retornar la lista de usuarios
-        response.send({
-            total: usuarios.length,
-            usuarios: usuarios
+        // PASO 2: Retornar la lista de usuarios al cliente
+        respuestaAlCliente.send({
+            total: listaDeTodosLosUsuarios.length,
+            usuarios: listaDeTodosLosUsuarios
         });
     });
     
     // ========================================================================
-    // RUTA 4: OBTENER UN USUARIO POR ID (ruta pública)
+    // RUTA NUMERO 4: OBTENER UN USUARIO ESPECIFICO POR SU ID
     // ========================================================================
-    fastify.get('/get_usuario/:id', async (request, response) => {
+    // Metodo HTTP: GET
+    // URL completa: http://localhost:3000/get_usuario/5
+    // Que hace: Retorna los datos de un usuario especifico
+    servidorFastify.get('/get_usuario/:id', async (peticionDelCliente, respuestaAlCliente) => {
         
-        // Obtener el ID de los parámetros de la URL
-        const params = request.params as { id: string };
-        const id = parseInt(params.id);  // Convertir string a número
+        // PASO 1: Obtener el ID de los parametros de la URL
+        // Si la URL es /get_usuario/5, entonces params.id = "5"
+        const parametrosDeLaURL = peticionDelCliente.params as { id: string };
+        const idDelUsuarioBuscado = parseInt(parametrosDeLaURL.id);
         
-        // Buscar el usuario en la base de datos
-        const usuario = await prisma.usuario.findUnique({
-            where: { id: id },
+        // PASO 2: Buscar el usuario en la base de datos por su ID
+        const usuarioEncontrado = await clienteDePrisma.usuario.findUnique({
+            where: { id: idDelUsuarioBuscado },
             select: {
                 id: true,
-                nombre: true,
+                nombreCompleto: true,         // CORREGIDO
                 email: true,
-                createdAt: true,
-                password: false  // NO enviar la contraseña
+                fechaDeCreacion: true,        // CORREGIDO
+                passwordHasheado: false       // NO enviamos la password
             }
         });
         
-        // Si no existe, retornar error
-        if (!usuario) {
-            return response.status(404).send({
+        // PASO 3: Si no existe el usuario, retornar error 404
+        if (!usuarioEncontrado) {
+            return respuestaAlCliente.status(404).send({
                 error: 'Usuario no encontrado',
-                mensaje: `No existe un usuario con ID ${id}`
+                mensaje: `No existe un usuario con ID ${idDelUsuarioBuscado}`
             });
         }
         
-        // Retornar el usuario encontrado
-        response.send(usuario);
+        // PASO 4: Retornar los datos del usuario encontrado
+        respuestaAlCliente.send(usuarioEncontrado);
     });
     
     // ========================================================================
-    // RUTA 5: ACTUALIZAR USUARIO (ruta protegida - necesita token)
+    // RUTA NUMERO 5: ACTUALIZAR DATOS DE UN USUARIO (ruta protegida)
     // ========================================================================
-    fastify.put('/put_usuario/:id', {
-        onRequest: [fastify.authenticate]  // ← Verificar token antes de ejecutar
-    }, async (request, response) => {
+    // Metodo HTTP: PUT (para actualizar datos)
+    // URL completa: http://localhost:3000/put_usuario/5
+    // Que hace: Permite actualizar nombre o email de un usuario
+    // IMPORTANTE: Necesita token JWT (solo puedes editar TU perfil)
+    servidorFastify.put('/put_usuario/:id', {
+        onRequest: [servidorFastify.authenticate]
+    }, async (peticionDelCliente, respuestaAlCliente) => {
         
-        // PASO 1: Obtener datos del token JWT verificado
-        const tokenData = request.user as { 
+        // PASO 1: Obtener los datos del token JWT verificado
+        // Cuando se verifica el token, Fastify guarda los datos en request.user
+        const datosDelTokenJWT = peticionDelCliente.user as { 
             id: number, 
             email: string, 
             nombre: string 
         };
         
         // PASO 2: Obtener el ID de la URL
-        const params = request.params as { id: string };
-        const idUrl = parseInt(params.id);
+        const parametrosDeLaURL = peticionDelCliente.params as { id: string };
+        const idDeLaURLQueQuieroActualizar = parseInt(parametrosDeLaURL.id);
         
-        // PASO 3: Verificar que el usuario solo pueda editar SU propio perfil
-        if (tokenData.id !== idUrl) {
-            return response.status(403).send({
+        // PASO 3: Verificar que el usuario solo pueda editar SU PROPIO perfil
+        // El ID del token debe ser igual al ID de la URL
+        const elUsuarioPuedeEditarEstePerfil = (datosDelTokenJWT.id === idDeLaURLQueQuieroActualizar);
+        
+        if (!elUsuarioPuedeEditarEstePerfil) {
+            return respuestaAlCliente.status(403).send({
                 error: 'Acceso denegado',
                 mensaje: 'Solo puedes editar tu propio perfil'
             });
         }
         
         // PASO 4: Obtener los nuevos datos del body
-        const body = request.body as { nombre?: string, email?: string };
+        const datosNuevosDelBody = peticionDelCliente.body as { 
+            nombre?: string, 
+            email?: string 
+        };
         
         // PASO 5: Actualizar el usuario en la base de datos
-        const usuarioActualizado = await prisma.usuario.update({
-            where: { id: idUrl },
+        // Solo actualizamos los campos que se enviaron
+        const usuarioDespuesDeActualizar = await clienteDePrisma.usuario.update({
+            where: { id: idDeLaURLQueQuieroActualizar },
             data: {
-                // Solo actualizar si se envió el campo
-                ...(body.nombre && { nombre: body.nombre }),
-                ...(body.email && { email: body.email })
+                // Si se envio nombre, actualizarlo
+                ...(datosNuevosDelBody.nombre && { nombreCompleto: datosNuevosDelBody.nombre }),  // CORREGIDO
+                // Si se envio email, actualizarlo
+                ...(datosNuevosDelBody.email && { email: datosNuevosDelBody.email })
             }
         });
         
         // PASO 6: Retornar respuesta exitosa
-        response.send({
+        respuestaAlCliente.send({
             mensaje: 'Usuario actualizado correctamente',
             usuario: {
-                id: usuarioActualizado.id,
-                nombre: usuarioActualizado.nombre,
-                email: usuarioActualizado.email
+                id: usuarioDespuesDeActualizar.id,
+                nombre: usuarioDespuesDeActualizar.nombreCompleto,  // CORREGIDO
+                email: usuarioDespuesDeActualizar.email
             }
         });
     });
     
     // ========================================================================
-    // RUTA 6: ELIMINAR USUARIO (ruta protegida - necesita token)
+    // RUTA NUMERO 6: ELIMINAR UN USUARIO (ruta protegida)
     // ========================================================================
-    fastify.delete('/delete_usuarios/:id', {
-        onRequest: [fastify.authenticate]  // ← Verificar token antes de ejecutar
-    }, async (request, response) => {
+    // Metodo HTTP: DELETE (para eliminar datos)
+    // URL completa: http://localhost:3000/delete_usuarios/5
+    // Que hace: Elimina un usuario de la base de datos
+    // IMPORTANTE: Solo puedes eliminar TU PROPIA cuenta
+    servidorFastify.delete('/delete_usuarios/:id', {
+        onRequest: [servidorFastify.authenticate]
+    }, async (peticionDelCliente, respuestaAlCliente) => {
         
         // PASO 1: Obtener datos del token JWT
-        const tokenData = request.user as { id: number };
+        const datosDelTokenJWT = peticionDelCliente.user as { id: number };
         
         // PASO 2: Obtener el ID de la URL
-        const params = request.params as { id: string };
-        const idUrl = parseInt(params.id);
+        const parametrosDeLaURL = peticionDelCliente.params as { id: string };
+        const idQueQuieroEliminar = parseInt(parametrosDeLaURL.id);
         
-        // PASO 3: Verificar que el usuario solo pueda eliminar SU propia cuenta
-        if (tokenData.id !== idUrl) {
-            return response.status(403).send({
+        // PASO 3: Verificar que solo puedas eliminar TU cuenta
+        const puedeEliminarEstaCuenta = (datosDelTokenJWT.id === idQueQuieroEliminar);
+        
+        if (!puedeEliminarEstaCuenta) {
+            return respuestaAlCliente.status(403).send({
                 error: 'Acceso denegado',
                 mensaje: 'Solo puedes eliminar tu propia cuenta'
             });
         }
         
-        // PASO 4: Verificar que el usuario exista
-        const usuario = await prisma.usuario.findUnique({
-            where: { id: idUrl }
+        // PASO 4: Verificar que el usuario exista antes de eliminarlo
+        const usuarioQueVamosAEliminar = await clienteDePrisma.usuario.findUnique({
+            where: { id: idQueQuieroEliminar }
         });
         
-        if (!usuario) {
-            return response.status(404).send({
+        if (!usuarioQueVamosAEliminar) {
+            return respuestaAlCliente.status(404).send({
                 error: 'Usuario no encontrado'
             });
         }
         
         // PASO 5: Eliminar el usuario de la base de datos
-        await prisma.usuario.delete({
-            where: { id: idUrl }
+        // DELETE FROM usuarios WHERE id = ?
+        await clienteDePrisma.usuario.delete({
+            where: { id: idQueQuieroEliminar }
         });
         
         // PASO 6: Retornar respuesta exitosa
-        response.send({
+        respuestaAlCliente.send({
             mensaje: 'Usuario eliminado correctamente',
             usuarioEliminado: {
-                id: usuario.id,
-                nombre: usuario.nombre
+                id: usuarioQueVamosAEliminar.id,
+                nombre: usuarioQueVamosAEliminar.nombreCompleto  // CORREGIDO
             }
         });
     });

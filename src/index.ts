@@ -1,135 +1,179 @@
 // ============================================================================
-// PASO 1: IMPORTAR LIBRERÍAS
+// PASO 1: IMPORTAR TODAS LAS LIBRERIAS NECESARIAS
 // ============================================================================
+// dotenv/config: Carga las variables de entorno desde el archivo .env
 import 'dotenv/config';
-import Fastify from 'fastify';
-import fastifyJWT from '@fastify/jwt';
-import cors from '@fastify/cors';
-import fastifyStatic from '@fastify/static';  
-import path from 'path';                      
-import { fileURLToPath } from 'url';          
 
+// Fastify: El framework del servidor web
+import Fastify from 'fastify';
+
+// Plugins de Fastify para diferentes funcionalidades
+import fastifyJWT from '@fastify/jwt';      // Para crear y verificar tokens JWT
+import cors from '@fastify/cors';            // Para permitir peticiones desde otros dominios
+import fastifyStatic from '@fastify/static';  // Para servir archivos HTML/CSS/JS
+
+// Modulos de Node.js para manejar rutas de archivos
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Importar las rutas de la aplicacion
 import { usuariosRoutes } from './routes/usuarios.js';
 import { amigosRoutes } from './routes/amigos.js';
 import { postsRoutes } from './routes/posts.js';
 
-// DECLARACIÓN DE TIPOS
+// ============================================================================
+// PASO 2: DECLARACION DE TIPOS PARA TYPESCRIPT
+// ============================================================================
+// Esto le dice a TypeScript que el objeto fastify tiene una propiedad authenticate
 declare module 'fastify' {
     interface FastifyInstance {
         authenticate: any;
     }
 }
 
-// Obtener la ruta de este archivo
-const filename = fileURLToPath(import.meta.url);
-
-// Obtener la carpeta donde se encuentra este archivo
-const dirname = path.dirname(filename);
+// ============================================================================
+// PASO 3: OBTENER RUTAS DE ARCHIVOS
+// ============================================================================
+// Necesario para ES Modules (cuando usas import en vez de require)
+const rutaDeEsteArchivo = fileURLToPath(import.meta.url);
+const carpetaDondeEstaEsteArchivo = path.dirname(rutaDeEsteArchivo);
 
 // ============================================================================
-// PASO 2: VALIDAR QUE EXISTAN LAS VARIABLES IMPORTANTES
+// PASO 4: VALIDAR QUE EXISTAN LAS VARIABLES DE ENTORNO IMPORTANTES
 // ============================================================================
+// Si no existe JWT_SECRET, mostrar error y salir
 if (!process.env.JWT_SECRET) {
-    console.error('ERROR: Falta JWT_SECRET en el archivo .env');
-    process.exit(1);
+    console.error('ERROR CRITICO: Falta JWT_SECRET en el archivo .env');
+    console.error('Crea un archivo .env y annade: JWT_SECRET=tu_secreto_aqui');
+    process.exit(1);  // Salir del programa con codigo de error
 }
 
+// Si no existe DATABASE_URL, mostrar error y salir
 if (!process.env.DATABASE_URL) {
-    console.error('ERROR: Falta DATABASE_URL en el archivo .env');
+    console.error('ERROR CRITICO: Falta DATABASE_URL en el archivo .env');
+    console.error('Annade: DATABASE_URL=postgresql://usuario:pass@localhost:5432/database');
     process.exit(1);
 }
 
-const JWT_SECRET = process.env.JWT_SECRET;
-const DATABASE_URL = process.env.DATABASE_URL;
+// Guardar las variables en constantes para usarlas despues
+const SECRET_PARA_JWT = process.env.JWT_SECRET;
+const URL_DE_LA_BASE_DE_DATOS = process.env.DATABASE_URL;
 
-console.log('Variables de entorno cargadas correctamente\n');
+console.log('Variables de entorno cargadas correctamente');
+console.log('');
 
 // ============================================================================
-// PASO 3: CREAR EL SERVIDOR
+// PASO 5: CREAR EL SERVIDOR FASTIFY
 // ============================================================================
-const fastify = Fastify({ 
-    logger: true
+const servidorFastify = Fastify({ 
+    logger: true  // Activar logs para ver las peticiones en consola
 });
 
 // ============================================================================
-// PASO 4: CONFIGURAR CORS
+// PASO 6: CONFIGURAR CORS (permitir peticiones desde otros dominios)
 // ============================================================================
-await fastify.register(cors, {
-    origin: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
+// Esto es necesario si tu frontend esta en otro puerto
+await servidorFastify.register(cors, {
+    origin: true,  // Permitir todos los origenes (en produccion, especificar dominio)
+    methods: ['GET', 'POST', 'PUT', 'DELETE']  // Metodos HTTP permitidos
 });
 
 // ============================================================================
-// PASO 4.5: REGISTRAR FASTIFY STATIC (SERVIR ARCHIVOS HTML/CSS/JS)
+// PASO 7: CONFIGURAR FASTIFY STATIC (servir archivos HTML/CSS/JS)
 // ============================================================================
-await fastify.register(fastifyStatic, {
-    root: path.join(dirname, '../public'),  // Carpeta public/
-    prefix: '/'  // Servir desde la raíz: http://localhost:3000/
+// Esto hace que el servidor pueda servir archivos estaticos desde la carpeta public/
+await servidorFastify.register(fastifyStatic, {
+    root: path.join(carpetaDondeEstaEsteArchivo, '../public'),
+    prefix: '/'  // Los archivos se sirven desde la raiz: http://localhost:3000/
 });
 
 // ============================================================================
-// PASO 5: INSTALACION DEL PLUGIN: Fastify JWT
+// PASO 8: CONFIGURAR JWT (JSON Web Tokens)
 // ============================================================================
-await fastify.register(fastifyJWT, {
-    secret: JWT_SECRET
+// Esto permite crear y verificar tokens de autenticacion
+await servidorFastify.register(fastifyJWT, {
+    secret: SECRET_PARA_JWT  // Clave secreta para firmar los tokens
 });
 
 // ============================================================================
-// PASO 6: CREAR FUNCIÓN 'authenticate' PARA VERIFICAR TOKENS
+// PASO 9: CREAR FUNCION PARA VERIFICAR TOKENS JWT
 // ============================================================================
-fastify.decorate('authenticate', async function(request: any, response: any) {
+// Esta funcion se ejecuta antes de las rutas protegidas
+// Verifica que el token JWT sea valido
+servidorFastify.decorate('authenticate', async function(peticionDelCliente: any, respuestaAlCliente: any) {
     try {
-        await request.jwtVerify();
+        // Intentar verificar el token
+        // Si el token es valido, los datos se guardan en peticionDelCliente.user
+        await peticionDelCliente.jwtVerify();
     } catch (error) {
-        response.status(401).send({ 
-            error: 'Token inválido o expirado',
+        // Si el token es invalido o esta expirado, retornar error 401
+        respuestaAlCliente.status(401).send({ 
+            error: 'Token invalido o expirado',
             mensaje: 'Debes hacer login de nuevo'
         });
     }
 });
 
 // ============================================================================
-// PASO 7: REGISTRAR TODAS LAS RUTAS
+// PASO 10: REGISTRAR TODAS LAS RUTAS DE LA APLICACION
 // ============================================================================
-await fastify.register(usuariosRoutes);
-await fastify.register(amigosRoutes);
-await fastify.register(postsRoutes);
+// Estas funciones registran todas las rutas definidas en cada archivo
+await servidorFastify.register(usuariosRoutes);  // Rutas de usuarios
+await servidorFastify.register(amigosRoutes);    // Rutas de amigos
+await servidorFastify.register(postsRoutes);     // Rutas de posts
 
 // ============================================================================
-// PASO 8: ARRANCAR EL SERVIDOR
+// PASO 11: ARRANCAR EL SERVIDOR
 // ============================================================================
-const PORT = 3000;
+const PUERTO_DEL_SERVIDOR = 3000;
 
 try {
-    await fastify.listen({ 
-        port: PORT, 
-        host: '0.0.0.0'
-    });    
-
-    console.log(' ¡Servidor arrancado exitosamente!');
-    console.log(` Escuchando en: http://localhost:${PORT}`);
-    console.log(' Sistema JWT: Activado');
-    console.log('  Base de datos: Conectada');
-    console.log('  Archivos estáticos: public/');  
-    console.log('\n RUTAS DISPONIBLES:\n');
-    console.log(' USUARIOS:');
-    console.log('   POST   /registro');
-    console.log('   POST   /login');
-    console.log('   GET    /get_usuarios');
-    console.log('   GET    /get_usuario/:id');
-    console.log('   PUT    /put_usuario/:id');
-    console.log('   DELETE /delete_usuarios/:id');
-    console.log('\n AMIGOS:');
-    console.log('   POST   /usuarios/:userId/enviar_solicitud/:amigoId');
-    console.log('   POST   /usuarios/:userId/aceptar_solicitud/:amigoId');
-    console.log('   GET    /usuarios/:userId/mis_amigos');
-    console.log('   DELETE /usuarios/:userId/eliminar_amigo/:amigoId');
-    console.log('\n POSTS:');
-    console.log('   POST   /usuarios/:userId/posts');
-    console.log('   GET    /usuarios/:userId/posts');
-    console.log('   DELETE /usuarios/:userId/posts/:postId\n');
+    // Intentar iniciar el servidor
+    await servidorFastify.listen({ 
+        port: PUERTO_DEL_SERVIDOR,
+        host: '0.0.0.0'  // Escuchar en todas las interfaces (necesario para Docker)
+    });
+    
+    // Si todo sale bien, mostrar mensaje de exito
+    console.log('');
+    console.log('===============================================');
+    console.log('SERVIDOR ARRANCADO EXITOSAMENTE');
+    console.log('===============================================');
+    console.log('');
+    console.log(`URL: http://localhost:${PUERTO_DEL_SERVIDOR}`);
+    console.log('Sistema JWT: Activado');
+    console.log('Base de datos: PostgreSQL (conectada)');
+    console.log('Archivos estaticos: public/');
+    console.log('');
+    console.log('RUTAS DISPONIBLES:');
+    console.log('');
+    console.log('USUARIOS:');
+    console.log('  POST   /registro');
+    console.log('  POST   /login');
+    console.log('  GET    /get_usuarios');
+    console.log('  GET    /get_usuario/:id');
+    console.log('  PUT    /put_usuario/:id');
+    console.log('  DELETE /delete_usuarios/:id');
+    console.log('');
+    console.log('AMIGOS:');
+    console.log('  POST   /usuarios/:userId/enviar_solicitud/:amigoId');
+    console.log('  POST   /usuarios/:userId/aceptar_solicitud/:amigoId');
+    console.log('  GET    /usuarios/:userId/mis_amigos');
+    console.log('  DELETE /usuarios/:userId/eliminar_amigo/:amigoId');
+    console.log('');
+    console.log('POSTS:');
+    console.log('  POST   /usuarios/:userId/posts');
+    console.log('  GET    /usuarios/:userId/posts');
+    console.log('  DELETE /usuarios/:userId/posts/:postId');
+    console.log('');
+    console.log('===============================================');
+    console.log('');
     
 } catch (error) {
-    console.error(' Error al arrancar el servidor:', error);
+    // Si hay un error al arrancar, mostrar mensaje y salir
+    console.error('');
+    console.error('ERROR AL ARRANCAR EL SERVIDOR:');
+    console.error(error);
+    console.error('');
     process.exit(1);
 }
