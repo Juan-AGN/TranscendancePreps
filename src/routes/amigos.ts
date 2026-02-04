@@ -2,7 +2,7 @@
 // IMPORTACIONES
 // ============================================================================
 import type { FastifyInstance } from 'fastify';
-import { leerUsuarios, guardarUsuarios } from '../utils/archivos';
+import { leerUsuarios, guardarUsuarios } from '../utils/archivos.js';
 
 // ============================================================================
 // FUNCIÓN PRINCIPAL: Registrar todas las rutas de amigos

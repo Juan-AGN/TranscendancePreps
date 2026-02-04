@@ -1,0 +1,15 @@
+node_modules
+dist
+.env
+.git
+.gitignore
+README.md
+npm-debug.log
+.vscode
+.DS_Store
+*.md
+.dockerignore
+Dockerfile
+docker-compose.yml
+prisma/dev.db
+prisma/dev.db-journal

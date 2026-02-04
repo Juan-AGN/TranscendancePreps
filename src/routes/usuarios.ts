@@ -46,7 +46,7 @@ export async function usuariosRoutes(fastify: FastifyInstance) {
             data: {
                 nombre: nombre,
                 email: email,
-                password: password  // ⚠️ En producción, cifrar la contraseña
+                password: password  //  En producción, cifrar la contraseña
             }
         });
         
@@ -94,6 +94,11 @@ export async function usuariosRoutes(fastify: FastifyInstance) {
         }
         
         // PASO 3: Crear un token JWT con los datos del usuario
+            // TOKEN JWT - el cliente lo guardará en su navegador
+            // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwiZW1haWwiOiJkYW5pZWxAZW1haWwuY29tIiwibm9tYnJlIjoiRGFuaWVsIn0.x7Kj9mP2qR8sN5tL3vW6zA
+            // ↑                                    ↑                                                                      ↑
+            // PARTE 1: Header                      PARTE 2: Payload (DATOS - después del '.')                             PARTE 3: Firma
+            //                                      (codificado en base64) contiene los datos del usuario codificados    
         const token = fastify.jwt.sign(
             {
                 id: usuario.id,

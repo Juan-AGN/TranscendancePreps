@@ -2,7 +2,7 @@
 // IMPORTACIONES
 // ============================================================================
 import type { FastifyInstance } from 'fastify';
-import { leerPosts, guardarPosts, generarIdPost } from '../utils/archivos';
+import { leerPosts, guardarPosts, generarIdPost } from '../utils/archivos.js';
 
 // ============================================================================
 // FUNCIÓN PRINCIPAL: Registrar todas las rutas de posts

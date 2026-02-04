@@ -3,36 +3,40 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// Crea una tabla llamada "Usuario" con 'x' columnas
 model Usuario {
-  id                     Int      @id @default(autoincrement())
-  nombre                 String
-  email                  String   @unique
-  password               String
-  amigos                 String   @default("[]")
-  solicitudes_enviadas   String   @default("[]")
-  solicitudes_recibidas  String   @default("[]")
-  posts                  Post[]
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  nombre    String
+  password  String
+  createdAt DateTime @default(now())
   
-  // las BD x convención trabajan con nombres en plural y minúscula
-  // solo para el uso de la BD cambio el nombre de la tabla
-  @@map("usuarios")
+  amistadesSolicitadas Amistad[] @relation("UsuarioSolicitante")
+  amistadesPendientes  Amistad[] @relation("UsuarioReceptor")
+  posts                Post[]
 }
-// Crea una tabla llamada "Post" con 'x' columnas
-model Post {
-  id          Int      @id @default(autoincrement())
-  contenido   String
-  usuario_id  Int
-  usuario     Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
+
+model Amistad {
+  id            Int      @id @default(autoincrement())
+  solicitanteId Int
+  receptorId    Int
+  estado        String
+  createdAt     DateTime @default(now())
   
-  // las BD x convención trabajan con nombres en plural y minúscula
-  // solo para el uso de la BD cambio el nombre de la tabla
-  @@map("posts")
+  solicitante Usuario @relation("UsuarioSolicitante", fields: [solicitanteId], references: [id], onDelete: Cascade)
+  receptor    Usuario @relation("UsuarioReceptor", fields: [receptorId], references: [id], onDelete: Cascade)
+  
+  @@unique([solicitanteId, receptorId])
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  contenido String
+  usuarioId Int
+  createdAt DateTime @default(now())
+  
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 }
