@@ -15,6 +15,7 @@ class RulesetHandler {
     speedrandom = 10;
     hitboxrandom = 0;
     maxballs = 0;
+    collision = true;
 
     capwaitingnewball = 100000;
     lowcapwaitingnewball = 500;
@@ -57,6 +58,7 @@ class RulesetHandler {
             speedrandom: this.speedrandom,
             hitboxrandom: this.hitboxrandom,
             maxballs: this.maxballs,
+            collision: this.collision,
         }
 
         return (toset);
@@ -76,6 +78,7 @@ class RulesetHandler {
             speedrandom: changeErrors.NOCHANGE,
             hitboxrandom: changeErrors.NOCHANGE,
             maxballs: changeErrors.NOCHANGE,
+            collision: changeErrors.NOCHANGE,
         }
 
         if (!rules)
@@ -227,6 +230,22 @@ class RulesetHandler {
                 toset.maxballs = rules.maxballs;
                 status.maxballs = changeErrors.SUCCESS;
             }
+        }
+    
+        if (rules.collision != undefined)
+        {
+            if (rules.collision == true)
+            {
+                toset.collision = true;
+                status.collision = changeErrors.SUCCESS;        
+            }
+            else if (rules.collision == false)
+            {
+                toset.collision = false;
+                status.collision = changeErrors.SUCCESS;        
+            }
+            else
+                status.collision = changeErrors.UNKNOWN;
         }
 
         lob.rules = toset;

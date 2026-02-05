@@ -38,6 +38,7 @@ export interface Ruleset {
   speedrandom: number; // 10
   hitboxrandom: number; // 0 
   maxballs: number; // 0
+  collision: boolean; // true
 }
 
 export interface RulesState {
@@ -51,6 +52,7 @@ export interface RulesState {
   speedrandom: changeErrors; // 10
   hitboxrandom: changeErrors; // 0 
   maxballs: changeErrors;
+  collision: changeErrors;
 }
 
 export interface GameSession {
@@ -61,6 +63,7 @@ export interface GameSession {
   borderx: number;
   bordery: number;
   status: "in-game" | "finished";
+  rules: Ruleset;
 }
 
 export interface GameResults {
@@ -100,23 +103,23 @@ export enum GamePlacement {
 }
 
 export enum WsAction {
-    LOBBYUPDATE = "LOBBYUPDATE",
-    GAMESTATE = "GAMESTATE",
-    GAMERESULT = "GAMERESULT",
+  LOBBYUPDATE = "LOBBYUPDATE",
+  GAMESTATE = "GAMESTATE",
+  GAMERESULT = "GAMERESULT",
 }
 
 export enum Errors {
-    NOTHOST = "NOTHOST",
-    NOLOBBY = "NOLOBBY",
-    NOPLAYERS = "NOTENOUGHPLAYERS",
-    INGAME = "INGAME",
+  NOTHOST = "NOTHOST",
+  NOLOBBY = "NOLOBBY",
+  NOPLAYERS = "NOTENOUGHPLAYERS",
+  INGAME = "INGAME",
 }
 
 export enum changeErrors {
-    TOOLOW = "TOOLOW",
-    SUCCESS= "SUCCESS",
-    UNKNOWN = "UNKNOWN",
-    TOOHIGH = "TOOHIGH",
-    NOCHANGE = "NOCHANGE",
-    NOTNUMBER = "NOTNUMBER",
+  TOOLOW = "TOOLOW",
+  SUCCESS= "SUCCESS",
+  UNKNOWN = "UNKNOWN",
+  TOOHIGH = "TOOHIGH",
+  NOCHANGE = "NOCHANGE",
+  NOTNUMBER = "NOTNUMBER",
 }

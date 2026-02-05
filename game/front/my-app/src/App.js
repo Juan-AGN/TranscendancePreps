@@ -105,11 +105,16 @@ function Lob({ lobby, setLobby }) {
 
 function Ruleset({ Crules, setCrules, changeRules }) {
 	const handleChange = (e) => {
-		const { name, value } = e.target;
+		const { name, type, value, checked } = e.target;
 
-		setCrules(prev => ({
-			...prev,
-			[name]: Number(value),
+		setCrules((prev) => ({
+		...prev,
+		[name]:
+			type === "checkbox"
+			? checked
+			: type === "number"
+			? Number(value)
+			: value,
 		}));
 	};
 
@@ -123,6 +128,7 @@ function Ruleset({ Crules, setCrules, changeRules }) {
 			<p>Ball cooldown</p>
 			<input
 				name="waitingnewball"
+				type="number"
 				value={Crules.waitingnewball}
 				onChange={handleChange}
 			/>
@@ -130,6 +136,7 @@ function Ruleset({ Crules, setCrules, changeRules }) {
 			<p>Max X</p>
 			<input
 				name="maxx"
+				type="number"
 				value={Crules.maxx}
 				onChange={handleChange}
 			/>
@@ -137,6 +144,7 @@ function Ruleset({ Crules, setCrules, changeRules }) {
 			<p>Max Y</p>
 			<input
 				name="maxy"
+				type="number"
 				value={Crules.maxy}
 				onChange={handleChange}
 			/>
@@ -144,6 +152,7 @@ function Ruleset({ Crules, setCrules, changeRules }) {
 			<p>Ball hitbox</p>
 			<input
 				name="ballhitbox"
+				type="number"
 				value={Crules.ballhitbox}
 				onChange={handleChange}
 			/>
@@ -151,6 +160,7 @@ function Ruleset({ Crules, setCrules, changeRules }) {
 			<p>Player hitbox</p>
 			<input
 				name="playerhitbox"
+				type="number"
 				value={Crules.playerhitbox}
 				onChange={handleChange}
 			/>
@@ -158,6 +168,7 @@ function Ruleset({ Crules, setCrules, changeRules }) {
 			<p>Ball speed</p>
 			<input
 				name="ballspeed"
+				type="number"
 				value={Crules.ballspeed}
 				onChange={handleChange}
 			/>
@@ -165,6 +176,7 @@ function Ruleset({ Crules, setCrules, changeRules }) {
 			<p>Player speed</p>
 			<input
 				name="playerspeed"
+				type="number"
 				value={Crules.playerspeed}
 				onChange={handleChange}
 			/>
@@ -172,6 +184,7 @@ function Ruleset({ Crules, setCrules, changeRules }) {
 			<p>Speed random</p>
 			<input
 				name="speedrandom"
+				type="number"
 				value={Crules.speedrandom}
 				onChange={handleChange}
 			/>
@@ -179,6 +192,7 @@ function Ruleset({ Crules, setCrules, changeRules }) {
 			<p>Hitbox random</p>
 			<input
 				name="hitboxrandom"
+				type="number"
 				value={Crules.hitboxrandom}
 				onChange={handleChange}
 			/>
@@ -186,7 +200,16 @@ function Ruleset({ Crules, setCrules, changeRules }) {
 			<p>Max balls</p>
 			<input
 				name="maxballs"
+				type="number"
 				value={Crules.maxballs}
+				onChange={handleChange}
+			/>
+
+			<p>Collision</p>
+			<input
+				name="collision"
+				type="checkbox"
+				checked={Crules.collision}
 				onChange={handleChange}
 			/>
 
@@ -274,6 +297,7 @@ function App() {
 		speedrandom: 10,
 		hitboxrandom: 0,
 		maxballs: 0,
+		collision: true,
 	});
 
 

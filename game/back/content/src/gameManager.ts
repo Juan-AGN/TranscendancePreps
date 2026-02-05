@@ -33,6 +33,7 @@ class GameManager {
             borderx: maxx,
             bordery: maxy,
             status: "in-game",
+            rules: clobby.rules,
         };
 
         for (const player of clobby.players)
@@ -216,12 +217,15 @@ class GameManager {
                 newy += player.speed;
                 if (newy + (player.hitbox / 2) > game.bordery)
                     newy = game.bordery - (player.hitbox / 2);
-                for (const otplayer of game.alive)
+                if (game.rules.collision == true)
                 {
-                    if (otplayer.player !== userId)
+                    for (const otplayer of game.alive)
                     {
-                        if (this.checkPlayerp(player.x, newy, player.hitbox, otplayer))
-                            newy += this.calcPlayerdisy(player.x, newy, player.hitbox, otplayer);
+                        if (otplayer.player !== userId)
+                        {
+                            if (this.checkPlayerp(player.x, newy, player.hitbox, otplayer))
+                                newy += this.calcPlayerdisy(player.x, newy, player.hitbox, otplayer);
+                        }
                     }
                 }
                 player.y = newy;
@@ -240,12 +244,15 @@ class GameManager {
                 newx -= player.speed;
                 if (newx - (player.hitbox / 2) < 0)
                     newx = 0 + (player.hitbox / 2);
-                for (const otplayer of game.alive)
+                if (game.rules.collision == true)
                 {
-                    if (otplayer.player !== userId)
+                    for (const otplayer of game.alive)
                     {
-                        if (this.checkPlayerp(newx, player.y, player.hitbox, otplayer))
-                            newx += this.calcPlayerdisx(newx, player.y, player.hitbox, otplayer);
+                        if (otplayer.player !== userId)
+                        {
+                            if (this.checkPlayerp(newx, player.y, player.hitbox, otplayer))
+                                newx += this.calcPlayerdisx(newx, player.y, player.hitbox, otplayer);
+                        }
                     }
                 }
                 player.x = newx;
@@ -264,12 +271,15 @@ class GameManager {
                 newy -= player.speed;
                 if (newy - (player.hitbox / 2) < 0)
                     newy = 0 + (player.hitbox / 2);
-                for (const otplayer of game.alive)
+                if (game.rules.collision == true)
                 {
-                    if (otplayer.player !== userId)
+                    for (const otplayer of game.alive)
                     {
-                        if (this.checkPlayerp(player.x, newy, player.hitbox, otplayer))
-                            newy += this.calcPlayerdisy(player.x, newy, player.hitbox, otplayer);
+                        if (otplayer.player !== userId)
+                        {
+                            if (this.checkPlayerp(player.x, newy, player.hitbox, otplayer))
+                                newy += this.calcPlayerdisy(player.x, newy, player.hitbox, otplayer);
+                        }
                     }
                 }
                 player.y = newy;
@@ -288,12 +298,15 @@ class GameManager {
                 newx += player.speed;
                 if (newx + (player.hitbox / 2) > game.borderx)
                     newx = game.borderx - (player.hitbox / 2);
-                for (const otplayer of game.alive)
+                if (game.rules.collision == true)
                 {
-                    if (otplayer.player !== userId)
+                    for (const otplayer of game.alive)
                     {
-                        if (this.checkPlayerp(newx, player.y, player.hitbox, otplayer))
-                            newx += this.calcPlayerdisx(newx, player.y, player.hitbox, otplayer);
+                        if (otplayer.player !== userId)
+                        {
+                            if (this.checkPlayerp(newx, player.y, player.hitbox, otplayer))
+                                newx += this.calcPlayerdisx(newx, player.y, player.hitbox, otplayer);
+                        }
                     }
                 }
                 player.x = newx;
