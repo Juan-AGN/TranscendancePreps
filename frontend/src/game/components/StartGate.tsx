@@ -1,5 +1,5 @@
 //stargate.tsx
-import { Footer } from './Footer'
+import { Footer } from '../../shared/components/Footer'
 import { Enter3DButton } from './Button3DWorld'
 
 
@@ -9,6 +9,17 @@ interface StartGateProps {
 }
 
 export function StartGate({ onStart3D, onGo2DMenu }: StartGateProps) {
+  
+  const handleSkip = () => {
+    console.log('Skip button clicked')
+    if (onGo2DMenu) {
+      console.log('Calling onGo2DMenu')
+      onGo2DMenu()
+    } else {
+      console.log('onGo2DMenu is undefined')
+    }
+  }
+
   return (
   	<div className="relative w-full h-[calc(100vh-88px)] flex flex-col">
     	{/* Centro */}
@@ -25,7 +36,7 @@ export function StartGate({ onStart3D, onGo2DMenu }: StartGateProps) {
 				{/* Boton secundario */}
 				<button
 				type="button"
-				onClick={onGo2DMenu}
+				onClick={handleSkip}
 				className="mt-4 w-full py-3 rounded-2xl font-semibold text-black/90 border border-white/30 hover:bg-white/10 transition"
 				>
 					Skip it

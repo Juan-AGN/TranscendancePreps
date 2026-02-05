@@ -59,6 +59,14 @@ export function Header() {
         >
           Settings
         </Link>
+        <Link 
+          to="/login" 
+          className={`text-base font-medium transition-colors duration-200 hover:text-blue-600 ${
+            isActive('/login') ? 'text-blue-600' : 'text-gray-700'
+          }`}
+        >
+          Login
+        </Link>
       </nav>
     </header>
   )

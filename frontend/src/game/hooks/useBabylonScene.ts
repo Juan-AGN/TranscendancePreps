@@ -5,8 +5,8 @@
  */
 
 import { useEffect, useRef } from 'react';
-import { HomeScene3D } from '../game/scenes/HomeScene3D';
-import { useGameStore } from '../store/gameStore';
+import { HomeScene3D } from '../engine/scenes/HomeScene3D';
+import { useGameStore } from '../../shared/store/gameStore';
 
 // Interface q define los props del hook (parametros de entrada)
 interface UseBabylonSceneProps {
