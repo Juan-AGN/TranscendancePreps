@@ -17,9 +17,8 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
     // ========================================================================
     // Metodo HTTP: POST
     // URL: http://localhost:3000/usuarios/1/enviar_solicitud/5
-    // Que hace: Usuario 1 le envia solicitud de amistad a Usuario 5
     servidorFastify.post('/usuarios/:userId/enviar_solicitud/:amigoId', {
-        onRequest: [servidorFastify.authenticate]
+        onRequest: [servidorFastify.authenticate] // verifica token antes de ejecutarse
     }, async (peticionDelCliente, respuestaAlCliente) => {
         
         // PASO 1: Obtener los IDs de la URL
@@ -76,8 +75,8 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
             }
         });
         
+        // Verificar el estado de la solicitud
         if (yaTienenSolicitudPendiente) {
-            // Verificar el estado de la solicitud
             if (yaTienenSolicitudPendiente.estadoDeLaSolicitud === 'aceptada') {
                 return respuestaAlCliente.status(400).send({
                     error: 'Ya son amigos'
@@ -91,7 +90,7 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
         
         // PASO 5: Crear la nueva solicitud de amistad en la base de datos
         const nuevaSolicitudDeAmistad = await clienteDePrisma.amistad.create({
-            data: {
+            data: {                                         // amistad -> tabla de mi BD
                 idDelUsuarioQueSolicita: miIdDeUsuario,
                 idDelUsuarioQueRecibe: idDelUsuarioQueQuieroAgregar,
                 estadoDeLaSolicitud: 'pendiente'
@@ -110,7 +109,7 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
     // RUTA NUMERO 2: ACEPTAR SOLICITUD DE AMISTAD
     // ========================================================================
     servidorFastify.post('/usuarios/:userId/aceptar_solicitud/:amigoId', {
-        onRequest: [servidorFastify.authenticate]
+        onRequest: [servidorFastify.authenticate] // Verifica token antes de ejecutarse
     }, async (peticionDelCliente, respuestaAlCliente) => {
         
         // PASO 1: Obtener los IDs de la URL
@@ -126,7 +125,7 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
             where: {
                 idDelUsuarioQueSolicita: idDelUsuarioQueEnvioLaSolicitud,
                 idDelUsuarioQueRecibe: miIdDeUsuario,
-                estadoDeLaSolicitud: 'pendiente'
+                estadoDeLaSolicitud: 'pendiente' // tiene que estar en 'pendiente' 
             }
         });
         
@@ -139,10 +138,10 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
         
         // PASO 4: Actualizar el estado de la solicitud a "aceptada"
         await clienteDePrisma.amistad.update({
-            where: {
+            where: { // Donde el ID sea igual al ID...
                 idDeLaSolicitudDeAmistad: solicitudPendiente.idDeLaSolicitudDeAmistad
             },
-            data: {
+            data: { // cambia el estado a : 'aceptada'
                 estadoDeLaSolicitud: 'aceptada'
             }
         });
@@ -163,7 +162,7 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
     // RUTA NUMERO 3: VER MIS AMIGOS
     // ========================================================================
     servidorFastify.get('/usuarios/:userId/mis_amigos', {
-        onRequest: [servidorFastify.authenticate]
+        onRequest: [servidorFastify.authenticate] // Verifica antes de ejecutarse
     }, async (peticionDelCliente, respuestaAlCliente) => {
         
         // PASO 1: Obtener mi ID de la URL
@@ -185,7 +184,7 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
                     }
                 ]
             },
-            include: {
+            include: { // COMBINA DATOS DE UNA TABLA (IDs) CON DATOS DE OTRA (nombre, etc)
                 usuarioQueSolicita: {
                     select: {
                         id: true,
@@ -204,12 +203,14 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
         });
         
         // PASO 3: Crear la lista de amigos (excluyendome a mi)
+            // 'map' -> por cada elemento (objeto) del array ejecuta esto:
+            // y cuando llega al final, devuelve un nuevo array con los valores resultantes
         const listaDeMisAmigos = todasMisAmistades.map(amistad => {
-            // Si yo soy el que solicito, entonces mi amigo es el que recibio
-            if (amistad.idDelUsuarioQueSolicita === miIdDeUsuario) {
-                return amistad.usuarioQueRecibe;
+            // Si yo soy el que solicitó, entonces mi amigo es el que recibió
+            if (amistad.idDelUsuarioQueSolicita === miIdDeUsuario) { // si soy yo me excluye d la lista
+                return amistad.usuarioQueRecibe; // devuelve el usuario q recibe + salta a la sig línea
             }
-            // Si yo soy el que recibio, entonces mi amigo es el que solicito
+            // Si yo soy el que recibió, entonces mi amigo es el que solicitó
             else {
                 return amistad.usuarioQueSolicita;
             }
@@ -227,7 +228,7 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
     // RUTA NUMERO 4: ELIMINAR AMIGO
     // ========================================================================
     servidorFastify.delete('/usuarios/:userId/eliminar_amigo/:amigoId', {
-        onRequest: [servidorFastify.authenticate]
+        onRequest: [servidorFastify.authenticate] // verifica antes de ejecutarse
     }, async (peticionDelCliente, respuestaAlCliente) => {
         
         // PASO 1: Obtener los IDs de la URL
@@ -267,7 +268,7 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
         }
         
         // PASO 4: Eliminar la amistad de la base de datos
-        await clienteDePrisma.amistad.delete({
+        await clienteDePrisma.amistad.delete({ // borra esa linea de la bd)
             where: {
                 idDeLaSolicitudDeAmistad: amistadAEliminar.idDeLaSolicitudDeAmistad
             }

@@ -9,7 +9,7 @@ import { PrismaClient } from '@prisma/client';
 
 // Crear una instancia del cliente de Prisma
 // Esta variable nos permite hacer consultas a la base de datos
-const clienteDePrisma = new PrismaClient();
+const clienteDePrisma = new PrismaClient(); // Creas una clase (no una función)
 
 // ============================================================================
 // FUNCION PRINCIPAL: Registrar todas las rutas relacionadas con usuarios
@@ -27,23 +27,23 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
     servidorFastify.post('/registro', async (peticionDelCliente, respuestaAlCliente) => {
         
         // PASO 1: Extraer los datos que el cliente envio en el body
-        // IMPORTANTE: El HTML envia "contrasenya", no "password"
+        // IMPORTANTE: El HTML envia "contraseña", no "password"
         const datosDelBody = peticionDelCliente.body as { 
             nombre: string, 
             email: string, 
-            contrasenya: string  // ← CORREGIDO: ahora coincide con el HTML
+            contraseña: string
         };
         
         // Guardar cada dato en una variable separada para mas claridad
         const nombreDelNuevoUsuario = datosDelBody.nombre;
         const emailDelNuevoUsuario = datosDelBody.email;
-        const passwordDelNuevoUsuario = datosDelBody.contrasenya;  // ← CORREGIDO
-        
+        const passwordDelNuevoUsuario = datosDelBody.contraseña;  
+
         // PASO 1.5: VALIDAR que todos los campos existan
         if (!nombreDelNuevoUsuario || !emailDelNuevoUsuario || !passwordDelNuevoUsuario) {
             return respuestaAlCliente.status(400).send({
                 error: 'Faltan campos obligatorios',
-                mensaje: 'Debes enviar nombre, email y contrasenya'
+                mensaje: 'Debes enviar nombre, email y contraseña'
             });
         }
         
@@ -65,15 +65,15 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
         // IMPORTANTE: Los nombres de campos deben coincidir con el schema.prisma
         const usuarioRecienCreado = await clienteDePrisma.usuario.create({
             data: {
-                nombreCompleto: nombreDelNuevoUsuario,        // ← Schema usa "nombreCompleto"
+                nombreCompleto: nombreDelNuevoUsuario,        //  Schema usa "nombreCompleto"
                 email: emailDelNuevoUsuario,
-                passwordHasheado: passwordDelNuevoUsuario     // ← Schema usa "passwordHasheado"
+                passwordHasheado: passwordDelNuevoUsuario     //  Schema usa "passwordHasheado"
                 // NOTA IMPORTANTE: En produccion, la password deberia estar cifrada con bcrypt
             }
         });
         
         // PASO 5: Retornar una respuesta exitosa al cliente
-        // NO enviamos la password en la respuesta (seguridad)
+        // NO enviamos el password en la respuesta (seguridad)
         respuestaAlCliente.send({
             mensaje: 'Usuario registrado exitosamente',
             usuario: {
@@ -93,13 +93,13 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
     // Que hace: Verifica email y password, y devuelve un token JWT
     servidorFastify.post('/login', async (peticionDelCliente, respuestaAlCliente) => {
         
-        // PASO 1: Obtener el email y password que el cliente envio
+        // PASO 1: Obtener el email y password que el cliente envió
         const datosDelBody = peticionDelCliente.body as { 
             email: string, 
-            contrasenya: string  // ← CORREGIDO: coincide con HTML
+            contraseña: string  
         };
         const emailIngresado = datosDelBody.email;
-        const passwordIngresada = datosDelBody.contrasenya;  // ← CORREGIDO
+        const passwordIngresada = datosDelBody.contraseña;  
         
         // PASO 2: Buscar el usuario en la base de datos por su email
         const usuarioEncontrado = await clienteDePrisma.usuario.findUnique({
@@ -114,9 +114,9 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             });
         }
         
-        // PASO 4: Verificar que la password sea correcta
-        // Comparamos la password ingresada con la guardada en la base de datos
-        const passwordEsCorrecta = (passwordIngresada === usuarioEncontrado.passwordHasheado);  // ← CORREGIDO
+        // PASO 4: Verificar que el password sea correcto
+        // Comparamos el password ingresado con el guardado en la base de datos
+        const passwordEsCorrecta = (passwordIngresada === usuarioEncontrado.passwordHasheado);  
         
         if (!passwordEsCorrecta) {
             return respuestaAlCliente.status(401).send({
@@ -126,14 +126,14 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
         }
         
         // PASO 5: Crear un token JWT con los datos del usuario
-        // Este token es como un "carnet de identidad" digital
+        // (Este token es como un "carnet de identidad" digital)
         // El cliente guardara este token y lo enviara en cada peticion protegida
         const tokenJWT = servidorFastify.jwt.sign(
             {
                 // Datos que guardamos en el token
                 id: usuarioEncontrado.id,
                 email: usuarioEncontrado.email,
-                nombre: usuarioEncontrado.nombreCompleto  // ← CORREGIDO
+                nombre: usuarioEncontrado.nombreCompleto  
             },
             {
                 // Tiempo de expiracion del token
@@ -147,7 +147,7 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             token: tokenJWT,
             usuario: {
                 id: usuarioEncontrado.id,
-                nombre: usuarioEncontrado.nombreCompleto,  // ← CORREGIDO
+                nombre: usuarioEncontrado.nombreCompleto,  
                 email: usuarioEncontrado.email
             }
         });
@@ -166,10 +166,10 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
         const listaDeTodosLosUsuarios = await clienteDePrisma.usuario.findMany({
             select: {
                 // Especificamos que campos queremos obtener
-                id: true,                     // SI queremos el ID
-                nombreCompleto: true,         // SI queremos el nombre (CORREGIDO)
-                email: true,                  // SI queremos el email
-                fechaDeCreacion: true,        // SI queremos la fecha de creacion (CORREGIDO)
+                id: true,                     
+                nombreCompleto: true,         
+                email: true,                  
+                fechaDeCreacion: true,        
                 passwordHasheado: false       // NO queremos la password (seguridad)
             }
         });
@@ -199,10 +199,10 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             where: { id: idDelUsuarioBuscado },
             select: {
                 id: true,
-                nombreCompleto: true,         // CORREGIDO
+                nombreCompleto: true,         
                 email: true,
-                fechaDeCreacion: true,        // CORREGIDO
-                passwordHasheado: false       // NO enviamos la password
+                fechaDeCreacion: true,        
+                passwordHasheado: false       // NO enviamos el password
             }
         });
         
@@ -219,14 +219,14 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
     });
     
     // ========================================================================
-    // RUTA NUMERO 5: ACTUALIZAR DATOS DE UN USUARIO (ruta protegida)
+    // RUTA NUMERO 5: ACTUALIZAR DATOS DE UN USUARIO (ruta protegida!!)
     // ========================================================================
     // Metodo HTTP: PUT (para actualizar datos)
     // URL completa: http://localhost:3000/put_usuario/5
     // Que hace: Permite actualizar nombre o email de un usuario
     // IMPORTANTE: Necesita token JWT (solo puedes editar TU perfil)
     servidorFastify.put('/put_usuario/:id', {
-        onRequest: [servidorFastify.authenticate]
+        onRequest: [servidorFastify.authenticate] // verifica el token antes de ejecutarse
     }, async (peticionDelCliente, respuestaAlCliente) => {
         
         // PASO 1: Obtener los datos del token JWT verificado
@@ -254,28 +254,35 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
         
         // PASO 4: Obtener los nuevos datos del body
         const datosNuevosDelBody = peticionDelCliente.body as { 
-            nombre?: string, 
-            email?: string 
+            nombre?: string,  // el ? es para especificar que el campo es opcional
+            email?: string    // sino, sería obligatorio
         };
         
-        // PASO 5: Actualizar el usuario en la base de datos
-        // Solo actualizamos los campos que se enviaron
+        // PASO 5: Crear objeto con solo los campos que se enviaron
+        const camposAActualizar: any = {};
+        
+        // Si se envió nombre, añadirlo al objeto
+        if (datosNuevosDelBody.nombre) {
+            camposAActualizar.nombreCompleto = datosNuevosDelBody.nombre;
+        }
+        
+        // Si se envió email, añadirlo al objeto
+        if (datosNuevosDelBody.email) {
+            camposAActualizar.email = datosNuevosDelBody.email;
+        }
+        
+        // PASO 6: Actualizar con los campos que se enviaron
         const usuarioDespuesDeActualizar = await clienteDePrisma.usuario.update({
             where: { id: idDeLaURLQueQuieroActualizar },
-            data: {
-                // Si se envio nombre, actualizarlo
-                ...(datosNuevosDelBody.nombre && { nombreCompleto: datosNuevosDelBody.nombre }),  // CORREGIDO
-                // Si se envio email, actualizarlo
-                ...(datosNuevosDelBody.email && { email: datosNuevosDelBody.email })
-            }
+            data: camposAActualizar
         });
         
-        // PASO 6: Retornar respuesta exitosa
+        // PASO 7: Retornar respuesta exitosa
         respuestaAlCliente.send({
             mensaje: 'Usuario actualizado correctamente',
             usuario: {
                 id: usuarioDespuesDeActualizar.id,
-                nombre: usuarioDespuesDeActualizar.nombreCompleto,  // CORREGIDO
+                nombre: usuarioDespuesDeActualizar.nombreCompleto,  
                 email: usuarioDespuesDeActualizar.email
             }
         });
@@ -289,7 +296,7 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
     // Que hace: Elimina un usuario de la base de datos
     // IMPORTANTE: Solo puedes eliminar TU PROPIA cuenta
     servidorFastify.delete('/delete_usuarios/:id', {
-        onRequest: [servidorFastify.authenticate]
+        onRequest: [servidorFastify.authenticate] // verifica el token antes de ejecutarse
     }, async (peticionDelCliente, respuestaAlCliente) => {
         
         // PASO 1: Obtener datos del token JWT
@@ -331,7 +338,7 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             mensaje: 'Usuario eliminado correctamente',
             usuarioEliminado: {
                 id: usuarioQueVamosAEliminar.id,
-                nombre: usuarioQueVamosAEliminar.nombreCompleto  // CORREGIDO
+                nombre: usuarioQueVamosAEliminar.nombreCompleto  
             }
         });
     });
