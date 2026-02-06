@@ -1,38 +1,50 @@
 // ============================================================================
 // PASO 1: IMPORTAR TODAS LAS LIBRERIAS NECESARIAS
 // ============================================================================
-// dotenv/config: Carga las variables de entorno desde el archivo .env
-import 'dotenv/config';
+// -------------------------------------------------
+// Cuando ejecutas -> npm install fastify
+// 1. npm busca en npmjs.com (registro de paquetes)
+// 2. Descarga el código de fastify
+// 3. Lo guarda en node_modules/fastify/
+// 4. También descarga las DEPENDENCIAS de fastify
+// 5. Todo queda en tu disco duro (node_modules/)
+// -------------------------------------------------
 
-// Fastify: El framework del servidor web
-import Fastify from 'fastify';
+// Carga las variables de entorno desde el archivo .env
+import 'dotenv/config'; // dotenv -> libería de Node q lee .env y carga las var en process.env
+                        // A dif de la siguientes no necesita asignar a const xq solo ejecuta código
 
-// Plugins de Fastify para diferentes funcionalidades
+// El framework del servidor web (del backend)
+import Fastify from 'fastify'; // Importo la FUNCIÓN 'Fastify' del paquete 'fastify' y la guardo en la constante 'Fastify'
+
+// Plugins de Fastify
 import fastifyJWT from '@fastify/jwt';      // Para crear y verificar tokens JWT
 import cors from '@fastify/cors';            // Para permitir peticiones desde otros dominios
 import fastifyStatic from '@fastify/static';  // Para servir archivos HTML/CSS/JS
 
 // Modulos de Node.js para manejar rutas de archivos
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'path'; // Manipula rutas para compatibilizarlas con cualquier OS
+import { fileURLToPath } from 'url'; // convierte URLs en rutas normales del OS
 
-// Importar las rutas de la aplicacion
+// Importar las rutas que necesito de mis archivos
 import { usuariosRoutes } from './routes/usuarios.js';
 import { amigosRoutes } from './routes/amigos.js';
 import { postsRoutes } from './routes/posts.js';
 
 // ============================================================================
-// PASO 2: DECLARACION DE TIPOS PARA TYPESCRIPT
+// PASO 2: EXTENDER FASTIFY CON PLUGIN DE AUTENTICACIÓN PERSONALIZADO
 // ============================================================================
-// Esto le dice a TypeScript que el objeto fastify tiene una propiedad authenticate
+// Le avisamos a TypeScript que vamos a añadir una propiedad 'authenticate'
+// al objeto FastifyInstance. Esto evita errores de tipos.
+// La función real se crea después con .decorate() en el PASO 9 
 declare module 'fastify' {
     interface FastifyInstance {
-        authenticate: any;
+        authenticate: any; 
     }
 }
 
 // ============================================================================
-// PASO 3: OBTENER RUTAS DE ARCHIVOS
+// PASO 3: OBTENER RUTA DE ARCHIVO 'index.js' + DIRECTORIO DEL MISMO
 // ============================================================================
 // Necesario para ES Modules (cuando usas import en vez de require)
 const rutaDeEsteArchivo = fileURLToPath(import.meta.url);
@@ -44,7 +56,7 @@ const carpetaDondeEstaEsteArchivo = path.dirname(rutaDeEsteArchivo);
 // Si no existe JWT_SECRET, mostrar error y salir
 if (!process.env.JWT_SECRET) {
     console.error('ERROR CRITICO: Falta JWT_SECRET en el archivo .env');
-    console.error('Crea un archivo .env y annade: JWT_SECRET=tu_secreto_aqui');
+    console.error('Crea un archivo .env y añade: JWT_SECRET=tu_secreto_aqui');
     process.exit(1);  // Salir del programa con codigo de error
 }
 
@@ -63,17 +75,17 @@ console.log('Variables de entorno cargadas correctamente');
 console.log('');
 
 // ============================================================================
-// PASO 5: CREAR EL SERVIDOR FASTIFY
+// PASO 5: CREAR EL SERVIDOR (el objeto) FASTIFY
 // ============================================================================
-const servidorFastify = Fastify({ 
+const servidorFastify = Fastify({ // ahora puedes usar todas las funcionalidades del servidor
     logger: true  // Activar logs para ver las peticiones en consola
 });
 
 // ============================================================================
-// PASO 6: CONFIGURAR CORS (permitir peticiones desde otros dominios)
+// PASO 6: CONFIGURAR CORS (plugin)
 // ============================================================================
-// Esto es necesario si tu frontend esta en otro puerto
-await servidorFastify.register(cors, {
+// es necesario si tu frontend esta en otro puerto, para permitir peticiones externas
+await servidorFastify.register(cors, { // Register -> añade funcionalidades extra al servidor
     origin: true,  // Permitir todos los origenes (en produccion, especificar dominio)
     methods: ['GET', 'POST', 'PUT', 'DELETE']  // Metodos HTTP permitidos
 });
@@ -81,35 +93,32 @@ await servidorFastify.register(cors, {
 // ============================================================================
 // PASO 7: CONFIGURAR FASTIFY STATIC (servir archivos HTML/CSS/JS)
 // ============================================================================
-// Esto hace que el servidor pueda servir archivos estaticos desde la carpeta public/
-await servidorFastify.register(fastifyStatic, {
-    root: path.join(carpetaDondeEstaEsteArchivo, '../public'),
-    prefix: '/'  // Los archivos se sirven desde la raiz: http://localhost:3000/
+// hace que el servidor pueda servir archivos estaticos desde la carpeta public/
+await servidorFastify.register(fastifyStatic, { // <- Plugin a instalar
+    root: path.join(carpetaDondeEstaEsteArchivo, '../public'), // ruta desde donde se sirven los HTML, etc
+    prefix: '/'  // Los archivos se sirven desde la raiz: http://localhost:3000/ -> '/'
 });
 
 // ============================================================================
-// PASO 8: CONFIGURAR JWT (JSON Web Tokens)
+// PASO 8: CONFIGURAR JWT (JSON Web Tokens) 
 // ============================================================================
-// Esto permite crear y verificar tokens de autenticacion
+// permite crear y verificar (firmar) tokens de autenticacion
 await servidorFastify.register(fastifyJWT, {
     secret: SECRET_PARA_JWT  // Clave secreta para firmar los tokens
 });
 
 // ============================================================================
-// PASO 9: CREAR FUNCION PARA VERIFICAR TOKENS JWT
+// PASO 9: CREAR FUNCION PARA VERIFICAR (y firmar) TOKENS JWT
 // ============================================================================
 // Esta funcion se ejecuta antes de las rutas protegidas
-// Verifica que el token JWT sea valido
-servidorFastify.decorate('authenticate', async function(peticionDelCliente: any, respuestaAlCliente: any) {
-    try {
-        // Intentar verificar el token
-        // Si el token es valido, los datos se guardan en peticionDelCliente.user
-        await peticionDelCliente.jwtVerify();
-    } catch (error) {
-        // Si el token es invalido o esta expirado, retornar error 401
-        respuestaAlCliente.status(401).send({ 
-            error: 'Token invalido o expirado',
-            mensaje: 'Debes hacer login de nuevo'
+// Verifica que el token JWT que envió el cliente sea valido
+servidorFastify.decorate('authenticate', async function(request: any, response: any) {
+    try { // Intentar verificar el token
+        // Si el token es valido, los datos se guardan en request.user automáticamente
+        await request.jwtVerify();
+    } catch (error) { // Si el token es invalido o esta expirado, retornar error 401
+        response.status(401).send({ 
+            error: 'Token invalido o expirado'
         });
     }
 });
@@ -125,10 +134,11 @@ await servidorFastify.register(postsRoutes);     // Rutas de posts
 // ============================================================================
 // PASO 11: ARRANCAR EL SERVIDOR
 // ============================================================================
-const PUERTO_DEL_SERVIDOR = 3000;
+const PUERTO_DEL_SERVIDOR = 3000; // -> el más usado en Node.js
+                                  // 5173 -> Frontend/vite)
+                                  // 5432 -> PostgreSQL
 
-try {
-    // Intentar iniciar el servidor
+try { // Intentar iniciar el servidor
     await servidorFastify.listen({ 
         port: PUERTO_DEL_SERVIDOR,
         host: '0.0.0.0'  // Escuchar en todas las interfaces (necesario para Docker)
