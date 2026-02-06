@@ -11,7 +11,7 @@ import { RootLayout } from '../../shared/components/layout/RootLayout'
 import { HomePage } from "../../game/pages/HomePage"
 import { SplashScreen } from '../../game/components/SplashScreen'
 import { StartGate } from '../../game/components/StartGate'
-//import { Menu2DPage } from '../../ui2d/pages/Menu2DPage'
+import { Menu2DPage } from '../../ui2d/pages/Menu2DPage'
 
 import { PrivacyPolicyPage } from "../../shared/pages/PrivacyPolicyPage"
 import { TermsOfServicePage } from "../../shared/pages/TermsOfServicePage"
@@ -53,10 +53,10 @@ const routes: RouteObject[] = [
                 path: 'start',
                 element: <StartPage />,
             },
-            /*{
+            {
                 path: 'menu2D',
                 element: <Menu2DPage />,
-            },*/
+            },
             {
                 path: 'home',
                 element: <HomePage />,
