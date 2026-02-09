@@ -48,7 +48,7 @@ class LobbyManager {
 
     //creating lobby with id name and player as host
     add(id: string, player: string) {
-        if (!this.lobbymap.has(id) && !this.clientlobby.has(player))
+        if (!this.lobbymap.has(id) && !this.clientlobby.has(player) && this.userrelmap.has(player))
         {
             const newlobby: Lobby = {
                 id,
@@ -67,7 +67,7 @@ class LobbyManager {
 
     //adding player to lobby id
     addplayer(id: string, player: string) {
-        if (this.lobbymap.has(id) && !this.clientlobby.has(player))
+        if (this.lobbymap.has(id) && !this.clientlobby.has(player) && this.userrelmap.has(player))
         {
             if (this.get(id)?.players.includes(player))
                 return (false);
@@ -102,6 +102,21 @@ class LobbyManager {
         return (false);
     }
 
+    leavehost(tlobby: Lobby, player: string) {
+        if (tlobby.players.length != 0)
+        {
+            tlobby.hostId = tlobby.players[0];
+            this.broadcastlobby(tlobby.id, player, LobbyAction.HOST);
+        }
+        else if (tlobby.spectators.length != 0)
+        {
+            tlobby.hostId = tlobby.spectators[0];
+            this.broadcastlobby(tlobby.id, player, LobbyAction.HOST);
+        }
+        else
+            this.lobbymap.delete(tlobby.id);
+    }
+
     //player leaving from id lobby and setting new host
     leaveplayer(id: string, player: string) {
         const lob = this.get(id);
@@ -113,11 +128,13 @@ class LobbyManager {
 
         if (lob.spectators.includes(player))
         {
+            this.broadcastlobby(id, player, LobbyAction.LEAVESPECTATOR);
             let torem = lob.spectators.indexOf(player);
             if (torem != -1)
                 lob.spectators.splice(torem, 1);
             this.clientlobby.delete(player);
-            this.broadcastlobby(id, player, LobbyAction.LEAVESPECTATOR);
+            if (lob.hostId == player)
+                this.leavehost(lob, player);
             return (true);
         }
 
@@ -133,26 +150,16 @@ class LobbyManager {
                 gameManager.killplayer(index, game);
         }
     
+        if (lob.players.length != 0)
+            this.broadcastlobby(id, player, LobbyAction.LEAVE);
+
         let torem = lob.players.indexOf(player);
         if (torem != -1)
             lob.players.splice(torem, 1);
-
-        if (lob.players.length != 0)
-            this.broadcastlobby(id, player, LobbyAction.LEAVE);
         
         if (lob.hostId == player)
-        {
-            if (lob.players.length != 0)
-            {
-                lob.hostId = lob.players[0];
-                this.broadcastlobby(id, player, LobbyAction.HOST);
-            }
-            else
-                this.lobbymap.delete(id);
-        }
+            this.leavehost(lob, player);
 
-        if (lob.players.length != 0)
-            this.spectToPlayer(id);
         this.clientlobby.delete(player);
         return (true);
     }
@@ -172,6 +179,63 @@ class LobbyManager {
         lob.players.push(lob.spectators[0]);
         this.broadcastlobby(id, lob.spectators[0], LobbyAction.SWITCHTOPLAYER);
         lob.spectators.splice(0, 1);
+    }
+
+    PlayerToSpect(id: string) {
+        const lob = this.get(id);
+
+        if (lob == undefined)
+            return (false);
+
+        if (lob.players.length === 0)
+            return (false);
+
+        lob.players.push(lob.spectators[0]);
+        this.broadcastlobby(id, lob.spectators[0], LobbyAction.SWITCHTOPLAYER);
+        lob.spectators.splice(0, 1);
+    }
+
+    spectToPlayerEndp(id: string, player: string) {
+        const lob = this.get(id);
+
+        if (lob == undefined)
+            return (false);
+
+        let index = lob.spectators.indexOf(player);
+
+        if (index == -1)
+            return (false);
+
+        if (lob.spectators.length === 0)
+            return (false);
+
+        if (lob.players.length >= this.maxsize)
+            return (false);
+
+        lob.players.push(lob.spectators[index]);
+        lob.spectators.splice(index, 1);
+        this.broadcastlobby(id, player, LobbyAction.SWITCHTOPLAYER);
+        return (true);
+    }
+
+    playerToSpectEndp(id: string, player: string) {
+        const lob = this.get(id);
+
+        if (lob == undefined)
+            return (false);
+
+        let index = lob.players.indexOf(player);
+
+        if (index == -1)
+            return (false);
+
+        if (lob.players.length === 0)
+            return (false);
+
+        lob.spectators.push(lob.players[index]);
+        lob.players.splice(index, 1);
+        this.broadcastlobby(id, player, LobbyAction.SWITCHTOSPECTATOR);
+        return (true);
     }
 
     //getter for all lobbyes
@@ -301,7 +365,12 @@ class LobbyManager {
             {
                 this.userrelmap.delete(user);
                 if (this.clientlobby.has(user))
-                    this.leaveplayer(this.clientlobby.get(user)!, user)
+                {
+                    const tlobby = this.get(this.clientlobby.get(user)!)!;
+
+                    if (tlobby.status != "in-game" || tlobby.spectators.indexOf(user) != -1)
+                        this.leaveplayer(tlobby.id, user);
+                }
             }
         }
     }
@@ -416,6 +485,10 @@ class LobbyManager {
         first = game.dead[0];
 
         tlobby.status = "waiting";
+    
+        for (const player of tlobby.players)
+            if (!this.userrelmap.get(player))
+                this.leaveplayer(tlobby.id, player);
 
         const result: GameResults = {
             first: first,

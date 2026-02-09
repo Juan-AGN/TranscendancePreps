@@ -64,6 +64,20 @@ app.post("/lobbies/leave", (req: Request, res: Response) => {
 	return (res.send(lobbyManager.getlobbies()));
 });
 
+app.post("/lobbies/change/spectator", (req: Request, res: Response) => {
+	const { lobbyId, hostId } = req.body;
+	if (!lobbyManager.spectToPlayerEndp(lobbyId, hostId))
+		return (res.status(500).json({ message: "Couldn't change to player." }));
+	return (res.send(lobbyManager.get(lobbyId)));
+});
+
+app.post("/lobbies/change/player", (req: Request, res: Response) => {
+	const { lobbyId, hostId } = req.body;
+	if (!lobbyManager.playerToSpectEndp(lobbyId, hostId))
+		return (res.status(500).json({ message: "Couldn't change to spectator." }));
+	return (res.send(lobbyManager.get(lobbyId)));
+});
+
 app.post("/lobbies/ruleset", (req: Request, res: Response) => {
 	const { lobbyId, hostId, ruleset } = req.body;
 

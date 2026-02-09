@@ -218,28 +218,9 @@ function Ruleset({ Crules, setCrules, changeRules }) {
 	);
 }
 
-
-
-function Lobbyes({ response, setResponse }) {
-	if (!response?.all)
-		return (<p>No lobbies available</p>);
-
-	return (
-		<div id="lobbyes-box">
-		{response.all.map((lobbyItem) => (
-        	<div className="lobby" key={lobbyItem.id}>
-        		<div><strong>Name:</strong> {lobbyItem.id}</div>
-        		<div><strong>Host:</strong> {lobbyItem.hostId}</div>
-        		<div><strong>Players:</strong> {lobbyItem.players.length}</div>
-        		<div><strong>Spectators:</strong> {lobbyItem.spectators.length}</div>
-        		<div><strong>Status:</strong> {lobbyItem.status}</div>
-			</div>
-		))}
-    	</div>
-	);
-}
-
 function Lobby({ response }) {
+	if (!response || !response.players)
+		return ;
 	return (
 		<div id="players-box">
         	<div><strong>Name:</strong> {response.id}</div>
@@ -487,6 +468,49 @@ function App() {
 		}
 	}
 
+	async function joinClickLobby(lobbyid) {
+		if (!user)
+			return ;
+		setLobby(lobbyid);
+		try {
+			const res = await fetch(`${apiBase}/lobbies/join`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ lobbyId: lobbyid, hostId: user  })
+			});
+			if (!res.ok) {
+    			const text = await res.text();
+    			throw new Error(`HTTP ${res.status}: ${text}`);
+    		}
+			const data = await res.json();
+			setClobby(data.id);
+			setResponse(data);
+		}
+		catch (error)
+		{
+			console.log(error);
+		}
+	}
+
+	function Lobbyes({ response, setResponse }) {
+		if (!response?.all)
+			return (<p>No lobbies available</p>);
+
+		return (
+			<div id="lobbyes-box">
+			{response.all.map((lobbyItem) => (
+				<div className="lobby" key={lobbyItem.id} onClick={() => joinClickLobby(lobbyItem.id)}>
+					<div><strong>Name:</strong> {lobbyItem.id}</div>
+					<div><strong>Host:</strong> {lobbyItem.hostId}</div>
+					<div><strong>Players:</strong> {lobbyItem.players.length}</div>
+					<div><strong>Spectators:</strong> {lobbyItem.spectators.length}</div>
+					<div><strong>Status:</strong> {lobbyItem.status}</div>
+				</div>
+			))}
+			</div>
+		);
+	}
+
 	async function listLobbies() {
 		const res = await fetch(`${apiBase}/lobbies`);
 		const data = await res.json();
@@ -507,12 +531,62 @@ function App() {
 			const data = await res.json();
 			setClobby("");
 			setGame("");
-			listLobbies();
 		}
 		catch (error)
 		{
 			console.log(error);
 		}
+	}
+
+	async function changeSpectator() {
+		try {
+			const res = await fetch(`${apiBase}/lobbies/change/spectator`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ lobbyId: clobby, hostId: user })
+			});
+			if (!res.ok) {
+    			const text = await res.text();
+    			throw new Error(`HTTP ${res.status}: ${text}`);
+    		}
+			const data = await res.json();
+			setResponse(data);
+		}
+		catch (error)
+		{
+			console.log(error);
+		}
+	}
+
+	async function changePlayer() {
+		try {
+			const res = await fetch(`${apiBase}/lobbies/change/player`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ lobbyId: clobby, hostId: user })
+			});
+			if (!res.ok) {
+    			const text = await res.text();
+    			throw new Error(`HTTP ${res.status}: ${text}`);
+    		}
+			const data = await res.json();
+			setResponse(data);
+		}
+		catch (error)
+		{
+			console.log(error);
+		}
+	}
+
+	async function change() {
+		if (!response)
+			return ;
+		if (!response.spectators && !response.players)
+			return ;
+		if (response.spectators.includes(user))
+			changeSpectator();
+		else
+			changePlayer();
 	}
 
 	async function changeRules() {
@@ -597,7 +671,7 @@ function App() {
 
 			if (msg.type == "LOBBYUPDATE")
 			{
-				if (msg.action == "LEAVE")
+				if (msg.action == "LEAVE" || msg.action == "LEAVESPECTATOR")
 				{
 					if (msg.user == user)
 					{
@@ -652,8 +726,17 @@ function App() {
 
 
 	useEffect(() => {
+		if (clobby)
+			return ;
+
 		listLobbies();
-	}, [])
+
+		const intervalId = setInterval(() => {
+			listLobbies();
+		}, 4000);
+
+		return () => clearInterval(intervalId);
+	}, [clobby]);
 
 	return (
 		<div>
@@ -683,6 +766,7 @@ function App() {
 				<h2>Leave Lobby</h2>
 				<button onClick={leaveLobby}>Leave Lobby</button>
 				<button onClick={startGame}>Start Game</button>
+				<button onClick={change}>Change</button>
 				<h2>Response</h2>
 				<Lobby response={response} setResponse={setResponse}/>
 				<h2>Rules stuff</h2>
