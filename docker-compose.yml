@@ -17,6 +17,55 @@ services:
     ports:
       - "7777:3000"
 
+  score_database:
+    image: postgres:16-alpine
+    container_name: score_database
+    restart: always
+    environment:
+      POSTGRES_USER: score_manager
+      POSTGRES_PASSWORD: score_manager
+      POSTGRES_DB: scores
+    
+    volumes:
+      - score_data:/var/lib/postgresql/data
+    
+    networks:
+      - score_network
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U score_manager"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  score_backend:
+    build:
+      context: ./scores
+  
+    container_name: scores
+    
+    restart: always
+
+    environment:
+      DATABASE_URL: "postgresql://score_manager:score_manager@score_database:5432/scores"
+      JWT_SECRET: "clave_super_secreta_cambiar_en_produccion"
+      NODE_ENV: development
+    
+    depends_on:
+      score_database:
+        condition: service_healthy
+
+    networks:
+      -  game_network
+      -  score_network
+
+volumes:
+  score_data: {}
+
 networks:
   game_network:
     name: game_network
+    driver: bridge
+  score_network:
+    name: score_network
+    driver: bridge
