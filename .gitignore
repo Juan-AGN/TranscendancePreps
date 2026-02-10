@@ -1,5 +1,7 @@
 node_modules/
 
+**/node_modules/
+
 game/back/node_modules/
 
 game/front/node_modules/
@@ -7,3 +9,9 @@ game/front/node_modules/
 test.html
 
 scores
+
+.env
+
+.env.db
+
+.env.scoreback

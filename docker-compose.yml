@@ -3,6 +3,8 @@ services:
     container_name: game-back
     build:
       context: ./game/back
+    env_file:
+      - .env.scoreback
     networks:
       - game_network
     ports:
@@ -21,11 +23,9 @@ services:
     image: postgres:16-alpine
     container_name: score_database
     restart: always
-    environment:
-      POSTGRES_USER: score_manager
-      POSTGRES_PASSWORD: score_manager
-      POSTGRES_DB: scores
-    
+    env_file:
+      - .env.db
+  
     volumes:
       - score_data:/var/lib/postgresql/data
     
@@ -33,7 +33,7 @@ services:
       - score_network
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U score_manager"]
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -46,10 +46,8 @@ services:
     
     restart: always
 
-    environment:
-      DATABASE_URL: "postgresql://score_manager:score_manager@score_database:5432/scores"
-      JWT_SECRET: "clave_super_secreta_cambiar_en_produccion"
-      NODE_ENV: development
+    env_file:
+      - .env.scoreback
     
     depends_on:
       score_database:
