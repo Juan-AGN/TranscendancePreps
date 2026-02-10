@@ -1,187 +1,61 @@
 // ============================================================================
-// 🔧 CONFIGURACIÓN DE PRISMA
+// CONFIGURACION DE PRISMA
 // ============================================================================
-
-// Esto genera el código para poder usar Prisma en TypeScript
 generator client {
   provider = "prisma-client-js"
 }
 
-// Esto dice que vamos a usar PostgreSQL como base de datos
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")  // La URL está en el archivo .env
+  url      = env("DATABASE_URL")
 }
 
 // ============================================================================
-// TABLA DE USUARIOS
+// MODELO: Usuario
 // ============================================================================
-// Esta tabla guarda TODOS los usuarios que se registran en la aplicación
-// Cada fila de esta tabla es UN usuario
-
 model Usuario {
+  id        Int       @id @default(autoincrement())
+  nombre    String
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
   
-  // ──────────────────────────────────────────────────────────────────────
-  // CAMPOS BÁSICOS DEL USUARIO
-  // ──────────────────────────────────────────────────────────────────────
+  // Relaciones
+  solicitudesEnviadas  Amistad[] @relation("SolicitudesEnviadas")
+  solicitudesRecibidas Amistad[] @relation("SolicitudesRecibidas")
+  posts                Post[]    @relation("PostsDelUsuario")
   
-  // El ID es un número que identifica al usuario
-  // Es único para cada usuario (no puede repetirse)
-  // Se genera automáticamente cuando creas un usuario nuevo
-  id                    Int      @id @default(autoincrement())
-  
-  // El email del usuario (tiene que ser único)
-  // No puede haber dos usuarios con el mismo email
-  // Ejemplo: "daniel@gmail.com"
-  email                 String   @unique
-  
-  // El nombre completo del usuario
-  // Ejemplo: "Daniel Ruiz"
-  nombreCompleto        String
-  
-  // La contraseña del usuario
-  // IMPORTANTE: Está hasheada con bcrypt (no es texto plano)
-  // Ejemplo: "$2b$10$abc123..." (esto es el hash)
-  passwordHasheado      String
-  
-  // La fecha y hora en que el usuario se registró
-  // Se pone automáticamente al crear el usuario
-  // Ejemplo: "2024-02-04 15:30:00"
-  fechaDeCreacion       DateTime @default(now())
-  
-  // La fecha y hora de la última vez que se actualizó el usuario
-  // Se actualiza automáticamente cada vez que cambias algo
-  fechaDeActualizacion  DateTime @updatedAt
-  
-  // ──────────────────────────────────────────────────────────────────────
-  // RELACIONES CON OTRAS TABLAS
-  // ──────────────────────────────────────────────────────────────────────
-  
-  // Aquí se guardan todas las solicitudes de amistad que YO ENVIÉ
-  // Por ejemplo: Si yo (usuario 1) envío solicitud a usuario 2, aparece aquí
-  // Es un array porque puedo enviar muchas solicitudes
-  solicitudesDeAmistadQueYoEnvie Amistad[] @relation("UsuarioQueSolicita")
-  
-  // Aquí se guardan todas las solicitudes de amistad que ME ENVIARON
-  // Por ejemplo: Si usuario 2 me envía solicitud a mí, aparece aquí
-  // Es un array porque pueden enviarme muchas solicitudes
-  solicitudesDeAmistadQueRecibi Amistad[] @relation("UsuarioQueRecibe")
-  
-  // Aquí se guardan todos los posts que YO ESCRIBÍ
-  // Por ejemplo: Si yo escribo "Hola mundo", ese post aparece aquí
-  // Es un array porque puedo escribir muchos posts
-  todosLosPostsQueYoEscribi      Post[]
+  @@map("Usuario")
 }
 
 // ============================================================================
-// TABLA DE AMISTADES
+// MODELO: Amistad
 // ============================================================================
-// Esta tabla guarda las relaciones de amistad entre dos usuarios
-// Cada fila representa UNA solicitud de amistad
-// Por ejemplo: Usuario 1 le envía solicitud a Usuario 2
-
 model Amistad {
+  id            Int      @id @default(autoincrement())
+  solicitanteId Int
+  receptorId    Int
+  estado        String   @default("pendiente")
+  createdAt     DateTime @default(now())
   
-  // ──────────────────────────────────────────────────────────────────────
-  // CAMPOS BÁSICOS DE LA AMISTAD
-  // ──────────────────────────────────────────────────────────────────────
+  // Relaciones
+  solicitante Usuario @relation("SolicitudesEnviadas", fields: [solicitanteId], references: [id])
+  receptor    Usuario @relation("SolicitudesRecibidas", fields: [receptorId], references: [id])
   
-  // El ID único de esta solicitud de amistad
-  // Se genera automáticamente
-  idDeLaSolicitudDeAmistad Int      @id @default(autoincrement())
-  
-  // El ID del usuario que ENVIÓ la solicitud
-  // Por ejemplo: Si usuario 1 envía solicitud, aquí va "1"
-  idDelUsuarioQueSolicita  Int
-  
-  // El ID del usuario que RECIBIÓ la solicitud
-  // Por ejemplo: Si la solicitud es para usuario 2, aquí va "2"
-  idDelUsuarioQueRecibe    Int
-  
-  // El estado actual de la solicitud
-  // Puede ser: "pendiente", "aceptada" o "rechazada"
-  estadoDeLaSolicitud      String
-  
-  // La fecha y hora en que se creó esta solicitud
-  // Se pone automáticamente al crear la solicitud
-  fechaDeCreacionDeLaSolicitud DateTime @default(now())
-  
-  // ──────────────────────────────────────────────────────────────────────
-  // CONEXIONES CON LA TABLA DE USUARIOS
-  // ──────────────────────────────────────────────────────────────────────
-  
-  // Esta línea conecta "idDelUsuarioQueSolicita" con la tabla Usuario
-  // Así podemos saber QUIÉN envió la solicitud
-  // Si se borra el usuario, se borra también esta amistad (Cascade)
-  usuarioQueSolicita Usuario @relation("UsuarioQueSolicita", fields: [idDelUsuarioQueSolicita], references: [id], onDelete: Cascade)
-  
-  // Esta línea conecta "idDelUsuarioQueRecibe" con la tabla Usuario
-  // Así podemos saber QUIÉN recibió la solicitud
-  // Si se borra el usuario, se borra también esta amistad (Cascade)
-  usuarioQueRecibe   Usuario @relation("UsuarioQueRecibe", fields: [idDelUsuarioQueRecibe], references: [id], onDelete: Cascade)
-  
-  // ──────────────────────────────────────────────────────────────────────
-  // REGLA: NO PUEDEN HABER SOLICITUDES DUPLICADAS
-  // ──────────────────────────────────────────────────────────────────────
-  // Esto previene que usuario 1 envíe DOS solicitudes al usuario 2
-  // Solo puede haber UNA solicitud entre dos usuarios
-  @@unique([idDelUsuarioQueSolicita, idDelUsuarioQueRecibe])
+  @@map("Amistad")
 }
 
 // ============================================================================
-// TABLA DE POSTS
+// MODELO: Post
 // ============================================================================
-// Esta tabla guarda todos los posts/mensajes que escriben los usuarios
-// Cada fila es UN post escrito por UN usuario
-
 model Post {
+  id        Int      @id @default(autoincrement())
+  contenido String
+  createdAt DateTime @default(now())
+  usuarioId Int
   
-  // ──────────────────────────────────────────────────────────────────────
-  // CAMPOS BÁSICOS DEL POST
-  // ──────────────────────────────────────────────────────────────────────
+  // Relación
+  usuario Usuario @relation("PostsDelUsuario", fields: [usuarioId], references: [id])
   
-  // El ID único del post
-  // Se genera automáticamente
-  idDelPost               Int      @id @default(autoincrement())
-  
-  // El contenido del post (el texto que escribió el usuario)
-  // Ejemplo: "¡Hola a todos!"
-  contenidoDelPost        String
-  
-  // El ID del usuario que escribió este post
-  // Por ejemplo: Si usuario 3 escribió el post, aquí va "3"
-  idDelUsuarioQueEscribioEstePost Int
-  
-  // La fecha y hora en que se creó este post
-  // Se pone automáticamente al crear el post
-  fechaDeCreacionDelPost  DateTime @default(now())
-  
-  // ──────────────────────────────────────────────────────────────────────
-  // 🔗 CONEXIÓN CON LA TABLA DE USUARIOS
-  // ──────────────────────────────────────────────────────────────────────
-  
-  // Esta línea conecta este post con el usuario que lo escribió
-  // Si se borra el usuario, se borran también todos sus posts (Cascade)
-  usuarioQueEscribioEstePost Usuario @relation(fields: [idDelUsuarioQueEscribioEstePost], references: [id], onDelete: Cascade)
+  @@map("Post")
 }
-
-// ============================================================================
-// EXPLICACIÓN DE LAS RELACIONES (CÓMO SE CONECTAN LAS TABLAS)
-// ============================================================================
-//
-// 1 - RELACIÓN ENTRE USUARIO Y POST:
-//    - Un usuario puede escribir MUCHOS posts (1 a N)
-//    - Un post solo puede ser escrito por UN usuario
-//    - Si borras un usuario, se borran todos sus posts
-//
-// 2 - RELACIÓN ENTRE USUARIO Y AMISTAD:
-//    - Un usuario puede enviar MUCHAS solicitudes de amistad
-//    - Un usuario puede recibir MUCHAS solicitudes de amistad
-//    - Una amistad conecta EXACTAMENTE 2 usuarios
-//    - Si borras un usuario, se borran todas sus amistades
-//
-// 3 - REGLA ESPECIAL DE AMISTAD:
-//    - No puede haber dos solicitudes iguales
-//    - Usuario 1 → Usuario 2 (solo puede existir una vez)
-//
-// ============================================================================
