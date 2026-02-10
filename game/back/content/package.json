@@ -36,6 +36,7 @@
   "dependencies": {
     "dotenv": "^17.2.4",
     "express": "^5.2.1",
+    "getenv": "^2.0.0",
     "ws": "^8.19.0"
   }
 }

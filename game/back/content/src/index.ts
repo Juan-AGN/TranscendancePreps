@@ -7,6 +7,10 @@ import { WebSocketServer, WebSocket } from "ws";
 import { Errors, changeErrors } from "./types";
 var cors = require('cors');
 
+const getenv = require('getenv');
+
+const password = getenv('PASSWORD');
+
 const app = express();
 const port = 8888;
 
@@ -125,6 +129,14 @@ wss.on("connection", (ws: WebSocket, req) => {
 		ws.close(1008, "User ID required");
 		return;
 	}
+
+    fetch(`http://score_backend:9999/create/user`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ password: password, who: userId })
+	}).catch(err => {
+  		console.warn("Fetch failed but ignoring:", err);
+	});;
 
 	lobbyManager.newws(userId, ws);
 

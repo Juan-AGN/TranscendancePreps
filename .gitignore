@@ -15,3 +15,7 @@ scores
 .env.db
 
 .env.scoreback
+
+dist/
+
+*/geterated/prisma

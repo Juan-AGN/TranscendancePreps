@@ -40,10 +40,13 @@ services:
 
   score_backend:
     build:
-      context: ./scores
+      context: ./game/score_manager
   
     container_name: scores
-    
+
+    ports:
+      - "9999:9999"
+
     restart: always
 
     env_file:

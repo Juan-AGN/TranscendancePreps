@@ -4,6 +4,9 @@ import { gameManager } from "./gameManager";
 import { rulesetHandler } from "./rulesetHandler";
 import { stat } from "fs";
 import { isNumberObject } from "util/types";
+const getenv = require('getenv');
+
+const password = getenv('PASSWORD');
 
 function delay(ms: number) {
     return new Promise( resolve => setTimeout(resolve, ms) );
@@ -497,6 +500,13 @@ class LobbyManager {
             fourth: fourth,
         }
         this.gamemap.delete(tlobby.id);
+ 	    fetch(`http://score_backend:9999/create/match`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ password: password, results: result })
+		}).catch(err => {
+  		    console.warn("Fetch failed but ignoring:", err);
+	    });
         this.broadcastresult(tlobby.id, result);
     }
 }

@@ -7,10 +7,12 @@
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -22,7 +24,7 @@ model User {
   matchesAsThree Match[] @relation("UserThree")
   matchesAsFour  Match[] @relation("UserFour")
 
-  score   Int
+  score   Float
 }
 
 model Match {
