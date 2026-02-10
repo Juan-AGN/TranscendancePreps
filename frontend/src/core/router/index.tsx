@@ -16,16 +16,19 @@ import { Menu2DPage } from '../../ui2d/pages/Menu2DPage'
 import { PrivacyPolicyPage } from "../../shared/pages/PrivacyPolicyPage"
 import { TermsOfServicePage } from "../../shared/pages/TermsOfServicePage"
 
+// Páginas de Auth
+import { LoginPage } from "../../shared/auth/pages/LoginPage"
+import { SignupPage } from "../../shared/auth/pages/SignupPage"
+import { ProfilePage } from "../../shared/auth/pages/ProfilePage"
+import { ProtectedRoute } from "../../shared/auth/components/ProtectedRoute"
 
 
 
-// componentes del menu
 
-
+// componentes del menu (placeholders)
 const GamePage = () => <div>Game Page</div>
 const TournamentPage = () => <div>Tournament PAge</div>
 const SettingsPage = () => <div>Settings Page</div>
-const LoginPage = () => <div>Login Page</div>
 
 // Página StartGate - usa useNavigate pa navegacion correcta
 const StartPage = () => {
@@ -59,23 +62,51 @@ const routes: RouteObject[] = [
             },
             {
                 path: 'home',
-                element: <HomePage />,
+                element: (
+                    //<ProtectedRoute>
+                        <HomePage />
+                    //</ProtectedRoute>
+                ),
             },
             {
                 path: 'game',
-                element: <GamePage />,
+                element: (
+                    //<ProtectedRoute>
+                        <GamePage />
+                    //</ProtectedRoute>
+                ),
             },
             {
                 path: 'tournament',
-                element: <TournamentPage />,
+                element: (
+                    //<ProtectedRoute>
+                        <TournamentPage />
+                    //</ProtectedRoute>
+                ),
             },
             {
                 path: 'settings',
-                element: <SettingsPage />,
+                element: (
+                    //<ProtectedRoute>
+                        <SettingsPage />
+                    //</ProtectedRoute>
+                ),
             },
             {
                 path: 'login',
-                element: <LoginPage />
+                element: <LoginPage />,
+            },
+            {
+                path: 'signup',
+                element: <SignupPage />,
+            },
+            {
+                path: 'profile',
+                element: (
+                    //<ProtectedRoute>
+                        <ProfilePage />
+                    //</ProtectedRoute>
+                ),
             },
             {
                 path:'privacy',

@@ -11,7 +11,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 // - label: texto visible
 // - path: ruta a la que navega
 const MENU2D_OPTIONS = [
-  { id: 'home', label: 'HOME', path: '/home' },
+  { id: 'home', label: 'HOME', path: '/start' },
   { id: 'game', label: 'GAME', path: '/game' },
   { id: 'tournament', label: 'TOURNAMENT', path: '/tournament' },
   { id: 'settings', label: 'SETTINGS', path: '/settings' },
