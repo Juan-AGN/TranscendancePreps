@@ -11,7 +11,11 @@ import { RootLayout } from '../../shared/components/layout/RootLayout'
 import { HomePage } from "../../game/pages/HomePage"
 import { SplashScreen } from '../../game/components/SplashScreen'
 import { StartGate } from '../../game/components/StartGate'
+
 import { Menu2DPage } from '../../ui2d/pages/Menu2DPage'
+import { Game2DPage } from "../../ui2d/pages/Game2DPage"
+import { Tournament2DPage } from "../../ui2d/pages/Tournament2DPage"
+import { Settings2DPage } from "../../ui2d/pages/Settings2DPage"
 
 import { PrivacyPolicyPage } from "../../shared/pages/PrivacyPolicyPage"
 import { TermsOfServicePage } from "../../shared/pages/TermsOfServicePage"
@@ -22,13 +26,6 @@ import { SignupPage } from "../../shared/auth/pages/SignupPage"
 import { ProfilePage } from "../../shared/auth/pages/ProfilePage"
 import { ProtectedRoute } from "../../shared/auth/components/ProtectedRoute"
 
-
-
-
-// componentes del menu (placeholders)
-const GamePage = () => <div>Game Page</div>
-const TournamentPage = () => <div>Tournament PAge</div>
-const SettingsPage = () => <div>Settings Page</div>
 
 // Página StartGate - usa useNavigate pa navegacion correcta
 const StartPage = () => {
@@ -72,7 +69,7 @@ const routes: RouteObject[] = [
                 path: 'game',
                 element: (
                     //<ProtectedRoute>
-                        <GamePage />
+                        <Game2DPage />
                     //</ProtectedRoute>
                 ),
             },
@@ -80,7 +77,7 @@ const routes: RouteObject[] = [
                 path: 'tournament',
                 element: (
                     //<ProtectedRoute>
-                        <TournamentPage />
+                        <Tournament2DPage />
                     //</ProtectedRoute>
                 ),
             },
@@ -88,7 +85,7 @@ const routes: RouteObject[] = [
                 path: 'settings',
                 element: (
                     //<ProtectedRoute>
-                        <SettingsPage />
+                        <Settings2DPage />
                     //</ProtectedRoute>
                 ),
             },
