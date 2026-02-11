@@ -16,6 +16,10 @@ import { Menu2DPage } from '../../ui2d/pages/Menu2DPage'
 import { Game2DPage } from "../../ui2d/pages/Game2DPage"
 import { Tournament2DPage } from "../../ui2d/pages/Tournament2DPage"
 import { Settings2DPage } from "../../ui2d/pages/Settings2DPage"
+import { GameSettings2DPage } from '../../ui2d/pages/settings/GameSettings2DPage'
+import { Difficult2DPage } from "../../ui2d/pages/settings/DifficultSettings2DPage"
+import { AudioSettings2DPage } from '../../ui2d/pages/settings/AudioSettings2DPage'
+import { DisplaySettings2DPage } from '../../ui2d/pages/settings/DisplaySettings2DPage'
 
 import { PrivacyPolicyPage } from "../../shared/pages/PrivacyPolicyPage"
 import { TermsOfServicePage } from "../../shared/pages/TermsOfServicePage"
@@ -88,6 +92,22 @@ const routes: RouteObject[] = [
                         <Settings2DPage />
                     //</ProtectedRoute>
                 ),
+            },
+            {
+                path: 'gamesettings',
+                element: <GameSettings2DPage />,
+            },
+            {
+                path: 'difficultlevel',
+                element: <Difficult2DPage />
+            },
+            {
+                path: 'audio',
+                element: <AudioSettings2DPage />
+            },
+            {
+                path: 'display',
+                element: <DisplaySettings2DPage />
             },
             {
                 path: 'login',

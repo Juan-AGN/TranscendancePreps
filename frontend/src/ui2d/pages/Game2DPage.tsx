@@ -7,6 +7,7 @@ const GAME2D_OPTIONS = [
 	{id: '1player', label: '1 PLAYER SOLO', path: '/play1vsgame'},// aun por determinar los paths de game y juego 2d
 	{id: '2player', label: '2 PLAYER VS', path: '/play2vsgame'},// aun por determinar los paths de game y juego 2d
 	{id: 'IAplayer', label: 'IA PLAYER MODE', path: '/playIAgame'},// aun por determinar los paths de game y juego 2d
+	{id: 'back', label: '← BACK', path: '/menu2D'},
 ]
 
 //compo de react
