@@ -6,8 +6,19 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
+// Para manejo de archivos (avatar)
+import { randomUUID } from 'crypto';
+import fs from 'fs'; // file System
+import { pipeline } from 'stream/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 // Crear cliente de Prisma para acceder a la base de datos
 const clienteDePrisma = new PrismaClient();
+
+// Configuración de rutas de archivos
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ============================================================================
 // FUNCION PRINCIPAL: Registrar todas las rutas relacionadas con usuarios
@@ -73,6 +84,7 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
                 id: nuevoUsuario.id,
                 nombre: nuevoUsuario.nombre,
                 email: nuevoUsuario.email,
+                avatar: nuevoUsuario.avatar,
                 fechaCreacion: nuevoUsuario.createdAt
             }
         });
@@ -146,7 +158,8 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             usuario: {
                 id: usuario.id,
                 nombre: usuario.nombre,
-                email: usuario.email
+                email: usuario.email,
+                avatar: usuario.avatar
             }
         });
     });
@@ -164,6 +177,7 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
                 id: true,
                 nombre: true,
                 email: true,
+                avatar: true,
                 createdAt: true
             }
         });
@@ -195,6 +209,7 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
                 id: true,
                 nombre: true,
                 email: true,
+                avatar: true,
                 createdAt: true
             }
         });
@@ -242,21 +257,20 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             where: {
                 id: idDelUsuario
             },
-            data: {
-                nombre: datosDelBody.nombre,
-                email: datosDelBody.email,
-                password: passwordHasheado
+            data: datosDelBody,
+            select: {
+                id: true,
+                nombre: true,
+                email: true,
+                avatar: true,  // ← NUEVO: Incluir avatar en la respuesta
+                createdAt: true
             }
         });
         
         // PASO 5: Retornar el usuario actualizado
         respuestaAlCliente.send({
             mensaje: 'Usuario actualizado correctamente',
-            usuario: {
-                id: usuarioActualizado.id,
-                nombre: usuarioActualizado.nombre,
-                email: usuarioActualizado.email
-            }
+            usuario: datosDelBody
         });
     });
     
@@ -289,4 +303,210 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             }
         });
     });
+
+    // ========================================================================
+    // RUTA PARA SUBIR AVATAR
+    // ========================================================================
+    servidorFastify.post('/usuarios/:userId/avatar', {
+        onRequest: [servidorFastify.authenticate]
+    }, async (peticionDelCliente, respuestaAlCliente) => {
+        
+        try {
+            // PASO 1: Obtener el ID del usuario
+            const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
+            const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+            
+            // PASO 2: Recibir Y comprobar el archivo
+            const data = await peticionDelCliente.file();
+            
+            if (!data) {
+                return respuestaAlCliente.status(400).send({
+                    error: 'No se envió ningún archivo'
+                });
+            }
+            
+            // PASO 3: Validar tipo de archivo (solo imágenes)
+            const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            
+            // 'data.mimetype' -> Incluye el tipo de archivo q intenta subir para comprobar si es uno d ellos
+            if (!tiposPermitidos.includes(data.mimetype)) { 
+                return respuestaAlCliente.status(400).send({
+                    error: 'Solo se permiten imágenes (JPEG, PNG, GIF, WEBP)'
+                });
+            }
+            
+            // PASO 4: Validar tamaño (máximo 5MB)
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const buffer = await data.toBuffer(); // convierte la imagen a bytes para medirla 
+            
+            if (buffer.length > maxSize) {
+                return respuestaAlCliente.status(400).send({
+                    error: 'La imagen no puede superar los 5MB'
+                });
+            }
+            
+            // PASO 5: Generar nombre único para el archivo (para evitar que se sobreescriban si sube +d1)
+            const extension = data.filename.split('.').pop(); // obtiene el tipo (.jpg)
+            const nombreDelArchivo = `avatar-${idDelUsuario}-${randomUUID()}.${extension}`;
+                                    // Ej: "avatar-5-a3f5b2c8-1d4e-4f7a-9b2c-8e3f1a5d6c7b.png"
+            
+            // PASO 6: Guardar el archivo en /public/avatares/
+            const rutaCompleta = path.join(__dirname, '..', '..', 'public', 'avatares', nombreDelArchivo);
+                // 'path' -> import path from 'path'.....
+                //EJ: "/Users/daniel/Documents/transcendence/TranscendancePreps/public/avatares/avatar-5-a3f5b2c8-1d4e-4f7a-9b2c-8e3f1a5d6c7b.jpg"
+            
+            // Crear directorio si no existe
+            const directorioAvatares = path.join(__dirname, '..', '..', 'public', 'avatares');
+            if (!fs.existsSync(directorioAvatares)) 
+            { // 'fs'- > File system
+                fs.mkdirSync(directorioAvatares, 
+                { 
+                    recursive: true 
+                });
+            }
+            
+            // Guardar el archivo
+            fs.writeFileSync(rutaCompleta, buffer); // no guarda el objeto ¡data¡ sino el buffer
+            
+            // PASO 7: Obtener el avatar anterior (para eliminarlo)
+            const avatarAnterior = await clienteDePrisma.usuario.findUnique({ // busca 1 solo usuario (unique)
+                where: { id: idDelUsuario }, // concretamente el usuario con ID ...
+                select: { avatar: true } // Solo trae le campo avatar
+            });
+            
+            // PASO 8: Actualizar la BD con la URL del nuevo avatar
+            const usuarioActualizado = await clienteDePrisma.usuario.update({
+                where: {
+                    id: idDelUsuario
+                },
+                data: {
+                    avatar: `/avatares/${nombreDelArchivo}`
+                },
+                // Aunque solo cambie 'avatar' se devuelven todos los campos en la response por si los necesita
+                select: {
+                    id: true,
+                    nombre: true,
+                    email: true,
+                    avatar: true,
+                    createdAt: true
+                }
+            });
+            
+            // PASO 9: Eliminar el avatar anterior (si no es el default)
+            if (avatarAnterior?.avatar && 
+                avatarAnterior.avatar !== 'default-avatar.png' && 
+                avatarAnterior.avatar.startsWith('/avatares/')) // Si es un avatar válido (comprueba la ruta)
+                {
+                // Construyo la ruta completa para eliminarlo
+                const avatarAnteriorPath = path.join(__dirname, '..', '..', 'public', avatarAnterior.avatar);
+                                                                    // '.avatar' -> "avatares/avatar,jpg"
+
+                if (fs.existsSync(avatarAnteriorPath)) // Existe el archivo?
+                    fs.unlinkSync(avatarAnteriorPath); // Si es así, lo elimina
+            }
+            
+            // PASO 10: Retornar respuesta exitosa
+            respuestaAlCliente.send({
+                mensaje: 'Avatar subido correctamente',
+                avatarUrl: `/avatares/${nombreDelArchivo}`,
+                usuario: usuarioActualizado
+            });
+            
+        // Si cualquiera de los pasos del 1 al 10 falla:
+        } catch (error) {
+            console.error('Error al subir avatar:', error);
+            respuestaAlCliente.status(500).send({
+                error: 'Error al subir el avatar'
+            });
+        }
+    });
+
+    // ========================================================================
+    // RUTA PARA OBTENER AVATAR DE UN USUARIO
+    // ========================================================================
+    servidorFastify.get('/usuarios/:userId/avatar', async (peticionDelCliente, respuestaAlCliente) => {
+        
+        // PASO 1: Obtener el ID del usuario
+        const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
+        const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+        
+        // PASO 2: Buscar el usuario
+        const usuario = await clienteDePrisma.usuario.findUnique({
+            where: { id: idDelUsuario },
+            select: { avatar: true }
+        });
+        
+        if (!usuario) {
+            return respuestaAlCliente.status(404).send({
+                error: 'Usuario no encontrado'
+            });
+        }
+        
+        // PASO 3: Retornar la URL del avatar
+        respuestaAlCliente.send({
+            avatarUrl: usuario.avatar || 'default-avatar.png'
+        });
+    });
+
+    // ========================================================================
+    // RUTA PARA ELIMINAR AVATAR
+    // ========================================================================
+    servidorFastify.delete('/usuarios/:userId/avatar', {
+        onRequest: [servidorFastify.authenticate]
+    }, async (peticionDelCliente, respuestaAlCliente) => {
+        
+        try {
+            // PASO 1: Obtener el ID del usuario
+            const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
+            const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+            
+            // PASO 2: Obtener el avatar actual
+            const usuario = await clienteDePrisma.usuario.findUnique({
+                where: { id: idDelUsuario },
+                select: { avatar: true }
+            });
+            
+            if (!usuario) {
+                return respuestaAlCliente.status(404).send({
+                    error: 'Usuario no encontrado'
+                });
+            }
+            
+            // PASO 3: Eliminar el archivo físico (si no es el default)
+            if (usuario.avatar && 
+                usuario.avatar !== 'default-avatar.png' && 
+                usuario.avatar.startsWith('/avatares/')) {
+                
+                const avatarPath = path.join(__dirname, '..', '..', 'public', usuario.avatar);
+                if (fs.existsSync(avatarPath)) {
+                    fs.unlinkSync(avatarPath);
+                }
+            }
+            
+            // PASO 4: Actualizar la BD al avatar por defecto
+            const usuarioActualizado = await clienteDePrisma.usuario.update({
+                where: { id: idDelUsuario },
+                data: { avatar: 'default-avatar.png' },
+                select: {
+                    id: true,
+                    nombre: true,
+                    email: true,
+                    avatar: true
+                }
+            });
+            
+            // PASO 5: Retornar respuesta exitosa
+            respuestaAlCliente.send({
+                mensaje: 'Avatar eliminado correctamente',
+                usuario: usuarioActualizado
+            });
+            
+        } catch (error) {
+            console.error('Error al eliminar avatar:', error);
+            respuestaAlCliente.status(500).send({
+                error: 'Error al eliminar el avatar'
+            });
+        }
+    });
+
 }

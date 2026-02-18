@@ -1,18 +1,31 @@
-import Fastify from 'fastify';
-import fastifyCors from '@fastify/cors';
-import { PrismaClient } from '@prisma/client';
-import { usuariosRoutes } from './routes/usuarios.js';
-import { amigosRoutes } from './routes/amigos.js';
-import { postsRoutes } from './routes/posts.js';
-import jwt from 'jsonwebtoken';
-import fastifyStatic from '@fastify/static';  // Para servir archivos estáticos
-import path from 'path';  
-import { fileURLToPath } from 'url';  
+// ============================================================================
+// IMPORTS - DEPENDENCIAS EXTERNAS
+// ============================================================================
+import Fastify from 'fastify';  // importación del Framework web 
+import fastifyCors from '@fastify/cors';  // Plugin para permitir peticiones desde otros dominios (CORS)
+import { PrismaClient } from '@prisma/client';  // Cliente de Prisma (ORM para base de datos)
+
+// ============================================================================
+// IMPORTS - RUTAS PROPIAS (archivos con endpoints)
+// ============================================================================
+import { usuariosRoutes } from './routes/usuarios.js';  // Rutas de usuarios (registro, login, avatar...)
+import { amigosRoutes } from './routes/amigos.js';  // Rutas de amigos (añadir, eliminar, listar...)
+import { postsRoutes } from './routes/posts.js';  // Rutas de posts (crear, listar, comentar...)
+
+// ============================================================================
+// IMPORTS - UTILIDADES Y PLUGINS
+// ============================================================================
+import jwt from 'jsonwebtoken';  // Librería para crear y verificar tokens JWT (autenticación)
+import fastifyStatic from '@fastify/static';  // Plugin para servir archivos estáticos (HTML, CSS, imágenes)
+import fastifyMultipart from '@fastify/multipart';  // Plugin para recibir archivos del cliente (avatares, PDFs...)
+import path from 'path';  // Módulo nativo de Node.js para manejar rutas de archivos/carpetas
+import { fileURLToPath } from 'url';  // Función para convertir URLs de módulos ES(ECMA Script) a rutas de archivo
 
 // ============================================================================
 // CONFIGURACION INICIAL
 // ============================================================================
-const __filename = fileURLToPath(import.meta.url);  
+// Obtención de la ruta completa del directorio actual (el de index.ts)
+const __filename = fileURLToPath(import.meta.url);  //'__' -> convención de node
 const __dirname = path.dirname(__filename); 
 
 const servidorFastify = Fastify({ logger: true });
@@ -21,31 +34,48 @@ const clienteDePrisma = new PrismaClient();
 // ============================================================================
 // MIDDLEWARE: CORS
 // ============================================================================
+// middleware: funciones intermediarias que se ejecutan entre la petición del 
+// cliente y la respuesta del servidor, actuando como filtro o validadores
+// de la petición que ha hecho el cliente
 await servidorFastify.register(fastifyCors, {
-    origin: '*',
+    origin: '*', // '*' -> indica que todos los dominios pueden hacer peticiones
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 });
 
 // ============================================================================
-// MIDDLEWARE: ARCHIVOS ESTÁTICOS (HTML, CSS, JS)
+// MIDDLEWARE: PERMITE SERVIR ARCHIVOS ESTÁTICOS (HTML, CSS, JS)
 // ============================================================================
-await servidorFastify.register(fastifyStatic, {
-    root: path.join(__dirname, '..', 'public'),  //  Carpeta public/
-    prefix: '/'  //  Disponible en http://localhost:3000/
+await servidorFastify.register(fastifyStatic, { // plugin de Fastify que permite servir archivos estáticos
+    root: path.join(__dirname, '..', 'public'),  //  Los archivos se encuentran en la Carpeta public/
+    prefix: '/'  //  Disponibles en la URL(desde la raíz) -> http://localhost:3000/
+});
+
+// ============================================================================
+// MIDDLEWARE: MULTIPART (PERMITE SUBIDA DE ARCHIVOS)
+// ============================================================================
+await servidorFastify.register(fastifyMultipart, { // plugin de fastify que permite recibir archivos
+    limits: {
+        fileSize: 5 * 1024 * 1024  // Límite: 5MB -> CONVERSION A BYTES: ( 5MB * 1 KB * 1MB)
+    }
 });
 
 // ============================================================================
 // MIDDLEWARE: AUTENTICACION JWT
 // ============================================================================
+// 'decorate' -> Añade la función personalizada 'authenticate' a Fastify
+// Esto evita tener que estar importando la función cada vez que se quiera usar ('import....')
 servidorFastify.decorate('authenticate', async (request: any, reply: any) => {
     try {
+        // Extrae la palabra clave 'Bearer' del token("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
         const token = request.headers.authorization?.replace('Bearer ', '');
         
         if (!token) {
             return reply.status(401).send({ error: 'Token no proporcionado' });
         }
         
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secreto-super-seguro');
+        // Verifica que el TOKEN sea válido, que no haya expirado y decodifica su contenido
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        // Guarda la info decodificada en 'request.user' para que puedan acceder desde todas las rutas
         request.user = decoded;
         
     } catch (error) {
@@ -54,7 +84,7 @@ servidorFastify.decorate('authenticate', async (request: any, reply: any) => {
 });
 
 // ============================================================================
-// REGISTRAR RUTAS
+// REGISTRAR RUTAS (funciones que contienen los endpoints creados por mi)
 // ============================================================================
 await servidorFastify.register(usuariosRoutes);
 await servidorFastify.register(amigosRoutes);
