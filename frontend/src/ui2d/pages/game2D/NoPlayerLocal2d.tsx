@@ -1,0 +1,31 @@
+import { useNavigate } from "react-router-dom";
+import { Game2DCanvas } from "../../components/Game2DCanvas";
+
+export function SpectatorMode2d() {
+	const navigate = useNavigate();
+
+	const handleGameEnd = (_winner: string, _player1Score: number, _player2Score: number) => {
+		// Game ended
+	};
+
+	return (
+		<div className="flex flex-col items-center justify-center min-h-screen bg-white">
+			<div className="mb-4">
+				<button
+					onClick={() => navigate('/game')}
+					className="px-6 py-2 font-mono text-lg font-bold border-4 border-black hover:bg-black hover:text-white transition-colors"
+				>
+					← BACK
+				</button>
+			</div>
+
+			<h1 className="text-4xl font-black font-mono mb-8">SPECTATOR MODE</h1>
+		
+			<Game2DCanvas
+				gameMode="spectator"
+				maxScore={5}
+				onGameEnd={handleGameEnd}
+			/>
+		</div>
+	);
+}

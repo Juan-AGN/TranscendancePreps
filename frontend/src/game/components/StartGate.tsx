@@ -11,9 +11,7 @@ interface StartGateProps {
 export function StartGate({ onStart3D, onGo2DMenu }: StartGateProps) {
   
   const handleSkip = () => {
-    console.log('Skip button clicked')
     if (onGo2DMenu) {
-      console.log('Calling onGo2DMenu')
       onGo2DMenu()
     } else {
       console.log('onGo2DMenu is undefined')
@@ -39,7 +37,7 @@ export function StartGate({ onStart3D, onGo2DMenu }: StartGateProps) {
 				onClick={handleSkip}
 				className="mt-4 w-full py-3 rounded-2xl font-semibold text-black/90 border border-white/30 hover:bg-white/10 transition"
 				>
-					Skip it
+					Arcade 2D
 				</button>
 			</div>
       	</div>

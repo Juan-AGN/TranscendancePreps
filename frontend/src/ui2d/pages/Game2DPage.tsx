@@ -4,9 +4,9 @@ import { useNavigate, useLocation } from 'react-router-dom'
 
 // const de un arru de options del menu
 const GAME2D_OPTIONS = [
-	{id: '1player', label: '1 PLAYER SOLO', path: '/play1vsgame'},// aun por determinar los paths de game y juego 2d
-	{id: '2player', label: '2 PLAYER VS', path: '/play2vsgame'},// aun por determinar los paths de game y juego 2d
-	{id: 'IAplayer', label: 'IA PLAYER MODE', path: '/playIAgame'},// aun por determinar los paths de game y juego 2d
+	{id: '1player', label: '1 PLAYER LOCAL', path: '/play1vsgame'},
+	{id: '2player', label: '2 PLAYER LOCAL', path: '/play2vsgame'},
+	{id: 'spectator', label: 'SPECTATOR MODE', path: '/playspectator'},
 	{id: 'back', label: '← BACK', path: '/menu2D'},
 ]
 
