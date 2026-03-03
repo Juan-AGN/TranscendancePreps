@@ -273,4 +273,115 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
             amigoEliminado: amigoEliminado?.nombre
         });
     });
+
+    // ========================================================================
+    // RUTA NUMERO 5: VER SOLICITUDES PENDIENTES (que me han enviado)
+    // ========================================================================
+    servidorFastify.get('/usuarios/:userId/solicitudes_pendientes', {
+        onRequest: [servidorFastify.authenticate]
+    }, async (peticionDelCliente, respuestaAlCliente) => {
+        
+        const { userId } = peticionDelCliente.params as { userId: string };
+        const miIdDeUsuario = parseInt(userId);
+        
+        // Buscar solicitudes que ME han enviado y están pendientes
+        const solicitudesPendientes = await clienteDePrisma.amistad.findMany({
+            where: {
+                receptorId: miIdDeUsuario,
+                estado: 'pendiente'
+            },
+            include: {
+                solicitante: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                        email: true,
+                        avatar: true,
+                        estadoOnline: true
+                    }
+                }
+            }
+        });
+        
+        respuestaAlCliente.send({
+            total: solicitudesPendientes.length,
+            solicitudes: solicitudesPendientes
+        });
+    });
+    
+    // ========================================================================
+    // RUTA NUMERO 6: RECHAZAR SOLICITUD DE AMISTAD
+    // ========================================================================
+    servidorFastify.delete('/usuarios/:userId/rechazar_solicitud/:amigoId', {
+        onRequest: [servidorFastify.authenticate]
+    }, async (peticionDelCliente, respuestaAlCliente) => {
+        
+        const { userId, amigoId } = peticionDelCliente.params as {
+            userId: string,
+            amigoId: string
+        };
+        const miIdDeUsuario = parseInt(userId);
+        const idDelSolicitante = parseInt(amigoId);
+        
+        // Buscar la solicitud pendiente
+        const solicitud = await clienteDePrisma.amistad.findFirst({
+            where: {
+                solicitanteId: idDelSolicitante,
+                receptorId: miIdDeUsuario,
+                estado: 'pendiente'
+            }
+        });
+        
+        if (!solicitud) {
+            return respuestaAlCliente.status(404).send({
+                error: 'No hay solicitud pendiente'
+            });
+        }
+        
+        // Eliminar la solicitud
+        await clienteDePrisma.amistad.delete({
+            where: { id: solicitud.id }
+        });
+        
+        respuestaAlCliente.send({
+            mensaje: 'Solicitud rechazada'
+        });
+    });
+    
+    // ========================================================================
+    // RUTA NUMERO 7: BUSCAR USUARIOS (para añadir amigos)
+    // ========================================================================
+    servidorFastify.get('/usuarios/buscar', async (peticionDelCliente, respuestaAlCliente) => {
+        
+        const { query } = peticionDelCliente.query as { query: string };
+        
+        if (!query || query.length < 2) {
+            return respuestaAlCliente.status(400).send({
+                error: 'La búsqueda debe tener al menos 2 caracteres'
+            });
+        }
+        
+        // Buscar usuarios por nombre o email
+        const usuariosEncontrados = await clienteDePrisma.usuario.findMany({
+            where: {
+                OR: [
+                    { nombre: { contains: query, mode: 'insensitive' } },
+                    { email: { contains: query, mode: 'insensitive' } }
+                ]
+            },
+            select: {
+                id: true,
+                nombre: true,
+                email: true,
+                avatar: true,
+                estadoOnline: true
+            },
+            take: 10 // Limitar a 10 resultados
+        });
+        
+        respuestaAlCliente.send({
+            total: usuariosEncontrados.length,
+            usuarios: usuariosEncontrados
+        });
+    });
 }

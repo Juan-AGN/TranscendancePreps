@@ -18,11 +18,12 @@ model Usuario {
   nombre    String
   email     String    @unique
   password  String
-  avatar    String?   @default("default-avatar.png")
+  avatar    String?   @default("default-avatar.png")  
+  estadoOnline Boolean @default(false)
+  ultimaConexion DateTime?
   createdAt DateTime  @default(now())
   
   // RELACIONES ( NO son columnas reales sino campos virtuales)
-                                 // Especifica la etiqueta con la que se relacionará en la tabla amistad 
   solicitudesEnviadas  Amistad[] @relation("SolicitudesEnviadas")
   solicitudesRecibidas Amistad[] @relation("SolicitudesRecibidas")
   
@@ -43,11 +44,7 @@ model Amistad {
   // Relaciones
                       // 
   solicitante Usuario @relation("SolicitudesEnviadas", fields: [solicitanteId], references: [id])
-  receptor    Usuario @relation("SolicitudesRecibidas", 
-                                // Especifica el campo LOCAl (en amistad)
-                                fields: [receptorId], 
-                                // Especifica el campo al que conecta de Usuario
-                                references: [id])
+  receptor    Usuario @relation("SolicitudesRecibidas", fields: [receptorId], references: [id])
   
   @@map("Amistad")
 }

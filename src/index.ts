@@ -10,7 +10,6 @@ import { PrismaClient } from '@prisma/client';  // Cliente de Prisma (ORM para b
 // ============================================================================
 import { usuariosRoutes } from './routes/usuarios.js';  // Rutas de usuarios (registro, login, avatar...)
 import { amigosRoutes } from './routes/amigos.js';  // Rutas de amigos (añadir, eliminar, listar...)
-import { postsRoutes } from './routes/posts.js';  // Rutas de posts (crear, listar, comentar...)
 
 // ============================================================================
 // IMPORTS - UTILIDADES Y PLUGINS
@@ -20,6 +19,9 @@ import fastifyStatic from '@fastify/static';  // Plugin para servir archivos est
 import fastifyMultipart from '@fastify/multipart';  // Plugin para recibir archivos del cliente (avatares, PDFs...)
 import path from 'path';  // Módulo nativo de Node.js para manejar rutas de archivos/carpetas
 import { fileURLToPath } from 'url';  // Función para convertir URLs de módulos ES(ECMA Script) a rutas de archivo
+
+// ============ Importar middleware ============
+import { authenticate } from './middleware/auth.js';
 
 // ============================================================================
 // CONFIGURACION INICIAL
@@ -88,7 +90,6 @@ servidorFastify.decorate('authenticate', async (request: any, reply: any) => {
 // ============================================================================
 await servidorFastify.register(usuariosRoutes);
 await servidorFastify.register(amigosRoutes);
-await servidorFastify.register(postsRoutes);
 
 // ============================================================================
 // INICIAR SERVIDOR

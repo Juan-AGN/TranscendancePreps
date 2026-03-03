@@ -2,205 +2,109 @@
 # DOCKER COMPOSE - CONFIGURACIÓN COMPLETA
 # ============================================================================
 # Este archivo define todos los contenedores (servicios) del proyecto
-# Version de Docker Compose (3.8 es estable y compatible)
 version: '3.8'
 
 # ============================================================================
 # SERVICIOS (CONTENEDORES)
 # ============================================================================
-# Cada servicio es un contenedor Docker independiente
 services:
 
   # ==========================================================================
   # CONTENEDOR 1: BASE DE DATOS (PostgreSQL)
   # ==========================================================================
-  # Servicio de base de datos PostgreSQL para almacenar usuarios, posts, etc.
   db:
-    # --------------------------------------------------------------------------
-    # IMAGEN BASE
-    # --------------------------------------------------------------------------
-    # postgres:16-alpine -> Versión 16 de PostgreSQL con Alpine Linux (ligera)
     image: postgres:16-alpine
-      # al ser una imagen oficial, no necesita ser construida (build) como el back
-    
-    # --------------------------------------------------------------------------
-    # NOMBRE DEL CONTENEDOR
-    # --------------------------------------------------------------------------
-    # Nombre personalizado para identificar el contenedor fácilmente
     container_name: transcendence_db
-    
-    # --------------------------------------------------------------------------
-    # POLÍTICA DE REINICIO
-    # --------------------------------------------------------------------------
-    # always -> Si el contenedor se detiene, Docker lo reinicia automáticamente
     restart: always
-    
-    # --------------------------------------------------------------------------
-    # VARIABLES DE ENTORNO
-    # --------------------------------------------------------------------------
-    # Configuración de PostgreSQL (usuario, contraseña, base de datos)
     environment:
-      # Usuario administrador de PostgreSQL
       POSTGRES_USER: transcendence_user
-      
-      # Contraseña del usuario (!!! cambiar en producción)
       POSTGRES_PASSWORD: transcendence_pass
-      
-      # Nombre de la base de datos que se creará automáticamente
       POSTGRES_DB: transcendence
-    
-    # --------------------------------------------------------------------------
-    # PUERTOS
-    # --------------------------------------------------------------------------
-    # Mapeo de puertos: host:contenedor
-    # 5432:5432 -> Puerto de PostgreSQL accesible desde el host
     ports:
       - "5432:5432"
-    
-    # --------------------------------------------------------------------------
-    # VOLÚMENES (PERSISTENCIA DE DATOS)
-    # --------------------------------------------------------------------------
-    # Mapeo de volúmenes para que los datos NO se pierdan al reiniciar
-    # postgres_data -> Nombre del volumen (definido abajo)
-    # /var/lib/postgresql/data -> Ruta dentro del contenedor donde se guardan datos
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    
-    # --------------------------------------------------------------------------
-    # REDES
-    # --------------------------------------------------------------------------
-    # Red personalizada para que los contenedores se comuniquen entre sí
     networks:
       - transcendence_network
-    
-    # --------------------------------------------------------------------------
-    # HEALTHCHECK (VERIFICACIÓN DE SALUD)
-    # --------------------------------------------------------------------------
-    # Comprueba si PostgreSQL está listo para aceptar conexiones
     healthcheck:
-      # Comando para verificar: pg_isready comprueba si la BD está activa
       test: ["CMD-SHELL", "pg_isready -U transcendence_user"]
-      
-      # Intervalo entre verificaciones (cada 10 segundos)
       interval: 10s
-      
-      # Tiempo máximo de espera para cada verificación
       timeout: 5s
-      
-      # Número de intentos fallidos antes de marcar como "unhealthy"
       retries: 5
 
 
   # ==========================================================================
   # CONTENEDOR 2: BACKEND (Fastify + Prisma + TypeScript)
   # ==========================================================================
-  # Servicio del backend con API REST
   backend:
-    # --------------------------------------------------------------------------
-    # CONSTRUCCIÓN DESDE DOCKERFILE
-    # --------------------------------------------------------------------------
-    # build: . → Construye la imagen usando el Dockerfile en la raíz del proyecto
     build:
       context: .
       dockerfile: Dockerfile
-    
-    # --------------------------------------------------------------------------
-    # NOMBRE DEL CONTENEDOR
-    # --------------------------------------------------------------------------
     container_name: transcendence_backend
-    
-    # --------------------------------------------------------------------------
-    # POLÍTICA DE REINICIO
-    # --------------------------------------------------------------------------
     restart: always
-    
-    # --------------------------------------------------------------------------
-    # VARIABLES DE ENTORNO
-    # --------------------------------------------------------------------------
-    # Configuración del backend
     environment:
-      # URL de conexión a PostgreSQL (usa el nombre del servicio 'db')
-      # postgresql://usuario:contraseña@host:puerto/basedatos
       DATABASE_URL: "postgresql://transcendence_user:transcendence_pass@db:5432/transcendence"
-      
-      # Clave secreta para generar tokens públicos: JWT (!!! cambiar en producción, usar algo seguro)
       JWT_SECRET: "clave_super_secreta_cambiar_en_produccion"
-      
-      # Puerto donde corre el servidor Fastify
       PORT: 3000
-      
-      # Entorno de ejecución (development, production)
       NODE_ENV: development
-    
-    # --------------------------------------------------------------------------
-    # PUERTOS
-    # --------------------------------------------------------------------------
-      # 3000:3000 → Puerto del backend accesible desde el host
     ports:
       - "3000:3000"
-    
-    # --------------------------------------------------------------------------
-    # VOLÚMENES (DESARROLLO)
-    # --------------------------------------------------------------------------
-      # Sincronizar código del host con el contenedor (hot reload)
-      # Para que se esté sincronizando, docker debe estar corriendo (docker-compose up -d)
-
     volumes:
-      # Sincroniza carpeta src/(de mi pc) con src(contenedor -> creada por el Dockerfile) 
-      # para que cambios se reflejen en tiempo real
       - ./src:/app/src
-      # ^^^^^^  ^^^^^^^^
-      # carpeta carpeta en
-      # en PC   contenedor
-
-      # Sincroniza prisma/ para actualizar schema
       - ./prisma:/app/prisma
       - ./public:/app/public
       - ./tsconfig.json:/app/tsconfig.json
       - ./package.json:/app/package.json
-      
-      # Excluir node_modules del host (usa los del contenedor)
       - /app/node_modules
-    
-    # --------------------------------------------------------------------------
-    # DEPENDENCIAS
-    # --------------------------------------------------------------------------
-      # El backend depende de la base de datos
-      # depends_on con condition -> Espera a que PostgreSQL esté "healthy"
     depends_on:
       db:
         condition: service_healthy
-    
-    # --------------------------------------------------------------------------
-    # REDES
-    # --------------------------------------------------------------------------
     networks:
       - transcendence_network
-    
-    # --------------------------------------------------------------------------
-    # COMANDO DE INICIO
-    # --------------------------------------------------------------------------
-      # Comando que se ejecuta al iniciar el contenedor
-      # npm run dev -> Modo desarrollo con hot reload
     command: sh -c "npx prisma db push --accept-data-loss && node dist/index.js"
+
+
+  # ==========================================================================
+  # CONTENEDOR 3: FRONTEND (React + Vite)   ← NUEVO
+  # ==========================================================================
+  # Este contenedor ejecuta el servidor de desarrollo de Vite.
+  # Sirve la aplicación React en el puerto 5173.
+  frontend:
+    # Construye la imagen usando el Dockerfile que está dentro de frontend/
+    build:
+      context: ./frontend    # Carpeta donde está el código React
+      dockerfile: Dockerfile # Dockerfile que creamos en frontend/
+    container_name: transcendence_frontend
+    restart: always
+    ports:
+      # Puerto 5173: donde se accede al frontend → http://localhost:5173
+      - "5173:5173"
+    volumes:
+      # Sincronizar código para hot reload (los cambios se ven al instante)
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      # Excluir node_modules del host (usa los del contenedor)
+      - /app/node_modules
+    networks:
+      - transcendence_network
+    # El frontend no depende del backend para arrancar, pero en uso real
+    # necesita que el backend esté corriendo para hacer peticiones
+    depends_on:
+      - backend
 
 
 # ============================================================================
 # VOLÚMENES (PERSISTENCIA DE DATOS)
 # ============================================================================
-# Define volúmenes nombrados para almacenar datos de forma persistente
-# Los datos NO se pierden al eliminar contenedores
 volumes:
-  # Volumen para los datos de PostgreSQL
   postgres_data:
-    driver: local  # Almacenamiento local en el host
+    driver: local
 
 
 # ============================================================================
 # REDES (COMUNICACIÓN ENTRE CONTENEDORES)
 # ============================================================================
-# Define redes personalizadas para que los contenedores se comuniquen
 networks:
-  # Red compartida por todos los servicios
   transcendence_network:
-    driver: bridge  # Tipo de red: bridge (estándar para comunicación local)
+    driver: bridge

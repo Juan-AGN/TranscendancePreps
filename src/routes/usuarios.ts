@@ -1,3 +1,13 @@
+// ============= NOTAS
+// ORDEN CORRECTO DE LAS RUTAS (el orden aquí importa):
+// 1. Rutas con texto fijo: /usuarios/registro
+// 2. Rutas con texto fijo: /usuarios/login
+// 3. Rutas con texto fijo: /usuarios/filtro/online
+// 4. Rutas con parámetros + texto: /usuarios/:userId/avatar
+// 5. Rutas con parámetros + texto: /usuarios/:userId/estado
+// 6. Rutas solo con parámetros: /usuarios/:userId  ← AL FINAL
+// ====================
+
 // ============================================================================
 // IMPORTACIONES NECESARIAS
 // ============================================================================
@@ -85,6 +95,8 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
                 nombre: nuevoUsuario.nombre,
                 email: nuevoUsuario.email,
                 avatar: nuevoUsuario.avatar,
+                estadoOnline: nuevoUsuario.estadoOnline,
+                ultimaConexion: nuevoUsuario.ultimaConexion,
                 fechaCreacion: nuevoUsuario.createdAt
             }
         });
@@ -140,8 +152,14 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
                 error: 'Email o contraseña incorrectos'
             });
         }
+
+        // PASO 7: Actualizar estado online al hacer login 
+        await clienteDePrisma.usuario.update({
+            where: { id: usuario.id },
+            data: { estadoOnline: true }
+        });
         
-        // PASO 7: Generar el token JWT (porque el login fue exitoso)
+        // PASO 8: Generar el token JWT (porque el login fue exitoso)
         const token = jwt.sign(
             { 
                 id: usuario.id, 
@@ -151,7 +169,7 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             { expiresIn: '24h' }
         );
         
-        // PASO 8: Retornar el token al cliente
+        // PASO 9: Retornar el token al cliente
         respuestaAlCliente.send({
             mensaje: 'Login exitoso',
             token: token,
@@ -159,13 +177,51 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
                 id: usuario.id,
                 nombre: usuario.nombre,
                 email: usuario.email,
-                avatar: usuario.avatar
+                avatar: usuario.avatar,
+                estadoOnline: true
             }
         });
     });
     
     // ========================================================================
-    // RUTA NUMERO 3: OBTENER LISTA DE TODOS LOS USUARIOS
+    // RUTA NUMERO 3: PARA OBTENER USUARIOS ONLINE
+    // ========================================================================
+    // Metodo HTTP: GET
+    // URL: http://localhost:3000/usuarios/filtro/online
+    servidorFastify.get('/usuarios/filtro/online', async (peticionDelCliente, respuestaAlCliente) => {  
+        try {
+            // PASO 1: Buscar solo usuarios con estadoOnline = true
+            const usuariosOnline = await clienteDePrisma.usuario.findMany({
+                where: {
+                    estadoOnline: true
+                },
+                select: {
+                    id: true,
+                    nombre: true,
+                    email: true,
+                    avatar: true,
+                    estadoOnline: true,
+                    ultimaConexion: true,
+                    createdAt: true
+                }
+            });
+            
+            // PASO 2: Retornar la lista de usuarios online
+            respuestaAlCliente.send({
+                total: usuariosOnline.length,
+                usuarios: usuariosOnline
+            });
+            
+        } catch (error) {
+            console.error('Error al obtener usuarios online:', error);
+            respuestaAlCliente.status(500).send({
+                error: 'Error al obtener usuarios online'
+            });
+        }
+    });
+
+    // ========================================================================
+    // RUTA NUMERO 4: OBTENER LISTA DE TODOS LOS USUARIOS
     // ========================================================================
     // Metodo HTTP: GET
     // URL: http://localhost:3000/usuarios
@@ -178,6 +234,8 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
                 nombre: true,
                 email: true,
                 avatar: true,
+                estadoOnline: true,
+                ultimaConexion: true,
                 createdAt: true
             }
         });
@@ -188,124 +246,36 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             usuarios: todosLosUsuarios
         });
     });
-    
+       
     // ========================================================================
-    // RUTA NUMERO 4: OBTENER UN USUARIO ESPECIFICO POR ID
+    // RUTA NUMERO 5: PARA OBTENER AVATAR
     // ========================================================================
-    // Metodo HTTP: GET
-    // URL: http://localhost:3000/usuarios/:userId
-    servidorFastify.get('/usuarios/:userId', async (peticionDelCliente, respuestaAlCliente) => {
+    servidorFastify.get('/usuarios/:userId/avatar', async (peticionDelCliente, respuestaAlCliente) => {
         
-        // PASO 1: Obtener el ID del usuario desde la URL
+        // PASO 1: Obtener el ID del usuario
         const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
         const idDelUsuario = parseInt(parametrosDeLaURL.userId);
         
-        // PASO 2: Buscar el usuario en la base de datos
+        // PASO 2: Buscar el usuario
         const usuario = await clienteDePrisma.usuario.findUnique({
-            where: {
-                id: idDelUsuario
-            },
-            select: {
-                id: true,
-                nombre: true,
-                email: true,
-                avatar: true,
-                createdAt: true
-            }
+            where: { id: idDelUsuario },
+            select: { avatar: true }
         });
         
-        // PASO 3: Si no existe el usuario, retornar error
         if (!usuario) {
             return respuestaAlCliente.status(404).send({
                 error: 'Usuario no encontrado'
             });
         }
         
-        // PASO 4: Retornar el usuario encontrado
-        respuestaAlCliente.send(usuario);
-    });
-    
-    // ========================================================================
-    // RUTA NUMERO 5: ACTUALIZAR UN USUARIO
-    // ========================================================================
-    // Metodo HTTP: PUT
-    // URL: http://localhost:3000/usuarios/:userId
-    servidorFastify.put('/usuarios/:userId', {
-        onRequest: [servidorFastify.authenticate]
-    }, async (peticionDelCliente, respuestaAlCliente) => {
-        
-        // PASO 1: Obtener el ID del usuario desde la URL
-        const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
-        const idDelUsuario = parseInt(parametrosDeLaURL.userId);
-        
-        // PASO 2: Obtener los datos a actualizar del body
-        const datosDelBody = peticionDelCliente.body as {
-            nombre?: string,
-            email?: string,
-            contraseña?: string
-        };
-        
-        // PASO 3: Si viene una nueva contraseña, hashearla
-        let passwordHasheado: string | undefined;
-        if (datosDelBody.contraseña) {
-            const saltRounds = 10;
-            passwordHasheado = await bcrypt.hash(datosDelBody.contraseña, saltRounds);
-        }
-        
-        // PASO 4: Actualizar el usuario en la base de datos
-        const usuarioActualizado = await clienteDePrisma.usuario.update({
-            where: {
-                id: idDelUsuario
-            },
-            data: datosDelBody,
-            select: {
-                id: true,
-                nombre: true,
-                email: true,
-                avatar: true,  // ← NUEVO: Incluir avatar en la respuesta
-                createdAt: true
-            }
-        });
-        
-        // PASO 5: Retornar el usuario actualizado
+        // PASO 3: Retornar la URL del avatar
         respuestaAlCliente.send({
-            mensaje: 'Usuario actualizado correctamente',
-            usuario: datosDelBody
+            avatarUrl: usuario.avatar || 'default-avatar.png'
         });
     });
     
     // ========================================================================
-    // RUTA NUMERO 6: ELIMINAR UN USUARIO
-    // ========================================================================
-    // Metodo HTTP: DELETE
-    // URL: http://localhost:3000/usuarios/:userId
-    servidorFastify.delete('/usuarios/:userId', {
-        onRequest: [servidorFastify.authenticate]
-    }, async (peticionDelCliente, respuestaAlCliente) => {
-        
-        // PASO 1: Obtener el ID del usuario desde la URL
-        const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
-        const idDelUsuario = parseInt(parametrosDeLaURL.userId);
-        
-        // PASO 2: Eliminar el usuario de la base de datos
-        const usuarioEliminado = await clienteDePrisma.usuario.delete({
-            where: {
-                id: idDelUsuario
-            }
-        });
-        
-        // PASO 3: Retornar confirmación
-        respuestaAlCliente.send({
-            mensaje: 'Usuario eliminado correctamente',
-            usuario: {
-                id: usuarioEliminado.id,
-                nombre: usuarioEliminado.nombre
-            }
-        });
-    });
-
-    // ========================================================================
-    // RUTA PARA SUBIR AVATAR
+    // RUTA NUMERO 6: PARA SUBIR AVATAR
     // ========================================================================
     servidorFastify.post('/usuarios/:userId/avatar', {
         onRequest: [servidorFastify.authenticate]
@@ -388,6 +358,8 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
                     nombre: true,
                     email: true,
                     avatar: true,
+                    estadoOnline: true,
+                    ultimaConexion: true,
                     createdAt: true
                 }
             });
@@ -422,34 +394,7 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
     });
 
     // ========================================================================
-    // RUTA PARA OBTENER AVATAR DE UN USUARIO
-    // ========================================================================
-    servidorFastify.get('/usuarios/:userId/avatar', async (peticionDelCliente, respuestaAlCliente) => {
-        
-        // PASO 1: Obtener el ID del usuario
-        const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
-        const idDelUsuario = parseInt(parametrosDeLaURL.userId);
-        
-        // PASO 2: Buscar el usuario
-        const usuario = await clienteDePrisma.usuario.findUnique({
-            where: { id: idDelUsuario },
-            select: { avatar: true }
-        });
-        
-        if (!usuario) {
-            return respuestaAlCliente.status(404).send({
-                error: 'Usuario no encontrado'
-            });
-        }
-        
-        // PASO 3: Retornar la URL del avatar
-        respuestaAlCliente.send({
-            avatarUrl: usuario.avatar || 'default-avatar.png'
-        });
-    });
-
-    // ========================================================================
-    // RUTA PARA ELIMINAR AVATAR
+    // RUTA NUMERO 7: PARA ELIMINAR AVATAR
     // ========================================================================
     servidorFastify.delete('/usuarios/:userId/avatar', {
         onRequest: [servidorFastify.authenticate]
@@ -509,4 +454,187 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
         }
     });
 
+    // ========================================================================
+    // RUTA NUMERO 8: PARA ACTUALIZAR ESTADO ONLINE
+    // ========================================================================
+    // Metodo HTTP: PUT
+    // URL: http://localhost:3000/usuarios/:userId/estado
+    servidorFastify.put('/usuarios/:userId/estado', {
+        onRequest: [servidorFastify.authenticate]
+    }, async (peticionDelCliente, respuestaAlCliente) => {
+        
+        try {
+            // PASO 1: Obtener el ID del usuario
+            const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
+            const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+            
+            // PASO 2: Obtener el nuevo estado del body
+            const datosDelBody = peticionDelCliente.body as {
+                estadoOnline: boolean
+            };
+            
+            // PASO 3: Validar que venga el campo estadoOnline
+            if (typeof datosDelBody.estadoOnline !== 'boolean') {
+                return respuestaAlCliente.status(400).send({
+                    error: 'El campo estadoOnline debe ser booleano (true/false)'
+                });
+            }
+            
+            // PASO 4: Preparar datos para actualizar
+            const datosParaActualizar: any = {
+                estadoOnline: datosDelBody.estadoOnline
+            };
+            
+            // Si el usuario se está desconectando, guardar última conexión
+            if (!datosDelBody.estadoOnline) {
+                datosParaActualizar.ultimaConexion = new Date();
+            }
+            
+            // PASO 5: Actualizar el estado en la BD
+            const usuarioActualizado = await clienteDePrisma.usuario.update({
+                where: { id: idDelUsuario },
+                data: datosParaActualizar,
+                select: {
+                    id: true,
+                    nombre: true,
+                    email: true,
+                    avatar: true,
+                    estadoOnline: true,
+                    ultimaConexion: true,
+                    createdAt: true
+                }
+            });
+            
+            // PASO 6: Retornar respuesta exitosa
+            respuestaAlCliente.send({
+                mensaje: 'Estado actualizado correctamente',
+                usuario: usuarioActualizado
+            });
+            
+        } catch (error) {
+            console.error('Error al actualizar estado:', error);
+            respuestaAlCliente.status(500).send({
+                error: 'Error al actualizar el estado'
+            });
+        }
+    });
+
+    // ========================================================================
+    // RUTA NUMERO 9: OBTENER UN USUARIO ESPECIFICO POR ID
+    // ========================================================================
+    // Metodo HTTP: GET
+    // URL: http://localhost:3000/usuarios/:userId
+    servidorFastify.get('/usuarios/:userId', async (peticionDelCliente, respuestaAlCliente) => {
+        
+        // PASO 1: Obtener el ID del usuario desde la URL
+        const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
+        const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+        
+        // PASO 2: Buscar el usuario en la base de datos
+        const usuario = await clienteDePrisma.usuario.findUnique({
+            where: {
+                id: idDelUsuario
+            },
+            select: {
+                id: true,
+                nombre: true,
+                email: true,
+                avatar: true,
+                estadoOnline: true,
+                ultimaConexion: true,
+                createdAt: true
+            }
+        });
+        
+        // PASO 3: Si no existe el usuario, retornar error
+        if (!usuario) {
+            return respuestaAlCliente.status(404).send({
+                error: 'Usuario no encontrado'
+            });
+        }
+        
+        // PASO 4: Retornar el usuario encontrado
+        respuestaAlCliente.send(usuario);
+    });
+
+    // ========================================================================
+    // RUTA NUMERO 10: ACTUALIZAR UN USUARIO
+    // ========================================================================
+    // Metodo HTTP: PUT
+    // URL: http://localhost:3000/usuarios/:userId
+    servidorFastify.put('/usuarios/:userId', {
+        onRequest: [servidorFastify.authenticate]
+    }, async (peticionDelCliente, respuestaAlCliente) => {
+        
+        // PASO 1: Obtener el ID del usuario desde la URL
+        const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
+        const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+        
+        // PASO 2: Obtener los datos a actualizar del body
+        const datosDelBody = peticionDelCliente.body as {
+            nombre?: string,
+            email?: string,
+            contraseña?: string
+        };
+        
+        // PASO 3: Si viene una nueva contraseña, hashearla
+        let passwordHasheado: string | undefined;
+        if (datosDelBody.contraseña) {
+            const saltRounds = 10;
+            passwordHasheado = await bcrypt.hash(datosDelBody.contraseña, saltRounds);
+        }
+        
+        // PASO 4: Actualizar el usuario en la base de datos
+        const usuarioActualizado = await clienteDePrisma.usuario.update({
+            where: {
+                id: idDelUsuario
+            },
+            data: datosDelBody,
+            select: {
+                id: true,
+                nombre: true,
+                email: true,
+                avatar: true,
+                estadoOnline: true,
+                ultimaConexion: true,
+                createdAt: true
+            }
+        });
+        
+        // PASO 5: Retornar el usuario actualizado
+        respuestaAlCliente.send({
+            mensaje: 'Usuario actualizado correctamente',
+            usuario: datosDelBody
+        });
+    });
+
+    // ========================================================================
+    // RUTA NUMERO 11: ELIMINAR UN USUARIO
+    // ========================================================================
+    // Metodo HTTP: DELETE
+    // URL: http://localhost:3000/usuarios/:userId
+    servidorFastify.delete('/usuarios/:userId', {
+        onRequest: [servidorFastify.authenticate]
+    }, async (peticionDelCliente, respuestaAlCliente) => {
+        
+        // PASO 1: Obtener el ID del usuario desde la URL
+        const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
+        const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+        
+        // PASO 2: Eliminar el usuario de la base de datos
+        const usuarioEliminado = await clienteDePrisma.usuario.delete({
+            where: {
+                id: idDelUsuario
+            }
+        });
+        
+        // PASO 3: Retornar confirmación
+        respuestaAlCliente.send({
+            mensaje: 'Usuario eliminado correctamente',
+            usuario: {
+                id: usuarioEliminado.id,
+                nombre: usuarioEliminado.nombre
+            }
+        });
+    });
 }
