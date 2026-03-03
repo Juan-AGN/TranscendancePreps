@@ -2,7 +2,6 @@
 # DOCKER COMPOSE - CONFIGURACIÓN COMPLETA
 # ============================================================================
 # Este archivo define todos los contenedores (servicios) del proyecto
-version: '3.8'
 
 # ============================================================================
 # SERVICIOS (CONTENEDORES)
@@ -27,7 +26,7 @@ services:
     networks:
       - transcendence_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U transcendence_user"]
+      test: ["CMD-SHELL", "pg_isready -U transcendence_user -d transcendence"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -50,12 +49,9 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./src:/app/src
+      # Solo persistir avatares y prisma, no sobreescribir dist/
+      - ./public/avatares:/app/public/avatares
       - ./prisma:/app/prisma
-      - ./public:/app/public
-      - ./tsconfig.json:/app/tsconfig.json
-      - ./package.json:/app/package.json
-      - /app/node_modules
     depends_on:
       db:
         condition: service_healthy

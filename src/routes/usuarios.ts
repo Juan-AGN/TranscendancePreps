@@ -584,12 +584,21 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             passwordHasheado = await bcrypt.hash(datosDelBody.contraseña, saltRounds);
         }
         
-        // PASO 4: Actualizar el usuario en la base de datos
+        // PASO 4: Construir el objeto de datos a actualizar
+        // Construyo el objeto manualmente para usar 'password' (nombre en BD)
+        // en lugar de 'contraseña' (nombre que viene del frontend)
+        const datosParaActualizar: any = {};
+        
+        if (datosDelBody.nombre)    datosParaActualizar.nombre = datosDelBody.nombre;
+        if (datosDelBody.email)     datosParaActualizar.email = datosDelBody.email;
+        if (passwordHasheado)       datosParaActualizar.password = passwordHasheado; // 'password' no 'contraseña'
+        
+        // PASO 5: Actualizar el usuario en la base de datos
         const usuarioActualizado = await clienteDePrisma.usuario.update({
             where: {
                 id: idDelUsuario
             },
-            data: datosDelBody,
+            data: datosParaActualizar, // uso datosParaActualizar, no datosDelBody
             select: {
                 id: true,
                 nombre: true,
@@ -601,13 +610,12 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             }
         });
         
-        // PASO 5: Retornar el usuario actualizado
+        // PASO 6: Retornar el usuario actualizado
         respuestaAlCliente.send({
             mensaje: 'Usuario actualizado correctamente',
-            usuario: datosDelBody
-        });
+            usuario: usuarioActualizado // devuelvo usuarioActualizado, no datosDelBody
+        }); 
     });
-
     // ========================================================================
     // RUTA NUMERO 11: ELIMINAR UN USUARIO
     // ========================================================================
@@ -637,4 +645,5 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             }
         });
     });
-}
+} 
+

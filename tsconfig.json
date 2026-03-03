@@ -17,6 +17,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "frontend/pages", "frontend/src/pages/Privacidad.tsx", "frontend/src/pages/Terminos.tsx"],
   "exclude": ["node_modules", "dist"]
 }

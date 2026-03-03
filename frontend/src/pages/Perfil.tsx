@@ -423,6 +423,12 @@ function Perfil() {
                     </div>
 
                 </div>
+                
+                {/* FOOTER CON ENLACES LEGALES */}
+                <footer style={{textAlign: 'center', marginTop: '24px', color: '#999', fontSize: '0.8rem'}}>
+                    <a href="/privacidad" style={{color: '#2c3e8c', marginRight: '16px'}}>Política de Privacidad</a>
+                    <a href="/terminos" style={{color: '#2c3e8c'}}>Términos de Servicio</a>
+                </footer>
             </div>
 
             {/* ================================================================ */}

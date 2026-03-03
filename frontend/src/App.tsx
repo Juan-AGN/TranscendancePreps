@@ -9,6 +9,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Perfil from './pages/Perfil';
 import Amigos from './pages/Amigos';
+import Privacidad from './pages/Privacidad';
+import Terminos from './pages/Terminos';
 
 // ============================================================================
 // COMPONENTE: RutaProtegida
@@ -60,6 +62,8 @@ function App() {
                         </RutaProtegida>
                     }
                 />
+                <Route path="/privacidad" element={<Privacidad />} />
+                <Route path="/terminos" element={<Terminos />} />
 
                 {/* Cualquier otra ruta → redirigir al login */}
                 <Route path="*" element={<Navigate to="/" replace />} />
