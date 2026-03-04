@@ -38,10 +38,12 @@ function App() {
         // BrowserRouter: activa el sistema de rutas en la aplicación
         <BrowserRouter>
             <Routes>
-                {/* Ruta "/" → Página de Login (era index.html) */}
-                <Route path="/" element={<Login />} />
+                {/* Ruta "/" -> Página de Login (era index.html) */}
+                <Route 
+                    path="/" 
+                    element={<Login />} />
 
-                {/* Ruta "/perfil" → Perfil del usuario (era perfil.html) */}
+                {/* Ruta "/perfil" -> Perfil del usuario (era perfil.html) */}
                 {/* Está protegida: si no hay login, redirige a "/" */}
                 <Route
                     path="/perfil"
@@ -52,7 +54,7 @@ function App() {
                     }
                 />
 
-                {/* Ruta "/amigos" → Gestión de amigos (era amigos.html) */}
+                {/* Ruta "/amigos" -> Gestión de amigos (era amigos.html) */}
                 {/* También está protegida */}
                 <Route
                     path="/amigos"
@@ -65,7 +67,7 @@ function App() {
                 <Route path="/privacidad" element={<Privacidad />} />
                 <Route path="/terminos" element={<Terminos />} />
 
-                {/* Cualquier otra ruta → redirigir al login */}
+                {/* Cualquier otra ruta -> redirigir al login */}
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </BrowserRouter>

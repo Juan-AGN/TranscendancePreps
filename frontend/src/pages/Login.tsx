@@ -9,7 +9,7 @@
 //   - El JSX parece HTML pero es JavaScript (por eso className en vez de class)
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';  // === NUEVO: para redirigir entre páginas
+import { useNavigate } from 'react-router-dom';  // para redirigir entre páginas
 import './Login.css';
 import { API_URL } from '../config';
 
@@ -47,11 +47,11 @@ function Login() {
     // ========================================================================
     // EFECTO: Comprobar si ya hay sesión activa al cargar la página
     // ========================================================================
-    // useEffect() es como window.onload → se ejecuta cuando el componente aparece en pantalla
+    // useEffect() es como window.onload -> se ejecuta cuando el componente aparece en pantalla
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
-            // Ya hay sesión → ir directamente al perfil
+            // Ya hay sesión -> ir directamente al perfil
             navigate('/perfil');
         }
     }, []); // El [] vacío significa "ejecutar solo una vez al montar el componente"
@@ -117,6 +117,13 @@ function Login() {
             return;
         }
 
+        // Validar que el email tenga formato correcto (algo@algo.algo)
+        const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registroEmail);
+        if (!emailValido) {
+            setAlertaRegistro({ mensaje: 'El email no tiene un formato válido', tipo: 'error' });
+            return;
+        }
+
         if (registroPassword.length < 6) {
             setAlertaRegistro({ mensaje: 'La contraseña debe tener al menos 6 caracteres', tipo: 'error' });
             return;
@@ -173,8 +180,8 @@ function Login() {
     // ========================================================================
     // Esto es JSX: parece HTML pero es JavaScript.
     // Diferencias principales:
-    //   - onclick → onClick
-    //   - class → className
+    //   - onclick -> onClick
+    //   - class -> className
     //   - Las variables se ponen entre llaves: {variable}
     //   - Los eventos reciben funciones: onClick={() => hacerLogin()}
     return (
@@ -213,11 +220,10 @@ function Login() {
 
             {/* FORMULARIOS */}
             <div className="login-form-container">
-
                 {/* ---------------------------------------------------------- */}
                 {/* TAB LOGIN: solo se muestra si tabActiva === 'login' */}
                 {/* ---------------------------------------------------------- */}
-                {tabActiva === 'login' && (
+                {tabActiva === 'login' && ( // si contiene 'login' -> muestra lo siguiente (&&)
                     <div>
                         {/* Alerta: solo se renderiza si alertaLogin no es null */}
                         {alertaLogin && (
@@ -229,8 +235,8 @@ function Login() {
 
                         <div className="form-group">
                             <label className="form-label">Email</label>
-                            {/* value={loginEmail} → muestra el estado */}
-                            {/* onChange={e => setLoginEmail(e.target.value)} → actualiza el estado al escribir */}
+                            {/* value={loginEmail} -> muestra el estado */}
+                            {/* onChange={e => setLoginEmail(e.target.value)} -> actualiza el estado al escribir */}
                             <input
                                 type="email"
                                 className="form-input"
@@ -243,7 +249,7 @@ function Login() {
 
                         <div className="form-group">
                             <label className="form-label">Contraseña</label>
-                            <input
+                            <input  
                                 type="password"
                                 className="form-input"
                                 placeholder="Tu contraseña"
@@ -260,7 +266,7 @@ function Login() {
                 )}
 
                 {/* ---------------------------------------------------------- */}
-                {/* TAB REGISTRO: solo se muestra si tabActiva === 'registro' */}
+                {/* TAB REGISTRO: solo se muestra si tabActiva === 'registro'  */}
                 {/* ---------------------------------------------------------- */}
                 {tabActiva === 'registro' && (
                     <div>
@@ -309,7 +315,6 @@ function Login() {
                         </button>
                     </div>
                 )}
-
             </div>
 
             {/* FOOTER CON ENLACES LEGALES */}
