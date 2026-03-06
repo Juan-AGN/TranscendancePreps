@@ -40,9 +40,11 @@ interface Amigo {
 function Perfil() {
 
     // ========================================================================
-    // ESTADO DEL COMPONENTE
+    // ESTADO DEL COMPONENTE // lo 1º que carga siempre son los useStates
     // ========================================================================
     const [usuario, setUsuario] = useState<Usuario | null>(null);   // Datos del usuario
+                                        // el estado puede ser: un Usuario o null (inicia en null)
+
     const [amigos, setAmigos] = useState<Amigo[]>([]);               // Lista de amigos
 
     // Estado del modal de edición: true = abierto, false = cerrado
@@ -59,9 +61,9 @@ function Perfil() {
     const navigate = useNavigate();
 
     // ========================================================================
-    // EFECTO: Cargar datos al abrir la página
+    // EFECTO: Cargar datos al abrir la página (después de 'pintar' la pantalla con el 'return')
     // ========================================================================
-    useEffect(() => {
+    useEffect(() => { // los us
         // PASO 1: Obtener el token del localStorage
         const token = localStorage.getItem('token');
         const usuarioId = localStorage.getItem('usuarioId');
