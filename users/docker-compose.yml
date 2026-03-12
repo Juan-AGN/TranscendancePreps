@@ -1,15 +1,15 @@
 # ============================================================================
-# DOCKER COMPOSE - CONFIGURACIÓN COMPLETA
+# DOCKER COMPOSE - FULL CONFIGURATION
 # ============================================================================
-# Este archivo define todos los contenedores (servicios) del proyecto
+# This file defines all containers (services) of the project
 
 # ============================================================================
-# SERVICIOS (CONTENEDORES)
+# SERVICES (CONTAINERS)
 # ============================================================================
 services:
 
   # ==========================================================================
-  # CONTENEDOR 1: BASE DE DATOS (PostgreSQL)
+  # CONTAINER 1: DATABASE (PostgreSQL)
   # ==========================================================================
   db:
     image: postgres:16-alpine
@@ -33,7 +33,7 @@ services:
 
 
   # ==========================================================================
-  # CONTENEDOR 2: BACKEND (Fastify + Prisma + TypeScript)
+  # CONTAINER 2: BACKEND (Fastify + Prisma + TypeScript)
   # ==========================================================================
   backend:
     build:
@@ -53,7 +53,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # Solo persistir avatares y prisma, no sobreescribir dist/
+      # Only persist avatars and prisma, do not overwrite dist/
       - ./public/avatares:/app/public/avatares
       - ./prisma:/app/prisma
     depends_on:
@@ -65,37 +65,37 @@ services:
 
 
   # ==========================================================================
-  # CONTENEDOR 3: FRONTEND (React + Vite)   ← NUEVO
+  # CONTAINER 3: FRONTEND (React + Vite)
   # ==========================================================================
-  # Este contenedor ejecuta el servidor de desarrollo de Vite.
-  # Sirve la aplicación React en el puerto 5173.
+  # This container runs the Vite development server.
+  # Serves the React app on port 5174.
   frontend:
-    # Construye la imagen usando el Dockerfile que está dentro de frontend/
+    # Builds the image using the Dockerfile inside the frontend/ folder
     build:
-      context: ./frontend    # Carpeta donde está el código React
-      dockerfile: Dockerfile # Dockerfile que creamos en frontend/
+      context: ./frontend    # Folder containing the React code
+      dockerfile: Dockerfile # Dockerfile created inside frontend/
     container_name: transcendence_frontend
     restart: always
     ports:
-      # Puerto 5173: donde se accede al frontend → http://localhost:5173
-      - "5173:5173"
+      # Port 5174: where the frontend is accessed → http://localhost:5174
+      - "5174:5174"
     volumes:
-      # Sincronizar código para hot reload (los cambios se ven al instante)
+      # Sync code for hot reload (changes are reflected instantly)
       - ./frontend/src:/app/src
       - ./frontend/index.html:/app/index.html
       - ./frontend/vite.config.ts:/app/vite.config.ts
-      # Excluir node_modules del host (usa los del contenedor)
+      # Exclude host node_modules (use the container's instead)
       - /app/node_modules
     networks:
       - transcendence_network
-    # El frontend no depende del backend para arrancar, pero en uso real
-    # necesita que el backend esté corriendo para hacer peticiones
+    # The frontend does not depend on the backend to start, but in real use
+    # it needs the backend running to make API requests
     depends_on:
       - backend
 
 
 # ============================================================================
-# VOLÚMENES (PERSISTENCIA DE DATOS)
+# VOLUMES (DATA PERSISTENCE)
 # ============================================================================
 volumes:
   postgres_data:
@@ -103,7 +103,7 @@ volumes:
 
 
 # ============================================================================
-# REDES (COMUNICACIÓN ENTRE CONTENEDORES)
+# NETWORKS (INTER-CONTAINER COMMUNICATION)
 # ============================================================================
 networks:
   transcendence_network:

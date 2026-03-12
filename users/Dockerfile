@@ -1,73 +1,73 @@
 # ============================================================================
-# ETAPA 1: BUILD (COMPILACIÓN)
+# STAGE 1: BUILD (COMPILATION)
 # ============================================================================
 FROM node:20-slim AS builder
 
 WORKDIR /app
 
-# Instalar OpenSSL (necesario para Prisma)
+# Install OpenSSL (required for Prisma)
 RUN apt-get update -y && apt-get install -y openssl
 
-# Copiar archivos de configuración
+# Copy configuration files
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY prisma ./prisma
 
-# Instalar TODAS las dependencias
+# Install ALL dependencies
 RUN npm ci
 
-# IMPORTANTE: Copiar TODO el código fuente
+# IMPORTANT: Copy ALL source code
 COPY src ./src
 COPY public ./public
 
-# Generar cliente Prisma
+# Generate Prisma client
 RUN npx prisma generate
 
-# Compilar TypeScript (esto debe generar dist/routes/)
+# Compile TypeScript (this should generate dist/routes/)
 RUN npm run build
 
-# 🔍 DEBUG: Verificar que dist/ se creó correctamente
+# 🔍 DEBUG: Verify that dist/ was created correctly
 RUN ls -la dist/
-RUN ls -la dist/routes/ || echo " No existe dist/routes/"
+RUN ls -la dist/routes/ || echo " dist/routes/ does not exist"
 
 # ============================================================================
-# ETAPA 2: PRODUCTION (EJECUCIÓN)
+# STAGE 2: PRODUCTION (RUNTIME)
 # ============================================================================
 FROM node:20-slim
 
 WORKDIR /app
 
-# Instalar OpenSSL
+# Install OpenSSL
 RUN apt-get update -y && apt-get install -y openssl
 
-# Copiar archivos de configuración
+# Copy configuration files
 COPY package*.json ./
 
-# Instalar solo dependencias de producción
+# Install only production dependencies
 RUN npm ci --omit=dev
 
-# Copiar TODA la carpeta dist/ desde builder
+# Copy the entire dist/ folder from builder
 COPY --from=builder /app/dist ./dist
 
-# Copiar dependencias de Prisma
+# Copy Prisma dependencies
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY prisma ./prisma
 COPY public ./public
 
-# Exponer puerto
+# Expose port
 EXPOSE 3000
 
-# Usuario no-root
+# Non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nodejs && \
     chown -R nodejs:nodejs /app
 
 USER nodejs
 
-# 🔍 DEBUG: Verificar estructura antes de ejecutar
-RUN ls -la /app/dist/ || echo " No existe /app/dist/"
-RUN ls -la /app/dist/routes/ || echo " No existe /app/dist/routes/"
+# 🔍 DEBUG: Verify structure before running
+RUN ls -la /app/dist/ || echo " /app/dist/ does not exist"
+RUN ls -la /app/dist/routes/ || echo " /app/dist/routes/ does not exist"
 
-# Comando de inicio
+# Start command
 CMD ["node", "dist/index.js"]

@@ -1,7 +1,7 @@
-# Dependencias
+# Dependencies
 node_modules/
 
-# Variables de entorno (NO SUBIR)
+# Environment variables (DO NOT COMMIT)
 .env
 
 # Builds
@@ -17,7 +17,7 @@ prisma/*.db
 *.log
 npm-debug.log*
 
-# Sistema operativo
+# Operating system
 .DS_Store
 Thumbs.db
 

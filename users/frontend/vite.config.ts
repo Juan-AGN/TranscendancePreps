@@ -14,6 +14,6 @@ export default defineConfig({
     ],
     server: {
         host: '0.0.0.0',  // Required for it to work inside Docker
-        port: 5173,        // Port where the frontend will run
+        port: 5174,        // Port where the frontend will run
     }
 });

@@ -4,71 +4,71 @@ This project has been created as part of the 42 curriculum by druiz-ca, isra, ca
 
 ---
 
-## 📋 Descripción
+## 📋 Description
 
-Transcendence es una aplicación web multijugador que incluye gestión de usuarios, chat en tiempo real y un juego de Pong online. Los usuarios pueden registrarse, gestionar su perfil, añadir amigos y jugar partidas en tiempo real.
+Transcendence is a multiplayer web application that includes user management, real-time chat, and an online Pong game. Users can register, manage their profile, add friends, and play matches in real time.
 
 ---
 
-## 🚀 Instrucciones de uso
+## 🚀 Usage Instructions
 
-### Prerrequisitos
+### Prerequisites
 - Docker
 - Docker Compose
 
-### Ejecutar el proyecto
+### Run the project
 
 ```bash
-# Clonar el repositorio
-git clone <url-del-repo>
+# Clone the repository
+git clone <repo-url>
 cd TranscendancePreps
 
-# Copiar variables de entorno
+# Copy environment variables
 cp .env.example .env
 
-# Levantar todos los servicios
+# Start all services
 docker-compose up --build
 ```
 
-### URLs disponibles
-- **Frontend:** http://localhost:5173
+### Available URLs
+- **Frontend:** http://localhost:5174
 - **Backend:** http://localhost:3000
 
 ---
 
-## 👥 Información del Equipo
+## 👥 Team Information
 
-| Login 42 | Rol | Responsabilidad |
-|----------|-----|-----------------|
-| druiz-ca | Developer | Módulo de Gestión de Usuarios |
+| 42 Login | Role | Responsibility |
+|----------|------|----------------|
+| druiz-ca | Developer | User Management Module |
 | isra | Developer | Frontend (React + Vite) |
-| carlos | Developer | Chat en tiempo real |
-| juan-ant | Developer | Juego (Pong) |
+| carlos | Developer | Real-time Chat |
+| juan-ant | Developer | Game (Pong) |
 
-> ⚠️ Roles de PO, PM y Tech Lead pendientes de asignar
-
----
-
-## 🗂️ Gestión del Proyecto
-
-- **Control de versiones:** Git + GitHub
-- **Ramas:** `main` (producción), `develop` (desarrollo), `feature/*` (funcionalidades)
-- **Comunicación:** Discord + reuniones semanales
+> ⚠️ PO, PM and Tech Lead roles pending assignment
 
 ---
 
-## 🛠️ Stack Técnico
+## 🗂️ Project Management
+
+- **Version control:** Git + GitHub
+- **Branches:** `main` (production), `develop` (development), `feature/*` (features)
+- **Communication:** Discord + weekly meetings
+
+---
+
+## 🛠️ Tech Stack
 
 ### Frontend
 - **React** + TypeScript + Vite
-- CSS propio por página
+- Per-page custom CSS
 
 ### Backend
 - **Node.js** + Fastify + TypeScript
-- JWT para autenticación
-- bcrypt para hash de contraseñas
+- JWT for authentication
+- bcrypt for password hashing
 
-### Base de Datos
+### Database
 - **PostgreSQL** + Prisma ORM
 
 ### DevOps
@@ -76,86 +76,86 @@ docker-compose up --build
 
 ---
 
-## 🗄️ Esquema de Base de Datos
+## 🗄️ Database Schema
 
 ```
-Usuario
+User
 ├── id (PK)
-├── nombre
-├── email (único)
-├── password (hasheado con bcrypt)
-├── avatar (opcional)
-├── estadoOnline (boolean)
-├── ultimaConexion
+├── name
+├── email (unique)
+├── password (hashed with bcrypt)
+├── avatar (optional)
+├── onlineStatus (boolean)
+├── lastConnection
 └── createdAt
 
-Amistad
+Friendship
 ├── id (PK)
-├── solicitanteId (FK → Usuario)
-├── receptorId (FK → Usuario)
-├── estado (PENDIENTE / ACEPTADA / RECHAZADA)
+├── requesterId (FK → User)
+├── receiverId (FK → User)
+├── status (PENDING / ACCEPTED / REJECTED)
 └── createdAt
 ```
 
 ---
 
-## ✅ Lista de Funcionalidades
+## ✅ Feature List
 
-### Gestión de Usuarios (druiz-ca)
-- [x] Registro de usuarios
-- [x] Login con JWT
-- [x] Editar perfil (nombre, email, contraseña)
-- [x] Subir y mostrar avatar
-- [x] Estado online/offline
-- [x] Sistema de amigos (enviar, aceptar, rechazar solicitudes)
-- [x] Búsqueda de usuarios
-- [x] Rutas protegidas (requieren autenticación)
+### User Management (druiz-ca)
+- [x] User registration
+- [x] Login with JWT
+- [x] Edit profile (name, email, password)
+- [x] Upload and display avatar
+- [x] Online/offline status
+- [x] Friend system (send, accept, reject requests)
+- [x] User search
+- [x] Protected routes (require authentication)
 
 ### Frontend (isra)
-- [ ] Pendiente de documentar
+- [ ] Pending documentation
 
 ### Chat (carlos)
-- [ ] Pendiente de documentar
+- [ ] Pending documentation
 
-### Juego (juan-ant)
-- [ ] Pendiente de documentar
-
----
-
-## 📦 Módulos Elegidos
-
-| Módulo | Tipo | Puntos | Responsable |
-|--------|------|--------|-------------|
-| Gestión Estándar de Usuarios | Mayor | 2 | druiz-ca |
-| Pendiente | - | - | - |
-
-> ⚠️ Lista de módulos pendiente de completar con el equipo
-
-**Total puntos actuales: 2 / 14**
+### Game (juan-ant)
+- [ ] Pending documentation
 
 ---
 
-## 🤖 Uso de IA
+## 📦 Selected Modules
 
-Durante el desarrollo se han usado herramientas de IA (GitHub Copilot) para:
-- Sugerir estructura de código
-- Detectar errores y proponer soluciones
-- Generar documentación
+| Module | Type | Points | Owner |
+|--------|------|--------|-------|
+| Standard User Management | Major | 2 | druiz-ca |
+| Pending | - | - | - |
 
-Todo el código generado ha sido revisado, entendido y validado por cada miembro del equipo antes de ser integrado.
+> ⚠️ Module list pending completion with the team
 
----
-
-## 🔒 Seguridad
-
-- Contraseñas hasheadas con **bcrypt** (salt rounds: 10)
-- Autenticación con **JWT**
-- Variables de entorno en `.env` (nunca en el repositorio)
-- Rutas protegidas con middleware de autenticación
+**Current total points: 2 / 14**
 
 ---
 
-## 📄 Páginas legales
+## 🤖 AI Usage
 
-- [Política de Privacidad](http://localhost:5173/privacidad)
-- [Términos de Servicio](http://localhost:5173/terminos)
+AI tools (GitHub Copilot) have been used during development to:
+- Suggest code structure
+- Detect errors and propose solutions
+- Generate documentation
+
+All generated code has been reviewed, understood, and validated by each team member before being integrated.
+
+---
+
+## 🔒 Security
+
+- Passwords hashed with **bcrypt** (salt rounds: 10)
+- Authentication with **JWT**
+- Environment variables in `.env` (never committed to the repository)
+- Protected routes with authentication middleware
+
+---
+
+## 📄 Legal Pages
+
+- [Privacy Policy](http://localhost:5174/privacidad)
+- [Terms of Service](http://localhost:5174/terminos)
