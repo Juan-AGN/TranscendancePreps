@@ -2,75 +2,75 @@ import { useNavigate } from 'react-router-dom';
 import './Privacidad.css';
 
 // ============================================================
-// PÁGINA: POLÍTICA DE PRIVACIDAD
-// Obligatoria según el subject de Transcendence
+// PAGE: PRIVACY POLICY
+// Required according to the Transcendence subject
 // ============================================================
 
 function Privacidad() {
-    const navegar = useNavigate();
+    const navigate = useNavigate();
 
     return (
         <div className="privacidad-container">
 
-            {/* ── BOTÓN VOLVER ── */}
-            <button className="btn-volver" onClick={() => navegar(-1)}>
-                ← Volver
+            {/* ── BACK BUTTON ── */}
+            <button className="btn-volver" onClick={() => navigate(-1)}>
+                ← Back
             </button>
 
-            <h1>🔒 Política de Privacidad</h1>
-            <p className="fecha">Última actualización: 3 de marzo de 2026</p>
+            <h1>🔒 Privacy Policy</h1>
+            <p className="fecha">Last updated: March 3, 2026</p>
 
-            {/* ── SECCIÓN 1 ── */}
+            {/* ── SECTION 1 ── */}
             <section>
-                <h2>1. Datos que recopilamos</h2>
-                <p>Recopilamos los siguientes datos personales cuando te registras:</p>
+                <h2>1. Data we collect</h2>
+                <p>We collect the following personal data when you register:</p>
                 <ul>
-                    <li>Nombre de usuario</li>
-                    <li>Dirección de correo electrónico</li>
-                    <li>Contraseña (almacenada de forma segura con hash)</li>
-                    <li>Avatar (opcional)</li>
+                    <li>Username</li>
+                    <li>Email address</li>
+                    <li>Password (securely stored with hash)</li>
+                    <li>Avatar (optional)</li>
                 </ul>
             </section>
 
-            {/* ── SECCIÓN 2 ── */}
+            {/* ── SECTION 2 ── */}
             <section>
-                <h2>2. Cómo usamos tus datos</h2>
-                <p>Tus datos se usan exclusivamente para:</p>
+                <h2>2. How we use your data</h2>
+                <p>Your data is used exclusively for:</p>
                 <ul>
-                    <li>Gestionar tu cuenta y autenticación</li>
-                    <li>Mostrar tu perfil a otros usuarios</li>
-                    <li>Gestionar tu lista de amigos</li>
-                    <li>Mostrar tu estado online/offline</li>
+                    <li>Managing your account and authentication</li>
+                    <li>Displaying your profile to other users</li>
+                    <li>Managing your friends list</li>
+                    <li>Showing your online/offline status</li>
                 </ul>
             </section>
 
-            {/* ── SECCIÓN 3 ── */}
+            {/* ── SECTION 3 ── */}
             <section>
-                <h2>3. Seguridad</h2>
+                <h2>3. Security</h2>
                 <p>
-                    Todas las contraseñas se almacenan usando <strong>bcrypt</strong> con salt.
-                    La autenticación se realiza mediante <strong>JWT</strong> (JSON Web Tokens).
-                    Nunca compartimos tus datos con terceros.
+                    All passwords are stored using <strong>bcrypt</strong> with salt.
+                    Authentication is done via <strong>JWT</strong> (JSON Web Tokens).
+                    We never share your data with third parties.
                 </p>
             </section>
 
-            {/* ── SECCIÓN 4 ── */}
+            {/* ── SECTION 4 ── */}
             <section>
-                <h2>4. Tus derechos</h2>
-                <p>Tienes derecho a:</p>
+                <h2>4. Your rights</h2>
+                <p>You have the right to:</p>
                 <ul>
-                    <li>Acceder a tus datos personales</li>
-                    <li>Modificar tu perfil en cualquier momento</li>
-                    <li>Eliminar tu cuenta</li>
+                    <li>Access your personal data</li>
+                    <li>Modify your profile at any time</li>
+                    <li>Delete your account</li>
                 </ul>
             </section>
 
-            {/* ── SECCIÓN 5 ── */}
+            {/* ── SECTION 5 ── */}
             <section>
-                <h2>5. Contacto</h2>
+                <h2>5. Contact</h2>
                 <p>
-                    Este proyecto ha sido desarrollado como parte del currículo de <strong>42</strong>.
-                    Para cualquier duda sobre privacidad, contacta con el equipo de desarrollo.
+                    This project has been developed as part of the <strong>42</strong> curriculum.
+                    For any privacy-related questions, contact the development team.
                 </p>
             </section>
 

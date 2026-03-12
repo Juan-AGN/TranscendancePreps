@@ -1,5 +1,5 @@
 // ============================================================================
-// CONFIGURACION DE PRISMA
+// PRISMA CONFIGURATION
 // ============================================================================
 generator client {
   provider = "prisma-client-js"
@@ -11,41 +11,40 @@ datasource db {
 }
 
 // ============================================================================
-// TABLA(model): Usuario
+// TABLE (model): User
 // ============================================================================
-model Usuario {
-  id        Int       @id @default(autoincrement())
-  nombre    String
-  email     String    @unique
-  password  String?
-  avatar    String?   @default("default-avatar.png")  
-  estadoOnline Boolean @default(false)
-  ultimaConexion DateTime?
-  createdAt DateTime  @default(now())
-  fortyTwoId Int?     @unique
-  
-  // RELACIONES ( NO son columnas reales sino campos virtuales)
-  solicitudesEnviadas  Amistad[] @relation("SolicitudesEnviadas")
-  solicitudesRecibidas Amistad[] @relation("SolicitudesRecibidas")
-  
-  // Nombre exacto de la tabla en PostgreSQL ( sin esto Prisma la llamaría en minúscula)
+model User {
+  id             Int       @id @default(autoincrement())
+  name           String    @map("nombre")
+  email          String    @unique
+  password       String?
+  avatar         String?   @default("default-avatar.png")
+  onlineStatus   Boolean   @default(false) @map("estadoOnline")
+  lastConnection DateTime? @map("ultimaConexion")
+  createdAt      DateTime  @default(now())
+  fortyTwoId     Int?      @unique
+
+  // RELATIONS (NOT real columns, just virtual fields)
+  sentRequests     Friendship[] @relation("SentRequests")
+  receivedRequests Friendship[] @relation("ReceivedRequests")
+
+  // Exact table name in PostgreSQL (without this Prisma would use lowercase)
   @@map("Usuario")
 }
 
 // ============================================================================
-// TABLA(model): Amistad
+// TABLE (model): Friendship
 // ============================================================================
-model Amistad {
-  id            Int      @id @default(autoincrement())
-  solicitanteId Int
-  receptorId    Int
-  estado        String   @default("pendiente")
-  createdAt     DateTime @default(now())
-  
-  // Relaciones
-                      // 
-  solicitante Usuario @relation("SolicitudesEnviadas", fields: [solicitanteId], references: [id])
-  receptor    Usuario @relation("SolicitudesRecibidas", fields: [receptorId], references: [id])
-  
+model Friendship {
+  id          Int      @id @default(autoincrement())
+  requesterId Int      @map("solicitanteId")
+  receiverId  Int      @map("receptorId")
+  status      String   @default("pendiente") @map("estado")
+  createdAt   DateTime @default(now())
+
+  // Relations
+  requester User @relation("SentRequests",      fields: [requesterId], references: [id])
+  receiver  User @relation("ReceivedRequests",  fields: [receiverId],  references: [id])
+
   @@map("Amistad")
 }

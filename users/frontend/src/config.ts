@@ -1,8 +1,8 @@
 // ============================================================================
-// CONFIGURACIÓN COMPARTIDA
+// SHARED CONFIGURATION
 // ============================================================================
-// Aquí ponemos valores que usan todos los componentes.
-// Si el backend cambia de puerto o URL, solo hay que cambiarlo aquí.
+// Here we put values used by all components.
+// If the backend URL or port changes, only need to change it here.
 
-// URL base del backend (Fastify)
+// Backend base URL (Fastify)
 export const API_URL = 'http://localhost:3000';

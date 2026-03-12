@@ -1,8 +1,8 @@
 /* ============================================================================
-   LOGIN.CSS - Estilos de la página de Login/Registro
-   Los estilos son exactamente los mismos que tenías en el index.html original.
-   En React, los estilos van en archivos .css separados que se importan
-   en el componente con: import './Login.css'
+   LOGIN.CSS - Styles for the Login/Register page
+   The styles are exactly the same as in the original index.html.
+   In React, styles go in separate .css files that are imported
+   in the component with: import './Login.css'
    ============================================================================ */
 
 * {
@@ -22,7 +22,7 @@ body {
 }
 
 /* ============================================================================
-   CONTENEDOR PRINCIPAL
+   CONTAINER MAIN
    ============================================================================ */
 .login-container {
     width: 100%;
@@ -60,7 +60,7 @@ body {
 }
 
 /* ============================================================================
-   PESTAÑAS
+   TABS
    ============================================================================ */
 .login-tabs {
     display: flex;
@@ -91,14 +91,14 @@ body {
 }
 
 /* ============================================================================
-   CONTENIDO DEL FORMULARIO
+   CONTENT FORM
    ============================================================================ */
 .login-form-container {
     padding: 35px 40px 40px;
 }
 
 /* ============================================================================
-   GRUPOS DE FORMULARIO
+   GROUP FORM
    ============================================================================ */
 .form-group {
     margin-bottom: 20px;
@@ -129,7 +129,7 @@ body {
 }
 
 /* ============================================================================
-   BOTÓN PRINCIPAL
+   MAIN BUTTON
    ============================================================================ */
 .btn-submit {
     width: 100%;
@@ -155,7 +155,7 @@ body {
 }
 
 /* ============================================================================
-   ALERTAS
+   ALERTS
    ============================================================================ */
 .alerta {
     padding: 14px 18px;

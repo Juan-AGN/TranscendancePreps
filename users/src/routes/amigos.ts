@@ -1,266 +1,266 @@
 // ============================================================================
-// IMPORTACIONES NECESARIAS
+// IMPORTS
 // ============================================================================
 import type { FastifyInstance } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 
-// Crear cliente de Prisma para acceder a la base de datos
-const clienteDePrisma = new PrismaClient();
+// Create a Prisma client to access the database
+const prismaClient = new PrismaClient();
 
 // ============================================================================
-// FUNCION PRINCIPAL: Registrar todas las rutas relacionadas con amistades
+// MAIN FUNCTION: Register all routes related to friendships
 // ============================================================================
-export async function amigosRoutes(servidorFastify: FastifyInstance) {
+export async function friendsRoutes(server: FastifyInstance) {
     
     // ========================================================================
-    // RUTA NUMERO 1: ENVIAR SOLICITUD DE AMISTAD
+    // ROUTE 1: SEND FRIEND REQUEST
     // ========================================================================
-    // Metodo HTTP: POST
-    // URL: http://localhost:3000/usuarios/:userId/enviar_solicitud/:amigoId
-    servidorFastify.post('/usuarios/:userId/enviar_solicitud/:amigoId', {
-        onRequest: [servidorFastify.authenticate]
-    }, async (peticionDelCliente, respuestaAlCliente) => {
+    // HTTP Method: POST
+    // URL: http://localhost:3000/users/:userId/send_request/:friendId
+    server.post('/users/:userId/send_request/:friendId', {
+        onRequest: [server.authenticate]
+    }, async (request, reply) => {
         
-        // PASO 1: Obtener los IDs desde la URL
-        const parametrosDeLaURL = peticionDelCliente.params as {
+        // STEP 1: Get the IDs from the URL
+        const urlParams = request.params as {
             userId: string,
-            amigoId: string
+            friendId: string
         };
-        const miIdDeUsuario = parseInt(parametrosDeLaURL.userId);
-        const idDelUsuarioQueQuieroAgregar = parseInt(parametrosDeLaURL.amigoId);
+        const myUserId = parseInt(urlParams.userId);
+        const targetUserId = parseInt(urlParams.friendId);
 
-        // Verificar que el usuario autenticado es el dueño del recurso
-        if ((peticionDelCliente as any).user?.id !== miIdDeUsuario) {
-            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        // Verify that the authenticated user is the owner of the resource
+        if ((request as any).user?.id !== myUserId) {
+            return reply.status(403).send({ error: 'You do not have permission to modify this user' });
         }
         
-        // PASO 2: Verificar que no intente agregarse a sí mismo
-        if (miIdDeUsuario === idDelUsuarioQueQuieroAgregar) {
-            return respuestaAlCliente.status(400).send({
-                error: 'No puedes enviarte una solicitud a ti mismo'
+        // STEP 2: Verify that the user is not trying to add themselves
+        if (myUserId === targetUserId) {
+            return reply.status(400).send({
+                error: 'You cannot send a friend request to yourself'
             });
         }
         
-        // PASO 3: Verificar que ambos usuarios existan
-        const miUsuario = await clienteDePrisma.usuario.findUnique({
-            where: { id: miIdDeUsuario }
+        // STEP 3: Verify that both users exist
+        const myUser = await prismaClient.user.findUnique({
+            where: { id: myUserId }
         });
-        const elOtroUsuario = await clienteDePrisma.usuario.findUnique({
-            where: { id: idDelUsuarioQueQuieroAgregar }
+        const otherUser = await prismaClient.user.findUnique({
+            where: { id: targetUserId }
         });
         
-        if (!miUsuario || !elOtroUsuario) {
-            return respuestaAlCliente.status(404).send({
-                error: 'Uno de los usuarios no existe'
+        if (!myUser || !otherUser) {
+            return reply.status(404).send({
+                error: 'One of the users does not exist'
             });
         }
         
-        // PASO 4: Verificar que no exista ya una solicitud (en cualquier dirección)
-        const yaTienenSolicitudPendiente = await clienteDePrisma.amistad.findFirst({
+        // STEP 4: Verify that a request does not already exist (in either direction)
+        const existingRequest = await prismaClient.friendship.findFirst({
             where: {
                 OR: [
                     {
-                        solicitanteId: miIdDeUsuario,
-                        receptorId: idDelUsuarioQueQuieroAgregar
+                        requesterId: myUserId,
+                        receiverId: targetUserId
                     },
                     {
-                        solicitanteId: idDelUsuarioQueQuieroAgregar,
-                        receptorId: miIdDeUsuario
+                        requesterId: targetUserId,
+                        receiverId: myUserId
                     }
                 ]
             }
         });
         
-        if (yaTienenSolicitudPendiente) {
-            if (yaTienenSolicitudPendiente.estado === 'aceptada') {
-                return respuestaAlCliente.status(400).send({
-                    error: 'Ya son amigos'
+        if (existingRequest) {
+            if (existingRequest.status === 'aceptada') {
+                return reply.status(400).send({
+                    error: 'You are already friends'
                 });
             } else {
-                return respuestaAlCliente.status(400).send({
-                    error: 'Ya existe una solicitud pendiente'
+                return reply.status(400).send({
+                    error: 'A pending request already exists'
                 });
             }
         }
         
-        // PASO 5: Crear la solicitud de amistad
-        await clienteDePrisma.amistad.create({
+        // STEP 5: Create the friend request
+        await prismaClient.friendship.create({
             data: {
-                solicitanteId: miIdDeUsuario,
-                receptorId: idDelUsuarioQueQuieroAgregar
+                requesterId: myUserId,
+                receiverId: targetUserId
             }
         });
         
-        // PASO 6: Retornar respuesta exitosa
-        respuestaAlCliente.status(201).send({
-            mensaje: 'Solicitud de amistad enviada correctamente',
-            de: miUsuario.nombre,
-            para: elOtroUsuario.nombre
+        // STEP 6: Return a successful response
+        reply.status(201).send({
+            message: 'Friend request sent successfully',
+            from: myUser.name,
+            to: otherUser.name
         });
     });
     
     // ========================================================================
-    // RUTA NUMERO 2: ACEPTAR SOLICITUD DE AMISTAD
+    // ROUTE 2: ACCEPT FRIEND REQUEST
     // ========================================================================
-    // Metodo HTTP: POST
-    // URL: http://localhost:3000/usuarios/:userId/aceptar_solicitud/:amigoId
-    servidorFastify.post('/usuarios/:userId/aceptar_solicitud/:amigoId', {
-        onRequest: [servidorFastify.authenticate]
-    }, async (peticionDelCliente, respuestaAlCliente) => {
+    // HTTP Method: POST
+    // URL: http://localhost:3000/users/:userId/accept_request/:friendId
+    server.post('/users/:userId/accept_request/:friendId', {
+        onRequest: [server.authenticate]
+    }, async (request, reply) => {
         
-        // PASO 1: Obtener los IDs desde la URL
-        const parametrosDeLaURL = peticionDelCliente.params as {
+        // STEP 1: Get the IDs from the URL
+        const urlParams = request.params as {
             userId: string,
-            amigoId: string
+            friendId: string
         };
-        const miIdDeUsuario = parseInt(parametrosDeLaURL.userId);
-        const idDelUsuarioQueEnvioLaSolicitud = parseInt(parametrosDeLaURL.amigoId);
+        const myUserId = parseInt(urlParams.userId);
+        const requestSenderId = parseInt(urlParams.friendId);
 
-        // Verificar que el usuario autenticado es el dueño del recurso
-        if ((peticionDelCliente as any).user?.id !== miIdDeUsuario) {
-            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        // Verify that the authenticated user is the owner of the resource
+        if ((request as any).user?.id !== myUserId) {
+            return reply.status(403).send({ error: 'You do not have permission to modify this user' });
         }
         
-        // PASO 2: Buscar la solicitud pendiente
-        const solicitudPendiente = await clienteDePrisma.amistad.findFirst({
+        // STEP 2: Find the pending request
+        const pendingRequest = await prismaClient.friendship.findFirst({
             where: {
-                solicitanteId: idDelUsuarioQueEnvioLaSolicitud,
-                receptorId: miIdDeUsuario,
-                estado: 'pendiente'
+                requesterId: requestSenderId,
+                receiverId: myUserId,
+                status: 'pendiente'
             }
         });
         
-        // PASO 3: Verificar que exista la solicitud
-        if (!solicitudPendiente) {
-            return respuestaAlCliente.status(404).send({
-                error: 'No hay ninguna solicitud pendiente de este usuario'
+        // STEP 3: Verify that the request exists
+        if (!pendingRequest) {
+            return reply.status(404).send({
+                error: 'There is no pending request from this user'
             });
         }
         
-        // PASO 4: Actualizar el estado de la solicitud a 'aceptada'
-        await clienteDePrisma.amistad.update({
+        // STEP 4: Update the request status to 'aceptada'
+        await prismaClient.friendship.update({
             where: {
-                id: solicitudPendiente.id
+                id: pendingRequest.id
             },
             data: {
-                estado: 'aceptada'
+                status: 'aceptada'
             }
         });
         
-        // PASO 5: Obtener el nombre del nuevo amigo
-        const elAmigo = await clienteDePrisma.usuario.findUnique({
-            where: { id: idDelUsuarioQueEnvioLaSolicitud }
+        // STEP 5: Get the name of the new friend
+        const newFriend = await prismaClient.user.findUnique({
+            where: { id: requestSenderId }
         });
         
-        // PASO 6: Retornar respuesta exitosa
-        respuestaAlCliente.send({
-            mensaje: 'Solicitud aceptada. Ahora son amigos',
-            tuAmigo: elAmigo?.nombre
+        // STEP 6: Return a successful response
+        reply.send({
+            message: 'Request accepted. You are now friends',
+            yourFriend: newFriend?.name
         });
     });
     
     // ========================================================================
-    // RUTA NUMERO 3: LISTAR MIS AMIGOS
+    // ROUTE 3: LIST MY FRIENDS
     // ========================================================================
-    // Metodo HTTP: GET
-    // URL: http://localhost:3000/usuarios/:userId/mis_amigos
-    servidorFastify.get('/usuarios/:userId/mis_amigos', {
-        onRequest: [servidorFastify.authenticate]
-    }, async (peticionDelCliente, respuestaAlCliente) => {
+    // HTTP Method: GET
+    // URL: http://localhost:3000/users/:userId/my_friends
+    server.get('/users/:userId/my_friends', {
+        onRequest: [server.authenticate]
+    }, async (request, reply) => {
         
-        // PASO 1: Obtener mi ID de la URL
-        const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
-        const miIdDeUsuario = parseInt(parametrosDeLaURL.userId);
+        // STEP 1: Get my ID from the URL
+        const urlParams = request.params as { userId: string };
+        const myUserId = parseInt(urlParams.userId);
 
-        // Verificar que el usuario autenticado es el dueño del recurso
-        if ((peticionDelCliente as any).user?.id !== miIdDeUsuario) {
-            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        // Verify that the authenticated user is the owner of the resource
+        if ((request as any).user?.id !== myUserId) {
+            return reply.status(403).send({ error: 'You do not have permission to modify this user' });
         }
         
-        // PASO 2: Buscar todas mis amistades ACEPTADAS
-        const todasMisAmistades = await clienteDePrisma.amistad.findMany({
+        // STEP 2: Find all my ACCEPTED friendships
+        const allFriendships = await prismaClient.friendship.findMany({
             where: {
                 AND: [
-                    { estado: 'aceptada' },
+                    { status: 'aceptada' },
                     {
                         OR: [
-                            { solicitanteId: miIdDeUsuario },
-                            { receptorId: miIdDeUsuario }
+                            { requesterId: myUserId },
+                            { receiverId: myUserId }
                         ]
                     }
                 ]
             },
             include: {
-                solicitante: {
+                requester: {
                     select: {
                         id: true,
-                        nombre: true,
+                        name: true,
                         email: true
                     }
                 },
-                receptor: {
+                receiver: {
                     select: {
                         id: true,
-                        nombre: true,
+                        name: true,
                         email: true
                     }
                 }
             }
         });
         
-        // PASO 3: Filtrar para obtener solo el amigo (no yo mismo)
-        const listaDeMisAmigos = todasMisAmistades.map(amistad => {
-            if (amistad.solicitanteId === miIdDeUsuario) {
-                return amistad.receptor;
+        // STEP 3: Filter to get only the friend (not myself)
+        const friendsList = allFriendships.map(friendship => {
+            if (friendship.requesterId === myUserId) {
+                return friendship.receiver;
             } else {
-                return amistad.solicitante;
+                return friendship.requester;
             }
         });
         
-        // PASO 4: Retornar la lista de amigos
-        respuestaAlCliente.send({
-            mensaje: `Tienes ${listaDeMisAmigos.length} amigos`,
-            total: listaDeMisAmigos.length,
-            amigos: listaDeMisAmigos
+        // STEP 4: Return the friends list
+        reply.send({
+            message: `You have ${friendsList.length} friends`,
+            total: friendsList.length,
+            friends: friendsList
         });
     });
     
     // ========================================================================
-    // RUTA NUMERO 4: ELIMINAR AMIGO
+    // ROUTE 4: REMOVE FRIEND
     // ========================================================================
-    // Metodo HTTP: DELETE
-    // URL: http://localhost:3000/usuarios/:userId/eliminar_amigo/:amigoId
-    servidorFastify.delete('/usuarios/:userId/eliminar_amigo/:amigoId', {
-        onRequest: [servidorFastify.authenticate]
-    }, async (peticionDelCliente, respuestaAlCliente) => {
+    // HTTP Method: DELETE
+    // URL: http://localhost:3000/users/:userId/remove_friend/:friendId
+    server.delete('/users/:userId/remove_friend/:friendId', {
+        onRequest: [server.authenticate]
+    }, async (request, reply) => {
         
-        // PASO 1: Obtener los IDs desde la URL
-        const parametrosDeLaURL = peticionDelCliente.params as {
+        // STEP 1: Get the IDs from the URL
+        const urlParams = request.params as {
             userId: string,
-            amigoId: string
+            friendId: string
         };
-        const miIdDeUsuario = parseInt(parametrosDeLaURL.userId);
-        const idDelAmigoQueQuieroEliminar = parseInt(parametrosDeLaURL.amigoId);
+        const myUserId = parseInt(urlParams.userId);
+        const friendToRemoveId = parseInt(urlParams.friendId);
 
-        // Verificar que el usuario autenticado es el dueño del recurso
-        if ((peticionDelCliente as any).user?.id !== miIdDeUsuario) {
-            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        // Verify that the authenticated user is the owner of the resource
+        if ((request as any).user?.id !== myUserId) {
+            return reply.status(403).send({ error: 'You do not have permission to modify this user' });
         }
         
-        // PASO 2: Buscar la amistad aceptada (en cualquier dirección)
-        const amistadAEliminar = await clienteDePrisma.amistad.findFirst({
+        // STEP 2: Find the accepted friendship (in either direction)
+        const friendshipToRemove = await prismaClient.friendship.findFirst({
             where: {
                 AND: [
-                    { estado: 'aceptada' },
+                    { status: 'aceptada' },
                     {
                         OR: [
                             {
-                                solicitanteId: miIdDeUsuario,
-                                receptorId: idDelAmigoQueQuieroEliminar
+                                requesterId: myUserId,
+                                receiverId: friendToRemoveId
                             },
                             {
-                                solicitanteId: idDelAmigoQueQuieroEliminar,
-                                receptorId: miIdDeUsuario
+                                requesterId: friendToRemoveId,
+                                receiverId: myUserId
                             }
                         ]
                     }
@@ -268,150 +268,150 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
             }
         });
         
-        // PASO 3: Verificar que sean amigos
-        if (!amistadAEliminar) {
-            return respuestaAlCliente.status(400).send({
-                error: 'No son amigos'
+        // STEP 3: Verify that they are friends
+        if (!friendshipToRemove) {
+            return reply.status(400).send({
+                error: 'You are not friends'
             });
         }
         
-        // PASO 4: Eliminar la amistad de la base de datos
-        await clienteDePrisma.amistad.delete({
+        // STEP 4: Delete the friendship from the database
+        await prismaClient.friendship.delete({
             where: {
-                id: amistadAEliminar.id
+                id: friendshipToRemove.id
             }
         });
         
-        // PASO 5: Obtener el nombre del ex-amigo
-        const amigoEliminado = await clienteDePrisma.usuario.findUnique({
-            where: { id: idDelAmigoQueQuieroEliminar }
+        // STEP 5: Get the name of the removed friend
+        const removedFriend = await prismaClient.user.findUnique({
+            where: { id: friendToRemoveId }
         });
         
-        // PASO 6: Retornar confirmación
-        respuestaAlCliente.send({
-            mensaje: 'Amigo eliminado correctamente',
-            amigoEliminado: amigoEliminado?.nombre
+        // STEP 6: Return confirmation
+        reply.send({
+            message: 'Friend removed successfully',
+            removedFriend: removedFriend?.name
         });
     });
 
     // ========================================================================
-    // RUTA NUMERO 5: VER SOLICITUDES PENDIENTES (que me han enviado)
+    // ROUTE 5: VIEW PENDING REQUESTS (sent to me)
     // ========================================================================
-    servidorFastify.get('/usuarios/:userId/solicitudes_pendientes', {
-        onRequest: [servidorFastify.authenticate]
-    }, async (peticionDelCliente, respuestaAlCliente) => {
+    server.get('/users/:userId/pending_requests', {
+        onRequest: [server.authenticate]
+    }, async (request, reply) => {
         
-        const { userId } = peticionDelCliente.params as { userId: string };
-        const miIdDeUsuario = parseInt(userId);
+        const { userId } = request.params as { userId: string };
+        const myUserId = parseInt(userId);
 
-        // Verificar que el usuario autenticado es el dueño del recurso
-        if ((peticionDelCliente as any).user?.id !== miIdDeUsuario) {
-            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        // Verify that the authenticated user is the owner of the resource
+        if ((request as any).user?.id !== myUserId) {
+            return reply.status(403).send({ error: 'You do not have permission to modify this user' });
         }
         
-        // Buscar solicitudes que ME han enviado y están pendientes
-        const solicitudesPendientes = await clienteDePrisma.amistad.findMany({
+        // Find requests that have been sent TO ME and are pending
+        const pendingRequests = await prismaClient.friendship.findMany({
             where: {
-                receptorId: miIdDeUsuario,
-                estado: 'pendiente'
+                receiverId: myUserId,
+                status: 'pendiente'
             },
             include: {
-                solicitante: {
+                requester: {
                     select: {
                         id: true,
-                        nombre: true,
+                        name: true,
                         email: true,
                         avatar: true,
-                        estadoOnline: true
+                        onlineStatus: true
                     }
                 }
             }
         });
         
-        respuestaAlCliente.send({
-            total: solicitudesPendientes.length,
-            solicitudes: solicitudesPendientes
+        reply.send({
+            total: pendingRequests.length,
+            requests: pendingRequests
         });
     });
     
     // ========================================================================
-    // RUTA NUMERO 6: RECHAZAR SOLICITUD DE AMISTAD
+    // ROUTE 6: REJECT FRIEND REQUEST
     // ========================================================================
-    servidorFastify.delete('/usuarios/:userId/rechazar_solicitud/:amigoId', {
-        onRequest: [servidorFastify.authenticate]
-    }, async (peticionDelCliente, respuestaAlCliente) => {
+    server.delete('/users/:userId/reject_request/:friendId', {
+        onRequest: [server.authenticate]
+    }, async (request, reply) => {
         
-        const { userId, amigoId } = peticionDelCliente.params as {
+        const { userId, friendId } = request.params as {
             userId: string,
-            amigoId: string
+            friendId: string
         };
-        const miIdDeUsuario = parseInt(userId);
-        const idDelSolicitante = parseInt(amigoId);
+        const myUserId = parseInt(userId);
+        const requestSenderId = parseInt(friendId);
 
-        // Verificar que el usuario autenticado es el dueño del recurso
-        if ((peticionDelCliente as any).user?.id !== miIdDeUsuario) {
-            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        // Verify that the authenticated user is the owner of the resource
+        if ((request as any).user?.id !== myUserId) {
+            return reply.status(403).send({ error: 'You do not have permission to modify this user' });
         }
         
-        // Buscar la solicitud pendiente
-        const solicitud = await clienteDePrisma.amistad.findFirst({
+        // Find the pending request
+        const friendRequest = await prismaClient.friendship.findFirst({
             where: {
-                solicitanteId: idDelSolicitante,
-                receptorId: miIdDeUsuario,
-                estado: 'pendiente'
+                requesterId: requestSenderId,
+                receiverId: myUserId,
+                status: 'pendiente'
             }
         });
         
-        if (!solicitud) {
-            return respuestaAlCliente.status(404).send({
-                error: 'No hay solicitud pendiente'
+        if (!friendRequest) {
+            return reply.status(404).send({
+                error: 'No pending request found'
             });
         }
         
-        // Eliminar la solicitud
-        await clienteDePrisma.amistad.delete({
-            where: { id: solicitud.id }
+        // Delete the request
+        await prismaClient.friendship.delete({
+            where: { id: friendRequest.id }
         });
         
-        respuestaAlCliente.send({
-            mensaje: 'Solicitud rechazada'
+        reply.send({
+            message: 'Request rejected'
         });
     });
     
     // ========================================================================
-    // RUTA NUMERO 7: BUSCAR USUARIOS (para añadir amigos)
+    // ROUTE 7: SEARCH USERS (to add friends)
     // ========================================================================
-    servidorFastify.get('/usuarios/buscar', async (peticionDelCliente, respuestaAlCliente) => {
+    server.get('/users/search', async (request, reply) => {
         
-        const { query } = peticionDelCliente.query as { query: string };
+        const { query } = request.query as { query: string };
         
         if (!query || query.length < 2) {
-            return respuestaAlCliente.status(400).send({
-                error: 'La búsqueda debe tener al menos 2 caracteres'
+            return reply.status(400).send({
+                error: 'Search must be at least 2 characters long'
             });
         }
         
-        // Buscar usuarios por nombre o email
-        const usuariosEncontrados = await clienteDePrisma.usuario.findMany({
+        // Search users by name or email
+        const foundUsers = await prismaClient.user.findMany({
             where: {
                 OR: [
-                    { nombre: { contains: query, mode: 'insensitive' } },
+                    { name: { contains: query, mode: 'insensitive' } },
                     { email: { contains: query, mode: 'insensitive' } }
                 ]
             },
             select: {
                 id: true,
-                nombre: true,
+                name: true,
                 email: true,
                 avatar: true,
-                estadoOnline: true
+                onlineStatus: true
             },
-            take: 10 // Limitar a 10 resultados
+            take: 10 // Limit to 10 results
         });
         
-        respuestaAlCliente.send({
-            total: usuariosEncontrados.length,
-            usuarios: usuariosEncontrados
+        reply.send({
+            total: foundUsers.length,
+            usuarios: foundUsers
         });
     });
 }

@@ -1,10 +1,10 @@
 // ============================================================================
-// PERFIL.TSX - Página de Perfil del Usuario
+// PERFIL.TSX - User Profile Page
 // ============================================================================
-// Este componente reemplaza al perfil.html original.
-// CAMBIO IMPORTANTE respecto al HTML: el estado del componente
-// (datos del usuario, si el modal está abierto, etc.) se gestiona con useState()
-// en vez de variables globales sueltas.
+// This component replaces the original perfil.html.
+// KEY CHANGE from HTML: the component state
+// (user data, whether the modal is open, etc.) is managed with useState()
+// instead of loose global variables.
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -12,126 +12,126 @@ import './Perfil.css';
 import { API_URL } from '../config';
 
 // ============================================================================
-// TIPOS (TypeScript)
+// TYPES (TypeScript)
 // ============================================================================
-// Definimos la "forma" de un objeto usuario para que TypeScript nos avise
-// si intentamos acceder a un campo que no existe.
-interface Usuario {
+// We define the "shape" of a user object so TypeScript can warn us
+// if we try to access a field that does not exist.
+interface User {
     id: number;
-    nombre: string;
+    name: string;
     email: string;
     avatar: string | null;
-    estadoOnline: boolean;
-    ultimaConexion: string | null;
+    onlineStatus: boolean;
+    lastConnection: string | null;
     createdAt: string;
 }
 
-interface Amigo {
+interface Friend {
     id: number;
-    nombre: string;
+    name: string;
     email: string;
     avatar: string | null;
-    estadoOnline: boolean;
+    onlineStatus: boolean;
 }
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: Perfil
+// MAIN COMPONENT: Perfil
 // ============================================================================
 function Perfil() {
 
     // ========================================================================
-    // ESTADO DEL COMPONENTE // lo 1º que carga siempre son los useStates
+    // COMPONENT STATE // useState hooks are always the first thing that loads
     // ========================================================================
-    const [usuario, setUsuario] = useState<Usuario | null>(null);   // Datos del usuario
-                                        // el estado puede ser: un Usuario o null (inicia en null)
+    const [user, setUser] = useState<User | null>(null);   // User data
+                                        // the state can be: a User or null (starts as null)
 
-    const [amigos, setAmigos] = useState<Amigo[]>([]);               // Lista de amigos
+    const [friends, setFriends] = useState<Friend[]>([]);               // Friends list
 
-    // Estado del modal de edición: true = abierto, false = cerrado
-    const [modalAbierto, setModalAbierto] = useState(false);
+    // Edit modal state: true = open, false = closed
+    const [modalOpen, setModalOpen] = useState(false);
 
-    // Estado de los campos del formulario de edición
-    const [editNombre, setEditNombre] = useState('');
+    // Edit form field state
+    const [editName, setEditName] = useState('');
     const [editEmail, setEditEmail] = useState('');
     const [editPassword, setEditPassword] = useState('');
 
-    // Estado de la notificación flotante
-    const [notificacion, setNotificacion] = useState<{ mensaje: string; tipo: 'success' | 'error' } | null>(null);
+    // Floating notification state
+    const [notification, setNotification] = useState<{ message: string; tipo: 'success' | 'error' } | null>(null);
 
     const navigate = useNavigate();
 
     // ========================================================================
-    // EFECTO: Cargar datos al abrir la página (después de 'pintar' la pantalla con el 'return')
+    // EFFECT: Load data when the page opens (after the 'return' renders on screen)
     // ========================================================================
     useEffect(() => {
-        // Leer token de la URL si venimos del login con 42
+        // Read token from URL if coming from 42 login
         const params = new URLSearchParams(window.location.search);
-        const tokenDeURL   = params.get('token');
-        const userIdDeURL  = params.get('userId');
+        const tokenFromURL   = params.get('token');
+        const userIdFromURL  = params.get('userId');
 
-        if (tokenDeURL && userIdDeURL) {
-            localStorage.setItem('token', tokenDeURL);
-            localStorage.setItem('usuarioId', userIdDeURL);
-            // Limpiar la URL para que no se vea el token
+        if (tokenFromURL && userIdFromURL) {
+            localStorage.setItem('token', tokenFromURL);
+            localStorage.setItem('userId', userIdFromURL);
+            // Clean the URL so the token is not visible
             window.history.replaceState({}, '', '/perfil');
         }
 
-        // PASO 1: Obtener el token del localStorage
+        // STEP 1: Get the token from localStorage
         const token = localStorage.getItem('token');
-        const usuarioId = localStorage.getItem('usuarioId');
+        const userId = localStorage.getItem('userId');
 
-        // PASO 2: Si no hay sesión, redirigir al login
-        if (!token || !usuarioId) {
+        // STEP 2: If there is no session, redirect to login
+        if (!token || !userId) {
             navigate('/');
             return;
         }
 
-        // PASO 3: Cargar el perfil y los amigos
-        cargarPerfil(parseInt(usuarioId), token);
-        cargarAmigos(parseInt(usuarioId), token);
-    }, []); // [] = ejecutar solo al montar
+        // STEP 3: Load the profile and friends
+        loadProfile(parseInt(userId), token);
+        loadFriends(parseInt(userId), token);
+    }, []); // [] = run only on mount
 
     // ========================================================================
-    // FUNCIÓN: Cargar datos del perfil
+    // FUNCTION: Load profile data
     // ========================================================================
-    async function cargarPerfil(userId: number, token: string) {
+    async function loadProfile(userId: number, token: string) {
         try {
-            // PASO 1: Petición al backend
-            const response = await fetch(`${API_URL}/usuarios/${userId}`, {
+            // STEP 1: Request to the backend
+            const response = await fetch(`${API_URL}/users/${userId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
 
-            if (!response.ok) throw new Error('Error al cargar perfil');
+            if (!response.ok) throw new Error('Error loading profile');
 
-            // PASO 2: Guardar los datos en el estado
-            const data: Usuario = await response.json();
-            setUsuario(data);  // antes: document.getElementById('profileName').textContent = ...
+            // STEP 2: Save the data in state
+            const data: User = await response.json();
+            setUser(data);  // before: document.getElementById('profileName').textContent = ...
 
         } catch (error) {
             console.error('Error:', error);
-            mostrarNotificacion('Error al cargar el perfil', 'error');
+            showNotification('Error loading the profile', 'error');
         }
     }
 
     // ========================================================================
-    // FUNCIÓN: Cargar lista de amigos
+    // FUNCTION: Load friends list
     // ========================================================================
-    async function cargarAmigos(userId: number, token: string) {
+    async function loadFriends(userId: number, token: string) {
         try {
-            // RUTA CORRECTA: /usuarios/:userId/mis_amigos
-            // (el perfil.html original tenía un bug y usaba /amigos/:userId que no existía)
-            const response = await fetch(`${API_URL}/usuarios/${userId}/mis_amigos`, {
+            // CORRECT ROUTE: /users/:userId/my_friends
+            // (the original perfil.html had a bug and used /amigos/:userId which did not exist)
+            const response = await fetch(`${API_URL}/users/${userId}/my_friends`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
 
-            if (!response.ok) throw new Error('Error al cargar amigos');
+            if (!response.ok) throw new Error('Error loading friends');
 
             const data = await response.json();
-            setAmigos(data.amigos || []);
+            setFriends(data.friends || []);
 
         } catch (error) {
             console.error('Error:', error);
@@ -139,94 +139,94 @@ function Perfil() {
     }
 
     // ========================================================================
-    // FUNCIÓN: Cambiar estado online/offline
+    // FUNCTION: Change online/offline status
     // ========================================================================
-    async function cambiarEstado() {
-        if (!usuario) return;
+    async function changeStatus() {
+        if (!user) return;
 
         const token = localStorage.getItem('token');
-        const nuevoEstado = !usuario.estadoOnline;
+        const newStatus = !user.onlineStatus;
 
         try {
-            const response = await fetch(`${API_URL}/usuarios/${usuario.id}/estado`, {
+            const response = await fetch(`${API_URL}/users/${user.id}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ estadoOnline: nuevoEstado })
+                body: JSON.stringify({ onlineStatus: newStatus })
             });
 
-            if (!response.ok) throw new Error('Error al cambiar estado');
+            if (!response.ok) throw new Error('Error changing status');
 
-            // Actualizar el estado local del usuario (sin recargar la página)
+            // Update the local user state (without reloading the page)
             const data = await response.json();
-            setUsuario(data.usuario);
+            setUser(data.user);
 
-            mostrarNotificacion(
-                nuevoEstado ? 'Ahora estás online' : 'Ahora estás offline',
+            showNotification(
+                newStatus ? 'You are now online' : 'You are now offline',
                 'success'
             );
 
         } catch (error) {
             console.error('Error:', error);
-            mostrarNotificacion('Error al cambiar estado', 'error');
+            showNotification('Error changing status', 'error');
         }
     }
 
     // ========================================================================
-    // FUNCIÓN: Abrir modal de edición (rellena los campos con los datos actuales)
+    // FUNCTION: Open the edit modal (fills fields with current data)
     // ========================================================================
-    function abrirModal() {
-        if (!usuario) return;
-        setEditNombre(usuario.nombre);
-        setEditEmail(usuario.email);
+    function openModal() {
+        if (!user) return;
+        setEditName(user.name);
+        setEditEmail(user.email);
         setEditPassword('');
-        setModalAbierto(true);
+        setModalOpen(true);
     }
 
     // ========================================================================
-    // FUNCIÓN: Guardar cambios del perfil
+    // FUNCTION: Save profile changes
     // ========================================================================
-    async function guardarCambios() {
-        if (!usuario) return;
+    async function saveChanges() {
+        if (!user) return;
 
         const token = localStorage.getItem('token');
-        const datosAEnviar: any = { nombre: editNombre, email: editEmail };
+        const dataToSend: any = { nombre: editName, email: editEmail };
 
         if (editPassword) {
-            datosAEnviar.contraseña = editPassword;
+            dataToSend.password = editPassword;
         }
 
         try {
-            const response = await fetch(`${API_URL}/usuarios/${usuario.id}`, {
+            const response = await fetch(`${API_URL}/users/${user.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(datosAEnviar)
+                body: JSON.stringify(dataToSend)
             });
 
-            if (!response.ok) throw new Error('Error al actualizar perfil');
+            if (!response.ok) throw new Error('Error updating profile');
 
-            // Recargar los datos del perfil tras guardar
-            await cargarPerfil(usuario.id, token!);
-            setModalAbierto(false);
-            mostrarNotificacion('Perfil actualizado correctamente', 'success');
+            // Reload profile data after saving
+            await loadProfile(user.id, token!);
+            setModalOpen(false);
+            showNotification('Profile updated successfully', 'success');
 
         } catch (error) {
             console.error('Error:', error);
-            mostrarNotificacion('Error al actualizar perfil', 'error');
+            showNotification('Error updating profile', 'error');
         }
     }
 
     // ========================================================================
-    // FUNCIÓN: Subir nuevo avatar
+    // FUNCTION: Upload new avatar
     // ========================================================================
-    async function subirAvatar(event: React.ChangeEvent<HTMLInputElement>) {
+    async function uploadAvatar(event: React.ChangeEvent<HTMLInputElement>) {
         const file = event.target.files?.[0];
-        if (!file || !usuario) return;
+        if (!file || !user) return;
 
         const token = localStorage.getItem('token');
 
@@ -234,7 +234,7 @@ function Perfil() {
             const formData = new FormData();
             formData.append('file', file);
 
-            const response = await fetch(`${API_URL}/usuarios/${usuario.id}/avatar`, {
+            const response = await fetch(`${API_URL}/users/${user.id}/avatar`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -242,66 +242,66 @@ function Perfil() {
                 body: formData
             });
 
-            if (!response.ok) throw new Error('Error al subir avatar');
+            if (!response.ok) throw new Error('Error uploading avatar');
 
             const data = await response.json();
-            // Actualizar solo el avatar en el estado, sin recargar todo
-            setUsuario(prev => prev ? { ...prev, avatar: data.avatarUrl } : prev);
-            mostrarNotificacion('Avatar actualizado correctamente', 'success');
+            // Update only the avatar in state, without reloading everything
+            setUser(prev => prev ? { ...prev, avatar: data.avatarUrl } : prev);
+            showNotification('Avatar updated successfully', 'success');
 
         } catch (error) {
             console.error('Error:', error);
-            mostrarNotificacion('Error al subir avatar', 'error');
+            showNotification('Error uploading avatar', 'error');
         }
     }
 
     // ========================================================================
-    // FUNCIÓN: Cerrar sesión
+    // FUNCTION: Logout
     // ========================================================================
-    async function cerrarSesion() {
+    async function logout() {
         const token = localStorage.getItem('token');
 
         try {
-            // Marcar como offline antes de cerrar sesión
-            if (usuario) {
-                await fetch(`${API_URL}/usuarios/${usuario.id}/estado`, {
+            // Mark as offline before logging out
+            if (user) {
+                await fetch(`${API_URL}/users/${user.id}/status`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ estadoOnline: false })
+                    body: JSON.stringify({ onlineStatus: false })
                 });
             }
         } catch (error) {
-            console.error('Error al cambiar estado:', error);
+            console.error('Error changing status:', error);
         }
 
-        // Limpiar localStorage y redirigir al login
+        // Clear localStorage and redirect to login
         localStorage.removeItem('token');
-        localStorage.removeItem('usuarioId');
+        localStorage.removeItem('userId');
         navigate('/');
     }
 
     // ========================================================================
-    // FUNCIÓN: Mostrar notificación flotante
+    // FUNCTION: Show floating notification
     // ========================================================================
-    function mostrarNotificacion(mensaje: string, tipo: 'success' | 'error') {
-        setNotificacion({ mensaje, tipo });
-        // Ocultar la notificación después de 3 segundos
+    function showNotification(message: string, tipo: 'success' | 'error') {
+        setNotification({ message, tipo });
+        // Hide the notification after 3 seconds
         setTimeout(() => {
-            setNotificacion(null);
+            setNotification(null);
         }, 3000);
     }
 
     // ========================================================================
-    // RENDERIZADO
+    // RENDER
     // ========================================================================
-    // Si el usuario aún no ha cargado, mostramos un mensaje de carga
-    if (!usuario) {
+    // If the user has not loaded yet, show a loading message
+    if (!user) {
         return (
             <div style={{ textAlign: 'center', padding: '50px', color: 'white', fontSize: '20px' }}>
-                Cargando perfil...
+                Loading profile...
             </div>
         );
     }
@@ -309,127 +309,127 @@ function Perfil() {
     return (
         <div>
             {/* ================================================================ */}
-            {/* NOTIFICACIÓN FLOTANTE */}
-            {/* Solo se renderiza si notificacion no es null */}
+            {/* FLOATING NOTIFICATION */}
+            {/* Only rendered if notification is not null */}
             {/* ================================================================ */}
-            {notificacion && (
-                <div className={`notification ${notificacion.tipo}`}>
-                    {notificacion.mensaje}
+            {notification && (
+                <div className={`notification ${notification.tipo}`}>
+                    {notification.message}
                 </div>
             )}
 
             <div className="perfil-container">
 
                 {/* ============================================================ */}
-                {/* HEADER DEL PERFIL */}
+                {/* PROFILE HEADER */}
                 {/* ============================================================ */}
                 <div className="perfil-header">
                     <div className="avatar-container">
                         <img
                             className="avatar"
-                            src={usuario.avatar ? `${API_URL}${usuario.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
+                            src={user.avatar ? `${API_URL}${user.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
                             onError={(e) => { (e.target as HTMLImageElement).src = `${API_URL}/avatares/default-avatar.svg`; }}
                             alt="Avatar"
                         />
-                        <div className={`status-indicator ${usuario.estadoOnline ? '' : 'offline'}`}></div>
+                        <div className={`status-indicator ${user.onlineStatus ? '' : 'offline'}`}></div>
                     </div>
 
-                    <h1 className="profile-name">{usuario.nombre}</h1>
-                    <p className="profile-email">{usuario.email}</p>
+                    <h1 className="profile-name">{user.name}</h1>
+                    <p className="profile-email">{user.email}</p>
 
                     <div className="action-buttons">
-                        <button className="btn btn-primary" onClick={abrirModal}>
-                            📝 Editar Perfil
+                        <button className="btn btn-primary" onClick={openModal}>
+                            📝 Edit Profile
                         </button>
 
-                        {/* Input de archivo oculto para el avatar */}
+                        {/* Hidden file input for the avatar */}
                         <label className="btn btn-primary" style={{ cursor: 'pointer' }}>
-                            📷 Cambiar Avatar
+                            📷 Change Avatar
                             <input
                                 type="file"
                                 accept="image/*"
                                 style={{ display: 'none' }}
-                                onChange={subirAvatar}
+                                onChange={uploadAvatar}
                             />
                         </label>
 
                         <button
-                            className={`btn ${usuario.estadoOnline ? 'btn-danger' : 'btn-success'}`}
-                            onClick={cambiarEstado}
+                            className={`btn ${user.onlineStatus ? 'btn-danger' : 'btn-success'}`}
+                            onClick={changeStatus}
                         >
-                            {usuario.estadoOnline ? '🔴 Desconectarse' : '🟢 Conectarse'}
+                            {user.onlineStatus ? '🔴 Disconnect' : '🟢 Connect'}
                         </button>
 
-                        {/* botón para ir a la página de amigos */}
+                        {/* button to go to the friends page */}
                         <button className="btn btn-primary" onClick={() => navigate('/amigos')}>
-                            👥 Mis Amigos
+                            👥 My Friends
                         </button>
 
-                        <button className="btn btn-danger" onClick={cerrarSesion}>
-                            🚪 Cerrar Sesión
+                        <button className="btn btn-danger" onClick={logout}>
+                            🚪 Log Out
                         </button>
                     </div>
                 </div>
 
                 {/* ============================================================ */}
-                {/* CONTENIDO DEL PERFIL */}
+                {/* PROFILE CONTENT */}
                 {/* ============================================================ */}
                 <div className="perfil-content">
 
-                    {/* SECCIÓN: INFORMACIÓN */}
+                    {/* SECTION: INFORMATION */}
                     <div className="section">
-                        <h2 className="section-title">📋 Información del Perfil</h2>
+                        <h2 className="section-title">📋 Profile Information</h2>
                         <div className="info-grid">
                             <div className="info-card">
-                                <div className="info-label">Estado</div>
+                                <div className="info-label">Status</div>
                                 <div className="info-value">
-                                    <span className={`status-badge ${usuario.estadoOnline ? 'online' : 'offline'}`}>
-                                        {usuario.estadoOnline ? '🟢 Conectado' : '🔴 Desconectado'}
+                                    <span className={`status-badge ${user.onlineStatus ? 'online' : 'offline'}`}>
+                                        {user.onlineStatus ? '🟢 Online' : '🔴 Offline'}
                                     </span>
                                 </div>
                             </div>
                             <div className="info-card">
-                                <div className="info-label">Última Conexión</div>
+                                <div className="info-label">Last Connection</div>
                                 <div className="info-value">
-                                    {usuario.ultimaConexion
-                                        ? new Date(usuario.ultimaConexion).toLocaleString()
+                                    {user.lastConnection
+                                        ? new Date(user.lastConnection).toLocaleString()
                                         : '-'
                                     }
                                 </div>
                             </div>
                             <div className="info-card">
-                                <div className="info-label">Miembro Desde</div>
+                                <div className="info-label">Member Since</div>
                                 <div className="info-value">
-                                    {new Date(usuario.createdAt).toLocaleDateString()}
+                                    {new Date(user.createdAt).toLocaleDateString()}
                                 </div>
                             </div>
                             <div className="info-card">
-                                <div className="info-label">Total de Amigos</div>
-                                <div className="info-value">{amigos.length}</div>
+                                <div className="info-label">Total Friends</div>
+                                <div className="info-value">{friends.length}</div>
                             </div>
                         </div>
                     </div>
 
-                    {/* SECCIÓN: AMIGOS */}
+                    {/* SECTION: FRIENDS */}
                     <div className="section">
-                        <h2 className="section-title">👥 Mis Amigos</h2>
-                        {amigos.length === 0 ? (
+                        <h2 className="section-title">👥 My Friends</h2>
+                        {friends.length === 0 ? (
                             <p style={{ textAlign: 'center', color: '#666' }}>
-                                No tienes amigos todavía
+                                You have no friends yet
                             </p>
                         ) : (
                             <div className="friends-grid">
-                                {/* En React, para mostrar listas usamos .map() en vez de innerHTML */}
-                                {amigos.map(amigo => (
-                                    <div key={amigo.id} className="friend-card">
+                                {/* In React, to show lists we use .map() instead of innerHTML */}
+                                {friends.map(friend => (
+                                    <div key={friend.id} className="friend-card">
                                         <img
-                                            src={amigo.avatar ? `${API_URL}${amigo.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
-                                            alt={amigo.nombre}
+                                            src={friend.avatar ? `${API_URL}${friend.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
+                                            alt={friend.name}
                                             className="friend-avatar"
                                         />
-                                        <div className="friend-name">{amigo.nombre}</div>
-                                        <div className={`friend-status ${amigo.estadoOnline ? 'online' : ''}`}>
-                                            {amigo.estadoOnline ? '🟢 Online' : '🔴 Offline'}
+                                        <div className="friend-name">{friend.name}</div>
+                                        <div className={`friend-status ${friend.onlineStatus ? 'online' : ''}`}>
+                                            {friend.onlineStatus ? '🟢 Online' : '🔴 Offline'}
                                         </div>
                                     </div>
                                 ))}
@@ -439,7 +439,7 @@ function Perfil() {
 
                 </div>
 
-                {/* FOOTER CON ENLACES LEGALES */}
+                {/* FOOTER WITH LEGAL LINKS */}
                 <footer style={{
                     textAlign: 'center',
                     padding: '24px 40px 32px',
@@ -448,28 +448,28 @@ function Perfil() {
                     borderTop: '1px solid #f0f0f0',
                     marginTop: '8px'
                 }}>
-                    <a href="/privacidad" style={{color: '#667eea', marginRight: '16px', textDecoration: 'none'}}>Política de Privacidad</a>
-                    <a href="/terminos" style={{color: '#667eea', textDecoration: 'none'}}>Términos de Servicio</a>
+                    <a href="/privacidad" style={{color: '#667eea', marginRight: '16px', textDecoration: 'none'}}>Privacy Policy</a>
+                    <a href="/terminos" style={{color: '#667eea', textDecoration: 'none'}}>Terms of Service</a>
                 </footer>
             </div>
 
             {/* ================================================================ */}
-            {/* MODAL DE EDICIÓN */}
-            {/* Solo se renderiza si modalAbierto === true */}
+            {/* EDIT MODAL */}
+            {/* Only rendered if modalOpen === true */}
             {/* ================================================================ */}
-            {modalAbierto && (
-                // Al hacer clic en el fondo oscuro, cerrar el modal
-                <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setModalAbierto(false)}>
+            {modalOpen && (
+                // Clicking the dark backdrop closes the modal
+                <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setModalOpen(false)}>
                     <div className="modal-content">
-                        <h2 className="modal-title">✏️ Editar Perfil</h2>
+                        <h2 className="modal-title">✏️ Edit Profile</h2>
 
                         <div className="form-group">
-                            <label className="form-label">Nombre</label>
+                            <label className="form-label">Name</label>
                             <input
                                 type="text"
                                 className="form-input"
-                                value={editNombre}
-                                onChange={e => setEditNombre(e.target.value)}
+                                value={editName}
+                                onChange={e => setEditName(e.target.value)}
                             />
                         </div>
 
@@ -484,11 +484,11 @@ function Perfil() {
                         </div>
 
                         <div className="form-group">
-                            <label className="form-label">Nueva Contraseña (opcional)</label>
+                            <label className="form-label">New Password (optional)</label>
                             <input
                                 type="password"
                                 className="form-input"
-                                placeholder="Dejar vacío para no cambiar"
+                                placeholder="Leave blank to keep unchanged"
                                 value={editPassword}
                                 onChange={e => setEditPassword(e.target.value)}
                             />
@@ -498,16 +498,16 @@ function Perfil() {
                             <button
                                 className="btn-block"
                                 style={{ background: '#ef4444', color: 'white' }}
-                                onClick={() => setModalAbierto(false)}
+                                onClick={() => setModalOpen(false)}
                             >
-                                Cancelar
+                                Cancel
                             </button>
                             <button
                                 className="btn-block"
                                 style={{ background: '#10b981', color: 'white' }}
-                                onClick={guardarCambios}
+                                onClick={saveChanges}
                             >
-                                Guardar Cambios
+                                Save Changes
                             </button>
                         </div>
                     </div>

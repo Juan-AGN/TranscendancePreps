@@ -1,56 +1,56 @@
 // ============================================================================
-// IMPORTACIONES
+// IMPORTS
 // ============================================================================
 import type { FastifyInstance } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 
-const clienteDePrisma = new PrismaClient();
+const prismaClient = new PrismaClient();
 
 // ============================================================================
-// RUTAS DE AUTENTICACIÓN OAUTH 2.0 CON 42
+// OAUTH 2.0 AUTHENTICATION ROUTES WITH 42
 // ============================================================================
-export async function authRoutes(servidorFastify: FastifyInstance) {
+export async function authRoutes(server: FastifyInstance) {
 
     // ========================================================================
-    // RUTA 1: INICIAR LOGIN CON 42
+    // ROUTE 1: START LOGIN WITH 42
     // ========================================================================
-    // El usuario hace click en "Login con 42" y le redirigimos a la Intra
-    // Metodo HTTP: GET
+    // User clicks "Login with 42" and we redirect them to the Intra
+    // HTTP Method: GET
     // URL: http://localhost:3000/auth/42
-    servidorFastify.get('/auth/42', async (peticionDelCliente, respuestaAlCliente) => {
+    server.get('/auth/42', async (request, reply) => {
 
         const clientId      = process.env.FORTY_TWO_CLIENT_ID;
         const redirectUri   = process.env.FORTY_TWO_REDIRECT_URI;
 
-        // Construimos la URL de autorización de 42
-        // 42 redirigirá al usuario aquí para que inicie sesión en su cuenta
-        const urlDe42 = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri!)}&response_type=code`;
+        // Build the 42 authorization URL
+        // 42 will redirect the user here to log in to their account
+        const fortyTwoAuthUrl = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri!)}&response_type=code`;
 
-        // Redirigir al usuario a la página de login de 42
-        return respuestaAlCliente.redirect(urlDe42);
+        // Redirect the user to the 42 login page
+        return reply.redirect(fortyTwoAuthUrl);
     });
 
     // ========================================================================
-    // RUTA 2: CALLBACK — 42 nos devuelve el usuario aquí
+    // ROUTE 2: CALLBACK — 42 returns the user here
     // ========================================================================
-    // Después de que el usuario acepta en la Intra, 42 llama a esta URL
-    // con un 'code' temporal que intercambiamos por un token de acceso
-    // Metodo HTTP: GET
+    // After the user accepts on the Intra, 42 calls this URL
+    // with a temporary 'code' that we exchange for an access token
+    // HTTP Method: GET
     // URL: http://localhost:3000/auth/42/callback?code=XXXXXX
-    servidorFastify.get('/auth/42/callback', async (peticionDelCliente, respuestaAlCliente) => {
+    server.get('/auth/42/callback', async (request, reply) => {
 
         try {
-            // PASO 1: Obtener el 'code' que nos manda 42 en la URL
-            const { code } = peticionDelCliente.query as { code: string };
+            // STEP 1: Get the 'code' that 42 sends in the URL
+            const { code } = request.query as { code: string };
 
             if (!code) {
-                return respuestaAlCliente.status(400).send({ error: 'No se recibió el código de autorización' });
+                return reply.status(400).send({ error: 'Authorization code not received' });
             }
 
-            // PASO 2: Intercambiar el 'code' por un access_token de 42
-            // Hacemos un POST a la API de 42 con nuestras credenciales + el code
-            const respuestaDe42 = await fetch('https://api.intra.42.fr/oauth/token', {
+            // STEP 2: Exchange the 'code' for a 42 access_token
+            // We make a POST to the 42 API with our credentials + the code
+            const fortyTwoResponse = await fetch('https://api.intra.42.fr/oauth/token', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -62,67 +62,67 @@ export async function authRoutes(servidorFastify: FastifyInstance) {
                 })
             });
 
-            const tokenData = await respuestaDe42.json() as { access_token: string };
+            const tokenData = await fortyTwoResponse.json() as { access_token: string };
 
             if (!tokenData.access_token) {
-                return respuestaAlCliente.status(401).send({ error: 'No se pudo obtener el token de 42' });
+                return reply.status(401).send({ error: 'Could not obtain 42 token' });
             }
 
-            // PASO 3: Usar el access_token para obtener los datos del usuario de 42
-            const respuestaUsuario42 = await fetch('https://api.intra.42.fr/v2/me', {
+            // STEP 3: Use the access_token to get the 42 user data
+            const fortyTwoUserResponse = await fetch('https://api.intra.42.fr/v2/me', {
                 headers: { Authorization: `Bearer ${tokenData.access_token}` }
             });
 
-            const datosUsuario42 = await respuestaUsuario42.json() as {
+            const fortyTwoUserData = await fortyTwoUserResponse.json() as {
                 id:         number;
                 login:      string;
                 email:      string;
                 image:      { link: string };
             };
 
-            // PASO 4: Buscar si el usuario ya existe en nuestra BD por su ID de 42
-            let usuario = await clienteDePrisma.usuario.findUnique({
-                where: { fortyTwoId: datosUsuario42.id }
+            // STEP 4: Check if the user already exists in our DB by their 42 ID
+            let user = await prismaClient.user.findUnique({
+                where: { fortyTwoId: fortyTwoUserData.id }
             });
 
-            // PASO 5: Si no existe, crearlo (primer login con 42)
-            if (!usuario) {
-                usuario = await clienteDePrisma.usuario.create({
+            // STEP 5: If not, create them (first login with 42)
+            if (!user) {
+                user = await prismaClient.user.create({
                     data: {
-                        nombre:     datosUsuario42.login,
-                        email:      datosUsuario42.email,
-                        password:   null,   // los usuarios de OAuth no tienen contraseña
-                        avatar:     datosUsuario42.image?.link || 'default-avatar.png',
-                        fortyTwoId: datosUsuario42.id,
-                        estadoOnline: true
+                        name:        fortyTwoUserData.login,
+                        email:       fortyTwoUserData.email,
+                        password:    null,   // OAuth users have no password
+                        avatar:      fortyTwoUserData.image?.link || 'default-avatar.png',
+                        fortyTwoId:  fortyTwoUserData.id,
+                        onlineStatus: true
                     }
                 });
             } else {
-                // Si ya existe, actualizar estado a online
-                await clienteDePrisma.usuario.update({
-                    where: { id: usuario.id },
-                    data: { estadoOnline: true }
+                // If they exist, update status to online
+                await prismaClient.user.update({
+                    where: { id: user.id },
+                    data: { onlineStatus: true }
                 });
             }
 
-            // PASO 6: Generar nuestro propio JWT (igual que en el login normal)
+            // STEP 6: Generate our own JWT (same as in normal login)
             const token = jwt.sign(
-                { id: usuario.id, email: usuario.email },
-                process.env.JWT_SECRET || 'secreto-super-seguro',
+                { id: user.id, email: user.email },
+                process.env.JWT_SECRET || 'super-secure-secret',
                 { expiresIn: '24h' }
             );
 
-            // PASO 7: Redirigir al frontend con el token en la URL
-            // El frontend lo leerá y lo guardará en localStorage
+            // STEP 7: Redirect to the frontend with the token in the URL
+            // The frontend will read it and save it in localStorage
             const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-            return respuestaAlCliente.redirect(
-                `${frontendUrl}/perfil?token=${token}&userId=${usuario.id}`
+            return reply.redirect(
+                `${frontendUrl}/perfil?token=${token}&userId=${user.id}`
             );
 
         } catch (error) {
-            console.error('Error en OAuth callback:', error);
+            console.error('Error in OAuth callback:', error);
             const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-            return respuestaAlCliente.redirect(`${frontendUrl}/?error=oauth_failed`);
+            return reply.redirect(`${frontendUrl}/?error=oauth_failed`);
         }
     });
 }

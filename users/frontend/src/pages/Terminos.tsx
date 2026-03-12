@@ -1,71 +1,71 @@
 import { useNavigate } from 'react-router-dom';
-import './Privacidad.css'; // Reutilizamos el mismo CSS
+import './Privacidad.css'; // Reusing the same CSS
 
 // ============================================================
-// PÁGINA: TÉRMINOS DE SERVICIO
-// Obligatoria según el subject de Transcendence
+// PAGE: TERMS OF SERVICE
+// Required according to the Transcendence subject
 // ============================================================
 
 function Terminos() {
-    const navegar = useNavigate();
+    const navigate = useNavigate();
 
     return (
         <div className="privacidad-container">
 
-            {/* ── BOTÓN VOLVER ── */}
-            <button className="btn-volver" onClick={() => navegar(-1)}>
-                ← Volver
+            {/* ── BACK BUTTON ── */}
+            <button className="btn-volver" onClick={() => navigate(-1)}>
+                ← Back
             </button>
 
-            <h1>📜 Términos de Servicio</h1>
-            <p className="fecha">Última actualización: 3 de marzo de 2026</p>
+            <h1>📜 Terms of Service</h1>
+            <p className="fecha">Last updated: March 3, 2026</p>
 
-            {/* ── SECCIÓN 1 ── */}
+            {/* ── SECTION 1 ── */}
             <section>
-                <h2>1. Aceptación de los términos</h2>
+                <h2>1. Acceptance of terms</h2>
                 <p>
-                    Al registrarte y usar Transcendence, aceptas estos términos de servicio.
-                    Si no estás de acuerdo, no uses la aplicación.
+                    By registering and using Transcendence, you accept these terms of service.
+                    If you do not agree, do not use the application.
                 </p>
             </section>
 
-            {/* ── SECCIÓN 2 ── */}
+            {/* ── SECTION 2 ── */}
             <section>
-                <h2>2. Uso aceptable</h2>
-                <p>Te comprometes a:</p>
+                <h2>2. Acceptable use</h2>
+                <p>You agree to:</p>
                 <ul>
-                    <li>No usar la aplicación para actividades ilegales</li>
-                    <li>No intentar acceder a cuentas de otros usuarios</li>
-                    <li>No compartir contenido ofensivo o inapropiado</li>
-                    <li>Respetar a otros usuarios en el chat y el juego</li>
+                    <li>Not use the application for illegal activities</li>
+                    <li>Not attempt to access other users' accounts</li>
+                    <li>Not share offensive or inappropriate content</li>
+                    <li>Respect other users in chat and the game</li>
                 </ul>
             </section>
 
-            {/* ── SECCIÓN 3 ── */}
+            {/* ── SECTION 3 ── */}
             <section>
-                <h2>3. Tu cuenta</h2>
+                <h2>3. Your account</h2>
                 <p>
-                    Eres responsable de mantener tu contraseña segura.
-                    Cada usuario puede tener una sola cuenta.
-                    Nos reservamos el derecho de eliminar cuentas que violen estos términos.
+                    You are responsible for keeping your password secure.
+                    Each user can have only one account.
+                    We reserve the right to delete accounts that violate these terms.
                 </p>
             </section>
 
-            {/* ── SECCIÓN 4 ── */}
+            {/* ── SECTION 4 ── */}
             <section>
-                <h2>4. Disponibilidad del servicio</h2>
+                <h2>4. Service availability</h2>
                 <p>
-                    Este proyecto es parte del currículo de <strong>42</strong> y se ofrece
-                    tal como está. No garantizamos disponibilidad continua del servicio.
+                    This project is part of the <strong>42</strong> curriculum and is offered
+                    as-is. We do not guarantee continuous availability of the service.
                 </p>
             </section>
 
-            {/* ── SECCIÓN 5 ── */}
+            {/* ── SECTION 5 ── */}
             <section>
-                <h2>5. Modificaciones</h2>
+                <h2>5. Modifications</h2>
                 <p>
-                    Podemos actualizar estos términos en cualquier momento.
-                    El uso continuado de la aplicación implica la aceptación de los nuevos términos.
+                    We may update these terms at any time.
+                    Continued use of the application implies acceptance of the new terms.
                 </p>
             </section>
 

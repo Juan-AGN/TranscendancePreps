@@ -1,9 +1,9 @@
 // ============================================================================
-// APP.TSX - ENRUTADOR PRINCIPAL
+// APP.TSX - MAIN ROUTER
 // ============================================================================
-// Este archivo define las "páginas" de la aplicación y a qué URL corresponde cada una.
-// Antes teníamos 3 archivos HTML separados (index.html, perfil.html, amigos.html).
-// Ahora tenemos 3 componentes React y el Router decide cuál mostrar según la URL.
+// This file defines the application "pages" and which URL each one maps to.
+// Before we had 3 separate HTML files (index.html, perfil.html, amigos.html).
+// Now we have 3 React components and the Router decides which to show based on the URL.
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
@@ -13,15 +13,15 @@ import Privacidad from './pages/Privacidad';
 import Terminos from './pages/Terminos';
 
 // ============================================================================
-// COMPONENTE: RutaProtegida
+// COMPONENT: ProtectedRoute
 // ============================================================================
-// Este componente funciona como un guardia de seguridad.
-// Si el usuario NO tiene token (no ha hecho login), lo manda al login.
-// Si SÍ tiene token, le deja ver la página que pidió.
-function RutaProtegida({ children }: { children: React.ReactNode }) {
+// This component works like a security guard.
+// If the user has NO token (hasn't logged in), it sends them to login.
+// If they DO have a token, it lets them see the requested page.
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const params = new URLSearchParams(window.location.search);
-    const tokenDeURL = params.get('token');
-    const token = localStorage.getItem('token') || tokenDeURL;
+    const tokenFromURL = params.get('token');
+    const token = localStorage.getItem('token') || tokenFromURL;
 
     if (!token) {
         return <Navigate to="/" replace />;
@@ -31,43 +31,43 @@ function RutaProtegida({ children }: { children: React.ReactNode }) {
 }
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: App
+// MAIN COMPONENT: App
 // ============================================================================
 function App() {
     return (
-        // BrowserRouter: activa el sistema de rutas en la aplicación
+        // BrowserRouter: enables the routing system in the application
         <BrowserRouter>
             <Routes>
-                {/* Ruta "/" -> Página de Login (era index.html) */}
+                {/* Route "/" -> Login page (was index.html) */}
                 <Route 
                     path="/" 
                     element={<Login />} />
 
-                {/* Ruta "/perfil" -> Perfil del usuario (era perfil.html) */}
-                {/* Está protegida: si no hay login, redirige a "/" */}
+                {/* Route "/perfil" -> User profile (was perfil.html) */}
+                {/* Protected: if not logged in, redirects to "/" */}
                 <Route
                     path="/perfil"
                     element={
-                        <RutaProtegida>
+                        <ProtectedRoute>
                             <Perfil />
-                        </RutaProtegida>
+                        </ProtectedRoute>
                     }
                 />
 
-                {/* Ruta "/amigos" -> Gestión de amigos (era amigos.html) */}
-                {/* También está protegida */}
+                {/* Route "/amigos" -> Friends management (was amigos.html) */}
+                {/* Also protected */}
                 <Route
                     path="/amigos"
                     element={
-                        <RutaProtegida>
+                        <ProtectedRoute>
                             <Amigos />
-                        </RutaProtegida>
+                        </ProtectedRoute>
                     }
                 />
                 <Route path="/privacidad" element={<Privacidad />} />
                 <Route path="/terminos" element={<Terminos />} />
 
-                {/* Cualquier otra ruta -> redirigir al login */}
+                {/* Any other route -> redirect to login */}
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </BrowserRouter>

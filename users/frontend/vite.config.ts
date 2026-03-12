@@ -1,19 +1,19 @@
 // ============================================================================
-// CONFIGURACIÓN DE VITE
+// VITE CONFIGURATION
 // ============================================================================
-// Vite es la herramienta que convierte nuestro código React (JSX/TSX) 
-// en JavaScript normal que el navegador puede entender.
-// También levanta un servidor de desarrollo con hot reload.
+// Vite is the tool that converts our React code (JSX/TSX)
+// into plain JavaScript that the browser can understand.
+// It also starts a development server with hot reload.
 
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     plugins: [
-        react()  // Plugin que permite usar JSX/TSX (la sintaxis de React)
+        react()  // Plugin that enables JSX/TSX syntax (React's syntax)
     ],
     server: {
-        host: '0.0.0.0',  // Necesario para que funcione dentro de Docker
-        port: 5173,        // Puerto donde correrá el frontend
+        host: '0.0.0.0',  // Required for it to work inside Docker
+        port: 5173,        // Port where the frontend will run
     }
 });

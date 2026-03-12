@@ -1,9 +1,9 @@
 // ============================================================================
-// AMIGOS.TSX - Página de Gestión de Amigos
+// AMIGOS.TSX - Friends Management Page
 // ============================================================================
-// Este componente reemplaza al amigos.html original.
-// La lógica es exactamente la misma, solo cambia cómo se gestiona el estado
-// y cómo se muestra la interfaz (useState + JSX en vez de innerHTML).
+// This component replaces the original amigos.html.
+// The logic is exactly the same, only the way state is managed
+// and the interface is rendered changes (useState + JSX instead of innerHTML).
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -11,192 +11,192 @@ import './Amigos.css';
 import { API_URL } from '../config';
 
 // ============================================================================
-// TIPOS
+// TYPES
 // ============================================================================
-interface AmigoData {
+interface FriendData {
     id: number;
-    nombre: string;
+    name: string;
     email: string;
     avatar: string | null;
-    estadoOnline: boolean;
+    onlineStatus: boolean;
 }
 
-interface SolicitudData {
+interface RequestData {
     id: number;
-    solicitante: AmigoData;
+    requester: FriendData;
 }
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: Amigos
+// MAIN COMPONENT: Amigos
 // ============================================================================
 function Amigos() {
 
     // ========================================================================
-    // ESTADO DEL COMPONENTE
+    // COMPONENT STATE
     // ========================================================================
-    const [tabActiva, setTabActiva] = useState<'mis-amigos' | 'solicitudes' | 'buscar'>('mis-amigos');
+    const [activeTab, setActiveTab] = useState<'mis-amigos' | 'solicitudes' | 'buscar'>('mis-amigos');
 
-    const [listaAmigos, setListaAmigos] = useState<AmigoData[]>([]);
-    const [listaSolicitudes, setListaSolicitudes] = useState<SolicitudData[]>([]);
-    const [resultadosBusqueda, setResultadosBusqueda] = useState<AmigoData[]>([]);
+    const [friendsList, setFriendsList] = useState<FriendData[]>([]);
+    const [requestsList, setRequestsList] = useState<RequestData[]>([]);
+    const [searchResults, setSearchResults] = useState<FriendData[]>([]);
 
-    const [inputBuscar, setInputBuscar] = useState('');
+    const [searchInput, setSearchInput] = useState('');
 
     const navigate = useNavigate();
 
-    // Obtener usuarioId del localStorage (se guardó al hacer login)
-    const usuarioId = localStorage.getItem('usuarioId') || '';
+    // Get userId from localStorage (saved on login)
+    const userId = localStorage.getItem('userId') || '';
     const token = localStorage.getItem('token') || '';
 
     // ========================================================================
-    // EFECTO: Comprobar sesión y cargar datos al montar
+    // EFFECT: Check session and load data on mount
     // ========================================================================
     useEffect(() => {
-        // Si no hay sesión, redirigir al login
-        if (!usuarioId || !token) {
+        // If there is no session, redirect to login
+        if (!userId || !token) {
             navigate('/');
             return;
         }
 
-        // Cargar amigos y solicitudes al abrir la página
-        cargarAmigos();
-        cargarSolicitudes();
+        // Load friends and requests when the page opens
+        loadFriends();
+        loadRequests();
     }, []);
 
     // ========================================================================
-    // FUNCIÓN: CAMBIAR ENTRE PESTAÑAS
+    // FUNCTION: SWITCH BETWEEN TABS
     // ========================================================================
-    function cambiarTab(tab: 'mis-amigos' | 'solicitudes' | 'buscar') {
-        setTabActiva(tab);
-        if (tab === 'mis-amigos') cargarAmigos();
-        if (tab === 'solicitudes') cargarSolicitudes();
+    function changeTab(tab: 'mis-amigos' | 'solicitudes' | 'buscar') {
+        setActiveTab(tab);
+        if (tab === 'mis-amigos') loadFriends();
+        if (tab === 'solicitudes') loadRequests();
     }
 
     // ========================================================================
-    // FUNCIÓN: CARGAR LISTA DE AMIGOS
+    // FUNCTION: LOAD FRIENDS LIST
     // ========================================================================
-    async function cargarAmigos() {
+    async function loadFriends() {
         try {
-            // PASO 1: Petición al backend
-            const response = await fetch(`${API_URL}/usuarios/${usuarioId}/mis_amigos`, {
+            // STEP 1: Request to the backend
+            const response = await fetch(`${API_URL}/users/${userId}/my_friends`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
 
-            // PASO 2: Guardar en el estado
-            setListaAmigos(data.amigos || []);
+            // STEP 2: Save in state
+            setFriendsList(data.friends || []);
 
         } catch (error) {
-            console.error('Error al cargar amigos:', error);
+            console.error('Error loading friends:', error);
         }
     }
 
     // ========================================================================
-    // FUNCIÓN: CARGAR SOLICITUDES PENDIENTES
+    // FUNCTION: LOAD PENDING REQUESTS
     // ========================================================================
-    async function cargarSolicitudes() {
+    async function loadRequests() {
         try {
-            const response = await fetch(`${API_URL}/usuarios/${usuarioId}/solicitudes_pendientes`, {
+            const response = await fetch(`${API_URL}/users/${userId}/pending_requests`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
-            setListaSolicitudes(data.solicitudes || []);
+            setRequestsList(data.requests || []);
 
         } catch (error) {
-            console.error('Error al cargar solicitudes:', error);
+            console.error('Error loading requests:', error);
         }
     }
 
     // ========================================================================
-    // FUNCIÓN: BUSCAR USUARIOS
+    // FUNCTION: SEARCH USERS
     // ========================================================================
-    async function buscarUsuarios() {
-        // PASO 1: Validar que haya al menos 2 caracteres
-        if (inputBuscar.length < 2) {
-            alert('Escribe al menos 2 caracteres para buscar');
+    async function searchUsers() {
+        // STEP 1: Validate that there are at least 2 characters
+        if (searchInput.length < 2) {
+            alert('Type at least 2 characters to search');
             return;
         }
 
         try {
-            // PASO 2: Petición al backend
-            const response = await fetch(`${API_URL}/usuarios/buscar?query=${encodeURIComponent(inputBuscar)}`);
+            // STEP 2: Request to the backend
+            const response = await fetch(`${API_URL}/users/search?query=${encodeURIComponent(searchInput)}`);
             const data = await response.json();
 
-            // PASO 3: Filtrar para no mostrar al propio usuario
-            const resultados = (data.usuarios || []).filter(
-                (u: AmigoData) => u.id !== parseInt(usuarioId)
+            // STEP 3: Filter to exclude the current user
+            const results = (data.users || []).filter(
+                (u: FriendData) => u.id !== parseInt(userId)
             );
-            setResultadosBusqueda(resultados);
+            setSearchResults(results);
 
         } catch (error) {
-            console.error('Error al buscar:', error);
+            console.error('Error searching:', error);
         }
     }
 
     // ========================================================================
-    // FUNCIÓN: ENVIAR SOLICITUD DE AMISTAD
+    // FUNCTION: SEND FRIEND REQUEST
     // ========================================================================
-    async function enviarSolicitud(amigoId: number) {
+    async function sendRequest(friendId: number) {
         try {
-            const response = await fetch(`${API_URL}/usuarios/${usuarioId}/enviar_solicitud/${amigoId}`, {
+            const response = await fetch(`${API_URL}/users/${userId}/send_request/${friendId}`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
 
             if (response.ok) {
-                alert('✅ Solicitud enviada correctamente');
+                alert('✅ Request sent successfully');
             } else {
                 alert(data.error);
             }
 
         } catch (error) {
             console.error('Error:', error);
-            alert('Error al enviar solicitud');
+            alert('Error sending request');
         }
     }
 
     // ========================================================================
-    // FUNCIÓN: ACEPTAR SOLICITUD
+    // FUNCTION: ACCEPT REQUEST
     // ========================================================================
-    async function aceptarSolicitud(amigoId: number) {
+    async function acceptRequest(friendId: number) {
         try {
-            const response = await fetch(`${API_URL}/usuarios/${usuarioId}/aceptar_solicitud/${amigoId}`, {
+            const response = await fetch(`${API_URL}/users/${userId}/accept_request/${friendId}`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
 
             if (response.ok) {
-                alert('✅ ¡Solicitud aceptada! Ahora son amigos');
-                // Recargar ambas listas
-                cargarSolicitudes();
-                cargarAmigos();
+                alert('✅ Request accepted! You are now friends');
+                // Reload both lists
+                loadRequests();
+                loadFriends();
             } else {
                 alert(data.error);
             }
 
         } catch (error) {
             console.error('Error:', error);
-            alert('Error al aceptar solicitud');
+            alert('Error accepting request');
         }
     }
 
     // ========================================================================
-    // FUNCIÓN: RECHAZAR SOLICITUD
+    // FUNCTION: REJECT REQUEST
     // ========================================================================
-    async function rechazarSolicitud(amigoId: number) {
-        if (!confirm('¿Estás seguro que quieres rechazar esta solicitud?')) return;
+    async function rejectRequest(friendId: number) {
+        if (!confirm('Are you sure you want to reject this request?')) return;
 
         try {
-            const response = await fetch(`${API_URL}/usuarios/${usuarioId}/rechazar_solicitud/${amigoId}`, {
+            const response = await fetch(`${API_URL}/users/${userId}/reject_request/${friendId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.ok) {
-                alert('✅ Solicitud rechazada');
-                cargarSolicitudes();
+                alert('✅ Request rejected');
+                loadRequests();
             } else {
                 const data = await response.json();
                 alert(data.error);
@@ -204,25 +204,25 @@ function Amigos() {
 
         } catch (error) {
             console.error('Error:', error);
-            alert('Error al rechazar solicitud');
+            alert('Error rejecting request');
         }
     }
 
     // ========================================================================
-    // FUNCIÓN: ELIMINAR AMIGO
+    // FUNCTION: REMOVE FRIEND
     // ========================================================================
-    async function eliminarAmigo(amigoId: number) {
-        if (!confirm('¿Estás seguro que quieres eliminar a este amigo?')) return;
+    async function removeFriend(friendId: number) {
+        if (!confirm('Are you sure you want to remove this friend?')) return;
 
         try {
-            const response = await fetch(`${API_URL}/usuarios/${usuarioId}/eliminar_amigo/${amigoId}`, {
+            const response = await fetch(`${API_URL}/users/${userId}/remove_friend/${friendId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.ok) {
-                alert('✅ Amigo eliminado correctamente');
-                cargarAmigos();
+                alert('✅ Friend removed successfully');
+                loadFriends();
             } else {
                 const data = await response.json();
                 alert(data.error);
@@ -230,77 +230,77 @@ function Amigos() {
 
         } catch (error) {
             console.error('Error:', error);
-            alert('Error al eliminar amigo');
+            alert('Error removing friend');
         }
     }
 
     // ========================================================================
-    // RENDERIZADO
+    // RENDER
     // ========================================================================
     return (
         <div className="amigos-container">
 
-            {/* BOTÓN VOLVER */}
+            {/* BACK BUTTON */}
             <button className="volver" onClick={() => navigate('/perfil')}>
-                ← Volver al Perfil
+                ← Back to Profile
             </button>
 
-            <h1>👥 Gestión de Amigos</h1>
+            <h1>👥 Friends Management</h1>
 
             {/* ============================================================ */}
-            {/* PESTAÑAS */}
+            {/* TABS */}
             {/* ============================================================ */}
             <div className="tabs">
                 <button
-                    className={`tab ${tabActiva === 'mis-amigos' ? 'active' : ''}`}
-                    onClick={() => cambiarTab('mis-amigos')}
+                    className={`tab ${activeTab === 'mis-amigos' ? 'active' : ''}`}
+                    onClick={() => changeTab('mis-amigos')}
                 >
-                    Mis Amigos ({listaAmigos.length})
+                    My Friends ({friendsList.length})
                 </button>
                 <button
-                    className={`tab ${tabActiva === 'solicitudes' ? 'active' : ''}`}
-                    onClick={() => cambiarTab('solicitudes')}
+                    className={`tab ${activeTab === 'solicitudes' ? 'active' : ''}`}
+                    onClick={() => changeTab('solicitudes')}
                 >
-                    Solicitudes Pendientes ({listaSolicitudes.length})
+                    Pending Requests ({requestsList.length})
                 </button>
                 <button
-                    className={`tab ${tabActiva === 'buscar' ? 'active' : ''}`}
-                    onClick={() => cambiarTab('buscar')}
+                    className={`tab ${activeTab === 'buscar' ? 'active' : ''}`}
+                    onClick={() => changeTab('buscar')}
                 >
-                    🔍 Buscar Usuarios
+                    🔍 Search Users
                 </button>
             </div>
 
             {/* ============================================================ */}
-            {/* TAB 1: MIS AMIGOS */}
+            {/* TAB 1: MY FRIENDS */}
             {/* ============================================================ */}
-            {tabActiva === 'mis-amigos' && (
+            {activeTab === 'mis-amigos' && (
                 <div>
-                    {listaAmigos.length === 0 ? (
+                    {friendsList.length === 0 ? (
                         <div className="empty-state">
                             <div className="empty-state-icon">😔</div>
-                            <div className="empty-state-text">No tienes amigos todavía</div>
-                            <div className="empty-state-subtext">¡Busca usuarios para añadir!</div>
+                            <div className="empty-state-text">You have no friends yet</div>
+                            <div className="empty-state-subtext">Search for users to add!</div>
                         </div>
                     ) : (
-                        // .map() en React es como un forEach para mostrar listas
-                        listaAmigos.map(amigo => (
-                            <div key={amigo.id} className="usuario-card">
+                        // .map() in React is like a forEach to display lists
+                        friendsList.map(friend => (
+                            <div key={friend.id} className="usuario-card">
                                 <img
-                                    src={amigo.avatar ? `${API_URL}${amigo.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
+                                    src={friend.avatar ? `${API_URL}${friend.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
                                     alt="Avatar"
                                 />
                                 <div className="usuario-info">
                                     <div className="usuario-nombre">
-                                        {amigo.nombre}
-                                        <span className={`estado ${amigo.estadoOnline ? 'online' : 'offline'}`}>
-                                            {amigo.estadoOnline ? '🟢 Online' : '⚫ Offline'}
+                                        {friend.name}
+                                        <span className={`estado ${friend.onlineStatus ? 'online' : 'offline'}`}>
+                                            {friend.onlineStatus ? '🟢 Online' : '⚫ Offline'}
                                         </span>
                                     </div>
-                                    <div className="usuario-email">{amigo.email}</div>
+                                    <div className="usuario-email">{friend.email}</div>
                                 </div>
-                                <button className="btn btn-danger" onClick={() => eliminarAmigo(amigo.id)}>
-                                    🗑️ Eliminar
+                                <button className="btn btn-danger" onClick={() => removeFriend(friend.id)}>
+                                    🗑️ Remove
                                 </button>
                             </div>
                         ))
@@ -309,32 +309,32 @@ function Amigos() {
             )}
 
             {/* ============================================================ */}
-            {/* TAB 2: SOLICITUDES PENDIENTES */}
+            {/* TAB 2: PENDING REQUESTS */}
             {/* ============================================================ */}
-            {tabActiva === 'solicitudes' && (
+            {activeTab === 'solicitudes' && (
                 <div>
-                    {listaSolicitudes.length === 0 ? (
+                    {requestsList.length === 0 ? (
                         <div className="empty-state">
                             <div className="empty-state-icon">📭</div>
-                            <div className="empty-state-text">No tienes solicitudes pendientes</div>
-                            <div className="empty-state-subtext">Te notificaremos cuando recibas una</div>
+                            <div className="empty-state-text">You have no pending requests</div>
+                            <div className="empty-state-subtext">You will be notified when you receive one</div>
                         </div>
                     ) : (
-                        listaSolicitudes.map(solicitud => (
-                            <div key={solicitud.id} className="usuario-card">
+                        requestsList.map(req => (
+                            <div key={req.id} className="usuario-card">
                                 <img
-                                    src={solicitud.solicitante.avatar ? `${API_URL}${solicitud.solicitante.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
+                                    src={req.requester.avatar ? `${API_URL}${req.requester.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
                                     alt="Avatar"
                                 />
                                 <div className="usuario-info">
-                                    <div className="usuario-nombre">{solicitud.solicitante.nombre}</div>
-                                    <div className="usuario-email">{solicitud.solicitante.email}</div>
+                                    <div className="usuario-nombre">{req.requester.name}</div>
+                                    <div className="usuario-email">{req.requester.email}</div>
                                 </div>
-                                <button className="btn btn-success" onClick={() => aceptarSolicitud(solicitud.solicitante.id)}>
-                                    ✅ Aceptar
+                                <button className="btn btn-success" onClick={() => acceptRequest(req.requester.id)}>
+                                    ✅ Accept
                                 </button>
-                                <button className="btn btn-danger" onClick={() => rechazarSolicitud(solicitud.solicitante.id)}>
-                                    ❌ Rechazar
+                                <button className="btn btn-danger" onClick={() => rejectRequest(req.requester.id)}>
+                                    ❌ Reject
                                 </button>
                             </div>
                         ))
@@ -343,46 +343,46 @@ function Amigos() {
             )}
 
             {/* ============================================================ */}
-            {/* TAB 3: BUSCAR USUARIOS */}
+            {/* TAB 3: SEARCH USERS */}
             {/* ============================================================ */}
-            {tabActiva === 'buscar' && (
+            {activeTab === 'buscar' && (
                 <div>
                     <div className="buscar-usuarios">
                         <input
                             type="text"
-                            placeholder="Buscar por nombre o email..."
-                            value={inputBuscar}
-                            onChange={e => setInputBuscar(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && buscarUsuarios()}
+                            placeholder="Search by name or email..."
+                            value={searchInput}
+                            onChange={e => setSearchInput(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && searchUsers()}
                         />
-                        <button onClick={buscarUsuarios}>🔍 Buscar</button>
+                        <button onClick={searchUsers}>🔍 Search</button>
                     </div>
 
-                    {resultadosBusqueda.length === 0 && inputBuscar.length >= 2 && (
+                    {searchResults.length === 0 && searchInput.length >= 2 && (
                         <div className="empty-state">
                             <div className="empty-state-icon">🔍</div>
-                            <div className="empty-state-text">No se encontraron usuarios</div>
-                            <div className="empty-state-subtext">Intenta con otro término</div>
+                            <div className="empty-state-text">No users found</div>
+                            <div className="empty-state-subtext">Try a different search term</div>
                         </div>
                     )}
 
-                    {resultadosBusqueda.map(usuario => (
-                        <div key={usuario.id} className="usuario-card">
+                    {searchResults.map(result => (
+                        <div key={result.id} className="usuario-card">
                             <img
-                                src={usuario.avatar ? `${API_URL}${usuario.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
+                                src={result.avatar ? `${API_URL}${result.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
                                 alt="Avatar"
                             />
                             <div className="usuario-info">
                                 <div className="usuario-nombre">
-                                    {usuario.nombre}
-                                    <span className={`estado ${usuario.estadoOnline ? 'online' : 'offline'}`}>
-                                        {usuario.estadoOnline ? '🟢 Online' : '⚫ Offline'}
+                                    {result.name}
+                                    <span className={`estado ${result.onlineStatus ? 'online' : 'offline'}`}>
+                                        {result.onlineStatus ? '🟢 Online' : '⚫ Offline'}
                                     </span>
                                 </div>
-                                <div className="usuario-email">{usuario.email}</div>
+                                <div className="usuario-email">{result.email}</div>
                             </div>
-                            <button className="btn btn-primary" onClick={() => enviarSolicitud(usuario.id)}>
-                                ➕ Añadir amigo
+                            <button className="btn btn-primary" onClick={() => sendRequest(result.id)}>
+                                ➕ Add friend
                             </button>
                         </div>
                     ))}

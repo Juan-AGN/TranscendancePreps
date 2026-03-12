@@ -1,7 +1,7 @@
 {
   "name": "transcendence-frontend",
   "version": "1.0.0",
-  "description": "Frontend React del proyecto Transcendence - 42",
+  "description": "Frontend React del proyect Transcendence - 42",
   "type": "module",
   "scripts": {
     "dev": "vite",

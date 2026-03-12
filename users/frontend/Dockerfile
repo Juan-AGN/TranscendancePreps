@@ -1,41 +1,41 @@
 # ============================================================================
-# DOCKERFILE DEL FRONTEND (React + Vite)
+# FRONTEND DOCKERFILE (React + Vite)
 # ============================================================================
-# Este Dockerfile crea un contenedor con Node.js que ejecuta el servidor
-# de desarrollo de Vite (el que compila y sirve el código React).
+# This Dockerfile creates a Node.js container that runs the Vite
+# development server (which compiles and serves the React code).
 
-# IMAGEN BASE: Node.js 20 con Alpine Linux (versión ligera)
+# BASE IMAGE: Node.js 20 with Alpine Linux (lightweight version)
 FROM node:20-alpine
 
-# DIRECTORIO DE TRABAJO dentro del contenedor
+# WORKING DIRECTORY inside the container
 WORKDIR /app
 
 # ============================================================================
-# PASO 1: Copiar solo los archivos de dependencias primero
+# STEP 1: Copy only the dependency files first
 # ============================================================================
-# Copiamos package.json antes que el resto del código.
-# Esto permite que Docker use la caché si las dependencias no han cambiado,
-# evitando reinstalar node_modules cada vez que cambiamos código.
+# We copy package.json before the rest of the code.
+# This allows Docker to use the cache if dependencies haven't changed,
+# avoiding reinstalling node_modules every time we change code.
 COPY package*.json ./
 
 # ============================================================================
-# PASO 2: Instalar dependencias
+# STEP 2: Install dependencies
 # ============================================================================
 RUN npm install
 
 # ============================================================================
-# PASO 3: Copiar el resto del código
+# STEP 3: Copy the rest of the code
 # ============================================================================
 COPY . .
 
 # ============================================================================
-# PASO 4: Exponer el puerto de Vite
+# STEP 4: Expose Vite's port
 # ============================================================================
 EXPOSE 5173
 
 # ============================================================================
-# PASO 5: Comando de inicio
+# STEP 5: Start command
 # ============================================================================
-# 'npm run dev' arranca el servidor de desarrollo de Vite
-# '--host' permite que sea accesible desde fuera del contenedor (necesario en Docker)
+# 'npm run dev' starts the Vite development server
+# '--host' makes it accessible from outside the container (required in Docker)
 CMD ["npm", "run", "dev", "--", "--host"]

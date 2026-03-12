@@ -1,673 +1,673 @@
-// ============= NOTAS
-// ORDEN CORRECTO DE LAS RUTAS (el orden aquí importa):
-// 1. Rutas con texto fijo: /usuarios/registro
-// 2. Rutas con texto fijo: /usuarios/login
-// 3. Rutas con texto fijo: /usuarios/filtro/online
-// 4. Rutas con parámetros + texto: /usuarios/:userId/avatar
-// 5. Rutas con parámetros + texto: /usuarios/:userId/estado
-// 6. Rutas solo con parámetros: /usuarios/:userId  <- AL FINAL
+// ============= NOTES
+// CORRECT ROUTE ORDER (order matters here):
+// 1. Fixed-text routes: /users/register
+// 2. Fixed-text routes: /users/login
+// 3. Fixed-text routes: /users/filter/online
+// 4. Parameter + text routes: /users/:userId/avatar
+// 5. Parameter + text routes: /users/:userId/status
+// 6. Parameter-only routes: /users/:userId  <- LAST
 // ====================
 
 // ============================================================================
-// IMPORTACIONES NECESARIAS
+// REQUIRED IMPORTS
 // ============================================================================
 import type { FastifyInstance } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-// Para manejo de archivos (avatar)
+// For file handling (avatar)
 import { randomUUID } from 'crypto';
 import fs from 'fs'; // file System
 import { pipeline } from 'stream/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Crear cliente de Prisma para acceder a la base de datos
-const clienteDePrisma = new PrismaClient();
+// Create Prisma client to access the database
+const prismaClient = new PrismaClient();
 
-// Configuración de rutas de archivos
+// File path configuration
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ============================================================================
-// FUNCION PRINCIPAL: Registrar todas las rutas relacionadas con usuarios
+// MAIN FUNCTION: Register all user-related routes
 // ============================================================================
-export async function usuariosRoutes(servidorFastify: FastifyInstance) {
+export async function usersRoutes(server: FastifyInstance) {
     
     // ========================================================================
-    // RUTA NUMERO 1: REGISTRAR NUEVO USUARIO
+    // ROUTE 1: REGISTER NEW USER
     // ========================================================================
-    // Metodo HTTP: POST
-    // URL: http://localhost:3000/usuarios/registro
-    servidorFastify.post('/usuarios/registro', async (peticionDelCliente, respuestaAlCliente) => {
+    // HTTP Method: POST
+    // URL: http://localhost:3000/users/register
+    server.post('/users/register', async (request, reply) => {
         
-        // PASO 1: Obtener los datos que vienen en el body (JSON)
-        const datosDelBody = peticionDelCliente.body as {
-            nombre: string,
+        // STEP 1: Get the data coming in the body (JSON)
+        const bodyData = request.body as {
+            name: string,
             email: string,
-            contraseña: string
+            password: string
         };
         
-        // PASO 2: Validar que vengan todos los campos obligatorios
-        if (!datosDelBody.nombre || !datosDelBody.email || !datosDelBody.contraseña) {
-            return respuestaAlCliente.status(400).send({
-                error: 'Faltan campos obligatorios: nombre, email, contraseña'
+        // STEP 2: Validate all required fields are present
+        if (!bodyData.name || !bodyData.email || !bodyData.password) {
+            return reply.status(400).send({
+                error: 'Missing required fields: name, email, password'
             });
         }
         
-        // PASO 3: Verificar si el email ya está registrado en la base de datos
-        const usuarioExistente = await clienteDePrisma.usuario.findUnique({
+        // STEP 3: Check if the email is already registered in the database
+        const existingUser = await prismaClient.user.findUnique({
             where: {
-                email: datosDelBody.email
+                email: bodyData.email
             }
         });
         
-        // Si el email ya existe, retornar error
-        if (usuarioExistente) {
-            return respuestaAlCliente.status(400).send({
-                error: 'Este email ya está registrado'
+        // If the email already exists, return error
+        if (existingUser) {
+            return reply.status(400).send({
+                error: 'This email is already registered'
             });
         }
         
-        // PASO 4: HASHEAR LA CONTRASEÑA
-        // bcrypt.hash() convierte la contraseña en un hash irreversible
-        // - Primer parámetro: contraseña en texto plano (ej: "MiPassword123")
-        // - Segundo parámetro: número de rounds (10 = buena seguridad/velocidad)
-        // - Resultado: hash de 60 caracteres (ej: "$2b$10$N9qo8uLO...")
+        // STEP 4: HASH THE PASSWORD
+        // bcrypt.hash() converts the password into an irreversible hash
+        // - First param: plain text password (e.g.: "MyPassword123")
+        // - Second param: number of rounds (10 = good security/speed balance)
+        // - Result: 60-character hash (e.g.: "$2b$10$N9qo8uLO...")
         const saltRounds = 10;
-        const passwordHasheado = await bcrypt.hash(datosDelBody.contraseña, saltRounds);
+        const hashedPassword = await bcrypt.hash(bodyData.password, saltRounds);
         
-        // PASO 5: Crear el nuevo usuario en la base de datos
-        const nuevoUsuario = await clienteDePrisma.usuario.create({
+        // STEP 5: Create the new user in the database
+        const newUser = await prismaClient.user.create({
             data: {
-                nombre: datosDelBody.nombre,
-                email: datosDelBody.email,
-                password: passwordHasheado
+                name: bodyData.name,
+                email: bodyData.email,
+                password: hashedPassword
             }
         });
         
-        // PASO 6: Retornar respuesta exitosa (SIN mostrar la contraseña hasheada)
-        respuestaAlCliente.status(201).send({
-            mensaje: 'Usuario creado exitosamente',
-            usuario: {
-                id: nuevoUsuario.id,
-                nombre: nuevoUsuario.nombre,
-                email: nuevoUsuario.email,
-                avatar: nuevoUsuario.avatar,
-                estadoOnline: nuevoUsuario.estadoOnline,
-                ultimaConexion: nuevoUsuario.ultimaConexion,
-                fechaCreacion: nuevoUsuario.createdAt
+        // STEP 6: Return successful response (WITHOUT showing the hashed password)
+        reply.status(201).send({
+            message: 'User created successfully',
+            user: {
+                id: newUser.id,
+                name: newUser.name,
+                email: newUser.email,
+                avatar: newUser.avatar,
+                onlineStatus: newUser.onlineStatus,
+                lastConnection: newUser.lastConnection,
+                createdAt: newUser.createdAt
             }
         });
     });
     
     // ========================================================================
-    // RUTA NUMERO 2: LOGIN (INICIAR SESION)
+    // ROUTE 2: LOGIN
     // ========================================================================
-    // Metodo HTTP: POST
-    // URL: http://localhost:3000/usuarios/login
-    servidorFastify.post('/usuarios/login', async (peticionDelCliente, respuestaAlCliente) => {
+    // HTTP Method: POST
+    // URL: http://localhost:3000/users/login
+    server.post('/users/login', async (request, reply) => {
         
-        // PASO 1: Obtener email y contraseña del body
-        const datosDelBody = peticionDelCliente.body as {
+        // STEP 1: Get email and password from the body
+        const bodyData = request.body as {
             email: string,
-            contraseña: string
+            password: string
         };
         
-        // PASO 2: Validar que vengan los campos obligatorios
-        if (!datosDelBody.email || !datosDelBody.contraseña) {
-            return respuestaAlCliente.status(400).send({
-                error: 'Email y contraseña son requeridos'
+        // STEP 2: Validate required fields are present
+        if (!bodyData.email || !bodyData.password) {
+            return reply.status(400).send({
+                error: 'Email and password are required'
             });
         }
         
-        // PASO 3: Buscar el usuario en la base de datos por email
-        const usuario = await clienteDePrisma.usuario.findUnique({
+        // STEP 3: Find the user in the database by email
+        const user = await prismaClient.user.findUnique({
             where: {
-                email: datosDelBody.email
+                email: bodyData.email
             }
         });
         
-        // PASO 4: Verificar que el usuario exista
-        if (!usuario) {
-            return respuestaAlCliente.status(401).send({
-                error: 'Email o contraseña incorrectos'
+        // STEP 4: Verify the user exists
+        if (!user) {
+            return reply.status(401).send({
+                error: 'Incorrect email or password'
             });
         }
         
-        // PASO 5: VERIFICAR LA CONTRASEÑA CON BCRYPT
-        // bcrypt.compare() compara la contraseña en texto plano con el hash guardado
-        // - Primer parámetro: contraseña enviada (ej: "MiPassword123")
-        // - Segundo parámetro: hash guardado en BD (ej: "$2b$10$N9qo8...")
-        // - Resultado: true si coinciden, false si no coinciden
-        const passwordEsCorrecta = await bcrypt.compare(
-            datosDelBody.contraseña,
-            usuario.password
+        // STEP 5: VERIFY THE PASSWORD WITH BCRYPT
+        // bcrypt.compare() compares the plain text password with the stored hash
+        // - First param: submitted password (e.g.: "MyPassword123")
+        // - Second param: stored hash (e.g.: "$2b$10$N9qo8...")
+        // - Result: true if they match, false if not
+        const passwordIsCorrect = await bcrypt.compare(
+            bodyData.password,
+            user.password
         );
         
-        // PASO 6: Si la contraseña NO coincide, retornar error
-        if (!passwordEsCorrecta) {
-            return respuestaAlCliente.status(401).send({
-                error: 'Email o contraseña incorrectos'
+        // STEP 6: If the password does NOT match, return error
+        if (!passwordIsCorrect) {
+            return reply.status(401).send({
+                error: 'Incorrect email or password'
             });
         }
 
-        // PASO 7: Actualizar estado online al hacer login 
-        await clienteDePrisma.usuario.update({
-            where: { id: usuario.id },
-            data: { estadoOnline: true }
+        // STEP 7: Update online status on login 
+        await prismaClient.user.update({
+            where: { id: user.id },
+            data: { onlineStatus: true }
         });
         
-        // PASO 8: Generar el token JWT (porque el login fue exitoso)
+        // STEP 8: Generate the JWT token (because login was successful)
         const token = jwt.sign(
             { 
-                id: usuario.id, 
-                email: usuario.email 
+                id: user.id, 
+                email: user.email 
             },
-            process.env.JWT_SECRET || 'secreto-super-seguro',
+            process.env.JWT_SECRET || 'super-secure-secret',
             { expiresIn: '24h' }
         );
         
-        // PASO 9: Retornar el token al cliente
-        respuestaAlCliente.send({
-            mensaje: 'Login exitoso',
+        // STEP 9: Return the token to the client
+        reply.send({
+            message: 'Login successful',
             token: token,
-            usuario: {
-                id: usuario.id,
-                nombre: usuario.nombre,
-                email: usuario.email,
-                avatar: usuario.avatar,
-                estadoOnline: true
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                avatar: user.avatar,
+                onlineStatus: true
             }
         });
     });
     
     // ========================================================================
-    // RUTA NUMERO 3: PARA OBTENER USUARIOS ONLINE
+    // ROUTE 3: GET ONLINE USERS
     // ========================================================================
-    // Metodo HTTP: GET
-    // URL: http://localhost:3000/usuarios/filtro/online
-    servidorFastify.get('/usuarios/filtro/online', async (peticionDelCliente, respuestaAlCliente) => {  
+    // HTTP Method: GET
+    // URL: http://localhost:3000/users/filter/online
+    server.get('/users/filter/online', async (request, reply) => {  
         try {
-            // PASO 1: Buscar solo usuarios con estadoOnline = true
-            const usuariosOnline = await clienteDePrisma.usuario.findMany({
+            // STEP 1: Find only users with onlineStatus = true
+            const onlineUsers = await prismaClient.user.findMany({
                 where: {
-                    estadoOnline: true
+                    onlineStatus: true
                 },
                 select: {
                     id: true,
-                    nombre: true,
+                    name: true,
                     email: true,
                     avatar: true,
-                    estadoOnline: true,
-                    ultimaConexion: true,
+                    onlineStatus: true,
+                    lastConnection: true,
                     createdAt: true
                 }
             });
             
-            // PASO 2: Retornar la lista de usuarios online
-            respuestaAlCliente.send({
-                total: usuariosOnline.length,
-                usuarios: usuariosOnline
+            // STEP 2: Return the list of online users
+            reply.send({
+                total: onlineUsers.length,
+                users: onlineUsers
             });
             
         } catch (error) {
-            console.error('Error al obtener usuarios online:', error);
-            respuestaAlCliente.status(500).send({
-                error: 'Error al obtener usuarios online'
+            console.error('Error fetching online users:', error);
+            reply.status(500).send({
+                error: 'Error fetching online users'
             });
         }
     });
 
     // ========================================================================
-    // RUTA NUMERO 4: OBTENER LISTA DE TODOS LOS USUARIOS
+    // ROUTE 4: GET LIST OF ALL USERS
     // ========================================================================
-    // Metodo HTTP: GET
-    // URL: http://localhost:3000/usuarios
-    servidorFastify.get('/usuarios', async (peticionDelCliente, respuestaAlCliente) => {
+    // HTTP Method: GET
+    // URL: http://localhost:3000/users
+    server.get('/users', async (request, reply) => {
         
-        // Buscar todos los usuarios en la base de datos
-        const todosLosUsuarios = await clienteDePrisma.usuario.findMany({
+        // Find all users in the database
+        const allUsers = await prismaClient.user.findMany({
             select: {
                 id: true,
-                nombre: true,
+                name: true,
                 email: true,
                 avatar: true,
-                estadoOnline: true,
-                ultimaConexion: true,
+                onlineStatus: true,
+                lastConnection: true,
                 createdAt: true
             }
         });
         
-        // Retornar la lista de usuarios
-        respuestaAlCliente.send({
-            total: todosLosUsuarios.length,
-            usuarios: todosLosUsuarios
+        // Return the list of users
+        reply.send({
+            total: allUsers.length,
+            users: allUsers
         });
     });
        
     // ========================================================================
-    // RUTA NUMERO 5: PARA OBTENER AVATAR
+    // ROUTE 5: GET AVATAR
     // ========================================================================
-    servidorFastify.get('/usuarios/:userId/avatar', async (peticionDelCliente, respuestaAlCliente) => {
+    server.get('/users/:userId/avatar', async (request, reply) => {
         
-        // PASO 1: Obtener el ID del usuario
-        const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
-        const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+        // STEP 1: Get the user ID
+        const urlParams = request.params as { userId: string };
+        const userId = parseInt(urlParams.userId);
         
-        // PASO 2: Buscar el usuario
-        const usuario = await clienteDePrisma.usuario.findUnique({
-            where: { id: idDelUsuario },
+        // STEP 2: Find the user
+        const user = await prismaClient.user.findUnique({
+            where: { id: userId },
             select: { avatar: true }
         });
         
-        if (!usuario) {
-            return respuestaAlCliente.status(404).send({
-                error: 'Usuario no encontrado'
+        if (!user) {
+            return reply.status(404).send({
+                error: 'User not found'
             });
         }
         
-        // PASO 3: Retornar la URL del avatar
-        respuestaAlCliente.send({
-            avatarUrl: usuario.avatar || 'default-avatar.svg'
+        // STEP 3: Return the avatar URL
+        reply.send({
+            avatarUrl: user.avatar || 'default-avatar.svg'
         });
     });
     
     // ========================================================================
-    // RUTA NUMERO 6: PARA SUBIR AVATAR
+    // ROUTE 6: UPLOAD AVATAR
     // ========================================================================
-    servidorFastify.post('/usuarios/:userId/avatar', {
-        onRequest: [servidorFastify.authenticate]
-    }, async (peticionDelCliente, respuestaAlCliente) => {
+    server.post('/users/:userId/avatar', {
+        onRequest: [server.authenticate]
+    }, async (request, reply) => {
         
         try {
-            // PASO 1: Obtener el ID del usuario
-            const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
-            const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+            // STEP 1: Get the user ID
+            const urlParams = request.params as { userId: string };
+            const userId = parseInt(urlParams.userId);
 
-            // Verificar que el usuario autenticado es el dueño del recurso
-            if ((peticionDelCliente as any).user?.id !== idDelUsuario) {
-                return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+            // Verify that the authenticated user is the owner of the resource
+            if ((request as any).user?.id !== userId) {
+                return reply.status(403).send({ error: 'You do not have permission to modify this user' });
             }
             
-            // PASO 2: Recibir Y comprobar el archivo
-            const data = await peticionDelCliente.file();
+            // STEP 2: Receive and validate the file
+            const data = await request.file();
             
             if (!data) {
-                return respuestaAlCliente.status(400).send({
-                    error: 'No se envió ningún archivo'
+                return reply.status(400).send({
+                    error: 'No file was sent'
                 });
             }
             
-            // PASO 3: Validar tipo de archivo (solo imágenes)
-            const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            // STEP 3: Validate file type (images only)
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
             
-            // 'data.mimetype' -> Incluye el tipo de archivo q intenta subir para comprobar si es uno d ellos
-            if (!tiposPermitidos.includes(data.mimetype)) { 
-                return respuestaAlCliente.status(400).send({
-                    error: 'Solo se permiten imágenes (JPEG, PNG, GIF, WEBP)'
+            // 'data.mimetype' -> Contains the file type to check if it is one of the allowed ones
+            if (!allowedTypes.includes(data.mimetype)) { 
+                return reply.status(400).send({
+                    error: 'Only images are allowed (JPEG, PNG, GIF, WEBP)'
                 });
             }
             
-            // PASO 4: Validar tamaño (máximo 5MB)
+            // STEP 4: Validate size (max 5MB)
             const maxSize = 5 * 1024 * 1024; // 5MB
-            const buffer = await data.toBuffer(); // convierte la imagen a bytes para medirla 
+            const buffer = await data.toBuffer(); // converts the image to bytes to measure it
             
             if (buffer.length > maxSize) {
-                return respuestaAlCliente.status(400).send({
-                    error: 'La imagen no puede superar los 5MB'
+                return reply.status(400).send({
+                    error: 'The image cannot exceed 5MB'
                 });
             }
             
-            // PASO 5: Generar nombre único para el archivo (para evitar que se sobreescriban si sube +d1)
-            const extension = data.filename.split('.').pop(); // obtiene el tipo (.jpg)
-            const nombreDelArchivo = `avatar-${idDelUsuario}-${randomUUID()}.${extension}`;
-                                    // Ej: "avatar-5-a3f5b2c8-1d4e-4f7a-9b2c-8e3f1a5d6c7b.png"
+            // STEP 5: Generate a unique file name (to avoid overwriting if more than one is uploaded)
+            const extension = data.filename.split('.').pop(); // gets the type (.jpg)
+            const fileName = `avatar-${userId}-${randomUUID()}.${extension}`;
+                                    // E.g.: "avatar-5-a3f5b2c8-1d4e-4f7a-9b2c-8e3f1a5d6c7b.png"
             
-            // PASO 6: Guardar el archivo en /public/avatares/
-            const rutaCompleta = path.join(__dirname, '..', '..', 'public', 'avatares', nombreDelArchivo);
-                // 'path' -> import path from 'path'.....
-                //EJ: "/Users/daniel/Documents/transcendence/TranscendancePreps/public/avatares/avatar-5-a3f5b2c8-1d4e-4f7a-9b2c-8e3f1a5d6c7b.jpg"
+            // STEP 6: Save the file to /public/avatares/
+            const fullPath = path.join(__dirname, '..', '..', 'public', 'avatares', fileName);
+                // 'path' -> import path from 'path'
+                // E.g.: "/Users/daniel/Documents/transcendence/TranscendancePreps/public/avatares/avatar-5-a3f5b2c8-1d4e-4f7a-9b2c-8e3f1a5d6c7b.jpg"
             
-            // Crear directorio si no existe
-            const directorioAvatares = path.join(__dirname, '..', '..', 'public', 'avatares');
-            if (!fs.existsSync(directorioAvatares)) 
-            { // 'fs'- > File system
-                fs.mkdirSync(directorioAvatares, 
+            // Create directory if it does not exist
+            const avatarsDir = path.join(__dirname, '..', '..', 'public', 'avatares');
+            if (!fs.existsSync(avatarsDir)) 
+            { // 'fs' -> File system
+                fs.mkdirSync(avatarsDir, 
                 { 
                     recursive: true 
                 });
             }
             
-            // Guardar el archivo
-            fs.writeFileSync(rutaCompleta, buffer); // no guarda el objeto ¡data¡ sino el buffer
+            // Save the file
+            fs.writeFileSync(fullPath, buffer); // saves the buffer, not the data object
             
-            // PASO 7: Obtener el avatar anterior (para eliminarlo)
-            const avatarAnterior = await clienteDePrisma.usuario.findUnique({ // busca 1 solo usuario (unique)
-                where: { id: idDelUsuario }, // concretamente el usuario con ID ...
-                select: { avatar: true } // Solo trae le campo avatar
+            // STEP 7: Get the previous avatar (to delete it)
+            const previousAvatar = await prismaClient.user.findUnique({ // finds exactly one user (unique)
+                where: { id: userId }, // specifically the user with ID ...
+                select: { avatar: true } // Only retrieves the avatar field
             });
             
-            // PASO 8: Actualizar la BD con la URL del nuevo avatar
-            const usuarioActualizado = await clienteDePrisma.usuario.update({
+            // STEP 8: Update the DB with the URL of the new avatar
+            const updatedUser = await prismaClient.user.update({
                 where: {
-                    id: idDelUsuario
+                    id: userId
                 },
                 data: {
-                    avatar: `/avatares/${nombreDelArchivo}`
+                    avatar: `/avatares/${fileName}`
                 },
-                // Aunque solo cambie 'avatar' se devuelven todos los campos en la response por si los necesita
+                // Even if only 'avatar' changes, all fields are returned in the response in case they are needed
                 select: {
                     id: true,
-                    nombre: true,
+                    name: true,
                     email: true,
                     avatar: true,
-                    estadoOnline: true,
-                    ultimaConexion: true,
+                    onlineStatus: true,
+                    lastConnection: true,
                     createdAt: true
                 }
             });
             
-            // PASO 9: Eliminar el avatar anterior (si no es el default)
-            if (avatarAnterior?.avatar && 
-                avatarAnterior.avatar !== 'default-avatar.svg' && 
-                avatarAnterior.avatar.startsWith('/avatares/')) // Si es un avatar válido (comprueba la ruta)
+            // STEP 9: Delete the previous avatar (if it is not the default)
+            if (previousAvatar?.avatar && 
+                previousAvatar.avatar !== 'default-avatar.svg' && 
+                previousAvatar.avatar.startsWith('/avatares/')) // If it is a valid avatar (checks the path)
                 {
-                // Construyo la ruta completa para eliminarlo
-                const avatarAnteriorPath = path.join(__dirname, '..', '..', 'public', avatarAnterior.avatar);
-                                                                    // '.avatar' -> "avatares/avatar,jpg"
+                // Build the full path to delete it
+                const previousAvatarPath = path.join(__dirname, '..', '..', 'public', previousAvatar.avatar);
+                                                                    // '.avatar' -> "avatares/avatar.jpg"
 
-                if (fs.existsSync(avatarAnteriorPath)) // Existe el archivo?
-                    fs.unlinkSync(avatarAnteriorPath); // Si es así, lo elimina
+                if (fs.existsSync(previousAvatarPath)) // Does the file exist?
+                    fs.unlinkSync(previousAvatarPath); // If so, delete it
             }
             
-            // PASO 10: Retornar respuesta exitosa
-            respuestaAlCliente.send({
-                mensaje: 'Avatar subido correctamente',
-                avatarUrl: `/avatares/${nombreDelArchivo}`,
-                usuario: usuarioActualizado
+            // STEP 10: Return a successful response
+            reply.send({
+                message: 'Avatar uploaded successfully',
+                avatarUrl: `/avatares/${fileName}`,
+                user: updatedUser
             });
             
-        // Si cualquiera de los pasos del 1 al 10 falla:
+        // If any of steps 1 to 10 fail:
         } catch (error) {
-            console.error('Error al subir avatar:', error);
-            respuestaAlCliente.status(500).send({
-                error: 'Error al subir el avatar'
+            console.error('Error uploading avatar:', error);
+            reply.status(500).send({
+                error: 'Error uploading the avatar'
             });
         }
     });
 
     // ========================================================================
-    // RUTA NUMERO 7: PARA ELIMINAR AVATAR
+    // ROUTE 7: DELETE AVATAR
     // ========================================================================
-    servidorFastify.delete('/usuarios/:userId/avatar', {
-        onRequest: [servidorFastify.authenticate]
-    }, async (peticionDelCliente, respuestaAlCliente) => {
+    server.delete('/users/:userId/avatar', {
+        onRequest: [server.authenticate]
+    }, async (request, reply) => {
         
         try {
-            // PASO 1: Obtener el ID del usuario
-            const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
-            const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+            // STEP 1: Get the user ID
+            const urlParams = request.params as { userId: string };
+            const userId = parseInt(urlParams.userId);
 
-            // Verificar que el usuario autenticado es el dueño del recurso
-            if ((peticionDelCliente as any).user?.id !== idDelUsuario) {
-                return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+            // Verify that the authenticated user is the owner of the resource
+            if ((request as any).user?.id !== userId) {
+                return reply.status(403).send({ error: 'You do not have permission to modify this user' });
             }
             
-            // PASO 2: Obtener el avatar actual
-            const usuario = await clienteDePrisma.usuario.findUnique({
-                where: { id: idDelUsuario },
+            // STEP 2: Get the current avatar
+            const user = await prismaClient.user.findUnique({
+                where: { id: userId },
                 select: { avatar: true }
             });
             
-            if (!usuario) {
-                return respuestaAlCliente.status(404).send({
-                    error: 'Usuario no encontrado'
+            if (!user) {
+                return reply.status(404).send({
+                    error: 'User not found'
                 });
             }
             
-            // PASO 3: Eliminar el archivo físico (si no es el default)
-            if (usuario.avatar && 
-                usuario.avatar !== 'default-avatar.svg' && 
-                usuario.avatar.startsWith('/avatares/')) {
+            // STEP 3: Delete the physical file (if not the default)
+            if (user.avatar && 
+                user.avatar !== 'default-avatar.svg' && 
+                user.avatar.startsWith('/avatares/')) {
                 
-                const avatarPath = path.join(__dirname, '..', '..', 'public', usuario.avatar);
+                const avatarPath = path.join(__dirname, '..', '..', 'public', user.avatar);
                 if (fs.existsSync(avatarPath)) {
                     fs.unlinkSync(avatarPath);
                 }
             }
             
-            // PASO 4: Actualizar la BD al avatar por defecto
-            const usuarioActualizado = await clienteDePrisma.usuario.update({
-                where: { id: idDelUsuario },
+            // STEP 4: Update the DB to the default avatar
+            const updatedUser = await prismaClient.user.update({
+                where: { id: userId },
                 data: { avatar: 'default-avatar.svg' },
                 select: {
                     id: true,
-                    nombre: true,
+                    name: true,
                     email: true,
                     avatar: true
                 }
             });
             
-            // PASO 5: Retornar respuesta exitosa
-            respuestaAlCliente.send({
-                mensaje: 'Avatar eliminado correctamente',
-                usuario: usuarioActualizado
+            // STEP 5: Return a successful response
+            reply.send({
+                message: 'Avatar deleted successfully',
+                user: updatedUser
             });
             
         } catch (error) {
-            console.error('Error al eliminar avatar:', error);
-            respuestaAlCliente.status(500).send({
-                error: 'Error al eliminar el avatar'
+            console.error('Error deleting avatar:', error);
+            reply.status(500).send({
+                error: 'Error deleting the avatar'
             });
         }
     });
 
     // ========================================================================
-    // RUTA NUMERO 8: PARA ACTUALIZAR ESTADO ONLINE
+    // ROUTE 8: UPDATE ONLINE STATUS
     // ========================================================================
-    // Metodo HTTP: PUT
-    // URL: http://localhost:3000/usuarios/:userId/estado
-    servidorFastify.put('/usuarios/:userId/estado', {
-        onRequest: [servidorFastify.authenticate]
-    }, async (peticionDelCliente, respuestaAlCliente) => {
+    // HTTP Method: PUT
+    // URL: http://localhost:3000/users/:userId/status
+    server.put('/users/:userId/status', {
+        onRequest: [server.authenticate]
+    }, async (request, reply) => {
         
         try {
-            // PASO 1: Obtener el ID del usuario
-            const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
-            const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+            // STEP 1: Get the user ID
+            const urlParams = request.params as { userId: string };
+            const userId = parseInt(urlParams.userId);
 
-            // Verificar que el usuario autenticado es el dueño del recurso
-            if ((peticionDelCliente as any).user?.id !== idDelUsuario) {
-                return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+            // Verify that the authenticated user is the owner of the resource
+            if ((request as any).user?.id !== userId) {
+                return reply.status(403).send({ error: 'You do not have permission to modify this user' });
             }
             
-            // PASO 2: Obtener el nuevo estado del body
-            const datosDelBody = peticionDelCliente.body as {
-                estadoOnline: boolean
+            // STEP 2: Get the new status from the body
+            const bodyData = request.body as {
+                onlineStatus: boolean
             };
             
-            // PASO 3: Validar que venga el campo estadoOnline
-            if (typeof datosDelBody.estadoOnline !== 'boolean') {
-                return respuestaAlCliente.status(400).send({
-                    error: 'El campo estadoOnline debe ser booleano (true/false)'
+            // STEP 3: Validate that the onlineStatus field is provided
+            if (typeof bodyData.onlineStatus !== 'boolean') {
+                return reply.status(400).send({
+                    error: 'The onlineStatus field must be a boolean (true/false)'
                 });
             }
             
-            // PASO 4: Preparar datos para actualizar
-            const datosParaActualizar: any = {
-                estadoOnline: datosDelBody.estadoOnline
+            // STEP 4: Prepare data to update
+            const dataToUpdate: any = {
+                onlineStatus: bodyData.onlineStatus
             };
             
-            // Si el usuario se está desconectando, guardar última conexión
-            if (!datosDelBody.estadoOnline) {
-                datosParaActualizar.ultimaConexion = new Date();
+            // If the user is going offline, save the last connection time
+            if (!bodyData.onlineStatus) {
+                dataToUpdate.lastConnection = new Date();
             }
             
-            // PASO 5: Actualizar el estado en la BD
-            const usuarioActualizado = await clienteDePrisma.usuario.update({
-                where: { id: idDelUsuario },
-                data: datosParaActualizar,
+            // STEP 5: Update the status in the DB
+            const updatedUser = await prismaClient.user.update({
+                where: { id: userId },
+                data: dataToUpdate,
                 select: {
                     id: true,
-                    nombre: true,
+                    name: true,
                     email: true,
                     avatar: true,
-                    estadoOnline: true,
-                    ultimaConexion: true,
+                    onlineStatus: true,
+                    lastConnection: true,
                     createdAt: true
                 }
             });
             
-            // PASO 6: Retornar respuesta exitosa
-            respuestaAlCliente.send({
-                mensaje: 'Estado actualizado correctamente',
-                usuario: usuarioActualizado
+            // STEP 6: Return a successful response
+            reply.send({
+                message: 'Status updated successfully',
+                user: updatedUser
             });
             
         } catch (error) {
-            console.error('Error al actualizar estado:', error);
-            respuestaAlCliente.status(500).send({
-                error: 'Error al actualizar el estado'
+            console.error('Error updating status:', error);
+            reply.status(500).send({
+                error: 'Error updating the status'
             });
         }
     });
 
     // ========================================================================
-    // RUTA NUMERO 9: OBTENER UN USUARIO ESPECIFICO POR ID
+    // ROUTE 9: GET A SPECIFIC USER BY ID
     // ========================================================================
-    // Metodo HTTP: GET
-    // URL: http://localhost:3000/usuarios/:userId
-    servidorFastify.get('/usuarios/:userId', async (peticionDelCliente, respuestaAlCliente) => {
+    // HTTP Method: GET
+    // URL: http://localhost:3000/users/:userId
+    server.get('/users/:userId', async (request, reply) => {
         
-        // PASO 1: Obtener el ID del usuario desde la URL
-        const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
-        const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+        // STEP 1: Get the user ID from the URL
+        const urlParams = request.params as { userId: string };
+        const userId = parseInt(urlParams.userId);
 
-        // PASO 2: Buscar el usuario en la base de datos
-        const usuario = await clienteDePrisma.usuario.findUnique({
+        // STEP 2: Find the user in the database
+        const user = await prismaClient.user.findUnique({
             where: {
-                id: idDelUsuario
+                id: userId
             },
             select: {
                 id: true,
-                nombre: true,
+                name: true,
                 email: true,
                 avatar: true,
-                estadoOnline: true,
-                ultimaConexion: true,
+                onlineStatus: true,
+                lastConnection: true,
                 createdAt: true
             }
         });
         
-        // PASO 3: Si no existe el usuario, retornar error
-        if (!usuario) {
-            return respuestaAlCliente.status(404).send({
-                error: 'Usuario no encontrado'
+        // STEP 3: If the user does not exist, return an error
+        if (!user) {
+            return reply.status(404).send({
+                error: 'User not found'
             });
         }
         
-        // PASO 4: Retornar el usuario encontrado
-        respuestaAlCliente.send(usuario);
+        // STEP 4: Return the found user
+        reply.send(user);
     });
 
     // ========================================================================
-    // RUTA NUMERO 10: ACTUALIZAR UN USUARIO
+    // ROUTE 10: UPDATE A USER
     // ========================================================================
-    // Metodo HTTP: PUT
-    // URL: http://localhost:3000/usuarios/:userId
-    servidorFastify.put('/usuarios/:userId', {
-        onRequest: [servidorFastify.authenticate]
-    }, async (peticionDelCliente, respuestaAlCliente) => {
+    // HTTP Method: PUT
+    // URL: http://localhost:3000/users/:userId
+    server.put('/users/:userId', {
+        onRequest: [server.authenticate]
+    }, async (request, reply) => {
         
-        // PASO 1: Obtener el ID del usuario desde la URL
-        const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
-        const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+        // STEP 1: Get the user ID from the URL
+        const urlParams = request.params as { userId: string };
+        const userId = parseInt(urlParams.userId);
 
-        // Verificar que el usuario autenticado es el dueño del recurso
-        if ((peticionDelCliente as any).user?.id !== idDelUsuario) {
-            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        // Verify that the authenticated user is the owner of the resource
+        if ((request as any).user?.id !== userId) {
+            return reply.status(403).send({ error: 'You do not have permission to modify this user' });
         }
         
-        // PASO 2: Obtener los datos a actualizar del body
-        const datosDelBody = peticionDelCliente.body as {
-            nombre?: string,
+        // STEP 2: Get the data to update from the body
+        const bodyData = request.body as {
+            name?: string,
             email?: string,
-            contraseña?: string
+            password?: string
         };
         
-        // PASO 3: Si viene una nueva contraseña, hashearla
-        let passwordHasheado: string | undefined;
-        if (datosDelBody.contraseña) {
+        // STEP 3: If a new password is provided, hash it
+        let hashedPassword: string | undefined;
+        if (bodyData.password) {
             const saltRounds = 10;
-            passwordHasheado = await bcrypt.hash(datosDelBody.contraseña, saltRounds);
+            hashedPassword = await bcrypt.hash(bodyData.password, saltRounds);
         }
         
-        // PASO 4: Construir el objeto de datos a actualizar
-        // Construyo el objeto manualmente para usar 'password' (nombre en BD)
-        // en lugar de 'contraseña' (nombre que viene del frontend)
-        const datosParaActualizar: any = {};
+        // STEP 4: Build the object of data to update
+        // Build the object manually to use 'password' (DB field name)
+        // instead of relying purely on the body field name
+        const dataToUpdate: any = {};
         
-        if (datosDelBody.nombre)    datosParaActualizar.nombre = datosDelBody.nombre;
-        if (datosDelBody.email)     datosParaActualizar.email = datosDelBody.email;
-        if (passwordHasheado)       datosParaActualizar.password = passwordHasheado; // 'password' no 'contraseña'
+        if (bodyData.name)      dataToUpdate.name = bodyData.name;
+        if (bodyData.email)     dataToUpdate.email = bodyData.email;
+        if (hashedPassword)     dataToUpdate.password = hashedPassword; // 'password' not 'contraseña'
         
-        // PASO 5: Actualizar el usuario en la base de datos
-        const usuarioActualizado = await clienteDePrisma.usuario.update({
+        // STEP 5: Update the user in the database
+        const updatedUser = await prismaClient.user.update({
             where: {
-                id: idDelUsuario
+                id: userId
             },
-            data: datosParaActualizar, // uso datosParaActualizar, no datosDelBody
+            data: dataToUpdate, // use dataToUpdate, not bodyData
             select: {
                 id: true,
-                nombre: true,
+                name: true,
                 email: true,
                 avatar: true,
-                estadoOnline: true,
-                ultimaConexion: true,
+                onlineStatus: true,
+                lastConnection: true,
                 createdAt: true
             }
         });
         
-        // PASO 6: Retornar el usuario actualizado
-        respuestaAlCliente.send({
-            mensaje: 'Usuario actualizado correctamente',
-            usuario: usuarioActualizado // devuelvo usuarioActualizado, no datosDelBody
+        // STEP 6: Return the updated user
+        reply.send({
+            message: 'User updated successfully',
+            user: updatedUser // return updatedUser, not bodyData
         });
     });
     
     // ========================================================================
-    // RUTA NUMERO 11: ELIMINAR UN USUARIO
+    // ROUTE 11: DELETE A USER
     // ========================================================================
-    // Metodo HTTP: DELETE
-    // URL: http://localhost:3000/usuarios/:userId
-    servidorFastify.delete('/usuarios/:userId', {
-        onRequest: [servidorFastify.authenticate]
-    }, async (peticionDelCliente, respuestaAlCliente) => {
+    // HTTP Method: DELETE
+    // URL: http://localhost:3000/users/:userId
+    server.delete('/users/:userId', {
+        onRequest: [server.authenticate]
+    }, async (request, reply) => {
         
-        // PASO 1: Obtener el ID del usuario desde la URL
-        const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
-        const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+        // STEP 1: Get the user ID from the URL
+        const urlParams = request.params as { userId: string };
+        const userId = parseInt(urlParams.userId);
 
-        // Verificar que el usuario autenticado es el dueño del recurso
-        if ((peticionDelCliente as any).user?.id !== idDelUsuario) {
-            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        // Verify that the authenticated user is the owner of the resource
+        if ((request as any).user?.id !== userId) {
+            return reply.status(403).send({ error: 'You do not have permission to modify this user' });
         }
         
-        // PASO 2: Eliminar el usuario de la base de datos
-        const usuarioEliminado = await clienteDePrisma.usuario.delete({
+        // STEP 2: Delete the user from the database
+        const deletedUser = await prismaClient.user.delete({
             where: {
-                id: idDelUsuario
+                id: userId
             }
         });
         
-        // PASO 3: Retornar confirmación
-        respuestaAlCliente.send({
-            mensaje: 'Usuario eliminado correctamente',
-            usuario: {
-                id: usuarioEliminado.id,
-                nombre: usuarioEliminado.nombre
+        // STEP 3: Return confirmation
+        reply.send({
+            message: 'User deleted successfully',
+            user: {
+                id: deletedUser.id,
+                name: deletedUser.name
             }
         });
     });

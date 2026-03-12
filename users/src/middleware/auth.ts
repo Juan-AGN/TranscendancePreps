@@ -1,10 +1,10 @@
 // ============================================================================
-// MIDDLEWARE DE AUTENTICACIÓN JWT
+// JWT AUTHENTICATION MIDDLEWARE
 // ============================================================================
 import { FastifyRequest, FastifyReply } from 'fastify';
 import jwt from 'jsonwebtoken';
 
-// Extender el tipo de Request de Fastify para incluir el usuario autenticado
+// Extend Fastify's Request type to include the authenticated user
 declare module 'fastify' {
   interface FastifyRequest {
     user?: {
@@ -14,7 +14,7 @@ declare module 'fastify' {
   }
 }
 
-// declarar el método authenticate
+// declare the authenticate method
 interface FastifyInstance {
     authenticate: (
         request: FastifyRequest,
@@ -23,55 +23,55 @@ interface FastifyInstance {
 } 
 
 // ============================================================================
-// FUNCIÓN PRINCIPAL: Verificar token JWT
+// MAIN FUNCTION: Verify JWT token
 // ============================================================================
 export async function authenticate(
-  peticionDelCliente: FastifyRequest,
-  respuestaAlCliente: FastifyReply
+  request: FastifyRequest,
+  reply: FastifyReply
 ) {
   try {
-    // PASO 1: Obtener el token del header Authorization
-    // El formato esperado es: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    const authHeader = peticionDelCliente.headers.authorization;
+    // STEP 1: Get the token from the Authorization header
+    // Expected format: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    const authHeader = request.headers.authorization;
     
-    // PASO 2: Verificar que exista el header
+    // STEP 2: Verify the header exists
     if (!authHeader) {
-      return respuestaAlCliente.status(401).send({
-        error: 'Token de autenticación no proporcionado'
+      return reply.status(401).send({
+        error: 'Authentication token not provided'
       });
     }
     
-    // PASO 3: Extraer el token (quitar la palabra "Bearer ")
+    // STEP 3: Extract the token (remove the "Bearer " prefix)
     const token = authHeader.replace('Bearer ', '');
     
     if (!token) {
-      return respuestaAlCliente.status(401).send({
-        error: 'Token inválido'
+      return reply.status(401).send({
+        error: 'Invalid token'
       });
     }
     
-    // PASO 4: Verificar y decodificar el token
-    const secreto = process.env.JWT_SECRET || 'secreto-super-seguro';
+    // STEP 4: Verify and decode the token
+    const secret = process.env.JWT_SECRET || 'super-secure-secret';
     
-    const decoded = jwt.verify(token, secreto) as {
+    const decoded = jwt.verify(token, secret) as {
       id: number;
       email: string;
     };
     
-    // PASO 5: Agregar los datos del usuario a la petición
-    // Ahora cualquier ruta puede acceder a peticionDelCliente.user
-    peticionDelCliente.user = {
+    // STEP 5: Attach the user data to the request
+    // Now any route can access request.user
+    request.user = {
       id: decoded.id,
       email: decoded.email
     };
     
-    // PASO 6: Continuar con la siguiente función (la ruta solicitada)
-    // No se envía respuesta aquí, solo se valida y se pasa al siguiente
+    // STEP 6: Continue to the next function (the requested route)
+    // No response is sent here, only validates and passes to next handler
     
   } catch (error) {
-    // Si el token es inválido o ha expirado, jwt.verify lanza un error
-    return respuestaAlCliente.status(401).send({
-      error: 'Token inválido o expirado'
+    // If the token is invalid or expired, jwt.verify throws an error
+    return reply.status(401).send({
+      error: 'Invalid or expired token'
     });
   }
 }

@@ -1,19 +1,19 @@
 // ============================================================================
-// PUNTO DE ENTRADA DE REACT
+// REACT ENTRY POINT
 // ============================================================================
-// Este es el primer archivo que ejecuta React.
-// Su único trabajo es "montar" la aplicación en el div#root del index.html
+// This is the first file React executes.
+// Its only job is to "mount" the application in the div#root of index.html
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
-// ReactDOM.createRoot() busca el div con id="root" en el index.html
-// y le dice a React que tome el control de ese div.
-// A partir de aquí, React maneja todo el contenido de la página.
+// ReactDOM.createRoot() finds the div with id="root" in index.html
+// and tells React to take control of that div.
+// From here, React manages all page content.
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
-        {/* StrictMode ayuda a detectar errores durante el desarrollo */}
+        {/* StrictMode helps detect errors during development */}
         <App />
     </React.StrictMode>
 );

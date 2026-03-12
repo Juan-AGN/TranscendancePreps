@@ -1,189 +1,189 @@
 // ============================================================================
-// LOGIN.TSX - Página de Login y Registro
+// LOGIN.TSX - Login and Registration Page
 // ============================================================================
-// Este componente reemplaza al index.html original.
-// Las diferencias clave con HTML vanilla:
-//   - En vez de document.getElementById() usamos useState() para el estado
-//   - En vez de onclick="" usamos onClick={}
-//   - En vez de value="..." en inputs usamos value={variable} + onChange
-//   - El JSX parece HTML pero es JavaScript (por eso className en vez de class)
+// This component replaces the original index.html.
+// Key differences from vanilla HTML:
+//   - Instead of document.getElementById() we use useState() for state
+//   - Instead of onclick="" we use onClick={}
+//   - Instead of value="..." on inputs we use value={variable} + onChange
+//   - JSX looks like HTML but it is JavaScript (hence className instead of class)
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';  // para redirigir entre páginas
+import { useNavigate } from 'react-router-dom';  // for navigating between pages
 import './Login.css';
 import { API_URL } from '../config';
 
 // ============================================================================
-// COMPONENTE PRINCIPAL: Login
+// MAIN COMPONENT: Login
 // ============================================================================
 function Login() {
 
     // ========================================================================
-    // ESTADO DEL COMPONENTE
+    // COMPONENT STATE
     // ========================================================================
-    // useState() es como tener variables que cuando cambian, React actualiza la pantalla.
-    // Antes con HTML vanilla: document.getElementById('loginEmail').value
-    // Ahora con React:        loginEmail (la variable) y setLoginEmail (la función para cambiarla)
+    // useState() is like having variables that, when changed, cause React to update the screen.
+    // Before with vanilla HTML: document.getElementById('loginEmail').value
+    // Now with React:           loginEmail (the variable) and setLoginEmail (the function to change it)
 
-    // Estado del formulario de LOGIN
+    // LOGIN form state
     const [loginEmail, setLoginEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
 
-    // Estado del formulario de REGISTRO
-    const [registroNombre, setRegistroNombre] = useState('');
-    const [registroEmail, setRegistroEmail] = useState('');
-    const [registroPassword, setRegistroPassword] = useState('');
+    // REGISTER form state
+    const [registerName, setRegisterName] = useState('');
+    const [registerEmail, setRegisterEmail] = useState('');
+    const [registerPassword, setRegisterPassword] = useState('');
 
-    // Estado de las pestañas: 'login' o 'registro'
-    const [tabActiva, setTabActiva] = useState<'login' | 'registro'>('login');
+    // Tab state: 'login' or 'register'
+    const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
 
-    // Estado de las alertas: null = no mostrar, { mensaje, tipo } = mostrar
-    const [alertaLogin, setAlertaLogin] = useState<{ mensaje: string; tipo: 'success' | 'error' } | null>(null);
-    const [alertaRegistro, setAlertaRegistro] = useState<{ mensaje: string; tipo: 'success' | 'error' } | null>(null);
+    // Alert state: null = do not show, { message, type } = show
+    const [loginAlert, setLoginAlert] = useState<{ message: string; tipo: 'success' | 'error' } | null>(null);
+    const [registerAlert, setRegisterAlert] = useState<{ message: string; tipo: 'success' | 'error' } | null>(null);
 
-    // Hook para redirigir a otras páginas (reemplaza window.location.href)
+    // Hook for navigating to other pages (replaces window.location.href)
     const navigate = useNavigate();
 
     // ========================================================================
-    // EFECTO: Comprobar si ya hay sesión activa al cargar la página
+    // EFFECT: Check if there is already an active session when the page loads
     // ========================================================================
-    // useEffect() es como window.onload -> se ejecuta cuando el componente aparece en pantalla
+    // useEffect() is like window.onload -> runs when the component appears on screen
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
-            // Ya hay sesión -> ir directamente al perfil
+            // Session already exists -> go directly to the profile
             navigate('/perfil');
         }
-    }, []); // El [] vacío significa "ejecutar solo una vez al montar el componente"
+    }, []); // The empty [] means "run only once when the component mounts"
 
     // ========================================================================
-    // FUNCIÓN: HACER LOGIN
+    // FUNCTION: DO LOGIN
     // ========================================================================
-    async function hacerLogin() {
+    async function doLogin() {
 
-        // PASO 1: Validar que los campos no estén vacíos
+        // STEP 1: Validate that fields are not empty
         if (!loginEmail || !loginPassword) {
-            setAlertaLogin({ mensaje: 'Rellena el email y la contraseña', tipo: 'error' });
+            setLoginAlert({ message: 'Please fill in the email and password', tipo: 'error' });
             return;
         }
 
         try {
-            // PASO 2: Enviar los datos al backend (igual que antes con fetch)
-            const response = await fetch(`${API_URL}/usuarios/login`, {
+            // STEP 2: Send the data to the backend (same as before with fetch)
+            const response = await fetch(`${API_URL}/users/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     email: loginEmail,
-                    contraseña: loginPassword
+                    password: loginPassword
                 })
             });
 
-            // PASO 3: Leer la respuesta del servidor
+            // STEP 3: Read the server response
             const data = await response.json();
 
-            // PASO 4: Comprobar si el login fue exitoso
+            // STEP 4: Check if the login was successful
             if (response.ok) {
-                // Guardar token Y usuarioId en localStorage
+                // Save the token AND userId in localStorage
                 localStorage.setItem('token', data.token);
-                localStorage.setItem('usuarioId', data.usuario.id);
+                localStorage.setItem('userId', data.user.id);
 
-                setAlertaLogin({ mensaje: '¡Login correcto! Redirigiendo...', tipo: 'success' });
+                setLoginAlert({ message: 'Login successful! Redirecting...', tipo: 'success' });
 
-                // PASO 5: Redirigir al perfil tras un pequeño delay
+                // STEP 5: Redirect to the profile after a short delay
                 setTimeout(() => {
-                    navigate('/perfil');  // antes: window.location.href = '/perfil.html'
+                    navigate('/perfil');  // before: window.location.href = '/perfil.html'
                 }, 800);
 
             } else {
-                setAlertaLogin({ mensaje: data.error || 'Email o contraseña incorrectos', tipo: 'error' });
+                setLoginAlert({ message: data.error || 'Incorrect email or password', tipo: 'error' });
             }
 
         } catch (error) {
-            console.error('Error de red:', error);
-            setAlertaLogin({ mensaje: 'No se puede conectar con el servidor', tipo: 'error' });
+            console.error('Network error:', error);
+            setLoginAlert({ message: 'Cannot connect to the server', tipo: 'error' });
         }
     }
 
     // ========================================================================
-    // FUNCIÓN: HACER REGISTRO
+    // FUNCTION: DO REGISTER
     // ========================================================================
-    async function hacerRegistro() {
+    async function doRegister() {
 
-        // PASO 1: Validar campos
-        if (!registroNombre || !registroEmail || !registroPassword) {
-            setAlertaRegistro({ mensaje: 'Rellena todos los campos', tipo: 'error' });
+        // STEP 1: Validate fields
+        if (!registerName || !registerEmail || !registerPassword) {
+            setRegisterAlert({ message: 'Please fill in all fields', tipo: 'error' });
             return;
         }
 
-        // Validar que el email tenga formato correcto (algo@algo.algo)
-        const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registroEmail);
-        if (!emailValido) {
-            setAlertaRegistro({ mensaje: 'El email no tiene un formato válido', tipo: 'error' });
+        // Validate that the email has the correct format (something@something.something)
+        const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registerEmail);
+        if (!validEmail) {
+            setRegisterAlert({ message: 'The email format is not valid', tipo: 'error' });
             return;
         }
 
-        if (registroPassword.length < 6) {
-            setAlertaRegistro({ mensaje: 'La contraseña debe tener al menos 6 caracteres', tipo: 'error' });
+        if (registerPassword.length < 6) {
+            setRegisterAlert({ message: 'The password must be at least 6 characters long', tipo: 'error' });
             return;
         }
 
         try {
-            // PASO 2: Enviar al backend
-            const response = await fetch(`${API_URL}/usuarios/registro`, {
+            // STEP 2: Send to the backend
+            const response = await fetch(`${API_URL}/users/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    nombre: registroNombre,
-                    email: registroEmail,
-                    contraseña: registroPassword
+                    nombre: registerName,
+                    email: registerEmail,
+                    password: registerPassword
                 })
             });
 
-            // PASO 3: Leer respuesta
+            // STEP 3: Read the response
             const data = await response.json();
 
-            // PASO 4: Si fue exitoso
+            // STEP 4: If successful
             if (response.ok) {
-                setAlertaRegistro({ mensaje: '¡Cuenta creada! Ahora puedes iniciar sesión', tipo: 'success' });
+                setRegisterAlert({ message: 'Account created! You can now sign in', tipo: 'success' });
 
-                // Guardar el email para pasarlo al login automáticamente
-                const emailUsado = registroEmail;
+                // Save the email to pre-fill the login form automatically
+                const usedEmail = registerEmail;
 
-                // Limpiar formulario de registro
-                setRegistroNombre('');
-                setRegistroEmail('');
-                setRegistroPassword('');
+                // Clear the registration form
+                setRegisterName('');
+                setRegisterEmail('');
+                setRegisterPassword('');
 
-                // Cambiar a la pestaña login y poner el email ya escrito
+                // Switch to the login tab and pre-fill the email
                 setTimeout(() => {
-                    setTabActiva('login');
-                    setLoginEmail(emailUsado);
-                    setAlertaRegistro(null);
+                    setActiveTab('login');
+                    setLoginEmail(usedEmail);
+                    setRegisterAlert(null);
                 }, 1500);
 
             } else {
-                setAlertaRegistro({ mensaje: data.error || 'Error al crear la cuenta', tipo: 'error' });
+                setRegisterAlert({ message: data.error || 'Error creating the account', tipo: 'error' });
             }
 
         } catch (error) {
-            console.error('Error de red:', error);
-            setAlertaRegistro({ mensaje: 'No se puede conectar con el servidor', tipo: 'error' });
+            console.error('Network error:', error);
+            setRegisterAlert({ message: 'Cannot connect to the server', tipo: 'error' });
         }
     }
 
     // ========================================================================
-    // RENDERIZADO (lo que se muestra en pantalla)
+    // RENDER (what is shown on screen)
     // ========================================================================
-    // Esto es JSX: parece HTML pero es JavaScript.
-    // Diferencias principales:
+    // This is JSX: it looks like HTML but it is JavaScript.
+    // Main differences:
     //   - onclick -> onClick
     //   - class -> className
-    //   - Las variables se ponen entre llaves: {variable}
-    //   - Los eventos reciben funciones: onClick={() => hacerLogin()}
+    //   - Variables go inside curly braces: {variable}
+    //   - Events receive functions: onClick={() => doLogin()}
     return (
         <div className="login-container">
 
@@ -191,100 +191,100 @@ function Login() {
             <div className="login-header">
                 <div className="login-header-logo">🏓</div>
                 <h1 className="login-header-titulo">Transcendence</h1>
-                <p className="login-header-subtitulo">Proyecto 42 - Gestión de Usuarios</p>
+                <p className="login-header-subtitulo">42 Project - User Management</p>
             </div>
 
-            {/* PESTAÑAS */}
+            {/* TABS */}
             <div className="login-tabs">
                 <button
-                    className={`login-tab ${tabActiva === 'login' ? 'active' : ''}`}
+                    className={`login-tab ${activeTab === 'login' ? 'active' : ''}`}
                     onClick={() => {
-                        setTabActiva('login');
-                        setAlertaLogin(null);
-                        setAlertaRegistro(null);
+                        setActiveTab('login');
+                        setLoginAlert(null);
+                        setRegisterAlert(null);
                     }}
                 >
-                    Iniciar Sesión
+                    Sign In
                 </button>
                 <button
-                    className={`login-tab ${tabActiva === 'registro' ? 'active' : ''}`}
+                    className={`login-tab ${activeTab === 'register' ? 'active' : ''}`}
                     onClick={() => {
-                        setTabActiva('registro');
-                        setAlertaLogin(null);
-                        setAlertaRegistro(null);
+                        setActiveTab('register');
+                        setLoginAlert(null);
+                        setRegisterAlert(null);
                     }}
                 >
-                    Registrarse
+                    Sign Up
                 </button>
             </div>
 
-            {/* FORMULARIOS */}
+            {/* FORMS */}
             <div className="login-form-container">
                 {/* ---------------------------------------------------------- */}
-                {/* TAB LOGIN: solo se muestra si tabActiva === 'login' */}
+                {/* LOGIN TAB: only shown if activeTab === 'login' */}
                 {/* ---------------------------------------------------------- */}
-                {tabActiva === 'login' && ( // si contiene 'login' -> muestra lo siguiente (&&)
+                {activeTab === 'login' && ( // if activeTab is 'login' -> show the following (&&)
                     <div>
-                        {/* Alerta: solo se renderiza si alertaLogin no es null */}
-                        {alertaLogin && (
-                            <div className={`alerta ${alertaLogin.tipo}`}>
-                                {alertaLogin.tipo === 'success' ? '✅ ' : '❌ '}
-                                {alertaLogin.mensaje}
+                        {/* Alert: only rendered if loginAlert is not null */}
+                        {loginAlert && (
+                            <div className={`alerta ${loginAlert.tipo}`}>
+                                {loginAlert.tipo === 'success' ? '✅ ' : '❌ '}
+                                {loginAlert.message}
                             </div>
                         )}
 
                         <div className="form-group">
                             <label className="form-label">Email</label>
-                            {/* value={loginEmail} -> muestra el estado */}
-                            {/* onChange={e => setLoginEmail(e.target.value)} -> actualiza el estado al escribir */}
+                            {/* value={loginEmail} -> displays the state */}
+                            {/* onChange={e => setLoginEmail(e.target.value)} -> updates state on input */}
                             <input
                                 type="email"
                                 className="form-input"
-                                placeholder="tu@email.com"
+                                placeholder="your@email.com"
                                 value={loginEmail}
                                 onChange={e => setLoginEmail(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && hacerLogin()}
+                                onKeyDown={e => e.key === 'Enter' && doLogin()}
                             />
                         </div>
 
                         <div className="form-group">
-                            <label className="form-label">Contraseña</label>
+                            <label className="form-label">Password</label>
                             <input  
                                 type="password"
                                 className="form-input"
-                                placeholder="Tu contraseña"
+                                placeholder="Your password"
                                 value={loginPassword}
                                 onChange={e => setLoginPassword(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && hacerLogin()}
+                                onKeyDown={e => e.key === 'Enter' && doLogin()}
                             />
                         </div>
 
-                        <button className="btn-submit" onClick={hacerLogin}>
-                            Iniciar Sesión
+                        <button className="btn-submit" onClick={doLogin}>
+                            Sign In
                         </button>
                     </div>
                 )}
 
                 {/* ---------------------------------------------------------- */}
-                {/* TAB REGISTRO: solo se muestra si tabActiva === 'registro'  */}
+                {/* REGISTER TAB: only shown if activeTab === 'register' */}
                 {/* ---------------------------------------------------------- */}
-                {tabActiva === 'registro' && (
+                {activeTab === 'register' && (
                     <div>
-                        {alertaRegistro && (
-                            <div className={`alerta ${alertaRegistro.tipo}`}>
-                                {alertaRegistro.tipo === 'success' ? '✅ ' : '❌ '}
-                                {alertaRegistro.mensaje}
+                        {registerAlert && (
+                            <div className={`alerta ${registerAlert.tipo}`}>
+                                {registerAlert.tipo === 'success' ? '✅ ' : '❌ '}
+                                {registerAlert.message}
                             </div>
                         )}
 
                         <div className="form-group">
-                            <label className="form-label">Nombre</label>
+                            <label className="form-label">Name</label>
                             <input
                                 type="text"
                                 className="form-input"
-                                placeholder="Tu nombre completo"
-                                value={registroNombre}
-                                onChange={e => setRegistroNombre(e.target.value)}
+                                placeholder="Your full name"
+                                value={registerName}
+                                onChange={e => setRegisterName(e.target.value)}
                             />
                         </div>
 
@@ -293,46 +293,46 @@ function Login() {
                             <input
                                 type="email"
                                 className="form-input"
-                                placeholder="tu@email.com"
-                                value={registroEmail}
-                                onChange={e => setRegistroEmail(e.target.value)}
+                                placeholder="your@email.com"
+                                value={registerEmail}
+                                onChange={e => setRegisterEmail(e.target.value)}
                             />
                         </div>
 
                         <div className="form-group">
-                            <label className="form-label">Contraseña</label>
+                            <label className="form-label">Password</label>
                             <input
                                 type="password"
                                 className="form-input"
-                                placeholder="Mínimo 6 caracteres"
-                                value={registroPassword}
-                                onChange={e => setRegistroPassword(e.target.value)}
+                                placeholder="Minimum 6 characters"
+                                value={registerPassword}
+                                onChange={e => setRegisterPassword(e.target.value)}
                             />
                         </div>
 
-                        <button className="btn-submit" onClick={hacerRegistro}>
-                            Crear Cuenta
+                        <button className="btn-submit" onClick={doRegister}>
+                            Create Account
                         </button>
                     </div>
                 )}
             </div>
 
-            {/* SEPARADOR */}
-            <div style={{ textAlign: 'center', margin: '0 40px 16px', color: '#bbb', fontSize: '13px' }}>— o —</div>
+            {/* DIVIDER */}
+            <div style={{ textAlign: 'center', margin: '0 40px 16px', color: '#bbb', fontSize: '13px' }}>— or —</div>
 
-            {/* BOTÓN LOGIN CON 42 */}
+            {/* LOGIN WITH 42 BUTTON */}
             <div style={{ padding: '0 40px 24px' }}>
                 <a href="http://localhost:3000/auth/42" style={{ textDecoration: 'none' }}>
                     <button className="btn-42">
-                        🎓 Login con 42
+                        🎓 Login with 42
                     </button>
                 </a>
             </div>
 
-            {/* FOOTER CON ENLACES LEGALES */}
+            {/* FOOTER WITH LEGAL LINKS */}
             <footer className="login-footer">
-                <a href="/privacidad">Política de Privacidad</a>
-                <a href="/terminos">Términos de Servicio</a>
+                <a href="/privacidad">Privacy Policy</a>
+                <a href="/terminos">Terms of Service</a>
             </footer>
         </div>
 
