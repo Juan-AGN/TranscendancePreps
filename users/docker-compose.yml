@@ -16,9 +16,9 @@ services:
     container_name: transcendence_db
     restart: always
     environment:
-      POSTGRES_USER: transcendence_user
-      POSTGRES_PASSWORD: transcendence_pass
-      POSTGRES_DB: transcendence
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
@@ -42,14 +42,14 @@ services:
     container_name: transcendence_backend
     restart: always
     environment:
-      DATABASE_URL: "postgresql://transcendence_user:transcendence_pass@db:5432/transcendence"
-      JWT_SECRET: "clave_super_secreta_cambiar_en_produccion"
-      PORT: 3000
-      NODE_ENV: development
-      FORTY_TWO_CLIENT_ID: "u-s4t2ud-ea59f806cbcb77f481defef4bdd399e8316668eb9d9f1d74ac95ca4c6af150e0"
-      FORTY_TWO_CLIENT_SECRET: "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"
-      FORTY_TWO_REDIRECT_URI: "http://localhost:3000/auth/42/callback"
-      FRONTEND_URL: "http://localhost:5173"
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: ${PORT}
+      NODE_ENV: ${NODE_ENV}
+      FORTY_TWO_CLIENT_ID: ${FORTY_TWO_CLIENT_ID}
+      FORTY_TWO_CLIENT_SECRET: ${FORTY_TWO_CLIENT_SECRET}
+      FORTY_TWO_REDIRECT_URI: ${FORTY_TWO_REDIRECT_URI}
+      FRONTEND_URL: ${FRONTEND_URL}
     ports:
       - "3000:3000"
     volumes:
