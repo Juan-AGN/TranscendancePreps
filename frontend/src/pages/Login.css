@@ -197,3 +197,38 @@ body {
         font-size: 22px;
     }
 }
+
+.btn-42 {
+    width: 100%;
+    padding: 14px;
+    background-color: #00babc;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-42:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 186, 188, 0.4);
+}
+
+.login-footer {
+    padding: 0 40px 28px;
+    text-align: center;
+    color: #999;
+    font-size: 0.8rem;
+}
+
+.login-footer a {
+    color: #667eea;
+    text-decoration: none;
+    margin: 0 8px;
+}
+
+.login-footer a:hover {
+    text-decoration: underline;
+}

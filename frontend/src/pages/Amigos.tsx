@@ -287,7 +287,7 @@ function Amigos() {
                         listaAmigos.map(amigo => (
                             <div key={amigo.id} className="usuario-card">
                                 <img
-                                    src={amigo.avatar ? `${API_URL}${amigo.avatar}` : `${API_URL}/avatares/default-avatar.png`}
+                                    src={amigo.avatar ? `${API_URL}${amigo.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
                                     alt="Avatar"
                                 />
                                 <div className="usuario-info">
@@ -323,7 +323,7 @@ function Amigos() {
                         listaSolicitudes.map(solicitud => (
                             <div key={solicitud.id} className="usuario-card">
                                 <img
-                                    src={solicitud.solicitante.avatar ? `${API_URL}${solicitud.solicitante.avatar}` : `${API_URL}/avatares/default-avatar.png`}
+                                    src={solicitud.solicitante.avatar ? `${API_URL}${solicitud.solicitante.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
                                     alt="Avatar"
                                 />
                                 <div className="usuario-info">
@@ -369,7 +369,7 @@ function Amigos() {
                     {resultadosBusqueda.map(usuario => (
                         <div key={usuario.id} className="usuario-card">
                             <img
-                                src={usuario.avatar ? `${API_URL}${usuario.avatar}` : `${API_URL}/avatares/default-avatar.png`}
+                                src={usuario.avatar ? `${API_URL}${usuario.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
                                 alt="Avatar"
                             />
                             <div className="usuario-info">

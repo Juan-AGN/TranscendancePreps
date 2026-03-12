@@ -1,9 +1,11 @@
 // ============================================================================
 // IMPORTS - DEPENDENCIAS EXTERNAS
 // ============================================================================
+import 'dotenv/config';
 import Fastify from 'fastify';  // importación del Framework web 
 import fastifyCors from '@fastify/cors';  // Plugin para permitir peticiones desde otros dominios (CORS)
 import { PrismaClient } from '@prisma/client';  // Cliente de Prisma (ORM para base de datos)
+import { authRoutes } from './routes/auth.js';
 
 // ============================================================================
 // IMPORTS - RUTAS PROPIAS (archivos con endpoints)
@@ -90,6 +92,7 @@ servidorFastify.decorate('authenticate', async (request: any, reply: any) => {
 // ============================================================================
 await servidorFastify.register(usuariosRoutes);
 await servidorFastify.register(amigosRoutes);
+await servidorFastify.register(authRoutes);
 
 // ============================================================================
 // INICIAR SERVIDOR

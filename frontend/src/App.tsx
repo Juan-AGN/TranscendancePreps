@@ -19,14 +19,14 @@ import Terminos from './pages/Terminos';
 // Si el usuario NO tiene token (no ha hecho login), lo manda al login.
 // Si SÍ tiene token, le deja ver la página que pidió.
 function RutaProtegida({ children }: { children: React.ReactNode }) {
-    const token = localStorage.getItem('token');
+    const params = new URLSearchParams(window.location.search);
+    const tokenDeURL = params.get('token');
+    const token = localStorage.getItem('token') || tokenDeURL;
 
     if (!token) {
-        // No hay sesión → redirigir al login
         return <Navigate to="/" replace />;
     }
 
-    // Hay sesión → mostrar la página solicitada
     return <>{children}</>;
 }
 

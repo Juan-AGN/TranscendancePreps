@@ -28,6 +28,11 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
         };
         const miIdDeUsuario = parseInt(parametrosDeLaURL.userId);
         const idDelUsuarioQueQuieroAgregar = parseInt(parametrosDeLaURL.amigoId);
+
+        // Verificar que el usuario autenticado es el dueño del recurso
+        if ((peticionDelCliente as any).user?.id !== miIdDeUsuario) {
+            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        }
         
         // PASO 2: Verificar que no intente agregarse a sí mismo
         if (miIdDeUsuario === idDelUsuarioQueQuieroAgregar) {
@@ -110,6 +115,11 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
         };
         const miIdDeUsuario = parseInt(parametrosDeLaURL.userId);
         const idDelUsuarioQueEnvioLaSolicitud = parseInt(parametrosDeLaURL.amigoId);
+
+        // Verificar que el usuario autenticado es el dueño del recurso
+        if ((peticionDelCliente as any).user?.id !== miIdDeUsuario) {
+            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        }
         
         // PASO 2: Buscar la solicitud pendiente
         const solicitudPendiente = await clienteDePrisma.amistad.findFirst({
@@ -161,6 +171,11 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
         // PASO 1: Obtener mi ID de la URL
         const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
         const miIdDeUsuario = parseInt(parametrosDeLaURL.userId);
+
+        // Verificar que el usuario autenticado es el dueño del recurso
+        if ((peticionDelCliente as any).user?.id !== miIdDeUsuario) {
+            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        }
         
         // PASO 2: Buscar todas mis amistades ACEPTADAS
         const todasMisAmistades = await clienteDePrisma.amistad.findMany({
@@ -226,6 +241,11 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
         };
         const miIdDeUsuario = parseInt(parametrosDeLaURL.userId);
         const idDelAmigoQueQuieroEliminar = parseInt(parametrosDeLaURL.amigoId);
+
+        // Verificar que el usuario autenticado es el dueño del recurso
+        if ((peticionDelCliente as any).user?.id !== miIdDeUsuario) {
+            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        }
         
         // PASO 2: Buscar la amistad aceptada (en cualquier dirección)
         const amistadAEliminar = await clienteDePrisma.amistad.findFirst({
@@ -283,6 +303,11 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
         
         const { userId } = peticionDelCliente.params as { userId: string };
         const miIdDeUsuario = parseInt(userId);
+
+        // Verificar que el usuario autenticado es el dueño del recurso
+        if ((peticionDelCliente as any).user?.id !== miIdDeUsuario) {
+            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        }
         
         // Buscar solicitudes que ME han enviado y están pendientes
         const solicitudesPendientes = await clienteDePrisma.amistad.findMany({
@@ -322,6 +347,11 @@ export async function amigosRoutes(servidorFastify: FastifyInstance) {
         };
         const miIdDeUsuario = parseInt(userId);
         const idDelSolicitante = parseInt(amigoId);
+
+        // Verificar que el usuario autenticado es el dueño del recurso
+        if ((peticionDelCliente as any).user?.id !== miIdDeUsuario) {
+            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        }
         
         // Buscar la solicitud pendiente
         const solicitud = await clienteDePrisma.amistad.findFirst({

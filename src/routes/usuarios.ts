@@ -5,7 +5,7 @@
 // 3. Rutas con texto fijo: /usuarios/filtro/online
 // 4. Rutas con parámetros + texto: /usuarios/:userId/avatar
 // 5. Rutas con parámetros + texto: /usuarios/:userId/estado
-// 6. Rutas solo con parámetros: /usuarios/:userId  ← AL FINAL
+// 6. Rutas solo con parámetros: /usuarios/:userId  <- AL FINAL
 // ====================
 
 // ============================================================================
@@ -270,7 +270,7 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
         
         // PASO 3: Retornar la URL del avatar
         respuestaAlCliente.send({
-            avatarUrl: usuario.avatar || 'default-avatar.png'
+            avatarUrl: usuario.avatar || 'default-avatar.svg'
         });
     });
     
@@ -285,6 +285,11 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             // PASO 1: Obtener el ID del usuario
             const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
             const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+
+            // Verificar que el usuario autenticado es el dueño del recurso
+            if ((peticionDelCliente as any).user?.id !== idDelUsuario) {
+                return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+            }
             
             // PASO 2: Recibir Y comprobar el archivo
             const data = await peticionDelCliente.file();
@@ -366,7 +371,7 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             
             // PASO 9: Eliminar el avatar anterior (si no es el default)
             if (avatarAnterior?.avatar && 
-                avatarAnterior.avatar !== 'default-avatar.png' && 
+                avatarAnterior.avatar !== 'default-avatar.svg' && 
                 avatarAnterior.avatar.startsWith('/avatares/')) // Si es un avatar válido (comprueba la ruta)
                 {
                 // Construyo la ruta completa para eliminarlo
@@ -404,6 +409,11 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             // PASO 1: Obtener el ID del usuario
             const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
             const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+
+            // Verificar que el usuario autenticado es el dueño del recurso
+            if ((peticionDelCliente as any).user?.id !== idDelUsuario) {
+                return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+            }
             
             // PASO 2: Obtener el avatar actual
             const usuario = await clienteDePrisma.usuario.findUnique({
@@ -419,7 +429,7 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             
             // PASO 3: Eliminar el archivo físico (si no es el default)
             if (usuario.avatar && 
-                usuario.avatar !== 'default-avatar.png' && 
+                usuario.avatar !== 'default-avatar.svg' && 
                 usuario.avatar.startsWith('/avatares/')) {
                 
                 const avatarPath = path.join(__dirname, '..', '..', 'public', usuario.avatar);
@@ -431,7 +441,7 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             // PASO 4: Actualizar la BD al avatar por defecto
             const usuarioActualizado = await clienteDePrisma.usuario.update({
                 where: { id: idDelUsuario },
-                data: { avatar: 'default-avatar.png' },
+                data: { avatar: 'default-avatar.svg' },
                 select: {
                     id: true,
                     nombre: true,
@@ -467,6 +477,11 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
             // PASO 1: Obtener el ID del usuario
             const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
             const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+
+            // Verificar que el usuario autenticado es el dueño del recurso
+            if ((peticionDelCliente as any).user?.id !== idDelUsuario) {
+                return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+            }
             
             // PASO 2: Obtener el nuevo estado del body
             const datosDelBody = peticionDelCliente.body as {
@@ -529,7 +544,7 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
         // PASO 1: Obtener el ID del usuario desde la URL
         const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
         const idDelUsuario = parseInt(parametrosDeLaURL.userId);
-        
+
         // PASO 2: Buscar el usuario en la base de datos
         const usuario = await clienteDePrisma.usuario.findUnique({
             where: {
@@ -569,6 +584,11 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
         // PASO 1: Obtener el ID del usuario desde la URL
         const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
         const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+
+        // Verificar que el usuario autenticado es el dueño del recurso
+        if ((peticionDelCliente as any).user?.id !== idDelUsuario) {
+            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        }
         
         // PASO 2: Obtener los datos a actualizar del body
         const datosDelBody = peticionDelCliente.body as {
@@ -614,8 +634,9 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
         respuestaAlCliente.send({
             mensaje: 'Usuario actualizado correctamente',
             usuario: usuarioActualizado // devuelvo usuarioActualizado, no datosDelBody
-        }); 
+        });
     });
+    
     // ========================================================================
     // RUTA NUMERO 11: ELIMINAR UN USUARIO
     // ========================================================================
@@ -628,6 +649,11 @@ export async function usuariosRoutes(servidorFastify: FastifyInstance) {
         // PASO 1: Obtener el ID del usuario desde la URL
         const parametrosDeLaURL = peticionDelCliente.params as { userId: string };
         const idDelUsuario = parseInt(parametrosDeLaURL.userId);
+
+        // Verificar que el usuario autenticado es el dueño del recurso
+        if ((peticionDelCliente as any).user?.id !== idDelUsuario) {
+            return respuestaAlCliente.status(403).send({ error: 'No tienes permiso para modificar este usuario' });
+        }
         
         // PASO 2: Eliminar el usuario de la base de datos
         const usuarioEliminado = await clienteDePrisma.usuario.delete({

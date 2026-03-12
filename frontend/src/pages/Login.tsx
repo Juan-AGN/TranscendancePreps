@@ -317,12 +317,25 @@ function Login() {
                 )}
             </div>
 
+            {/* SEPARADOR */}
+            <div style={{ textAlign: 'center', margin: '0 40px 16px', color: '#bbb', fontSize: '13px' }}>— o —</div>
+
+            {/* BOTÓN LOGIN CON 42 */}
+            <div style={{ padding: '0 40px 24px' }}>
+                <a href="http://localhost:3000/auth/42" style={{ textDecoration: 'none' }}>
+                    <button className="btn-42">
+                        🎓 Login con 42
+                    </button>
+                </a>
+            </div>
+
             {/* FOOTER CON ENLACES LEGALES */}
-            <footer style={{textAlign: 'center', marginTop: '24px', color: '#999', fontSize: '0.8rem'}}>
-                <a href="/privacidad" style={{color: '#2c3e8c', marginRight: '16px'}}>Política de Privacidad</a>
-                <a href="/terminos" style={{color: '#2c3e8c'}}>Términos de Servicio</a>
+            <footer className="login-footer">
+                <a href="/privacidad">Política de Privacidad</a>
+                <a href="/terminos">Términos de Servicio</a>
             </footer>
         </div>
+
     );
 }
 

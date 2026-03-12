@@ -63,7 +63,19 @@ function Perfil() {
     // ========================================================================
     // EFECTO: Cargar datos al abrir la página (después de 'pintar' la pantalla con el 'return')
     // ========================================================================
-    useEffect(() => { // los us
+    useEffect(() => {
+        // Leer token de la URL si venimos del login con 42
+        const params = new URLSearchParams(window.location.search);
+        const tokenDeURL   = params.get('token');
+        const userIdDeURL  = params.get('userId');
+
+        if (tokenDeURL && userIdDeURL) {
+            localStorage.setItem('token', tokenDeURL);
+            localStorage.setItem('usuarioId', userIdDeURL);
+            // Limpiar la URL para que no se vea el token
+            window.history.replaceState({}, '', '/perfil');
+        }
+
         // PASO 1: Obtener el token del localStorage
         const token = localStorage.getItem('token');
         const usuarioId = localStorage.getItem('usuarioId');
@@ -314,9 +326,10 @@ function Perfil() {
                 <div className="perfil-header">
                     <div className="avatar-container">
                         <img
-                            src={usuario.avatar ? `${API_URL}${usuario.avatar}` : `${API_URL}/avatares/default-avatar.png`}
-                            alt="Avatar"
                             className="avatar"
+                            src={usuario.avatar ? `${API_URL}${usuario.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
+                            onError={(e) => { (e.target as HTMLImageElement).src = `${API_URL}/avatares/default-avatar.svg`; }}
+                            alt="Avatar"
                         />
                         <div className={`status-indicator ${usuario.estadoOnline ? '' : 'offline'}`}></div>
                     </div>
@@ -410,7 +423,7 @@ function Perfil() {
                                 {amigos.map(amigo => (
                                     <div key={amigo.id} className="friend-card">
                                         <img
-                                            src={amigo.avatar ? `${API_URL}${amigo.avatar}` : `${API_URL}/avatares/default-avatar.png`}
+                                            src={amigo.avatar ? `${API_URL}${amigo.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
                                             alt={amigo.nombre}
                                             className="friend-avatar"
                                         />
@@ -427,9 +440,16 @@ function Perfil() {
                 </div>
 
                 {/* FOOTER CON ENLACES LEGALES */}
-                <footer style={{textAlign: 'center', marginTop: '24px', color: '#999', fontSize: '0.8rem'}}>
-                    <a href="/privacidad" style={{color: '#2c3e8c', marginRight: '16px'}}>Política de Privacidad</a>
-                    <a href="/terminos" style={{color: '#2c3e8c'}}>Términos de Servicio</a>
+                <footer style={{
+                    textAlign: 'center',
+                    padding: '24px 40px 32px',
+                    color: '#999',
+                    fontSize: '0.8rem',
+                    borderTop: '1px solid #f0f0f0',
+                    marginTop: '8px'
+                }}>
+                    <a href="/privacidad" style={{color: '#667eea', marginRight: '16px', textDecoration: 'none'}}>Política de Privacidad</a>
+                    <a href="/terminos" style={{color: '#667eea', textDecoration: 'none'}}>Términos de Servicio</a>
                 </footer>
             </div>
 

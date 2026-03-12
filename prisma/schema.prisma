@@ -17,11 +17,12 @@ model Usuario {
   id        Int       @id @default(autoincrement())
   nombre    String
   email     String    @unique
-  password  String
+  password  String?
   avatar    String?   @default("default-avatar.png")  
   estadoOnline Boolean @default(false)
   ultimaConexion DateTime?
   createdAt DateTime  @default(now())
+  fortyTwoId Int?     @unique
   
   // RELACIONES ( NO son columnas reales sino campos virtuales)
   solicitudesEnviadas  Amistad[] @relation("SolicitudesEnviadas")
