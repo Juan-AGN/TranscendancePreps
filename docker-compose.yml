@@ -20,7 +20,19 @@ services:
       - game_network
     ports:
       - "7777:3000"
-
+  social-chat-back:
+    container_name: social-chat-back
+    build:
+      context: ./social-chat/back
+    networks:
+      - game_network
+    ports:
+      - "8890:8890"
+    environment:
+      PORT: 8890
+      ##DATABASE_URL: postgresql://trans_user:trans_pass@db:5432/transcendence?schema=public
+    depends_on:
+      - db
   db:
     image: postgres:16-alpine
     container_name: transcendence-db
