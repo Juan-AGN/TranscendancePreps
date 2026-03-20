@@ -114,14 +114,14 @@ export async function authRoutes(server: FastifyInstance) {
 
             // STEP 7: Redirect to the frontend with the token in the URL
             // The frontend will read it and save it in localStorage
-            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
             return reply.redirect(
                 `${frontendUrl}/perfil?token=${token}&userId=${user.id}`
             );
 
         } catch (error) {
             console.error('Error in OAuth callback:', error);
-            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
             return reply.redirect(`${frontendUrl}/?error=oauth_failed`);
         }
     });

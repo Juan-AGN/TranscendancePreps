@@ -8,7 +8,6 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Perfil.css';
 import { API_URL } from '../config';
 
 // ============================================================================
@@ -192,7 +191,7 @@ function Perfil() {
         if (!user) return;
 
         const token = localStorage.getItem('token');
-        const dataToSend: any = { nombre: editName, email: editEmail };
+        const dataToSend: any = { name: editName, email: editEmail };
 
         if (editPassword) {
             dataToSend.password = editPassword;
@@ -300,72 +299,72 @@ function Perfil() {
     // If the user has not loaded yet, show a loading message
     if (!user) {
         return (
-            <div style={{ textAlign: 'center', padding: '50px', color: 'white', fontSize: '20px' }}>
+            <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-700 text-xl text-white">
                 Loading profile...
             </div>
         );
     }
 
     return (
-        <div>
+        <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-violet-700 p-4 md:p-6">
             {/* ================================================================ */}
             {/* FLOATING NOTIFICATION */}
             {/* Only rendered if notification is not null */}
             {/* ================================================================ */}
             {notification && (
-                <div className={`notification ${notification.tipo}`}>
+                <div className={`fixed right-4 top-4 z-50 rounded-xl border px-4 py-3 text-sm shadow-lg ${notification.tipo === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
                     {notification.message}
                 </div>
             )}
 
-            <div className="perfil-container">
+            <div className="mx-auto max-w-6xl overflow-hidden rounded-3xl bg-white shadow-2xl">
 
                 {/* ============================================================ */}
                 {/* PROFILE HEADER */}
                 {/* ============================================================ */}
-                <div className="perfil-header">
-                    <div className="avatar-container">
+                <div className="bg-gradient-to-r from-indigo-500 to-violet-600 px-6 py-10 text-center text-white md:px-10">
+                    <div className="relative mb-5 inline-block">
                         <img
-                            className="avatar"
+                            className="h-36 w-36 rounded-full border-4 border-white object-cover shadow-xl"
                             src={user.avatar ? `${API_URL}${user.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
                             onError={(e) => { (e.target as HTMLImageElement).src = `${API_URL}/avatares/default-avatar.svg`; }}
                             alt="Avatar"
                         />
-                        <div className={`status-indicator ${user.onlineStatus ? '' : 'offline'}`}></div>
+                        <div className={`absolute bottom-1 right-1 h-7 w-7 rounded-full border-2 border-white ${user.onlineStatus ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
                     </div>
 
-                    <h1 className="profile-name">{user.name}</h1>
-                    <p className="profile-email">{user.email}</p>
+                    <h1 className="text-3xl font-bold">{user.name}</h1>
+                    <p className="mt-1 text-indigo-100">{user.email}</p>
 
-                    <div className="action-buttons">
-                        <button className="btn btn-primary" onClick={openModal}>
+                    <div className="mt-6 flex flex-wrap justify-center gap-3">
+                        <button className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-indigo-600 transition hover:-translate-y-0.5 hover:shadow-md" onClick={openModal}>
                             📝 Edit Profile
                         </button>
 
                         {/* Hidden file input for the avatar */}
-                        <label className="btn btn-primary" style={{ cursor: 'pointer' }}>
+                        <label className="cursor-pointer rounded-full bg-white px-5 py-2 text-sm font-semibold text-indigo-600 transition hover:-translate-y-0.5 hover:shadow-md">
                             📷 Change Avatar
                             <input
                                 type="file"
                                 accept="image/*"
-                                style={{ display: 'none' }}
+                                className="hidden"
                                 onChange={uploadAvatar}
                             />
                         </label>
 
                         <button
-                            className={`btn ${user.onlineStatus ? 'btn-danger' : 'btn-success'}`}
+                            className={`rounded-full px-5 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-md ${user.onlineStatus ? 'bg-rose-500 hover:bg-rose-600' : 'bg-emerald-500 hover:bg-emerald-600'}`}
                             onClick={changeStatus}
                         >
                             {user.onlineStatus ? '🔴 Disconnect' : '🟢 Connect'}
                         </button>
 
                         {/* button to go to the friends page */}
-                        <button className="btn btn-primary" onClick={() => navigate('/amigos')}>
+                        <button className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-indigo-600 transition hover:-translate-y-0.5 hover:shadow-md" onClick={() => navigate('/amigos')}>
                             👥 My Friends
                         </button>
 
-                        <button className="btn btn-danger" onClick={logout}>
+                        <button className="rounded-full bg-rose-500 px-5 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-rose-600 hover:shadow-md" onClick={logout}>
                             🚪 Log Out
                         </button>
                     </div>
@@ -374,61 +373,61 @@ function Perfil() {
                 {/* ============================================================ */}
                 {/* PROFILE CONTENT */}
                 {/* ============================================================ */}
-                <div className="perfil-content">
+                <div className="px-6 py-8 md:px-10">
 
                     {/* SECTION: INFORMATION */}
-                    <div className="section">
-                        <h2 className="section-title">📋 Profile Information</h2>
-                        <div className="info-grid">
-                            <div className="info-card">
-                                <div className="info-label">Status</div>
-                                <div className="info-value">
-                                    <span className={`status-badge ${user.onlineStatus ? 'online' : 'offline'}`}>
+                    <div className="mb-10">
+                        <h2 className="mb-5 border-b-2 border-indigo-500 pb-2 text-2xl font-bold text-slate-800">📋 Profile Information</h2>
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="rounded-xl border-l-4 border-indigo-500 bg-slate-50 p-4">
+                                <div className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Status</div>
+                                <div className="text-base font-medium text-slate-800">
+                                    <span className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${user.onlineStatus ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                                         {user.onlineStatus ? '🟢 Online' : '🔴 Offline'}
                                     </span>
                                 </div>
                             </div>
-                            <div className="info-card">
-                                <div className="info-label">Last Connection</div>
-                                <div className="info-value">
+                            <div className="rounded-xl border-l-4 border-indigo-500 bg-slate-50 p-4">
+                                <div className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Last Connection</div>
+                                <div className="text-base font-medium text-slate-800">
                                     {user.lastConnection
                                         ? new Date(user.lastConnection).toLocaleString()
                                         : '-'
                                     }
                                 </div>
                             </div>
-                            <div className="info-card">
-                                <div className="info-label">Member Since</div>
-                                <div className="info-value">
+                            <div className="rounded-xl border-l-4 border-indigo-500 bg-slate-50 p-4">
+                                <div className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Member Since</div>
+                                <div className="text-base font-medium text-slate-800">
                                     {new Date(user.createdAt).toLocaleDateString()}
                                 </div>
                             </div>
-                            <div className="info-card">
-                                <div className="info-label">Total Friends</div>
-                                <div className="info-value">{friends.length}</div>
+                            <div className="rounded-xl border-l-4 border-indigo-500 bg-slate-50 p-4">
+                                <div className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Total Friends</div>
+                                <div className="text-base font-medium text-slate-800">{friends.length}</div>
                             </div>
                         </div>
                     </div>
 
                     {/* SECTION: FRIENDS */}
-                    <div className="section">
-                        <h2 className="section-title">👥 My Friends</h2>
+                    <div className="mb-2">
+                        <h2 className="mb-5 border-b-2 border-indigo-500 pb-2 text-2xl font-bold text-slate-800">👥 My Friends</h2>
                         {friends.length === 0 ? (
-                            <p style={{ textAlign: 'center', color: '#666' }}>
+                            <p className="text-center text-slate-500">
                                 You have no friends yet
                             </p>
                         ) : (
-                            <div className="friends-grid">
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                                 {/* In React, to show lists we use .map() instead of innerHTML */}
                                 {friends.map(friend => (
-                                    <div key={friend.id} className="friend-card">
+                                    <div key={friend.id} className="rounded-xl bg-slate-50 p-4 text-center transition hover:-translate-y-1 hover:shadow-md">
                                         <img
                                             src={friend.avatar ? `${API_URL}${friend.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
                                             alt={friend.name}
-                                            className="friend-avatar"
+                                            className="mx-auto mb-3 block h-20 w-20 rounded-full border-2 border-indigo-400 object-cover"
                                         />
-                                        <div className="friend-name">{friend.name}</div>
-                                        <div className={`friend-status ${friend.onlineStatus ? 'online' : ''}`}>
+                                        <div className="font-semibold text-slate-800">{friend.name}</div>
+                                        <div className={`text-xs ${friend.onlineStatus ? 'font-semibold text-emerald-600' : 'text-slate-500'}`}>
                                             {friend.onlineStatus ? '🟢 Online' : '🔴 Offline'}
                                         </div>
                                     </div>
@@ -440,16 +439,9 @@ function Perfil() {
                 </div>
 
                 {/* FOOTER WITH LEGAL LINKS */}
-                <footer style={{
-                    textAlign: 'center',
-                    padding: '24px 40px 32px',
-                    color: '#999',
-                    fontSize: '0.8rem',
-                    borderTop: '1px solid #f0f0f0',
-                    marginTop: '8px'
-                }}>
-                    <a href="/privacidad" style={{color: '#667eea', marginRight: '16px', textDecoration: 'none'}}>Privacy Policy</a>
-                    <a href="/terminos" style={{color: '#667eea', textDecoration: 'none'}}>Terms of Service</a>
+                <footer className="mt-2 border-t border-slate-100 px-6 py-6 text-center text-xs text-slate-400 md:px-10">
+                    <a href="/privacidad" className="mr-4 text-indigo-500 hover:underline">Privacy Policy</a>
+                    <a href="/terminos" className="text-indigo-500 hover:underline">Terms of Service</a>
                 </footer>
             </div>
 
@@ -459,52 +451,50 @@ function Perfil() {
             {/* ================================================================ */}
             {modalOpen && (
                 // Clicking the dark backdrop closes the modal
-                <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setModalOpen(false)}>
-                    <div className="modal-content">
-                        <h2 className="modal-title">✏️ Edit Profile</h2>
+                <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 p-4" onClick={e => e.target === e.currentTarget && setModalOpen(false)}>
+                    <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 md:p-8">
+                        <h2 className="mb-6 text-2xl font-bold text-slate-800">✏️ Edit Profile</h2>
 
-                        <div className="form-group">
-                            <label className="form-label">Name</label>
+                        <div className="mb-4">
+                            <label className="mb-2 block text-sm font-semibold text-slate-700">Name</label>
                             <input
                                 type="text"
-                                className="form-input"
+                                className="w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
                                 value={editName}
                                 onChange={e => setEditName(e.target.value)}
                             />
                         </div>
 
-                        <div className="form-group">
-                            <label className="form-label">Email</label>
+                        <div className="mb-4">
+                            <label className="mb-2 block text-sm font-semibold text-slate-700">Email</label>
                             <input
                                 type="email"
-                                className="form-input"
+                                className="w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
                                 value={editEmail}
                                 onChange={e => setEditEmail(e.target.value)}
                             />
                         </div>
 
-                        <div className="form-group">
-                            <label className="form-label">New Password (optional)</label>
+                        <div className="mb-4">
+                            <label className="mb-2 block text-sm font-semibold text-slate-700">New Password (optional)</label>
                             <input
                                 type="password"
-                                className="form-input"
+                                className="w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
                                 placeholder="Leave blank to keep unchanged"
                                 value={editPassword}
                                 onChange={e => setEditPassword(e.target.value)}
                             />
                         </div>
 
-                        <div className="form-buttons">
+                        <div className="mt-6 flex gap-3">
                             <button
-                                className="btn-block"
-                                style={{ background: '#ef4444', color: 'white' }}
+                                className="flex-1 rounded-xl bg-rose-500 px-4 py-3 font-semibold text-white transition hover:bg-rose-600"
                                 onClick={() => setModalOpen(false)}
                             >
                                 Cancel
                             </button>
                             <button
-                                className="btn-block"
-                                style={{ background: '#10b981', color: 'white' }}
+                                className="flex-1 rounded-xl bg-emerald-500 px-4 py-3 font-semibold text-white transition hover:bg-emerald-600"
                                 onClick={saveChanges}
                             >
                                 Save Changes

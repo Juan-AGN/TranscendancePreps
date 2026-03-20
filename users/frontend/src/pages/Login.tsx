@@ -10,7 +10,6 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';  // for navigating between pages
-import './Login.css';
 import { API_URL } from '../config';
 
 // ============================================================================
@@ -137,7 +136,7 @@ function Login() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    nombre: registerName,
+                    name: registerName,
                     email: registerEmail,
                     password: registerPassword
                 })
@@ -184,158 +183,146 @@ function Login() {
     //   - class -> className
     //   - Variables go inside curly braces: {variable}
     //   - Events receive functions: onClick={() => doLogin()}
+    const inputClass = 'w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100';
+    const primaryButtonClass = 'mt-2 w-full rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 px-4 py-3 text-base font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-300';
+
     return (
-        <div className="login-container">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-700 p-4">
+            <div className="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl">
+                <div className="bg-gradient-to-r from-indigo-500 to-violet-600 px-8 py-8 text-center text-white">
+                    <div className="mb-2 text-5xl">🏓</div>
+                    <h1 className="text-3xl font-bold">Transcendence</h1>
+                    <p className="mt-1 text-sm text-indigo-100">42 Project - User Management</p>
+                </div>
 
-            {/* HEADER */}
-            <div className="login-header">
-                <div className="login-header-logo">🏓</div>
-                <h1 className="login-header-titulo">Transcendence</h1>
-                <p className="login-header-subtitulo">42 Project - User Management</p>
-            </div>
-
-            {/* TABS */}
-            <div className="login-tabs">
-                <button
-                    className={`login-tab ${activeTab === 'login' ? 'active' : ''}`}
-                    onClick={() => {
-                        setActiveTab('login');
-                        setLoginAlert(null);
-                        setRegisterAlert(null);
-                    }}
-                >
-                    Sign In
-                </button>
-                <button
-                    className={`login-tab ${activeTab === 'register' ? 'active' : ''}`}
-                    onClick={() => {
-                        setActiveTab('register');
-                        setLoginAlert(null);
-                        setRegisterAlert(null);
-                    }}
-                >
-                    Sign Up
-                </button>
-            </div>
-
-            {/* FORMS */}
-            <div className="login-form-container">
-                {/* ---------------------------------------------------------- */}
-                {/* LOGIN TAB: only shown if activeTab === 'login' */}
-                {/* ---------------------------------------------------------- */}
-                {activeTab === 'login' && ( // if activeTab is 'login' -> show the following (&&)
-                    <div>
-                        {/* Alert: only rendered if loginAlert is not null */}
-                        {loginAlert && (
-                            <div className={`alerta ${loginAlert.tipo}`}>
-                                {loginAlert.tipo === 'success' ? '✅ ' : '❌ '}
-                                {loginAlert.message}
-                            </div>
-                        )}
-
-                        <div className="form-group">
-                            <label className="form-label">Email</label>
-                            {/* value={loginEmail} -> displays the state */}
-                            {/* onChange={e => setLoginEmail(e.target.value)} -> updates state on input */}
-                            <input
-                                type="email"
-                                className="form-input"
-                                placeholder="your@email.com"
-                                value={loginEmail}
-                                onChange={e => setLoginEmail(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && doLogin()}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label className="form-label">Password</label>
-                            <input  
-                                type="password"
-                                className="form-input"
-                                placeholder="Your password"
-                                value={loginPassword}
-                                onChange={e => setLoginPassword(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && doLogin()}
-                            />
-                        </div>
-
-                        <button className="btn-submit" onClick={doLogin}>
-                            Sign In
-                        </button>
-                    </div>
-                )}
-
-                {/* ---------------------------------------------------------- */}
-                {/* REGISTER TAB: only shown if activeTab === 'register' */}
-                {/* ---------------------------------------------------------- */}
-                {activeTab === 'register' && (
-                    <div>
-                        {registerAlert && (
-                            <div className={`alerta ${registerAlert.tipo}`}>
-                                {registerAlert.tipo === 'success' ? '✅ ' : '❌ '}
-                                {registerAlert.message}
-                            </div>
-                        )}
-
-                        <div className="form-group">
-                            <label className="form-label">Name</label>
-                            <input
-                                type="text"
-                                className="form-input"
-                                placeholder="Your full name"
-                                value={registerName}
-                                onChange={e => setRegisterName(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label className="form-label">Email</label>
-                            <input
-                                type="email"
-                                className="form-input"
-                                placeholder="your@email.com"
-                                value={registerEmail}
-                                onChange={e => setRegisterEmail(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label className="form-label">Password</label>
-                            <input
-                                type="password"
-                                className="form-input"
-                                placeholder="Minimum 6 characters"
-                                value={registerPassword}
-                                onChange={e => setRegisterPassword(e.target.value)}
-                            />
-                        </div>
-
-                        <button className="btn-submit" onClick={doRegister}>
-                            Create Account
-                        </button>
-                    </div>
-                )}
-            </div>
-
-            {/* DIVIDER */}
-            <div style={{ textAlign: 'center', margin: '0 40px 16px', color: '#bbb', fontSize: '13px' }}>— or —</div>
-
-            {/* LOGIN WITH 42 BUTTON */}
-            <div style={{ padding: '0 40px 24px' }}>
-                <a href="http://localhost:3000/auth/42" style={{ textDecoration: 'none' }}>
-                    <button className="btn-42">
-                        🎓 Login with 42
+                <div className="flex border-b-2 border-slate-100">
+                    <button
+                        className={`flex-1 px-4 py-4 text-sm font-semibold transition ${activeTab === 'login' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-slate-400 hover:bg-slate-50 hover:text-indigo-500'}`}
+                        onClick={() => {
+                            setActiveTab('login');
+                            setLoginAlert(null);
+                            setRegisterAlert(null);
+                        }}
+                    >
+                        Sign In
                     </button>
-                </a>
+                    <button
+                        className={`flex-1 px-4 py-4 text-sm font-semibold transition ${activeTab === 'register' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-slate-400 hover:bg-slate-50 hover:text-indigo-500'}`}
+                        onClick={() => {
+                            setActiveTab('register');
+                            setLoginAlert(null);
+                            setRegisterAlert(null);
+                        }}
+                    >
+                        Sign Up
+                    </button>
+                </div>
+
+                <div className="px-8 py-8">
+                    {activeTab === 'login' && (
+                        <div>
+                            {loginAlert && (
+                                <div className={`mb-5 rounded-xl border px-4 py-3 text-sm ${loginAlert.tipo === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
+                                    {loginAlert.tipo === 'success' ? '✅ ' : '❌ '}
+                                    {loginAlert.message}
+                                </div>
+                            )}
+
+                            <div className="mb-4">
+                                <label className="mb-2 block text-sm font-semibold text-slate-700">Email</label>
+                                <input
+                                    type="email"
+                                    className={inputClass}
+                                    placeholder="your@email.com"
+                                    value={loginEmail}
+                                    onChange={e => setLoginEmail(e.target.value)}
+                                    onKeyDown={e => e.key === 'Enter' && doLogin()}
+                                />
+                            </div>
+
+                            <div className="mb-5">
+                                <label className="mb-2 block text-sm font-semibold text-slate-700">Password</label>
+                                <input
+                                    type="password"
+                                    className={inputClass}
+                                    placeholder="Your password"
+                                    value={loginPassword}
+                                    onChange={e => setLoginPassword(e.target.value)}
+                                    onKeyDown={e => e.key === 'Enter' && doLogin()}
+                                />
+                            </div>
+
+                            <button className={primaryButtonClass} onClick={doLogin}>
+                                Sign In
+                            </button>
+                        </div>
+                    )}
+
+                    {activeTab === 'register' && (
+                        <div>
+                            {registerAlert && (
+                                <div className={`mb-5 rounded-xl border px-4 py-3 text-sm ${registerAlert.tipo === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
+                                    {registerAlert.tipo === 'success' ? '✅ ' : '❌ '}
+                                    {registerAlert.message}
+                                </div>
+                            )}
+
+                            <div className="mb-4">
+                                <label className="mb-2 block text-sm font-semibold text-slate-700">Name</label>
+                                <input
+                                    type="text"
+                                    className={inputClass}
+                                    placeholder="Your full name"
+                                    value={registerName}
+                                    onChange={e => setRegisterName(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="mb-4">
+                                <label className="mb-2 block text-sm font-semibold text-slate-700">Email</label>
+                                <input
+                                    type="email"
+                                    className={inputClass}
+                                    placeholder="your@email.com"
+                                    value={registerEmail}
+                                    onChange={e => setRegisterEmail(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="mb-5">
+                                <label className="mb-2 block text-sm font-semibold text-slate-700">Password</label>
+                                <input
+                                    type="password"
+                                    className={inputClass}
+                                    placeholder="Minimum 6 characters"
+                                    value={registerPassword}
+                                    onChange={e => setRegisterPassword(e.target.value)}
+                                />
+                            </div>
+
+                            <button className={primaryButtonClass} onClick={doRegister}>
+                                Create Account
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                <div className="px-8 pb-4 text-center text-xs text-slate-400">- or -</div>
+
+                <div className="px-8 pb-6">
+                    <a href={`${API_URL}/auth/42`} className="block no-underline">
+                        <button className="w-full rounded-xl bg-cyan-500 px-4 py-3 font-semibold text-white transition hover:-translate-y-0.5 hover:bg-cyan-600 hover:shadow-lg hover:shadow-cyan-300">
+                            🎓 Login with 42
+                        </button>
+                    </a>
+                </div>
+
+                <footer className="pb-7 text-center text-xs text-slate-400">
+                    <a href="/privacidad" className="mx-2 text-indigo-500 hover:underline">Privacy Policy</a>
+                    <a href="/terminos" className="mx-2 text-indigo-500 hover:underline">Terms of Service</a>
+                </footer>
             </div>
-
-            {/* FOOTER WITH LEGAL LINKS */}
-            <footer className="login-footer">
-                <a href="/privacidad">Privacy Policy</a>
-                <a href="/terminos">Terms of Service</a>
-            </footer>
         </div>
-
     );
 }
 

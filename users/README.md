@@ -61,7 +61,7 @@ docker-compose up --build
 
 ### Frontend
 - **React** + TypeScript + Vite
-- Per-page custom CSS
+- **Tailwind CSS** for styling
 
 ### Backend
 - **Node.js** + Fastify + TypeScript
