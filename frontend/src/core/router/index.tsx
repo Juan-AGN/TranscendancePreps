@@ -8,9 +8,9 @@ import type { RouteObject } from './types'
 // Layout principal
 import { RootLayout } from '../../shared/components/layout/RootLayout'
 //Paginas a mdedida que las vamos creando poner aqui!
-import { HomePage } from "../../game/pages/HomePage"
-import { SplashScreen } from '../../game/components/SplashScreen'
-import { StartGate } from '../../game/components/StartGate'
+import { HomePage } from "../../game/ui/pages/HomePage"
+import { SplashScreen } from '../../game/ui/components/SplashScreen'
+import { StartGate } from '../../game/ui/components/StartGate'
 
 import { Menu2DPage } from '../../ui2d/pages/Menu2DPage'
 import { Game2DPage } from "../../ui2d/pages/Game2DPage"
