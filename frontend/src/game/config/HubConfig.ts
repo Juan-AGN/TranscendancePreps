@@ -22,7 +22,7 @@ export const SCENE_CONFIG = {
 
     townhouse: { 
         pos: new Vector3(0, 0, 50), // al fondo del mapa
-        route: '/game' // al interactuar → va a la ruta /game
+        route: 'panel:settings' // al interactuar → abre panel settings en el hub 3D
     },
 
     trophy: { 

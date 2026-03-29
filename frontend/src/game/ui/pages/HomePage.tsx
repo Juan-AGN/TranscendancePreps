@@ -1,9 +1,15 @@
+import { useState } from 'react'
 import { useLoadingProgress } from '../hooks/useLoadingProgress'
 import { useBabylonScene } from '../hooks/useBabylonScene'
+import { HubPanel } from '../components/HubPanel'
+import { HubPanelSettings } from '../components/HubPanelSettings'
 
 export function HomePage() {
 	// Hook que gestiona la lógica matemática de la barra de progreso
 	const { updateProgress, complete } = useLoadingProgress()
+
+	// Estado del panel activo (null = ninguno abierto)
+	const [activePanel, setActivePanel] = useState<string | null>(null)
 
 	// Inicializamos el motor 3D
 	useBabylonScene({
@@ -15,7 +21,8 @@ export function HomePage() {
 		},
 		onComplete: () => {
 			complete() //Carga Completa
-		}
+		},
+		onPanelOpen: (panelId) => setActivePanel(panelId)
 	})
 
 	return (
@@ -75,12 +82,12 @@ export function HomePage() {
 						className="w-full h-full outline-none"
 						style={{ touchAction: 'none' }}
 					/>
-					{/* 
-              id="homeCanvas": ID único para que Babylon.js pueda encontrar y renderizar en este canvas
-              w-full h-full: Canvas ocupa 100% del ancho y alto del contenedor padre
-              outline-none: Quita el borde de enfoque cuando el canvas está activo
-              touchAction: 'none': Previene gestos táctiles predeterminados del navegador (importante para controles en móviles)
-            */}
+
+					{activePanel === 'settings' && (
+						<HubPanel title="⚙ Settings" onClose={() => setActivePanel(null)}>
+							<HubPanelSettings />
+						</HubPanel>
+					)}
 				</div>
 
 			</div>

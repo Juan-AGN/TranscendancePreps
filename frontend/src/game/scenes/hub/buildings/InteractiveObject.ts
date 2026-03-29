@@ -18,6 +18,7 @@ export abstract class InteractiveObject {
 	public onClick: (() => void) | null = null;// callback cuando el usuario hace click// ej: navegar a otra pagina
 	protected loadPromise: Promise<void> = Promise.resolve();
 	// promesa que indica cuando el objeto ha terminado de cargar cada subclase la sobrescribe
+	protected colliderMesh: Mesh | null = null; // guardamos el collider pa q el click handler sepa q este mesh invisible pertenece a este objeto
 
 	constructor(
 		scene: Scene,
@@ -78,13 +79,17 @@ export abstract class InteractiveObject {
 		const size = boundsCenter.max.subtract(boundsCenter.min); // tamaño real en X,Y,Z
 		const center = boundsCenter.min.add(size.scale(0.5)); // centro real del modelo
 
-		return ColliderBuilder.createBox(
+		const collider = ColliderBuilder.createBox(
 			this.scene,
 			id,
 			{ width: size.x, height: size.y, depth: size.z },
 			center,
 			center.y
 		);
+		// guardamos referencia al collider pa que el click handler pueda identificarlo
+		// sin esto, al clickar el edificio se detecta 'townhouse_collider' y no hay match
+		this.colliderMesh = collider;
+		return collider;
 
 		// creo collider automatico basado en el modelo
 		// IMPORTANTE: esto evita tener que calcular tamaños a mano
@@ -102,6 +107,12 @@ export abstract class InteractiveObject {
 
 	public getRootMesh(): Mesh | null {
 		return this.rootMesh; // mesh principal
+	}
+
+	public getColliderMesh(): Mesh | null {
+		// expuesto pa que HubObjectClickHandler detecte clicks en el collider invisible
+		// el collider tapa al GLB, sin esto los clicks nunca llegan al mesh del edificio
+		return this.colliderMesh;
 	}
 
 	public getModelMeshes(): Mesh[] {

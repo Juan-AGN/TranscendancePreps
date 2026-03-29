@@ -55,12 +55,14 @@ export class HubScene {
 	// Progress tracking (seguimiento de carga)
 	private onProgress?: (loaded: number, total: number) => void;  // callback pa actualizar barra de carga
 	private onWindowResize?: () => void;             // callback pa resize de ventana
+	private onPanelOpen?: (panelId: string) => void; // callback pa abrir panel react
 
 
 	private hologramManager: HologramController = new HologramController();
 
-	constructor(canvasId: string, onProgress?: (loaded: number, total: number) => void) {
-		this.onProgress = onProgress;  // guardamos el callback de progreso
+	constructor(canvasId: string, onProgress?: (loaded: number, total: number) => void, onPanelOpen?: (panelId: string) => void) {
+		this.onProgress = onProgress;   // guardamos el callback de progreso de carga
+		this.onPanelOpen = onPanelOpen; // guardamos el callback pa notificar a React q abra un panel
 		// Buscamos el canvas en el DOM x su id
 		this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
 
@@ -171,9 +173,17 @@ export class HubScene {
 		this.environmentSetup.setupHDRI();    // carga la imagen HDRI pa reflejos
 	}
 
-	// Redirige a una ruta usando window.location (navegacion dura) 
+	// Redirige a una ruta o abre un panel react segun el prefijo
+	// rutas con 'panel:' (ej: 'panel:settings') → disparan onPanelOpen en React (overlay encima del 3D)
+	// rutas normales (ej: '/game') → navegacion dura con window.location.href
 	private redirectTo(route: string): void {
-		window.location.href = route;
+		if (route.startsWith('panel:')) {
+			// 'panel:settings' → slice(6) → 'settings' → React abre el panel correcto
+			this.onPanelOpen?.(route.slice('panel:'.length));
+		} else {
+			// ruta normal → navegacion al estilo SPA
+			window.location.href = route;
+		}
 	}
 
 	// Inicia el render loop (dibujado continuo de la escena) 

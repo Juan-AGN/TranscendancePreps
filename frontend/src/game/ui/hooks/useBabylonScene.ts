@@ -11,6 +11,7 @@ interface UseBabylonSceneProps {
 	enabled?: boolean;
 	onProgress?: (progress: number, label: string) => void;  // callback opcional pa reportar progreso
 	onComplete?: () => void;  // callback opcional cuando termina la carga
+	onPanelOpen?: (panelId: string) => void;  // callback pa abrir panel react desde la escena 3D
 }
 
 //Hook pa crear y gestionar la escena 3D de Babylon
@@ -19,7 +20,8 @@ export const useBabylonScene = ({
 	canvasId,
 	enabled = true,
 	onProgress,
-	onComplete
+	onComplete,
+	onPanelOpen
 }: UseBabylonSceneProps) => {
 	// useRef -> guarda la referencia a la escena 3D sin causar re-renders
 	// al cambiar sceneRef.current, React NO vuelve a renderizar el componente
@@ -54,6 +56,9 @@ export const useBabylonScene = ({
 					// Ejecutamos el callback de progreso si existe
 					// ?. -> optional chaining (solo llama si onProgress no es undefined)
 					onProgress?.(percentage, label);
+				}, (panelId) => {
+					if (!isCancelled)
+						onPanelOpen?.(panelId);
 				});
 
 				// Si el componente se desmonto durante la creacion, limpiamos y salimos

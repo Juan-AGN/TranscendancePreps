@@ -1,4 +1,4 @@
- // MenuInteraction: file HubObjectClickHandler
+ // MenuInteraction: file HubObjectClickHandler//ahora mismo no hace nada //colidders lo tapan
  // Convierte objetos 3D en botones clickables pa navegacion
  // Detecta clicks en meshes y ejecuta la navegacion a rutas de React Router
  // Gestiona el mapa de objetos interactivos y sus rutas asociadas*/
@@ -38,15 +38,33 @@ export class HubObjectClickHandler {
 
 				// Si el rayo impacto algo (hit) y hay un mesh seleccionado
 				if (pickResult?.hit && pickResult.pickedMesh) {
-					// Recorremos todos los objetos interactivos registrados
-					// entries() -> devuelve pares [clave, valor] del Map
+					const picked = pickResult.pickedMesh;
 					for (const [route, clickableObjects] of this.clickableObjects.entries()) {
-						// Comprobamos si el mesh clickeado coincide con alguno registrado
-						// o si el mesh clickeado es hijo del mesh registrado (ej: parte de un modelo GLB)
-						if (pickResult.pickedMesh === clickableObjects.mesh || pickResult.pickedMesh.parent === clickableObjects.mesh) {
-							// Ejecutamos la navegacion a la ruta asociada
+						const collider = clickableObjects.entity?.getColliderMesh?.();
+
+						// caso 1: click en el collider invisible q tapa al edificio
+					// el collider (caja invisible de fisica) siempre recibe el click antes q el GLB
+					// sin esta comprobacion, nunca habria match y el click se perderia
+						if (collider && picked === collider) {
 							this.navigateToRoute(route);
-							// break -> salimos del bucle, ya encontramos el obj
+							break;
+						}
+
+						// caso 2: click directo en el mesh del GLB (sube toda la jerarquia)
+						// necesario pq los GLB tienen estructura profunda con varios niveles de padres
+						// ej: pickedMesh → __root__ → glb_node → mesh_0 → clickableObjects.mesh
+						// con un solo .parent nunca llegariamos al mesh registrado
+						let node: any = picked;
+						let found = false;
+						while (node) {
+							if (node === clickableObjects.mesh) {
+								found = true;
+								break;
+							}
+							node = node.parent;
+						}
+						if (found) {
+							this.navigateToRoute(route);
 							break;
 						}
 					}
