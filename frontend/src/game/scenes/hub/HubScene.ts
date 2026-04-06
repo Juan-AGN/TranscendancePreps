@@ -145,7 +145,7 @@ export class HubScene {
 
 		// 6. Creamos objetos del menu (prepara tareas pero no carga aun)
 		// objetos interactivos (townhouse, trophy, etc)
-		this.sceneBuilder.createNavigationObjects((route) => this.redirectTo(route));
+		this.sceneBuilder.createNavigationObjects();
 		// objetos decorativos (pingpong, torre, etc)
 		this.sceneBuilder.createDecorationObjects();
 

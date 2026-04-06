@@ -32,7 +32,8 @@ export const SCENE_CONFIG = {
 
     computer: { 
         pos: new Vector3(-30, 0, 28), // izquierda delante
-        scale: 10 // tamaño grande pa que se vea bien
+        scale: 10, // tamaño grande pa que se vea bien
+        route: 'panel:login'
     },
 
     lafarola: { 

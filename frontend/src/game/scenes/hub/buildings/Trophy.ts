@@ -12,11 +12,9 @@ export class Trophy extends InteractiveObject {
 	constructor(
 		scene: Scene,
 		position: Vector3,
-		onClick: () => void,
 		shadowGenerator: ShadowGenerator | null = null
 	) {
 		super(scene, position, shadowGenerator);
-		this.onClick = onClick;
 		this.loadPromise = this.load();
 	}
 

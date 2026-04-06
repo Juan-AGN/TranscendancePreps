@@ -3,6 +3,7 @@ import { useLoadingProgress } from '../hooks/useLoadingProgress'
 import { useBabylonScene } from '../hooks/useBabylonScene'
 import { HubPanel } from '../components/HubPanel'
 import { HubPanelSettings } from '../components/HubPanelSettings'
+import { HubPanelLogin } from '../components/HubLoginPanel'
 
 export function HomePage() {
 	// Hook que gestiona la lógica matemática de la barra de progreso
@@ -86,6 +87,11 @@ export function HomePage() {
 					{activePanel === 'settings' && (
 						<HubPanel title="⚙ Settings" onClose={() => setActivePanel(null)}>
 							<HubPanelSettings />
+						</HubPanel>
+					)}
+					{activePanel === 'login' && (
+						<HubPanel title="⚙ Login" onClose={() => setActivePanel(null)}>
+							<HubPanelLogin />
 						</HubPanel>
 					)}
 				</div>

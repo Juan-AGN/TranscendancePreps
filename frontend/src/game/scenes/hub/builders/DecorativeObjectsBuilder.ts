@@ -6,7 +6,6 @@ import { Scene, ShadowGenerator } from '@babylonjs/core';
 import { SCENE_CONFIG } from '../../../config/HubConfig';
 import { PingPongTable } from '../buildings/PingPongTable';
 import { TorreMonica } from '../buildings/TorreMonica';
-import { Computer } from '../buildings/Computer';
 import { LaRosaleda } from '../buildings/LaRosaleda';
 import { Arcade } from '../buildings/Arcade';
 import type { LoadingProgress } from '../setup/LoadingProgress';
@@ -16,7 +15,6 @@ export interface DecorObjects {
 	pingpong: PingPongTable;
 	torre: TorreMonica;
 	rosaleda: LaRosaleda;
-	computer: Computer;
 }
 
 export class DecorativeObjectsBuilder {
@@ -36,10 +34,6 @@ export class DecorativeObjectsBuilder {
 		const torre = new TorreMonica(scene, SCENE_CONFIG.torre.pos, SCENE_CONFIG.torre.scale, shadow);
 		loadingQueue.add(() => torre.ready());
 
-		// computadora
-		const computer = new Computer(scene, SCENE_CONFIG.computer.pos, SCENE_CONFIG.computer.scale, shadow);
-		loadingQueue.add(() => computer.ready());
-
 		// estadio la rosaleda
 		const rosaleda = new LaRosaleda(scene, SCENE_CONFIG.rosaleda.pos, SCENE_CONFIG.rosaleda.scale, shadow, SCENE_CONFIG.rosaleda.rotation);
 		loadingQueue.add(() => rosaleda.ready());
@@ -48,6 +42,6 @@ export class DecorativeObjectsBuilder {
 		const arcade = new Arcade(scene, SCENE_CONFIG.arcade.pos, SCENE_CONFIG.arcade.scale, shadow, SCENE_CONFIG.arcade.rotation);
 		loadingQueue.add(() => arcade.ready());
 
-		return { arcade, pingpong, torre, rosaleda, computer };
+		return { arcade, pingpong, torre, rosaleda };
 	}
 }

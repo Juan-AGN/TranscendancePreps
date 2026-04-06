@@ -56,16 +56,12 @@ export class HubSceneBuilder {
 	}
 
 	// crea los objetos navegables del hub y los conecta con el menu
-	public createNavigationObjects(navigate: (route: string) => void): void {
-		const objects = HubObjectsBuilder.build(this.scene, this.shadowGenerator, navigate);
+	public createNavigationObjects(): void {
+		const objects = HubObjectsBuilder.build(this.scene, this.shadowGenerator, this.loadingQueue, this.menuInteraction);
 		this.townhouse = objects.townhouse;
 		this.trophy    = objects.trophy;
 		this.lafarola  = objects.lafarola;
-
-		// registramos cada objeto como clickable en el sistema de menu
-		this.registerInteractiveObject(SCENE_CONFIG.townhouse.route, this.townhouse);
-		this.registerInteractiveObject(SCENE_CONFIG.trophy.route, this.trophy);
-		this.registerInteractiveObject(SCENE_CONFIG.lafarola.route, this.lafarola);
+		this.computer  = objects.computer;
 	}
 
 	
@@ -76,7 +72,6 @@ export class HubSceneBuilder {
 		this.pingpong  = decor.pingpong;
 		this.torre     = decor.torre;
 		this.rosaleda  = decor.rosaleda;
-		this.computer  = decor.computer;
 	}
 
 	// añade sombras dinamicas a los edificios principales al terminar la carga
@@ -84,21 +79,6 @@ export class HubSceneBuilder {
 		this.scene.meshes.forEach((mesh) => {
 			if (mesh.name.includes('TownHouse') || mesh.name.includes('Trophy')) {
 				this.shadowGenerator?.addShadowCaster(mesh);
-			}
-		});
-	}
-
-	// conecta un objeto 3D con el sistema de menu pa que sea clickable
-	// espera a ready() pa garantizar que el GLB ya cargo antes de buscar el mesh
-	private registerInteractiveObject(route: string, obj: any): void {
-		this.loadingQueue.add(async () => {
-			console.log(`[registerInteractive] ${route} — antes de await ready()`);
-			await obj.ready();
-			console.log(`[registerInteractive] ${route} — despues de await ready()`);
-			const mesh = obj.getRootMesh();
-			console.log(`[registerInteractive] ${route} — getRootMesh():`, mesh);
-			if (mesh) {
-				this.menuInteraction.registerClickableObject(route, mesh, obj);
 			}
 		});
 	}

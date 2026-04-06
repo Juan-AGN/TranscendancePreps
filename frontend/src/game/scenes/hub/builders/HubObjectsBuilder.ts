@@ -1,51 +1,50 @@
-// HubObjectsBuilder — crea los objetos navegables del hub (townhouse, trophy, lafarola)
-// cada objeto se conecta con su ruta de react router pa navegar al clickar
-// separa la construccion de objetos del SceneEntityManager pa que sea mas corto
+// HubObjectsBuilder — crea y registra todos los objetos interactivos del hub
+// para añadir un nuevo objeto clickable: crear clase + 1 linea en el array 'interactives'
 
 import { Scene, ShadowGenerator } from '@babylonjs/core';
 import { SCENE_CONFIG } from '../../../config/HubConfig';
 import { TownHouse } from '../buildings/TownHouse';
 import { Trophy } from '../buildings/Trophy';
 import { LaFarola } from '../buildings/LaFarola';
+import { Computer } from '../buildings/Computer';
+import type { LoadingProgress } from '../setup/LoadingProgress';
+import { HubObjectClickHandler } from '../../../engine/HubObjectClickHandler';
 
-// objetos que devuelve el builder pa que SceneEntityManager guarde las referencias
 export interface NavigationObjects {
 	townhouse: TownHouse;
 	trophy: Trophy;
 	lafarola: LaFarola;
+	computer: Computer;
 }
 
 export class HubObjectsBuilder {
-	// crea y devuelve los tres objetos navegables del hub
-	// navigate -> funcion de react router pa cambiar de pagina al clickar en un objeto
 	public static build(
 		scene: Scene,
 		shadow: ShadowGenerator | null,
-		navigate: (route: string) => void
+		loadingQueue: LoadingProgress,
+		menuInteraction: HubObjectClickHandler
 	): NavigationObjects {
-		const townhouse = new TownHouse(
-			scene,
-			SCENE_CONFIG.townhouse.pos,
-			() => navigate(SCENE_CONFIG.townhouse.route),
-			shadow
-		);
+		const townhouse = new TownHouse(scene, SCENE_CONFIG.townhouse.pos, shadow);
+		const trophy    = new Trophy(scene, SCENE_CONFIG.trophy.pos, shadow);
+		const lafarola  = new LaFarola(scene, SCENE_CONFIG.lafarola.pos, SCENE_CONFIG.lafarola.scale, shadow, SCENE_CONFIG.lafarola.rotation);
+		const computer  = new Computer(scene, SCENE_CONFIG.computer.pos, SCENE_CONFIG.computer.scale, shadow);
 
-		const trophy = new Trophy(
-			scene,
-			SCENE_CONFIG.trophy.pos,
-			() => navigate(SCENE_CONFIG.trophy.route),
-			shadow
-		);
+		// para añadir un objeto clickable nuevo: solo añadir 1 entrada aqui
+		const interactives = [
+			{ obj: townhouse, route: SCENE_CONFIG.townhouse.route },
+			{ obj: trophy,    route: SCENE_CONFIG.trophy.route },
+			{ obj: lafarola,  route: SCENE_CONFIG.lafarola.route },
+			{ obj: computer,  route: SCENE_CONFIG.computer.route },
+		];
 
-		const lafarola = new LaFarola(
-			scene,
-			SCENE_CONFIG.lafarola.pos,
-			SCENE_CONFIG.lafarola.scale,
-			shadow,
-			SCENE_CONFIG.lafarola.rotation,
-			() => navigate(SCENE_CONFIG.lafarola.route)
-		);
+		interactives.forEach(({ obj, route }) => {
+			loadingQueue.add(async () => {
+				await obj.ready();
+				const mesh = obj.getRootMesh();
+				if (mesh) menuInteraction.registerClickableObject(route, mesh, obj);
+			});
+		});
 
-		return { townhouse, trophy, lafarola };
+		return { townhouse, trophy, lafarola, computer };
 	}
 }

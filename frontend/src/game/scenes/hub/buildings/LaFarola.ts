@@ -17,13 +17,11 @@ export class LaFarola extends InteractiveObject {
 		position: Vector3,
 		scale = 1,
 		shadowGenerator: ShadowGenerator | null = null,
-		rotation = 0,
-		onClick: (() => void) | null = null
+		rotation = 0
 	) {
 		super(scene, position, shadowGenerator);
 		this.targetScale = new Vector3(scale, scale, scale);
 		this.targetRotation = rotation;
-		this.onClick = onClick;
 		this.loadPromise = this.load();
 	}
 
