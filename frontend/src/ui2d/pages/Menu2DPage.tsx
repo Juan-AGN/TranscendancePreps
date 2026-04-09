@@ -6,6 +6,8 @@ import { useNavigate, useLocation } from 'react-router-dom'
 // - useLocation → saber en q ruta estamos (para marcar opc activa)
 
 
+import { ArcadeBgLayout } from '../components/ArcadeBgLayout'
+
 // Opciones del menu2D
 // - id: identificador interno
 // - label: texto visible
@@ -28,17 +30,13 @@ export function Menu2DPage() {
 	// Info d la ruta actual (pathname)
 
 	return (
-		<div className="flex flex-col items-center justify-center h-[calc(100vh-88px)] bg-white font-mono">
-			{/* h-[calc(100vh-88px)] → altura viewport - 88px del header (sin scroll) */}
+		<ArcadeBgLayout>
 			
-			<h1 className="text-[3.75rem] font-black mb-[0.25rem]">
-				PONG
-			</h1>
-			<h3 className="text-[1rem] font-black mb-[3rem]">
+			<h3 className="text-[2.75rem] text-blue-300 font-bold mb-[0.55rem] font-['Press_Start_2P']">
 				ARCADE
 			</h3>
 
-			<nav className="flex flex-col gap-[1rem] w-full max-w-[24rem]">
+			<nav className="flex flex-col gap-[0.5rem] w-full max-w-[23rem]">
 				{/* Recorr cada opcion del menu */}
 				{MENU2D_OPTIONS.map((option) => {
 					const isActive = location.pathname === option.path
@@ -61,11 +59,11 @@ export function Menu2DPage() {
 							// Estilos: borde negro 0.25rem, texto grande y mayus (todo en rem)
 							// Colores invertidos si esta highlighted (negro/blanco)
 							className={[
-								'relative px-[1.5rem] py-[0.75rem] text-[1.5rem] font-black uppercase',
-								'border-[0.25rem] border-black',
-								isHighlighted
-									? 'bg-black text-white'
-									: 'bg-white text-black',
+									"relative px-[1rem] py-[0.25rem] text-[1rem] font-black uppercase font-['Press_Start_2P']",
+									"border-[0.05rem] border-black",
+									isHighlighted
+										? 'bg-black text-white scale-120'
+										: 'bg-black text-yellow-400',
 							].join(' ')}
 						>
 							{option.label}
@@ -73,7 +71,7 @@ export function Menu2DPage() {
 					)
 				})}
 			</nav>
-
-		</div>
+		</ArcadeBgLayout>
+		
 	)
 }

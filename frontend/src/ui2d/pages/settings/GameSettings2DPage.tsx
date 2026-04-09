@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { ArcadeBgLayout } from '../../components/ArcadeBgLayout'
 
 const GAMESETTINGS2D_OPTIONS = [
 	{id: 'scorelimit', label: 'SCORE LIMIT', path: '/notyet'},
@@ -14,12 +15,12 @@ export function GameSettings2DPage() {
 	const location = useLocation()
 
 	return (
-		<div className="flex flex-col items-center justify-center h-[calc(100vh-88px)] bg-white font-mono">
-			<h1 className="text-[3.75rem] font-black mb-[0.25rem]">
+		<ArcadeBgLayout>
+			<h1 className="text-[2.75rem] text-blue-300 font-bold mb-[0.55rem] font-['Press_Start_2P']">
 				GAME SETTINGS
 			</h1>
 
-			<nav className="flex flex-col gap-[1rem] w-full max-w-[24rem]">
+			<nav className="flex flex-col gap-[0.5rem] w-full max-w-[24rem]">
 				{GAMESETTINGS2D_OPTIONS.map((option) => {
 					const isActive = location.pathname === option.path
 					const isHighlighted = hovered === option.id || isActive
@@ -34,11 +35,11 @@ export function GameSettings2DPage() {
 						onBlur={() => setHovered(null)}
 						onClick={() => navigate(option.path)}
 						className={[
-							'relative px-[1.5rem] py-[0.75rem] text-[1.5rem] font-black uppercase',
-							'border-[0.25rem] border-black',
+							"relative px-[1rem] py-[0.25rem] text-[1rem] font-black uppercase font-['Press_Start_2P']",
+							'border-[0.05rem] border-black',
 							isHighlighted
-							? 'bg-black text-white'
-							: 'bg-white text-black',
+								? 'bg-black text-white scale-120'
+								: 'bg-black text-yellow-400',
 						].join(' ')}
 						>
 							{option.label}
@@ -46,6 +47,6 @@ export function GameSettings2DPage() {
 					)
 				})}
 			</nav>
-		</div>
+		</ArcadeBgLayout>
 	)
 }

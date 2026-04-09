@@ -72,12 +72,12 @@ export class Game2dRenderer {
 		if (gameMode === 'spectator') {
 			this.drawText('IA', 60, CANVAS_HEIGHT - 20, COLORS.text, 14, 'left');
 		} else {
-			this.drawText('W/S', 60, CANVAS_HEIGHT - 20, COLORS.text, 14, 'left');
+			this.drawText('W/S', 60, CANVAS_HEIGHT + 2, COLORS.text, 14, 'left');
 		}
 		
 		// Lado derecho (Player 2 o IA)
 		if (gameMode === '1v1') {
-			this.drawText('↑/↓', CANVAS_WIDTH - 60, CANVAS_HEIGHT - 20, COLORS.text, 14, 'right');
+			this.drawText('↑/↓', CANVAS_WIDTH - 0, CANVAS_HEIGHT - 20, COLORS.text, 14, 'right');
 		} else {
 			this.drawText('IA', CANVAS_WIDTH - 60, CANVAS_HEIGHT - 20, COLORS.text, 14, 'right');
 		}

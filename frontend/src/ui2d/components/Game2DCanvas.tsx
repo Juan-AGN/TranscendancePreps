@@ -21,7 +21,7 @@ import { use2dGameLoop } from './game2d/2dUseGameLoop'; // hook motor: arranca e
 // gameMode: '1v1' (dos jugadores) o '1vIA' (contra IA)
 // maxScore: puntos para ganar (por defecto MAX_SCORE del config)
 // onGameEnd: callback opcional cuando termina partida (para stats/modal/navegación)
-export function Game2DCanvas({ gameMode = '1v1', maxScore = MAX_SCORE, onGameEnd }: Game2dCanvasProps) {
+export function Game2DCanvas({ gameMode = '1v1', maxScore = MAX_SCORE, onGameEnd, onScoreChange }: Game2dCanvasProps) {
 	// REF AL CANVAS DEL DOM
 	// React rellena canvasRef.current cuando monta el <canvas> en el DOM
 	// el motor (use2dGameLoop) usa esto para conseguir el ctx (pincel)
@@ -33,9 +33,6 @@ export function Game2DCanvas({ gameMode = '1v1', maxScore = MAX_SCORE, onGameEnd
 		isPaused: false,
 		winner: null,
 	});
-
-	// Estado para mostrar scores en UI (fuera del canvas)
-	const [scores, setScores] = useState({ player1: 0, player2: 0 });
 
 	// ENTIDADES DEL JUEGO (refs mutables) // hook useGameEntities crea y devuelve:
 				// - player1Ref: { x, y, width, height, speed, score }
@@ -58,8 +55,8 @@ export function Game2DCanvas({ gameMode = '1v1', maxScore = MAX_SCORE, onGameEnd
 
 		scorer.score++; // muta directamente el ref (no re-render)
 
-		// Actualizar estado de scores para UI
-		setScores({ player1: player1.score, player2: player2.score });
+		// Avisar al padre (HUD externo) cada vez que cambia el marcador
+		onScoreChange?.(player1.score, player2.score);
 
 		// check si alguien gano
 		if (scorer.score >= maxScore) {
@@ -90,7 +87,7 @@ export function Game2DCanvas({ gameMode = '1v1', maxScore = MAX_SCORE, onGameEnd
 	const handleRestart = () => {
 		resetGame(); // hook useGameEntities → reinicia player1/player2/ball/keys
 		setGameState({ isPlaying: false, isPaused: false, winner: null });
-		setScores({ player1: 0, player2: 0 }); // resetear scores en UI
+		onScoreChange?.(0, 0);
 	};
 
 	// use2dGameLoop el hook q: // -monta canvas y consigue ctx
@@ -122,43 +119,14 @@ export function Game2DCanvas({ gameMode = '1v1', maxScore = MAX_SCORE, onGameEnd
 					// imageRendering: 'crisp-edges'(down glosario*) → pixeles nItidos (no blur)
 					// controles: texto informativo para el jugador (q teclas usar)
 	return (
-		<div className="flex flex-col items-center justify-center gap-4 p-8">
-			{/* Marcador encima del canvas */}
-			<div className="flex gap-24 text-6xl font-black font-mono mb-4">
-				<div className="text-center">
-					<div className="text-sm text-gray-500 mb-2">{gameMode === 'spectator' ? 'IA 1' : 'PLAYER 1'}</div>
-					<div>{scores.player1}</div>
-				</div>
-				<div className="text-gray-400">-</div>
-				<div className="text-center">
-					<div className="text-sm text-gray-500 mb-2">
-						{gameMode === 'spectator' ? 'IA 2' : gameMode === '1v1' ? 'PLAYER 2' : 'IA'}
-					</div>
-					<div>{scores.player2}</div>
-				</div>
-			</div>
-
+		<div className="flex flex-col items-center justify-center w-full h-full">		
 			<canvas
 				ref={canvasRef}
 				width={CANVAS_WIDTH}
 				height={CANVAS_HEIGHT}
-				className="border-4 border-black shadow-lg"
-				style={{ imageRendering: 'crisp-edges' }}
+				className="border-2 border-black shadow-lg rounded-2xl"
+				style={{ width: '100%', height: '100%', imageRendering: 'crisp-edges' }}
 			/>
-			
-			<div className="flex gap-4 text-sm font-mono text-gray-600">
-				{gameMode === 'spectator' ? (
-					<span>IA vs IA</span>
-				) : (
-					<>
-						<span>Player 1: W/S</span>
-						{gameMode === '1v1' ? <span>Player 2: ↑/↓</span> : <span>IA</span>}
-					</>
-				)}
-				<span className="mx-2">|</span>
-				<span>Space: Start/Pause</span>
-				<span>R: Restart</span>
-			</div>
 		</div>
 	);
 }

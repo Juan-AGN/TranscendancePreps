@@ -37,4 +37,5 @@ export interface Game2dCanvasProps {
 	gameMode?: Game2DMode;
 	maxScore?: number;
 	onGameEnd?: (winner: string, player1Score: number, player2Score: number) => void;
+	onScoreChange?: (player1Score: number, player2Score: number) => void;
 }

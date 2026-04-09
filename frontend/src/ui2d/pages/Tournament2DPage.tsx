@@ -1,6 +1,7 @@
 import { useState } from 'react'
 //hook de react (react lo actuliza solo(le da memoria))
 import { useNavigate, useLocation } from 'react-router-dom'
+import { ArcadeBgLayout } from '../components/ArcadeBgLayout'
 
 // const de un arru de options del menu
 const TOURNAMENT2D_OPTIONS = [
@@ -18,12 +19,12 @@ export function Tournament2DPage() {
 	
 
 	return (
-		<div className="flex flex-col items-center justify-center h-[calc(100vh-88px)] bg-white font-mono">
-			<h1 className="text-[3.75rem] font-black mb-[0.25rem]">
+		<ArcadeBgLayout>
+			<h1 className="text-[2.75rem] text-blue-300 font-bold mb-[0.55rem] font-['Press_Start_2P']">
 				TOURNAMENT MODE
 			</h1>
 
-			<nav className="flex flex-col gap-[1rem] w-full max-w-[24rem]">
+			<nav className="flex flex-col gap-[0.5rem] w-full max-w-[23rem]">
 				{/*recorremos el arrayy generamos un boton por opcion*/}
 				{TOURNAMENT2D_OPTIONS.map((option) => {
 					const isActive = location.pathname === option.path
@@ -39,11 +40,11 @@ export function Tournament2DPage() {
 						onBlur={() => setHovered(null)}
 						onClick={() => navigate(option.path)}
 						className={[
-							'relative px-[1.5rem] py-[0.75rem] text-[1.5rem] font-black uppercase',
-							'border-[0.25rem] border-black',
-							isHighlighted
-							? 'bg-black text-white'
-							: 'bg-white text-black',
+								"relative px-[1rem] py-[0.25rem] text-[1rem] font-black uppercase font-['Press_Start_2P']",
+								"border-[0.05rem] border-black",
+								isHighlighted
+									? 'bg-black text-white scale-120'
+									: 'bg-black text-yellow-400',
 						].join(' ')}
 						>
 							{option.label}
@@ -51,6 +52,6 @@ export function Tournament2DPage() {
 					)
 				})}
 			</nav>
-		</div>
+	</ArcadeBgLayout>
 	)
 }
