@@ -10,8 +10,8 @@ import { authRoutes } from './routes/auth.js';
 // ============================================================================
 // IMPORTS - CUSTOM ROUTES (files with endpoints)
 // ============================================================================
-import { usersRoutes } from './routes/usuarios.js';  // User routes (register, login, avatar...)
-import { friendsRoutes } from './routes/amigos.js';  // Friend routes (add, remove, list...)
+import { usersRoutes } from './routes/users.js';  // User routes (register, login, avatar...)
+import { friendsRoutes } from './routes/friends.js';  // Friend routes (add, remove, list...)
 
 // ============================================================================
 // IMPORTS - UTILITIES AND PLUGINS

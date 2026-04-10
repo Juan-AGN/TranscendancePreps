@@ -411,7 +411,7 @@ export async function friendsRoutes(server: FastifyInstance) {
         
         reply.send({
             total: foundUsers.length,
-            usuarios: foundUsers
+            users: foundUsers
         });
     });
 }

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 // Required according to the Transcendence subject
 // ============================================================
 
-function Terminos() {
+function Terms() {
     const navigate = useNavigate();
 
     return (
@@ -74,4 +74,4 @@ function Terminos() {
     );
 }
 
-export default Terminos;
+export default Terms;

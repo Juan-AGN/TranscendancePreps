@@ -303,8 +303,8 @@ function Login() {
                             <button className={primaryButtonClass} onClick={doRegister}>
                                 Create Account
                             </button>
-                        </div>
-                    )}
+                            </div>
+                        )}
                 </div>
 
                 <div className="px-8 pb-4 text-center text-xs text-slate-400">- or -</div>

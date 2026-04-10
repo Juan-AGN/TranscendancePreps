@@ -325,13 +325,13 @@ export async function usersRoutes(server: FastifyInstance) {
             const fileName = `avatar-${userId}-${randomUUID()}.${extension}`;
                                     // E.g.: "avatar-5-a3f5b2c8-1d4e-4f7a-9b2c-8e3f1a5d6c7b.png"
             
-            // STEP 6: Save the file to /public/avatares/
-            const fullPath = path.join(__dirname, '..', '..', 'public', 'avatares', fileName);
+            // STEP 6: Save the file to /public/avatars/
+            const fullPath = path.join(__dirname, '..', '..', 'public', 'avatars', fileName);
                 // 'path' -> import path from 'path'
-                // E.g.: "/Users/daniel/Documents/transcendence/TranscendancePreps/public/avatares/avatar-5-a3f5b2c8-1d4e-4f7a-9b2c-8e3f1a5d6c7b.jpg"
+                // E.g.: "/Users/daniel/Documents/transcendence/TranscendancePreps/public/avatars/avatar-5-a3f5b2c8-1d4e-4f7a-9b2c-8e3f1a5d6c7b.jpg"
             
             // Create directory if it does not exist
-            const avatarsDir = path.join(__dirname, '..', '..', 'public', 'avatares');
+            const avatarsDir = path.join(__dirname, '..', '..', 'public', 'avatars');
             if (!fs.existsSync(avatarsDir)) 
             { // 'fs' -> File system
                 fs.mkdirSync(avatarsDir, 
@@ -355,7 +355,7 @@ export async function usersRoutes(server: FastifyInstance) {
                     id: userId
                 },
                 data: {
-                    avatar: `/avatares/${fileName}`
+                    avatar: `/avatars/${fileName}`
                 },
                 // Even if only 'avatar' changes, all fields are returned in the response in case they are needed
                 select: {
@@ -372,11 +372,11 @@ export async function usersRoutes(server: FastifyInstance) {
             // STEP 9: Delete the previous avatar (if it is not the default)
             if (previousAvatar?.avatar && 
                 previousAvatar.avatar !== 'default-avatar.svg' && 
-                previousAvatar.avatar.startsWith('/avatares/')) // If it is a valid avatar (checks the path)
+                previousAvatar.avatar.startsWith('/avatars/')) // If it is a valid avatar (checks the path)
                 {
                 // Build the full path to delete it
                 const previousAvatarPath = path.join(__dirname, '..', '..', 'public', previousAvatar.avatar);
-                                                                    // '.avatar' -> "avatares/avatar.jpg"
+                                                                    // '.avatar' -> "avatars/avatar.jpg"
 
                 if (fs.existsSync(previousAvatarPath)) // Does the file exist?
                     fs.unlinkSync(previousAvatarPath); // If so, delete it
@@ -385,7 +385,7 @@ export async function usersRoutes(server: FastifyInstance) {
             // STEP 10: Return a successful response
             reply.send({
                 message: 'Avatar uploaded successfully',
-                avatarUrl: `/avatares/${fileName}`,
+                avatarUrl: `/avatars/${fileName}`,
                 user: updatedUser
             });
             
@@ -430,7 +430,7 @@ export async function usersRoutes(server: FastifyInstance) {
             // STEP 3: Delete the physical file (if not the default)
             if (user.avatar && 
                 user.avatar !== 'default-avatar.svg' && 
-                user.avatar.startsWith('/avatares/')) {
+                user.avatar.startsWith('/avatars/')) {
                 
                 const avatarPath = path.join(__dirname, '..', '..', 'public', user.avatar);
                 if (fs.existsSync(avatarPath)) {

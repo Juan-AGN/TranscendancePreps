@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 // Required according to the Transcendence subject
 // ============================================================
 
-function Privacidad() {
+function Privacy() {
     const navigate = useNavigate();
 
     return (
@@ -79,4 +79,4 @@ function Privacidad() {
     );
 }
 
-export default Privacidad;
+export default Privacy;

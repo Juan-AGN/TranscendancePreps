@@ -7,10 +7,10 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
-import Perfil from './pages/Perfil';
-import Amigos from './pages/Amigos';
-import Privacidad from './pages/Privacidad';
-import Terminos from './pages/Terminos';
+import Profile from './pages/Profile';
+import Friends from './pages/Friends';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 
 // ============================================================================
 // COMPONENT: ProtectedRoute
@@ -49,7 +49,7 @@ function App() {
                     path="/perfil"
                     element={
                         <ProtectedRoute>
-                            <Perfil />
+                            <Profile />
                         </ProtectedRoute>
                     }
                 />
@@ -60,12 +60,12 @@ function App() {
                     path="/amigos"
                     element={
                         <ProtectedRoute>
-                            <Amigos />
+                            <Friends />
                         </ProtectedRoute>
                     }
                 />
-                <Route path="/privacidad" element={<Privacidad />} />
-                <Route path="/terminos" element={<Terminos />} />
+                <Route path="/privacidad" element={<Privacy />} />
+                <Route path="/terminos" element={<Terms />} />
 
                 {/* Any other route -> redirect to login */}
                 <Route path="*" element={<Navigate to="/" replace />} />

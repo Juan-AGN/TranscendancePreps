@@ -85,7 +85,23 @@ export async function authRoutes(server: FastifyInstance) {
                 where: { fortyTwoId: fortyTwoUserData.id }
             });
 
-            // STEP 5: If not, create them (first login with 42)
+            // STEP 4.5: If not found by fortyTwoId, check if they exist by email
+            // This prevents creating duplicate users if someone registered with email/password first
+            if (!user) {
+                user = await prismaClient.user.findUnique({
+                    where: { email: fortyTwoUserData.email }
+                });
+
+                // If they exist by email but don't have a fortyTwoId, link them
+                if (user && !user.fortyTwoId) {
+                    await prismaClient.user.update({
+                        where: { id: user.id },
+                        data: { fortyTwoId: fortyTwoUserData.id }
+                    });
+                }
+            }
+
+            // STEP 5: If not found in any way, create them (first login with 42)
             if (!user) {
                 user = await prismaClient.user.create({
                     data: {

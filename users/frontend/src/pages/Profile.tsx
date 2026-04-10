@@ -1,7 +1,7 @@
 // ============================================================================
-// PERFIL.TSX - User Profile Page
+// PROFILE.TSX - User Profile Page
 // ============================================================================
-// This component replaces the original perfil.html.
+// This component replaces the original profile.html.
 // KEY CHANGE from HTML: the component state
 // (user data, whether the modal is open, etc.) is managed with useState()
 // instead of loose global variables.
@@ -36,7 +36,7 @@ interface Friend {
 // ============================================================================
 // MAIN COMPONENT: Perfil
 // ============================================================================
-function Perfil() {
+function Profile() {
 
     // ========================================================================
     // COMPONENT STATE // useState hooks are always the first thing that loads
@@ -326,8 +326,8 @@ function Perfil() {
                     <div className="relative mb-5 inline-block">
                         <img
                             className="h-36 w-36 rounded-full border-4 border-white object-cover shadow-xl"
-                            src={user.avatar ? `${API_URL}${user.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
-                            onError={(e) => { (e.target as HTMLImageElement).src = `${API_URL}/avatares/default-avatar.svg`; }}
+                            src={user.avatar ? `${API_URL}${user.avatar}` : `${API_URL}/avatars/default-avatar.svg`}
+                            onError={(e) => { (e.target as HTMLImageElement).src = `${API_URL}/avatars/default-avatar.svg`; }}
                             alt="Avatar"
                         />
                         <div className={`absolute bottom-1 right-1 h-7 w-7 rounded-full border-2 border-white ${user.onlineStatus ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
@@ -422,7 +422,7 @@ function Perfil() {
                                 {friends.map(friend => (
                                     <div key={friend.id} className="rounded-xl bg-slate-50 p-4 text-center transition hover:-translate-y-1 hover:shadow-md">
                                         <img
-                                            src={friend.avatar ? `${API_URL}${friend.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
+                                            src={friend.avatar ? `${API_URL}${friend.avatar}` : `${API_URL}/avatars/default-avatar.svg`}
                                             alt={friend.name}
                                             className="mx-auto mb-3 block h-20 w-20 rounded-full border-2 border-indigo-400 object-cover"
                                         />
@@ -507,4 +507,4 @@ function Perfil() {
     );
 }
 
-export default Perfil;
+export default Profile;

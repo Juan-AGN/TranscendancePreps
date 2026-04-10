@@ -1,7 +1,7 @@
 // ============================================================================
-// AMIGOS.TSX - Friends Management Page
+// FRIENDS.TSX - Friends Management Page
 // ============================================================================
-// This component replaces the original amigos.html.
+// This component replaces the original friends.html.
 // The logic is exactly the same, only the way state is managed
 // and the interface is rendered changes (useState + JSX instead of innerHTML).
 
@@ -28,7 +28,7 @@ interface RequestData {
 // ============================================================================
 // MAIN COMPONENT: Amigos
 // ============================================================================
-function Amigos() {
+function Friends() {
 
     // ========================================================================
     // COMPONENT STATE
@@ -287,7 +287,7 @@ function Amigos() {
                         friendsList.map(friend => (
                             <div key={friend.id} className="mb-3 flex flex-col items-center gap-4 rounded-2xl border border-transparent bg-slate-50 p-4 transition hover:border-indigo-200 hover:bg-white hover:shadow-md md:flex-row">
                                 <img
-                                    src={friend.avatar ? `${API_URL}${friend.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
+                                    src={friend.avatar ? `${API_URL}${friend.avatar}` : `${API_URL}/avatars/default-avatar.svg`}
                                     alt="Avatar"
                                     className="h-16 w-16 rounded-full border-2 border-indigo-400 object-cover"
                                 />
@@ -324,7 +324,7 @@ function Amigos() {
                         requestsList.map(req => (
                             <div key={req.id} className="mb-3 flex flex-col items-center gap-4 rounded-2xl border border-transparent bg-slate-50 p-4 transition hover:border-indigo-200 hover:bg-white hover:shadow-md md:flex-row">
                                 <img
-                                    src={req.requester.avatar ? `${API_URL}${req.requester.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
+                                    src={req.requester.avatar ? `${API_URL}${req.requester.avatar}` : `${API_URL}/avatars/default-avatar.svg`}
                                     alt="Avatar"
                                     className="h-16 w-16 rounded-full border-2 border-indigo-400 object-cover"
                                 />
@@ -372,7 +372,7 @@ function Amigos() {
                     {searchResults.map(result => (
                         <div key={result.id} className="mb-3 flex flex-col items-center gap-4 rounded-2xl border border-transparent bg-slate-50 p-4 transition hover:border-indigo-200 hover:bg-white hover:shadow-md md:flex-row">
                             <img
-                                src={result.avatar ? `${API_URL}${result.avatar}` : `${API_URL}/avatares/default-avatar.svg`}
+                                src={result.avatar ? `${API_URL}${result.avatar}` : `${API_URL}/avatars/default-avatar.svg`}
                                 alt="Avatar"
                                 className="h-16 w-16 rounded-full border-2 border-indigo-400 object-cover"
                             />
@@ -398,4 +398,4 @@ function Amigos() {
     );
 }
 
-export default Amigos;
+export default Friends;

@@ -54,7 +54,7 @@ services:
       - "3000:3000"
     volumes:
       # Only persist avatars and prisma, do not overwrite dist/
-      - ./public/avatares:/app/public/avatares
+      - ./public/avatars:/app/public/avatars
       - ./prisma:/app/prisma
     depends_on:
       db:
