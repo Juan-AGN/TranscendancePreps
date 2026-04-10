@@ -26,14 +26,14 @@ interface RequestData {
 }
 
 // ============================================================================
-// MAIN COMPONENT: Amigos
+// MAIN COMPONENT: Friends
 // ============================================================================
 function Friends() {
 
     // ========================================================================
     // COMPONENT STATE
     // ========================================================================
-    const [activeTab, setActiveTab] = useState<'mis-amigos' | 'solicitudes' | 'buscar'>('mis-amigos');
+    const [activeTab, setActiveTab] = useState<'my-friends' | 'requests' | 'search'>('my-friends');
 
     const [friendsList, setFriendsList] = useState<FriendData[]>([]);
     const [requestsList, setRequestsList] = useState<RequestData[]>([]);
@@ -65,10 +65,10 @@ function Friends() {
     // ========================================================================
     // FUNCTION: SWITCH BETWEEN TABS
     // ========================================================================
-    function changeTab(tab: 'mis-amigos' | 'solicitudes' | 'buscar') {
+    function changeTab(tab: 'my-friends' | 'requests' | 'search') {
         setActiveTab(tab);
-        if (tab === 'mis-amigos') loadFriends();
-        if (tab === 'solicitudes') loadRequests();
+        if (tab === 'my-friends') loadFriends();
+        if (tab === 'requests') loadRequests();
     }
 
     // ========================================================================
@@ -241,7 +241,7 @@ function Friends() {
             <div className="mx-auto max-w-6xl rounded-3xl bg-white p-6 shadow-2xl md:p-10">
 
             {/* BACK BUTTON */}
-            <button className="mb-5 rounded-xl bg-slate-500 px-4 py-2 text-sm font-semibold text-white transition hover:-translate-x-0.5 hover:bg-slate-600" onClick={() => navigate('/perfil')}>
+            <button className="mb-5 rounded-xl bg-slate-500 px-4 py-2 text-sm font-semibold text-white transition hover:-translate-x-0.5 hover:bg-slate-600" onClick={() => navigate('/profile')}>
                 ← Back to Profile
             </button>
 
@@ -252,20 +252,20 @@ function Friends() {
             {/* ============================================================ */}
             <div className="mb-7 flex flex-wrap gap-3 border-b-2 border-slate-100 pb-3">
                 <button
-                    className={`rounded-t-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'mis-amigos' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-500'}`}
-                    onClick={() => changeTab('mis-amigos')}
+                    className={`rounded-t-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'my-friends' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-500'}`}
+                    onClick={() => changeTab('my-friends')}
                 >
                     My Friends ({friendsList.length})
                 </button>
                 <button
-                    className={`rounded-t-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'solicitudes' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-500'}`}
-                    onClick={() => changeTab('solicitudes')}
+                    className={`rounded-t-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'requests' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-500'}`}
+                    onClick={() => changeTab('requests')}
                 >
                     Pending Requests ({requestsList.length})
                 </button>
                 <button
-                    className={`rounded-t-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'buscar' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-500'}`}
-                    onClick={() => changeTab('buscar')}
+                    className={`rounded-t-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'search' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-500'}`}
+                    onClick={() => changeTab('search')}
                 >
                     🔍 Search Users
                 </button>
@@ -274,7 +274,7 @@ function Friends() {
             {/* ============================================================ */}
             {/* TAB 1: MY FRIENDS */}
             {/* ============================================================ */}
-            {activeTab === 'mis-amigos' && (
+            {activeTab === 'my-friends' && (
                 <div>
                     {friendsList.length === 0 ? (
                         <div className="py-12 text-center text-slate-500">
@@ -312,7 +312,7 @@ function Friends() {
             {/* ============================================================ */}
             {/* TAB 2: PENDING REQUESTS */}
             {/* ============================================================ */}
-            {activeTab === 'solicitudes' && (
+            {activeTab === 'requests' && (
                 <div>
                     {requestsList.length === 0 ? (
                         <div className="py-12 text-center text-slate-500">
@@ -347,7 +347,7 @@ function Friends() {
             {/* ============================================================ */}
             {/* TAB 3: SEARCH USERS */}
             {/* ============================================================ */}
-            {activeTab === 'buscar' && (
+            {activeTab === 'search' && (
                 <div>
                     <div className="mb-6 flex flex-col gap-3 md:flex-row">
                         <input

@@ -51,7 +51,7 @@ function Login() {
         const token = localStorage.getItem('token');
         if (token) {
             // Session already exists -> go directly to the profile
-            navigate('/perfil');
+            navigate('/profile');
         }
     }, []); // The empty [] means "run only once when the component mounts"
 
@@ -92,7 +92,7 @@ function Login() {
 
                 // STEP 5: Redirect to the profile after a short delay
                 setTimeout(() => {
-                    navigate('/perfil');  // before: window.location.href = '/perfil.html'
+                    navigate('/profile');  // before: window.location.href = '/profile.html'
                 }, 800);
 
             } else {
@@ -318,8 +318,8 @@ function Login() {
                 </div>
 
                 <footer className="pb-7 text-center text-xs text-slate-400">
-                    <a href="/privacidad" className="mx-2 text-indigo-500 hover:underline">Privacy Policy</a>
-                    <a href="/terminos" className="mx-2 text-indigo-500 hover:underline">Terms of Service</a>
+                    <a href="/privacy" className="mx-2 text-indigo-500 hover:underline">Privacy Policy</a>
+                    <a href="/terms" className="mx-2 text-indigo-500 hover:underline">Terms of Service</a>
                 </footer>
             </div>
         </div>

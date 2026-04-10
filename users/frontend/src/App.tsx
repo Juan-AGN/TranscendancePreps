@@ -2,7 +2,7 @@
 // APP.TSX - MAIN ROUTER
 // ============================================================================
 // This file defines the application "pages" and which URL each one maps to.
-// Before we had 3 separate HTML files (index.html, perfil.html, amigos.html).
+// Before we had 3 separate HTML files (index.html, profile.html, friends.html).
 // Now we have 3 React components and the Router decides which to show based on the URL.
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -43,10 +43,10 @@ function App() {
                     path="/" 
                     element={<Login />} />
 
-                {/* Route "/perfil" -> User profile (was perfil.html) */}
+                {/* Route "/profile" -> User profile (was profile.html) */}
                 {/* Protected: if not logged in, redirects to "/" */}
                 <Route
-                    path="/perfil"
+                    path="/profile"
                     element={
                         <ProtectedRoute>
                             <Profile />
@@ -54,18 +54,18 @@ function App() {
                     }
                 />
 
-                {/* Route "/amigos" -> Friends management (was amigos.html) */}
+                {/* Route "/friends" -> Friends management (was friends.html) */}
                 {/* Also protected */}
                 <Route
-                    path="/amigos"
+                    path="/friends"
                     element={
                         <ProtectedRoute>
                             <Friends />
                         </ProtectedRoute>
                     }
                 />
-                <Route path="/privacidad" element={<Privacy />} />
-                <Route path="/terminos" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
 
                 {/* Any other route -> redirect to login */}
                 <Route path="*" element={<Navigate to="/" replace />} />

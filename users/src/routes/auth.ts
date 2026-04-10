@@ -132,7 +132,7 @@ export async function authRoutes(server: FastifyInstance) {
             // The frontend will read it and save it in localStorage
             const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
             return reply.redirect(
-                `${frontendUrl}/perfil?token=${token}&userId=${user.id}`
+                `${frontendUrl}/profile?token=${token}&userId=${user.id}`
             );
 
         } catch (error) {

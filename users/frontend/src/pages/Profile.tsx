@@ -34,7 +34,7 @@ interface Friend {
 }
 
 // ============================================================================
-// MAIN COMPONENT: Perfil
+// MAIN COMPONENT: Profile
 // ============================================================================
 function Profile() {
 
@@ -72,7 +72,7 @@ function Profile() {
             localStorage.setItem('token', tokenFromURL);
             localStorage.setItem('userId', userIdFromURL);
             // Clean the URL so the token is not visible
-            window.history.replaceState({}, '', '/perfil');
+            window.history.replaceState({}, '', '/profile');
         }
 
         // STEP 1: Get the token from localStorage
@@ -120,7 +120,7 @@ function Profile() {
     async function loadFriends(userId: number, token: string) {
         try {
             // CORRECT ROUTE: /users/:userId/my_friends
-            // (the original perfil.html had a bug and used /amigos/:userId which did not exist)
+            // (the original profile.html had a bug and used /friends/:userId which did not exist)
             const response = await fetch(`${API_URL}/users/${userId}/my_friends`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -360,7 +360,7 @@ function Profile() {
                         </button>
 
                         {/* button to go to the friends page */}
-                        <button className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-indigo-600 transition hover:-translate-y-0.5 hover:shadow-md" onClick={() => navigate('/amigos')}>
+                        <button className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-indigo-600 transition hover:-translate-y-0.5 hover:shadow-md" onClick={() => navigate('/friends')}>
                             👥 My Friends
                         </button>
 
@@ -440,8 +440,8 @@ function Profile() {
 
                 {/* FOOTER WITH LEGAL LINKS */}
                 <footer className="mt-2 border-t border-slate-100 px-6 py-6 text-center text-xs text-slate-400 md:px-10">
-                    <a href="/privacidad" className="mr-4 text-indigo-500 hover:underline">Privacy Policy</a>
-                    <a href="/terminos" className="text-indigo-500 hover:underline">Terms of Service</a>
+                    <a href="/privacy" className="mr-4 text-indigo-500 hover:underline">Privacy Policy</a>
+                    <a href="/terms" className="text-indigo-500 hover:underline">Terms of Service</a>
                 </footer>
             </div>
 

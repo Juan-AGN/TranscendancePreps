@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Fondo círculo -->
+  <!-- Background circle -->
   <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
-  <!-- Cabeza -->
+  <!-- Head -->
   <circle cx="50" cy="36" r="18" fill="#9ca3af"/>
-  <!-- Cuerpo / silueta hombros -->
+  <!-- Body / shoulder silhouette -->
   <ellipse cx="50" cy="90" rx="30" ry="24" fill="#9ca3af"/>
 </svg>

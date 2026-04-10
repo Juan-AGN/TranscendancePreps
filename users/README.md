@@ -157,5 +157,5 @@ All generated code has been reviewed, understood, and validated by each team mem
 
 ## 📄 Legal Pages
 
-- [Privacy Policy](http://localhost:5174/privacidad)
-- [Terms of Service](http://localhost:5174/terminos)
+- [Privacy Policy](http://localhost:5174/privacy)
+- [Terms of Service](http://localhost:5174/terms)

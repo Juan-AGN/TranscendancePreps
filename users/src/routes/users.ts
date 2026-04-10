@@ -611,7 +611,7 @@ export async function usersRoutes(server: FastifyInstance) {
         
         if (bodyData.name)      dataToUpdate.name = bodyData.name;
         if (bodyData.email)     dataToUpdate.email = bodyData.email;
-        if (hashedPassword)     dataToUpdate.password = hashedPassword; // 'password' not 'contraseña'
+        if (hashedPassword)     dataToUpdate.password = hashedPassword; // store the hashed password in the DB field
         
         // STEP 5: Update the user in the database
         const updatedUser = await prismaClient.user.update({
