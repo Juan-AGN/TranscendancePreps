@@ -1,0 +1,50 @@
+// ============================================================================
+// PRISMA CONFIGURATION
+// ============================================================================
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// TABLE (model): User
+// ============================================================================
+model User {
+  id             Int       @id @default(autoincrement())
+  name           String    @map("nombre")
+  email          String    @unique
+  password       String?
+  avatar         String?   @default("default-avatar.png")
+  onlineStatus   Boolean   @default(false) @map("estadoOnline")
+  lastConnection DateTime? @map("ultimaConexion")
+  createdAt      DateTime  @default(now())
+  fortyTwoId     Int?      @unique
+
+  // RELATIONS (NOT real columns, just virtual fields)
+  sentRequests     Friendship[] @relation("SentRequests")
+  receivedRequests Friendship[] @relation("ReceivedRequests")
+
+  // Exact table name in PostgreSQL (without this Prisma would use lowercase)
+  @@map("Usuario")
+}
+
+// ============================================================================
+// TABLE (model): Friendship
+// ============================================================================
+model Friendship {
+  id          Int      @id @default(autoincrement())
+  requesterId Int      @map("solicitanteId")
+  receiverId  Int      @map("receptorId")
+  status      String   @default("pendiente") @map("estado")
+  createdAt   DateTime @default(now())
+
+  // Relations
+  requester User @relation("SentRequests",      fields: [requesterId], references: [id])
+  receiver  User @relation("ReceivedRequests",  fields: [receiverId],  references: [id])
+
+  @@map("Amistad")
+}

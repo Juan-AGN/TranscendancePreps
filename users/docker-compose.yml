@@ -1,0 +1,110 @@
+# ============================================================================
+# DOCKER COMPOSE - FULL CONFIGURATION
+# ============================================================================
+# This file defines all containers (services) of the project
+
+# ============================================================================
+# SERVICES (CONTAINERS)
+# ============================================================================
+services:
+
+  # ==========================================================================
+  # CONTAINER 1: DATABASE (PostgreSQL)
+  # ==========================================================================
+  db:
+    image: postgres:16-alpine
+    container_name: transcendence_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - transcendence_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U transcendence_user -d transcendence"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  # ==========================================================================
+  # CONTAINER 2: BACKEND (Fastify + Prisma + TypeScript)
+  # ==========================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: transcendence_backend
+    restart: always
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: ${PORT}
+      NODE_ENV: ${NODE_ENV}
+      FORTY_TWO_CLIENT_ID: ${FORTY_TWO_CLIENT_ID}
+      FORTY_TWO_CLIENT_SECRET: ${FORTY_TWO_CLIENT_SECRET}
+      FORTY_TWO_REDIRECT_URI: ${FORTY_TWO_REDIRECT_URI}
+      FRONTEND_URL: ${FRONTEND_URL}
+    ports:
+      - "3000:3000"
+    volumes:
+      # Only persist avatars and prisma, do not overwrite dist/
+      - ./public/avatars:/app/public/avatars
+      - ./prisma:/app/prisma
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - transcendence_network
+    command: sh -c "npx prisma db push --accept-data-loss && node dist/index.js"
+
+
+  # ==========================================================================
+  # CONTAINER 3: FRONTEND (React + Vite)
+  # ==========================================================================
+  # This container runs the Vite development server.
+  # Serves the React app on port 5174.
+  frontend:
+    # Builds the image using the Dockerfile inside the frontend/ folder
+    build:
+      context: ./frontend    # Folder containing the React code
+      dockerfile: Dockerfile # Dockerfile created inside frontend/
+    container_name: transcendence_frontend
+    restart: always
+    ports:
+      # Port 5174: where the frontend is accessed → http://localhost:5174
+      - "5174:5174"
+    volumes:
+      # Sync code for hot reload (changes are reflected instantly)
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      # Exclude host node_modules (use the container's instead)
+      - /app/node_modules
+    networks:
+      - transcendence_network
+    # The frontend does not depend on the backend to start, but in real use
+    # it needs the backend running to make API requests
+    depends_on:
+      - backend
+
+
+# ============================================================================
+# VOLUMES (DATA PERSISTENCE)
+# ============================================================================
+volumes:
+  postgres_data:
+    driver: local
+
+
+# ============================================================================
+# NETWORKS (INTER-CONTAINER COMMUNICATION)
+# ============================================================================
+networks:
+  transcendence_network:
+    driver: bridge
