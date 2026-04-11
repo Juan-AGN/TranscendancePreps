@@ -7,3 +7,5 @@ game/front/node_modules/
 dist/
 
 test.html
+
+.env

@@ -14,9 +14,12 @@ services:
       context: ./game/front
     networks:
       - game_network
+      - auth_network
     ports:
       - "7777:3000"
 
 networks:
   game_network:
     name: game_network
+  auth_network:
+    name: auth_network
