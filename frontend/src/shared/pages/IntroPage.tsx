@@ -10,7 +10,7 @@ function getRandomChar(): string { // coge un indice al azar y devuelve ese cara
 }
 
 //componente para botones iguales
-function IntroButtons({ label, onCLick }: { label: string; onCLick?: () => void }) { // boton reutilizable pa la intro
+export function IntroButtons({ label, onCLick }: { label: string; onCLick?: () => void }) { // boton reutilizable pa la intro
 	return (
 		<button
 			onClick={onCLick}
