@@ -2,7 +2,7 @@
 //importamos 2 herramientas desde la libreria RRD.
 //createBrowserRouter->para crear el objeto que gestiona la historia y las URLS
 //RouterProvider-> componente de React que conecta el enroutador con la interfaz visual.
-import { createBrowserRouter, RouterProvider, useNavigate } from "react-router-dom"
+import { createBrowserRouter, RouterProvider, useNavigate, useParams, Navigate } from "react-router-dom"
 // importa un tipo de Typescript, desde local tipes (decimos que propiedades debe tener un objeto de ruta (como path o element))
 import type { RouteObject } from './types'
 // Layout principal
@@ -11,6 +11,7 @@ import { RootLayout } from '../../shared/components/layout/RootLayout'
 import { HomePage } from "../../game/ui/pages/HomePage"
 import { SplashScreen } from '../../shared/pages/IntroPage'
 import { StartGate } from '../../shared/pages/MainPage'
+import { Mainpage2 } from '../../shared/pages/SectionsPage'
 
 import { Menu2DPage } from '../../ui2d/pages/Menu2DPage'
 import { Game2DPage } from "../../ui2d/pages/Game2DPage"
@@ -36,6 +37,23 @@ import { ProfilePage } from "../../shared/auth/pages/ProfilePage"
 import { ProtectedRoute } from "../../shared/auth/components/ProtectedRoute"
 
 
+const MainSectionsPage = () => {
+	const navigate = useNavigate()
+	const { section } = useParams<{ section: 'tech' | '3d' | 'arcade' | 'creators' }>()
+
+	if (section !== 'tech' && section !== '3d' && section !== 'arcade' && section !== 'creators') {
+		return <Navigate to="/start" replace />
+	}
+
+	return (
+		<Mainpage2
+			selectedSection={section}
+			onStart3D={() => navigate('/home')}
+			onGo2DMenu={() => navigate('/menu2D')}
+		/>
+	)
+}
+
 // Página StartGate - usa useNavigate pa navegacion correcta
 const StartPage = () => {
 	const navigate = useNavigate()
@@ -44,6 +62,10 @@ const StartPage = () => {
 		<StartGate
 			onStart3D={() => navigate('/home')}
 			onGo2DMenu={() => navigate('/menu2D')}
+			onGoTech={() => navigate('/sections/tech')}
+			onGo3D={() => navigate('/sections/3d')}
+			onGoArcade={() => navigate('/sections/arcade')}
+			onGoCreators={() => navigate('/sections/creators')}
 		/>
 	)
 }
@@ -61,6 +83,10 @@ const routes: RouteObject[] = [
 			{
 				path: 'start',
 				element: <StartPage />,
+			},
+			{
+				path: 'sections/:section',
+				element: <MainSectionsPage />,
 			},
 			{
 				path: 'menu2D',

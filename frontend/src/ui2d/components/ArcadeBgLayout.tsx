@@ -21,7 +21,7 @@ export function ArcadeBgLayout({
 	player2Score = 0
 }: BgProps) {
 	return (
-		<div className="flex items-center justify-center h-[calc(100vh-88px)] bg-black overflow-hidden w-full">
+		<div className="flex items-center justify-center h-full bg-black overflow-hidden w-full">
 			<div className="relative h-full w-full max-w-[85rem]">
 				<img
 					src={arcadeBg}

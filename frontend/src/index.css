@@ -4,6 +4,17 @@
 @theme {
   --animate-fade-in: fadeIn 1s ease-in;
   --animate-fade-in-up: fadeInUp 0.8s ease-out;
+  --animate-logo-pulse: logoPulse 3s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(56,189,248,0.6)) drop-shadow(0 0 28px rgba(14,165,233,0.3)); }
+  50%       { filter: drop-shadow(0 0 22px rgba(56,189,248,0.95)) drop-shadow(0 0 55px rgba(14,165,233,0.6)); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
 }
 
 /* Regla para juego 3D */

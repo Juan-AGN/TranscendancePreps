@@ -1,91 +1,61 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
-const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*/-+?¿^*¨Ç@#~}{" // char raros para el efecto princ
-const FINAL_TEXT = "TRANSCENDENCE PROJECT" // el texto q revela en la intro
-
-function getRandomChar(): string { // coge un indice al azar y devuelve ese caracter de CHARS
-	const index = Math.floor(Math.random() * CHARS.length)
-	return CHARS[index]
-}
-
 //componente para botones iguales
 export function IntroButtons({ label, onCLick }: { label: string; onCLick?: () => void }) { // boton reutilizable pa la intro
 	return (
 		<button
 			onClick={onCLick}
 			className="
-				group relative overflow-hidden text-white text-[0.88rem] px-10 py-3 rounded-full
-				border-1 border-white/20 bg-white/[0.04] backdrop-blur-xl tracking-[0.25em] uppercase font-light
-				shadow-[0_0_20px_rgba(255,255,255,0.04)] transition-all duration-500 ease-out
-				hover:scale-[1.15] hover:border-yellow-400/[0.30] hover:bg-blue-500/[0.15]
-				hover:text-yellow-300 active:scale-[0.98]" >
+				group relative overflow-hidden text-gray-900 text-[0.95rem] px-9 py-2.5 rounded-full font-medium
+				border-2 border-yellow-600 bg-white/[0.85] backdrop-blur-xl tracking-[0.15em] uppercase
+				shadow-[0_4px_12px_rgba(0,0,0,0.2)] 
+				transition-all duration-500 ease-out
+				hover:scale-[1.08] hover:border-yellow-500 hover:bg-white hover:text-gray-800 hover:shadow-[0_8px_20px_rgba(0,0,0,0.3)]
+				active:scale-[0.95]" >
 			<span className="relative z-10">{label}</span>
 			<span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity
-							duration-2700 bg-gradient-to-r from-transparent via-white/10 to-transparent"></span>
+							duration-500 bg-gradient-to-r from-transparent via-yellow-200/30 to-transparent"></span>
 		</button>
 	)
 }
 
-export function SplashScreen() { // pantalla d intro, el texto se descifra letra a letra
-	const [displayText, setDisplayText] = useState("") // lo q se muestra en pantalla
-	const [showButtons, setShowButtons] = useState(false) // si mostrar o no los botones
-	const navigate = useNavigate();
+export function SplashScreen() {
+	const navigate = useNavigate()
+	const [showLogo, setShowLogo] = useState(false)
+	const [showTitle, setShowTitle] = useState(false)
+	const [showButtons, setShowButtons] = useState(false)
 
 	useEffect(() => {
-		let lettersRevealed = 0 // cuantas letras d FINAL_TEXT ya son reales (no ruido)
-		let lastTime = 0 // timestamp del ultimo reveal
-		let finishedAt = 0 // timestamp d cuando acabamos d revelar todo
-		let animationId = 0 // id del rAF pa cancelarlo
-
-		function loop(now: number) { // now = timestamp en ms del rAF
-			if (lastTime === 0)
-				lastTime = now // primer frame, inicializamos
-
-			if (lettersRevealed < FINAL_TEXT.length && now - lastTime > 130) { // cada 130ms revelamos 1 letra, cambia 130 pa velocidad
-				lettersRevealed++
-				lastTime = now // reset contador
-			}
-
-			let result = "" // string q vamos a pintar
-			for (let i = 0; i < FINAL_TEXT.length; i++) {
-				if (FINAL_TEXT[i] === " ")
-					result += " " // los espacios siempre son espacios, never ruido
-				else if (i < lettersRevealed)
-					result += FINAL_TEXT[i] // letra ya revelada
-				else
-					result += getRandomChar() // todavia ruido
-			}
-			setDisplayText(result) // actualizamos lo q se ve
-
-			if (lettersRevealed >= FINAL_TEXT.length) { // terminamos d revelar todo
-				if (finishedAt === 0)
-					finishedAt = now // guardamos cuando termino
-				if (now - finishedAt > 300) { // 300ms d pausa y ya sta todo revelado
-					setShowButtons(true) // mostramos los botones
-					return // no hace falta hacer nada mas, el texto ya esta fijo
-				}
-			}
-			animationId = requestAnimationFrame(loop) // next frame
-		}
-		animationId = requestAnimationFrame(loop) // arrancamos
-		return () => cancelAnimationFrame(animationId) // limpieza al desmontar
+		const t1 = setTimeout(() => setShowLogo(true), 200)
+		const t2 = setTimeout(() => setShowTitle(true), 1500)
+		const t3 = setTimeout(() => setShowButtons(true), 1200)
+		return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
 	}, [])
 
 	return (
-		<div className="fixed inset-0 bg-black flex flex-col items-center justify-center overflow-hidden">
-			<div className="relative w-[80vw] h-[60vh] overflow-hidden flex items-center justify-center bg-black"> {/* cambia w y h pa ajustar el area d intro */}
-				<h1 className={`text-lg md:text-4xl font-serif text-center tracking-[0.30em] 
-    							transform-gpu transition-all duration-[10000ms] ease-out 
-    							${displayText === FINAL_TEXT
-								? "scale-[1.35] text-sky-100 animate-[pulse_5s_infinite] " +
-								"[text-shadow:0_0_6px_rgba(186,230,255,0.95),0_0_18px_rgba(59,130,246,0.90),0_0_32px_rgba(14,165,233,0.80),0_0_55px_rgba(56,189,248,0.60)]"
-								: "scale-100 text-white"}`}>
-						{displayText}
-				</h1>
+		<div 
+			className="fixed inset-0 bg-black flex flex-col items-center justify-center gap-8 overflow-hidden px-4 bg-cover bg-center bg-no-repeat"
+			style={{ backgroundImage: "url('/bgIntro.png')" }}
+		>
+			<div className="flex flex-col items-center gap-0 max-h-[60vh] flex-shrink-0">
+				<img
+					src="/logoT.png"
+					alt="Logo"
+					className={`max-w-[25vw] max-h-[18vh] object-contain transition-all duration-3000 ease-out
+						${showLogo ? "opacity-100 translate-y-0" : "opacity-0 translate-y-60"}
+						animate-logo-pulse`}
+				/>
+				<img
+					src="/titleT.png"
+					alt="Title"
+					className={`max-w-[90vw] max-h-[55vh] object-contain transition-[opacity] duration-1000 ease-out
+						${showTitle ? "opacity-100" : "opacity-0"}`}
+					style={showTitle ? { animation: 'float 6s ease-in-out infinite' } : {}}
+				/>
 			</div>
-			<div className={`flex items-center justify-center gap-8 transition-all duration-[6000ms]
-							${showButtons ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+			<div className={`flex items-center justify-center gap-8 transition-all duration-700 ease-out flex-shrink-0
+				${showButtons ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
 				<IntroButtons label="Guest" onCLick={() => navigate("start")} />
 				<IntroButtons label="42 Login" />
 				<IntroButtons label="Login" />

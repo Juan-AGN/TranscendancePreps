@@ -1,202 +1,215 @@
-// STARTGATE - pantalla de entrada al hub (puerta de decision)
-// layout de secciones full-screen con scroll suave CSS
-//
-// estructura:
-//   seccion 1 -> video 3D + boton entrar mundo 3D
-//   seccion 2 -> entrada modo arcade 2D
-//   seccion 3 -> meet the creators
-//   seccion final -> footer
-
-import { Footer } from '../components/Footer';
-import { useRef } from 'react';
-import { useLenisGsaEffect } from '../hooks/useLenisGsaEffect';
+import React, { useState, useRef, useEffect } from 'react'
+import { PlanetBackground } from '../components/BackgroundEffects/PlanetBackground'
 
 interface StartGateProps {
-	onStart3D: () => void;
-	onGo2DMenu?: () => void;
+	onStart3D: () => void
+	onGo2DMenu?: () => void
+	onGoTech?: () => void
+	onGo3D?: () => void
+	onGoArcade?: () => void
+	onGoCreators?: () => void
 }
 
-const CREATORS = [
-	{ image: '/israface.png', alt: 'albelope', role: 'Technical Lead', username: '@albelope' },
-	{ image: '/juanface.png', alt: 'juan', role: 'Project Manager', username: '@juan' },
-	{ image: '/daniface.png', alt: 'd-ruiz', role: 'Backend Developer', username: '@d-ruiz' },
-	{ image: '/carlosface.png', alt: 'cagarci', role: 'Product Owner', username: '@cagarci' },
-]
-
-const LOGOS = [
-	{ image: '/imgreact.png', alt: 'React', name: 'React' },
-	{ image: '/imgTypescript.png', alt: 'Typescript', name: 'Typescript' },
-	{ image: '/imgTailwind.png', alt: 'Tailwind', name: 'Tailwind' },
-	{ image: '/imgbabylon2.png', alt: 'Babylon', name: 'Babylon' },
-	{ image: '/imgNestjs.png', alt: 'NestJS', name: 'NestJS' },
-	{ image: '/imgDocker.png', alt: 'Docker', name: 'Docker' }
-]
-
-function ButtonMainPage({ label, onClick }: { label: string; onClick?: () => void }) {
-	return (
-		<button
-			onClick={onClick}
-			className="w-14 h-14 flex items-center justify-center text-white cursor-pointer
-					rounded-full border-5 border-white/20 uppercase font-light  
-					shadow-[1px_1px_10px_1px_#eab308,-1px_-1px_10px_1px_#eab308] 
-        			transition-all duration-700 ease-out select-none group overflow-visible 
-					hover:bg-black  hover:shadow-[2px_2px_50px_2px_#3b82f6,0px_0px_20px_2px_#eab308] hover:text-yellow-200">
-			<span className="whitespace-nowrap tracking-[0.9rem] group-hover:tracking-[1.8rem] hover:scale-125 transition-all duration-700">
-				{label}
-			</span>
-		</button>
-	)
+interface GenreCardProps {
+	title: 'tech' | '3d' | 'arcade' | 'creators'
+	image: string
+	onClick?: () => void
+	delay?: number
+	initialTilt?: number
+	imageClassName?: string
 }
 
-export function StartGate({ onStart3D, onGo2DMenu }: StartGateProps) {
-	const sectionRef = useRef<HTMLDivElement | null>(null);
-	const contentRef = useRef<HTMLDivElement | null>(null);
-	const stackRef = useRef<HTMLDivElement | null>(null);
+function GenreCard({
+	title,
+	image,
+	onClick,
+	delay = 0,
+	initialTilt = 0,
+	imageClassName = '',
+}: GenreCardProps) {
+	const target = useRef({ x: 0, y: 0, active: false })
+	const [mouse, setMouse] = useState({ x: 0, y: 0, active: false })
+	const rafRef = useRef<number | null>(null)
 
-	useLenisGsaEffect({
-		wrapperRef: sectionRef,
-		contentRef,
-		stackRef,
-	});
+	useEffect(() => {
+		const LERP = 0.08
+		let current = { x: 0, y: 0 }
+
+		const tick = () => {
+			current.x += (target.current.x - current.x) * LERP
+			current.y += (target.current.y - current.y) * LERP
+			setMouse({ x: current.x, y: current.y, active: target.current.active })
+			rafRef.current = requestAnimationFrame(tick)
+		}
+
+		rafRef.current = requestAnimationFrame(tick)
+
+		return () => {
+			if (rafRef.current)
+				cancelAnimationFrame(rafRef.current)
+		}
+	}, [])
+
+	const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+		const rect = e.currentTarget.getBoundingClientRect()
+		const px = ((e.clientX - rect.left) / rect.width - 0.5) * 1.5
+		const py = ((e.clientY - rect.top) / rect.height - 0.5) * 1.5
+
+		target.current = { x: px, y: py, active: true }
+	}
+
+	const handleLeave = () => {
+		target.current = { x: 0, y: 0, active: false }
+	}
+
+	const rotateX = mouse.y * -20
+	const rotateY = mouse.x * 20 + initialTilt
+
+	const effectiveX = mouse.x + initialTilt / 20
+	const effectiveY = mouse.y
 
 	return (
-		<div ref={sectionRef}
-			className="h-[calc(100vh-88px)] overflow-y-auto overflow-x-hidden scroll-smooth
-						bg-black ">
-			<div ref={contentRef}>
-				<div ref={stackRef}>
-					<section className="stack-section h-[calc(100vh-88px)] flex items-center justify-center p-5 bg-black">
-						<div className="stack-panel relative w-[min(90vw,95rem)] h-[82vh] rounded-3xl
-								overflow-hidden shadow-[10px_10px_30px_10px_#1E3A8A,-10px_-10px_30px_10px_#1E3A8A]">
-							<video
-								src="/main3dvideo.mp4"
-								autoPlay loop muted playsInline
-								className='absolute inset-0 w-full h-full object-cover'>
-							</video>
-							<div className="absolute inset-0 bg-gradient-to-t from-black/10 via-black/1 to-transparent pb-12 pr-12">
-								<div className="absolute inset-0 w-full h-full flex items-end justify-end pb-15 pr-40">
-									<ButtonMainPage label="explore" onClick={onStart3D}></ButtonMainPage>
-								</div>
-							</div>
-						</div>
-					</section>
+		<div
+			onMouseMove={handleMove}
+			onMouseLeave={handleLeave}
+			className="relative w-full h-[22rem] md:h-[22rem] xl:h-[22rem] opacity-0 animate-[cardIn_500ms_cubic-bezier(0.25,0.25,0.75,0.75)_forwards]"
+			style={{ animationDelay: `${delay}ms` }}
+		>
+			<button
+				onClick={onClick}
+				aria-label={title}
+				className="absolute inset-0 z-40 cursor-pointer bg-transparent border-0"
+			/>
 
-					<section className="stack-section h-[calc(100vh-88px)] flex items-center justify-center p-5 bg-black">
-						<div className="stack-panel relative w-[min(90vw,95rem)] h-[82vh] rounded-3xl overflow-hidden
-										shadow-[10px_10px_30px_10px_#7A4E2D,-10px_-10px_30px_10px_#7A4E2D] ">
-							<div className="relative w-full h-full">
-								<h2 className="absolute left-[15%] top-[20%] z-20 max-w-[86%] md:max-w-[46%] text-[clamp(0.95rem,2vw,2rem)] font-light leading-[1.45] font-black/10 text-white tracking-[0.03em]">
-									<span className="block">Welcome to Retro Arcade Pong </span>
-									<span className="block">Our game is simple & easy...</span>
-									<span className="block">but the challenge is elite!</span>
-									<span className="block">speed, precision, focus, </span>
-									<span className="block">and no room for mistakes.</span>
-									<span className="block"> Are you ready?</span>
-								</h2>
+			<div className="relative w-full h-full [perspective:800px]">
+				
+				<div
+					className="relative w-full h-full [transform-style:preserve-3d] transition-transform duration-150 ease-out"
+					style={{ transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)` }}
+				>
 
-								<div className="absolute left-[30%] bottom-[20%] z-20">
-									<ButtonMainPage label="Arcade Arena" onClick={onGo2DMenu} />
-								</div>
 
+					<img
+						src="/pedestal2.png"
+						alt=""
+						className="absolute left-1/2 bottom-[-4.5rem] z-20 w-[90%] pointer-events-none select-none transition-all duration-300"
+						style={{
+							opacity: mouse.active ? 1 : 0.9,
+							transform: `translateX(-50%) scale(${mouse.active ? 1.14 : 1})`,
+						}}
+					/>
+
+					<div
+						className="absolute inset-0 z-30 flex flex-col items-center justify-center pointer-events-none"
+						style={{ transform: 'translateZ(30px)' }}
+					>
+						<div
+							className="w-full h-full flex items-center justify-center transition-transform duration-150 ease-out"
+							style={{
+								transform: `translate(${effectiveX * -85}px, ${effectiveY * -85}px)`,
+							}}
+						>
+							<div
+								className="w-full h-full flex items-center justify-center"
+								style={{
+									animation: mouse.active ? 'floatBob 2s ease-in-out infinite' : 'none',
+								}}
+							>
 								<img
-									src="/arcade2.png"
-									alt="Arcade 2D"
-									className="absolute right-[12%] bottom-[4%] h-[86%] w-auto object-contain z-10"
+									src={image}
+									alt={title}
+									className={` object-contain ${imageClassName}`}
 								/>
 							</div>
 						</div>
-					</section>
 
-					<section className="stack-section h-[calc(100vh-88px)] flex items-center justify-center p-5 bg-black">
-						<div className="stack-panel relative w-[min(90vw,95rem)] h-[82vh] rounded-3xl overflow-hidden
-										shadow-[10px_10px_30px_10px_#eab308,-10px_-10px_30px_10px_#eab100] bg-black px-6 py-8 md:px-10 md:py-10">
-							<div className="w-full h-full flex flex-col justify-center">
-								<h2 className="text-3xl md:text-5xl font-light text-white tracking-[0.5rem] uppercase mb-8 opacity-80 text-center">
-									Tech & Project
-								</h2>
-
-								<div className="grid grid-cols-1 xl:grid-cols-[1.2fr_1fr] gap-10 items-center h-full">
-									<div className="flex flex-col justify-center">
-										<h3 className="text-white text-2xl md:text-3xl uppercase tracking-[0.25rem] mb-6">
-											About the project
-										</h3>
-
-										<p className="text-white/80 text-sm md:text-lg leading-7 md:leading-8 max-w-3xl">
-											Transcendence is a modern reinterpretation of the classic Pong experience,
-											combining competitive gameplay, a retro arcade spirit, and an immersive 3D hub.
-											The project mixes frontend, backend, real-time interaction and visual design
-											to create a complete digital experience where users can explore, play,
-											compete and connect inside the same platform.
-										</p>
-
-										<p className="text-white/60 text-sm md:text-base leading-7 mt-6 max-w-3xl">
-											The goal was not only to build a game, but to create a full universe around it:
-											a navigable 3D environment, a polished interface, structured backend logic,
-											auth system, game modes, and a visual identity inspired by futuristic arcade culture.
-										</p>
-									</div>
-
-									<div className="grid grid-cols-2">
-										{LOGOS.map((tech) => (
-											<div
-												key={tech.name}
-												className="group p-2 flex flex-col items-center text-center hover:border-yellow-300/40
-															hover:shadow-[0px_0px_25px_0px_rgba(250,204,21,0.12)] transition-all duration-500">
-												<div className="w-50 h-40 flex items-center justify-center">
-													<img
-														src={tech.image}
-														alt={tech.alt}
-														className="w-full h-full object-contain group-hover:scale-130 transition-transform duration-500"
-													/>
-												</div>
-											</div>
-										))}
-									</div>
-								</div>
-							</div>
+						<div className="absolute bottom-[-4.6rem] left-0 w-full flex items-center justify-center">
+							<p className="m-0 rounded-full border border-white/25 bg-black/50 px-5 py-1 text-white text-[0.75rem]
+										md:text-[0.8rem] font-light uppercase tracking-[0.18rem] backdrop-blur-md shadow-[0_0_18px_rgba(255,255,255,0.22)]">
+								{title}
+							</p>
 						</div>
-					</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	)
+}
 
-					<section className="stack-section h-[calc(100vh-88px)] flex items-center justify-center p-5 bg-black">
-						<div className="stack-panel relative w-[min(90vw,95rem)] h-[82vh] rounded-3xl overflow-hidden 
-										shadow-[10px_10px_30px_10px_#00E5FF,-10px_-10px_30px_10px_#00E5FF] flex flex-col items-center justify-center p-8 bg-black">
-
-							<h2 className="text-4xl md:text-5xl font-light text-white tracking-[0.5rem] uppercase mb-12 opacity-80">
-								Meet Creators
-							</h2>
-
-							<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-8 gap-y-12 w-full max-w-7xl">
-								{CREATORS.map((creator) => (
-									<div key={creator.username} className="creator-card flex flex-col items-center group">
-										<div className="relative w-40 h-40 md:w-70 md:h-70 mb-5">
-											<div className="absolute inset-0 rounded-full blur-lg group-hover:bg-[#00E5FF] scale-110 transition-all duration-800"></div>
-											<div className="relative w-full h-full rounded-full  overflow-hidden ring-2 ring-[#00E5FF]/50">
-												<img
-													src={creator.image}
-													alt={creator.alt}
-													className="w-full h-full object-cover grayscale-[50%] group-hover:scale-112 group-hover:grayscale-0 transition-all duration-700" />
-											</div>
-										</div>
-
-										<h3 className="text-lg font-bold text-white tracking-wider uppercase mb-6 h-8">
-											{creator.role}
-										</h3>
-
-										<div className="scale-75 md:scale-90 transition-transform duration-500 group-hover:scale-100">
-											<ButtonMainPage
-												label={creator.username} />
-										</div>
-									</div>
-								))}
-							</div>
-						</div>
-					</section>
+export function StartGate({
+	onStart3D,
+	onGo2DMenu,
+	onGoTech,
+	onGo3D,
+	onGoArcade,
+	onGoCreators,
+}: StartGateProps) {
+	return (
+		<div className="relative min-h-screen w-full overflow-hidden">
+			<div
+				className="absolute inset-0 bg-center bg-cover"
+				style={{ backgroundImage: "url('/bg6.png')" }}
+			>
+				<div className="absolute inset-0 z-[1] pointer-events-none">
+					<div className="absolute left-1/2 top-[34%] h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/20 blur-[150px]" />
+					<PlanetBackground />
 				</div>
 
-				<section>
-					<Footer />
-				</section>
+				<div className="absolute inset-0 z-[2] pointer-events-none bg-gradient-to-b from-white/20 via-white/4 to-white/30" />
+
+				<div className="relative z-10 min-h-screen w-full flex items-center justify-center px-5 md:px-8 xl:px-10">
+					<div className="w-full max-w-[77rem] mx-auto grid grid-cols-2 xl:grid-cols-4 gap-6 md:gap-6 items-center translate-y-[4rem]">
+						<GenreCard
+							title="tech"
+							image="/techCard.png"
+							onClick={onGoTech ?? onStart3D}
+							delay={500}
+							initialTilt={8}
+							imageClassName="scale-[0.80] translate-x-[1rem] translate-y-[1.3rem]"
+						/>
+
+						<GenreCard
+							title="3d"
+							image="/3dcard2.png"
+							onClick={onGo3D ?? onGo2DMenu}
+							delay={300}
+							initialTilt={2}
+							imageClassName=" translate-x-[0.8rem] translate-y-[2.5rem]"
+
+						/>
+
+						<GenreCard
+							title="arcade"
+							image="/Ac3.png"
+							onClick={onGoArcade}
+							delay={100}
+							initialTilt={-2}
+							imageClassName="scale-[0.68] translate-y-[2rem]"
+						/>
+
+						<GenreCard
+							title="creators"
+							image="/3dcard4.png"
+							onClick={onGoCreators}
+							delay={700}
+							initialTilt={-8}
+							imageClassName="translate-x-[-0.6rem] translate-y-[3rem]"
+						/>
+					</div>
+				</div>
 			</div>
+
+			<style>{`
+				@keyframes cardIn {
+					0% { opacity: 0; transform: translateY(154px) scale(0.28); }
+					100% { opacity: 1; transform: translateY(0) scale(1); }
+				}
+
+				@keyframes floatBob {
+					0%, 100% { transform: translateY(0px); }
+					50% { transform: translateY(-10px); }
+				}
+			`}</style>
 		</div>
 	)
 }
