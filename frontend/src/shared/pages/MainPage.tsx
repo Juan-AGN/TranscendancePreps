@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { PlanetBackground } from '../components/BackgroundEffects/PlanetBackground'
+import { Footer } from '../components/layout/Footer'
 
 interface StartGateProps {
 	onStart3D: () => void
@@ -145,7 +146,7 @@ export function StartGate({
 	onGoCreators,
 }: StartGateProps) {
 	return (
-		<div className="relative min-h-screen w-full overflow-hidden">
+		<div className="relative h-screen w-full overflow-hidden">
 			<div
 				className="absolute inset-0 bg-center bg-cover"
 				style={{ backgroundImage: "url('/bg6.png')" }}
@@ -165,7 +166,7 @@ export function StartGate({
 							onClick={onGoTech ?? onStart3D}
 							delay={500}
 							initialTilt={8}
-							imageClassName="scale-[0.80] translate-x-[1rem] translate-y-[1.3rem]"
+							imageClassName="scale-[0.70] translate-x-[1rem] translate-y-[1.3rem]"
 						/>
 
 						<GenreCard
@@ -174,7 +175,7 @@ export function StartGate({
 							onClick={onGo3D ?? onGo2DMenu}
 							delay={300}
 							initialTilt={2}
-							imageClassName=" translate-x-[0.8rem] translate-y-[2.5rem]"
+							imageClassName=" scale-[0.9] translate-x-[0.8rem] translate-y-[2.5rem]"
 
 						/>
 
@@ -184,7 +185,7 @@ export function StartGate({
 							onClick={onGoArcade}
 							delay={100}
 							initialTilt={-2}
-							imageClassName="scale-[0.68] translate-y-[2rem]"
+							imageClassName="scale-[0.58] translate-y-[2rem]"
 						/>
 
 						<GenreCard
@@ -210,6 +211,9 @@ export function StartGate({
 					50% { transform: translateY(-10px); }
 				}
 			`}</style>
+			<div className="absolute bottom-0 left-0 right-0 z-20">
+				<Footer/>
+			</div>
 		</div>
 	)
 }

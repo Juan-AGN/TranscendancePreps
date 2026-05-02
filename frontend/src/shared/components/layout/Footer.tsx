@@ -7,44 +7,26 @@ export function Footer() {
     <footer className="
 			w-full
 			border-t
-			border-white/20
-			rounded-t-[2rem]
-			bg-blue-600
-			py-15
+			border-yellow-400/40
+			rounded-t-[1rem]
+			bg-blue-400/10
+			backdrop-blur-sm
+			py-2
 			px-10
 			">
 			<div className="
 			max-w-7xl
 			mx-auto
 			flex
-			flex-col
-			md:flex-row
+			flex-row
 			items-center
 			justify-between
-			gap-8
+			gap-4
 			">
 				{/* Logo / Brand */}
-				<div className="
-				flex
-				flex-col
-				items-center
-				md:items-start
-				gap-2
-				">
-					<h3 className="
-					text-2xl
-					font-bold
-					text-white
-					drop-shadow-lg
-					">
-						TRANSCENDENCE
-					</h3>
-					<p className="
-					text-sm
-					text-white/70
-					">
-						Alumni Project 42 Telefonica
-					</p>
+				<div className="flex items-center gap-3">
+					<span className="text-sm font-bold text-black drop-shadow-lg">TRANSCENDENCE</span>
+					<span className="text-xs text-black/50">Alumni Project 42 Telefonica</span>
 				</div>
 
 				 {/* Footer legal del subject */}
@@ -54,24 +36,26 @@ export function Footer() {
 				 items-center
 				 ">
 					 <Link to="/privacy" className="
-					 text-white/80
+					 text-black/50
 					 hover:text-white
-					 hover:scale-110
+					 hover:scale-120
+					 hover:translate-y-[-10%]
 					 transition-all
 					 duration-300
-					 font-medium
+					 font-small
 					 drop-shadow-md
 					 ">Privacy Policy</Link>
 					 
 					 <span className="text-white/40">|</span>
 					 
 					 <Link to="/terms" className="
-					 text-white/80
+					 text-black/50
 					 hover:text-white
-					 hover:scale-110
+					 hover:scale-120
+					 hover:translate-y-[-10%]
 					 transition-all
 					 duration-300
-					 font-medium
+					 font-small
 					 drop-shadow-md
 					 ">Terms of Service</Link>
 				 </div>
@@ -79,7 +63,7 @@ export function Footer() {
 				 {/* Copyright */}
 				 <div className="
 				 text-sm
-				 text-white/60
+				 text-black/60
 				 text-center
 				 md:text-right
 				 ">
