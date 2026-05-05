@@ -8,6 +8,7 @@
 //   seccion 4 -> meet the creators
 
 import { Footer } from '../components/layout/Footer'
+import { motion } from 'framer-motion'
 
 export type MainSection = 'tech' | '3d' | 'arcade' | 'creators' // tipo union: las 4 secciones posibles
 
@@ -33,7 +34,7 @@ const LOGOS = [                                               // tecnologías de
 	{ image: '/imgDocker.png', alt: 'Docker', name: 'Docker' },
 ]
 
-function ButtonMainPage({         // botón reutilizable con efecto glow y animación de letra-spacing
+function ButtonMainPage({
 	label,
 	onClick,
 	tracking = "tracking-[0.8rem]",           // espaciado de letras por defecto
@@ -69,7 +70,12 @@ function ButtonMainPage({         // botón reutilizable con efecto glow y anima
 
 export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2Props) { // componente principal: renderiza solo la sección activa
 	return (
-		<div className="h-full overflow-y-auto overflow-x-hidden scroll-smooth bg-black"> {/* contenedor raíz, scroll suave */}
+		<motion.div
+			initial={{ opacity: 0, scale: 1, filter: 'blur(6px)' }}
+			animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+			transition={{ duration: 2.1, delay: 0.52, ease: [0.22, 1, 0.36, 1] }}
+			className="h-full overflow-y-auto overflow-x-hidden scroll-smooth bg-black"
+		> {/* contenedor raíz, scroll suave */}
 			<div>
 				<div>
 					{selectedSection === '3d' && ( // sección 3D: solo visible si selectedSection === '3d'
@@ -83,10 +89,7 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 								</div>
 								<div className="relative flex h-24 min-w-[28rem] items-center justify-center rounded-full
 									bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.55)_40%,rgba(0,0,0,0.28)_66%,transparent_72%)] ">
-									<ButtonMainPage
-										label="explore"
-										onClick={onStart3D}
-									/>
+									<ButtonMainPage label="explore" onClick={onStart3D} />
 								</div>
 							</div>
 						</section>
@@ -150,11 +153,8 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 													className="group p-2 flex flex-col items-center text-center hover:border-yellow-300/40
 														hover:shadow-[0px_0px_25px_0px_rgba(250,204,21,0.12)] transition-all duration-500" >
 													<div className="w-40 h-25  flex items-center justify-center">
-														<img
-															src={tech.image}
-															alt={tech.alt}
-															className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
-														/>
+														<img src={tech.image} alt={tech.alt}
+															className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" />
 													</div>
 												</div>
 											))}
@@ -208,7 +208,6 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 																drop-shadow-[0_20px_50px_rgba(0,0,0,0.35)]"/>
 													</div>
 												</div>
-
 											</div>
 										</div>
 									))}
@@ -218,6 +217,6 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 					)}
 				</div>
 			</div>
-		</div>
+		</motion.div>
 	)
 }
