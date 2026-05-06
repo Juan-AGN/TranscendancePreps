@@ -30,7 +30,7 @@ services:
       - "8890:8890"
     environment:
       PORT: 8890
-      ##DATABASE_URL: postgresql://trans_user:trans_pass@db:5432/transcendence?schema=public
+      DATABASE_URL: postgresql://trans_user:trans_pass@db:5432/transcendence?schema=public
     depends_on:
       - db
   db:
