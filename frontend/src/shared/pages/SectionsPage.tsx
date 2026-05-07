@@ -1,13 +1,10 @@
-// STARTGATE - pantalla de entrada al hub (puerta de decision)
 // layout de secciones full-screen con scroll suave CSS
-//
 // estructura:
 //   seccion 1 -> video 3D + boton entrar mundo 3D
 //   seccion 2 -> entrada modo arcade 2D
 //   seccion 3 -> tech & project
 //   seccion 4 -> meet the creators
 
-import { Footer } from '../components/layout/Footer'
 import { motion } from 'framer-motion'
 
 export type MainSection = 'tech' | '3d' | 'arcade' | 'creators' // tipo union: las 4 secciones posibles
@@ -34,10 +31,8 @@ const LOGOS = [                                               // tecnologías de
 	{ image: '/imgDocker.png', alt: 'Docker', name: 'Docker' },
 ]
 
-function ButtonMainPage({
-	label,
-	onClick,
-	tracking = "tracking-[0.8rem]",           // espaciado de letras por defecto
+function ButtonMainPage({ label, onClick,
+	tracking = "tracking-[0.8rem]",       
 	textColor = "text-blue-300",              // color de texto por defecto
 	size = "w-14 h-14",                       // tamaño del botón circular por defecto
 	hoverTracking = "group-hover:tracking-[0.9rem]", // espaciado al hacer hover
@@ -76,13 +71,11 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 			transition={{ duration: 2.1, delay: 0.52, ease: [0.22, 1, 0.36, 1] }}
 			className="h-full overflow-y-auto overflow-x-hidden scroll-smooth bg-black"
 		> {/* contenedor raíz, scroll suave */}
-			<div>
-				<div>
 					{selectedSection === '3d' && ( // sección 3D: solo visible si selectedSection === '3d'
-						<section className="stack-section h-screen flex items-center justify-center py-16 bg-top bg-cover bg-no-repeat"
+						<section className="h-screen flex items-center justify-center py-16 bg-top bg-cover bg-no-repeat"
 							style={{ backgroundImage: "url('/bgvideo.png')" }}> {/* fondo de pantalla completa */}
 							<div className="w-[min(78vw,80rem)] flex flex-col items-center gap-12">
-								<div className="stack-panel relative w-full h-[65vh] rounded-3xl overflow-hidden ">
+								<div className="relative w-full h-[65vh] rounded-3xl overflow-hidden ">
 									{/* video de fondo del mundo 3D, silenciado y en loop */}
 									<video src="/main3dvideo.mp4" autoPlay loop muted playsInline
 										className="absolute inset-0 w-full h-full object-cover opacity-80" />
@@ -96,9 +89,9 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 					)}
 
 					{selectedSection === 'arcade' && ( // sección Arcade: solo visible si selectedSection === 'arcade'
-						<section className="stack-section h-screen flex items-center justify-center py-16 px-5 bg-center bg-no-repeat bg-[length:100%_100%]"
+						<section className="h-screen flex items-center justify-center py-16 px-5 bg-center bg-no-repeat bg-[length:100%_100%]"
 							style={{ backgroundImage: "url('/bgtop2.png')" }}> {/* fondo arcade estirando la imagen al 100% */}
-							<div className="stack-panel relative w-[min(63vw,75rem)] h-[65vh] rounded-3xl overflow-hidden bg-black/60 backdrop-blur-[2px]
+							<div className="relative w-[min(63vw,75rem)] h-[65vh] rounded-3xl overflow-hidden bg-black/60 backdrop-blur-[2px]
 											border border-amber-300/25 shadow-[0_0_45px_8px_rgba(180,115,45,0.45)] ">
 								<div className="relative w-full h-full">
 									<h2 className="absolute left-[15%] top-[20%] z-20 max-w-[86%] md:max-w-[46%] text-[clamp(0.95rem,2vw,2rem)]
@@ -120,9 +113,9 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 					)}
 
 					{selectedSection === 'tech' && ( // sección Tech: solo visible si selectedSection === 'tech'
-						<section className="stack-section h-screen flex items-center justify-center py-16 px-5 bg-center bg-no-repeat bg-[length:100%_100%]"
+						<section className="h-screen flex items-center justify-center py-16 px-5 bg-center bg-no-repeat bg-[length:100%_100%]"
 							style={{ backgroundImage: "url('/bgTech.png')" }}> {/* fondo tech */}
-							<div className="stack-panel relative w-[min(70vw,70rem)] h-[60vh] rounded-3xl overflow-hidden
+							<div className="relative w-[min(70vw,70rem)] h-[60vh] rounded-3xl overflow-hidden
 										shadow-[1px_1px_3px_1px_#eab308,-1px_-1px_20px_1px_#eab100]/40 bg-black/60 px-8 py-12 md:px-12 md:py-14">
 								<div className="w-full h-full flex flex-col justify-center">
 									<h2 className="text-yellow-400 text-3xl md:text-3xl uppercase tracking-[0.40rem] mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
@@ -167,11 +160,11 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 
 					{selectedSection === 'creators' && ( // sección Creators: solo visible si selectedSection === 'creators'
 						<section
-							className="stack-section relative h-screen flex items-center justify-center py-12 bg-center bg-[length:100%_100%]"
+							className="relative h-screen flex items-center justify-center py-12 bg-center bg-[length:100%_100%]"
 							style={{ backgroundImage: "url('/bgCreators.png')" }}> {/* fondo creators */}
 							<div className="absolute inset-0 bg-white/20" /> {/* overlay blanco semitransparente sobre el fondo */}
 
-							<div className="relative stack-panel z-10 w-[min(72vw,82rem)] h-[88vh] rounded-3xl overflow-hidden flex flex-col items-center">
+							<div className="relative z-10 w-[min(72vw,82rem)] h-[88vh] rounded-3xl overflow-hidden flex flex-col items-center">
 								<div className="grid grid-cols-4 w-full max-w-5xl mt-auto items-end gap-20"> {/* 4 columnas, una por creador */}
 									{CREATORS.map((creator) => ( // itera sobre el array CREATORS
 										<div key={creator.username}
@@ -215,8 +208,6 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 							</div>
 						</section>
 					)}
-				</div>
-			</div>
 		</motion.div>
 	)
 }

@@ -29,63 +29,77 @@ function GenreCard({
 	initialTilt = 0,
 	imageClassName = '',
 }: GenreCardProps) {
-	const target = useRef({ x: 0, y: 0, active: false })
-	const [mouse, setMouse] = useState({ x: 0, y: 0, active: false })
-	const rafRef = useRef<number | null>(null)
+	const mouseTarget = useRef({ x: 0, y: 0, active: false })
+	const smoothMouse = useRef({ x: 0, y: 0 })
+	const [cardMotion, setCardMotion] = useState({ x: 0, y: 0, active: false })
+	const animationFrameRef = useRef<number | null>(null)
+
+	const animateCard = () => {
+		const SMOOTH_SPEED = 0.08
+		smoothMouse.current.x += (mouseTarget.current.x - smoothMouse.current.x) * SMOOTH_SPEED
+		smoothMouse.current.y += (mouseTarget.current.y - smoothMouse.current.y) * SMOOTH_SPEED
+		setCardMotion({ x: smoothMouse.current.x, y: smoothMouse.current.y, active: mouseTarget.current.active })
+
+		const distanceX = Math.abs(mouseTarget.current.x - smoothMouse.current.x)
+		const distanceY = Math.abs(mouseTarget.current.y - smoothMouse.current.y)
+		const isAnimationFinished = distanceX < 0.001 && distanceY < 0.001
+		if (mouseTarget.current.active || !isAnimationFinished) {
+			animationFrameRef.current = requestAnimationFrame(animateCard)
+			return
+		}
+		animationFrameRef.current = null
+	}
+
+	const startAnimationIfNeeded = () => {
+		if (animationFrameRef.current === null)
+			animationFrameRef.current = requestAnimationFrame(animateCard)
+	}
 
 	useEffect(() => {
-		const LERP = 0.08
-		let current = { x: 0, y: 0 }
-
-		const tick = () => {
-			current.x += (target.current.x - current.x) * LERP
-			current.y += (target.current.y - current.y) * LERP
-			setMouse({ x: current.x, y: current.y, active: target.current.active })
-			rafRef.current = requestAnimationFrame(tick)
-		}
-		rafRef.current = requestAnimationFrame(tick)
 		return () => {
-			if (rafRef.current)
-				cancelAnimationFrame(rafRef.current)
+			if (animationFrameRef.current)
+				cancelAnimationFrame(animationFrameRef.current)
 		}
 	}, [])
 
 	const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
 		const rect = e.currentTarget.getBoundingClientRect()
-		const px = ((e.clientX - rect.left) / rect.width - 0.5) * 1.5
-		const py = ((e.clientY - rect.top) / rect.height - 0.5) * 1.5
-		target.current = { x: px, y: py, active: true }
+		const relativeX = ((e.clientX - rect.left) / rect.width - 0.5) * 1.5
+		const relativeY = ((e.clientY - rect.top) / rect.height - 0.5) * 1.5
+		mouseTarget.current = { x: relativeX, y: relativeY, active: true }
+		startAnimationIfNeeded()
 	}
 	const handleLeave = () => {
-		target.current = { x: 0, y: 0, active: false }
+		mouseTarget.current = { x: 0, y: 0, active: false }
+		startAnimationIfNeeded()
 	}
-	const rotateX = mouse.y * -20
-	const rotateY = mouse.x * 20 + initialTilt
-	const effectiveX = mouse.x + initialTilt / 20
-	const effectiveY = mouse.y
+	const cardRotateX = cardMotion.y * -20
+	const cardRotateY = cardMotion.x * 20 + initialTilt
+	const imageMoveXBase = cardMotion.x + initialTilt / 20
+	const imageMoveYBase = cardMotion.y
 	return (
 		<div
 			onMouseMove={handleMove}
 			onMouseLeave={handleLeave}
 			className="relative w-full h-[22rem] md:h-[22rem] xl:h-[22rem] opacity-0 animate-[cardIn_500ms_cubic-bezier(0.25,0.25,0.75,0.75)_forwards]"
 			style={{ animationDelay: `${delay}ms` }}>
-			<button onClick={onClick} aria-label={title}
+			<button type="button" onClick={onClick} aria-label={title}
 				className="absolute inset-0 z-40 cursor-pointer bg-transparent border-0" />
 			<div className="relative w-full h-full [perspective:800px]">
 				<div className="relative w-full h-full [transform-style:preserve-3d] transition-transform duration-150 ease-out"
-					style={{ transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)` }}>
+					style={{ transform: `rotateX(${cardRotateX}deg) rotateY(${cardRotateY}deg)` }}>
 					<img src="/pedestal2.png" alt=""
 						className="absolute left-1/2 bottom-[-4.5rem] z-20 w-[90%] pointer-events-none select-none transition-all duration-300"
 						style={{
-							opacity: mouse.active ? 1 : 0.9,
-							transform: `translateX(-50%) scale(${mouse.active ? 1.14 : 1})`,
+							opacity: cardMotion.active ? 1 : 0.9,
+							transform: `translateX(-50%) scale(${cardMotion.active ? 1.14 : 1})`,
 						}} />
 					<div className="absolute inset-0 z-30 flex flex-col items-center justify-center pointer-events-none"
 						style={{ transform: 'translateZ(30px)' }}>
 						<div className="w-full h-full flex items-center justify-center transition-transform duration-150 ease-out"
-							style={{ transform: `translate(${effectiveX * -85}px, ${effectiveY * -85}px)`, }}>
+							style={{ transform: `translate(${imageMoveXBase * -85}px, ${imageMoveYBase * -85}px)`, }}>
 							<div className="w-full h-full flex items-center justify-center"
-								style={{ animation: mouse.active ? 'floatBob 2s ease-in-out infinite' : 'none', }}>
+								style={{ animation: cardMotion.active ? 'floatBob 2s ease-in-out infinite' : 'none', }}>
 								<img src={image} alt={title} className={` object-contain ${imageClassName}`} />
 							</div>
 						</div>
@@ -104,7 +118,6 @@ function GenreCard({
 
 export function StartGate({
 	onStart3D,
-	onGo2DMenu,
 	onGoTech,
 	onGo3D,
 	onGoArcade,
@@ -116,24 +129,30 @@ export function StartGate({
 	const NAVIGATION_DELAY_MS = WHITE_FADE_DELAY_MS + WHITE_FADE_DURATION_MS + 20
 	const PLANET_ZOOM_SCALE = 3.6
 	const [isBgZooming, setIsBgZooming] = useState(false)
+	const navTimeoutRef = useRef<number | null>(null)
+	const go3DHandler = onGo3D ?? onStart3D
 
 	const handleGo3D = () => {
-		if (isBgZooming)
+		if (isBgZooming || !go3DHandler)
 			return
 		setIsBgZooming(true)
-		setTimeout(() => {
-			if (onGo3D)
-				onGo3D()
-			else if (onGo2DMenu)
-				onGo2DMenu()
+		navTimeoutRef.current = window.setTimeout(() => {
+			go3DHandler()
 		}, NAVIGATION_DELAY_MS)
 	}
+
+	useEffect(() => {
+		return () => {
+			if (navTimeoutRef.current !== null)
+				window.clearTimeout(navTimeoutRef.current)
+		}
+	}, [])
 
 	return (
 		<div className="relative h-screen w-full overflow-hidden">
 			<motion.div
 				className="absolute inset-0 bg-center bg-cover"
-				style={{ backgroundImage: "url('/bg6.png')", transformOrigin: '50% 34%',}}
+				style={{ backgroundImage: "url('/bg6.png')", transformOrigin: '50% 34%', }}
 				initial={{ scale: 1, opacity: 1 }}
 				animate={isBgZooming ? { scale: PLANET_ZOOM_SCALE, opacity: 0.88 } : { scale: 1, opacity: 1 }}
 				transition={{ duration: BG_ZOOM_DURATION_MS / 1000, ease: [0.3, 0.05, 0.18, 1] }}>
@@ -145,13 +164,13 @@ export function StartGate({
 				<div className="relative z-10 min-h-screen w-full flex items-center justify-center px-5 md:px-8 xl:px-10">
 					<div className="w-full max-w-[77rem] mx-auto grid grid-cols-2 xl:grid-cols-4 gap-6 md:gap-6 items-center translate-y-[4rem]">
 						<GenreCard title="tech" image="/techCard.png"
-							onClick={onGoTech ?? onStart3D}
+							onClick={onGoTech}
 							delay={500} initialTilt={8}
 							imageClassName="scale-[0.70] translate-x-[1rem] translate-y-[1.3rem]" />
 						<GenreCard title="3d" image="/3dcard2.png"
 							onClick={handleGo3D}
 							delay={300} initialTilt={2}
-							imageClassName=" scale-[0.9] translate-x-[0.8rem] translate-y-[2.5rem]"/>
+							imageClassName=" scale-[0.9] translate-x-[0.8rem] translate-y-[2.5rem]" />
 						<GenreCard title="arcade" image="/Ac3.png"
 							onClick={onGoArcade}
 							delay={100} initialTilt={-2}
@@ -160,7 +179,7 @@ export function StartGate({
 							title="creators" image="/3dcard4.png"
 							onClick={onGoCreators}
 							delay={700} initialTilt={-8}
-							imageClassName="translate-x-[-0.6rem] translate-y-[3rem]"/>
+							imageClassName="translate-x-[-0.6rem] translate-y-[3rem]" />
 					</div>
 				</div>
 			</motion.div>
@@ -169,20 +188,11 @@ export function StartGate({
 				className="absolute inset-0 pointer-events-none z-[90] bg-white"
 				initial={{ opacity: 0 }}
 				animate={isBgZooming ? { opacity: 0.96 } : { opacity: 0 }}
-				transition={{ duration: WHITE_FADE_DURATION_MS / 1000,
-							delay: WHITE_FADE_DELAY_MS / 1000,
-							ease: 'easeInOut',}}/>
-			<style>{`
-				@keyframes cardIn {
-					0% { opacity: 0; transform: translateY(154px) scale(0.28); }
-					100% { opacity: 1; transform: translateY(0) scale(1); }
-				}
-
-				@keyframes floatBob {
-					0%, 100% { transform: translateY(0px); }
-					50% { transform: translateY(-10px); }
-				}
-			`}</style>
+				transition={{
+					duration: WHITE_FADE_DURATION_MS / 1000,
+					delay: WHITE_FADE_DELAY_MS / 1000,
+					ease: 'easeInOut',
+				}} />
 			<div className="absolute bottom-0 left-0 right-0 z-20">
 				<Footer />
 			</div>

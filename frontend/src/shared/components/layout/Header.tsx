@@ -23,32 +23,22 @@ export function Header() {
 		setOpenSubmenu(null)
 	}
 
-	const SubmenuButton = ({
-		name,
-		id,
-		children,
-	}: {
-		name: string
-		id: Exclude<Submenu, null>
-		children: React.ReactNode
-	}) => (
+	const SubmenuButton = ({ name, id, children, }: {
+		name: string, id: Exclude<Submenu, null>, children: React.ReactNode }) => (
 		<div
 			className="relative"
 			onMouseEnter={() => setOpenSubmenu(id)}
-			onMouseLeave={() => setOpenSubmenu(null)}
-		>
+			onMouseLeave={() => setOpenSubmenu(null)} >
 			<button
 				type="button"
 				onFocus={() => setOpenSubmenu(id)}
 				className={`flex items-center gap-1 ${linkClass}`}
-				aria-expanded={openSubmenu === id}
-			>
+				aria-expanded={openSubmenu === id} >
 				{name}
 				<span
 					className={`text-xs transition-transform duration-200 ${
 						openSubmenu === id ? 'rotate-180' : ''
-					}`}
-				>
+					}`}>
 					▾
 				</span>
 			</button>
@@ -57,9 +47,7 @@ export function Header() {
 				className={`absolute left-1/2 top-full z-20 w-32 -translate-x-1/2 rounded-xl border border-white/20 bg-black/[0.62] p-2 shadow-[0_10px_28px_rgba(0,0,0,0.35)] backdrop-blur-2xl transition-all duration-200 ${
 					openSubmenu === id
 						? 'pointer-events-auto translate-y-0 opacity-100'
-						: 'pointer-events-none -translate-y-2 opacity-0'
-				}`}
-			>
+						: 'pointer-events-none -translate-y-2 opacity-0'}`}>
 				{children}
 			</div>
 		</div>
@@ -70,25 +58,19 @@ export function Header() {
 			className={`absolute left-0 top-0 z-[70] w-full overflow-visible transition-all duration-500 ${
 				menuOpen
 					? 'bg-black/[0.12] border-b border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.2)] backdrop-blur-2xl'
-					: 'bg-transparent border-b border-transparent'
-			}`}
-		>
+					: 'bg-transparent border-b border-transparent'}`}>
 			<div className="relative flex items-center justify-between px-6 py-1 md:px-10 md:py-5">
 				<Link to="/start" onClick={closeMenu}>
-					<img
-						src="/logo242.png"
+					<img src="/logo242.png"
 						alt="logo"
-						className="h-16 w-auto object-contain md:h-20"
-					/>
+						className="h-16 w-auto object-contain md:h-20"/>
 				</Link>
 
 				<nav
 					className={`absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-10 transition-all duration-500 lg:flex ${
 						menuOpen
 							? 'pointer-events-auto opacity-100'
-							: 'pointer-events-none -translate-y-7 opacity-0'
-					}`}
-				>
+							: 'pointer-events-none -translate-y-7 opacity-0'}`}>
 					<Link to="/start" onClick={closeMenu} className={linkClass}>
 						Home
 					</Link>
@@ -127,8 +109,7 @@ export function Header() {
 				<button
 					onClick={toggleMenu}
 					className="flex h-10 w-10 cursor-pointer items-center justify-center bg-black/10 border border-amber-300/55 rounded-full"
-					aria-label={menuOpen ? 'Cerrar menu' : 'Abrir menu'}
-				>
+					aria-label={menuOpen ? 'Cerrar menu' : 'Abrir menu'}>
 					{menuOpen ? (
 						<span className=" relative -top-[5px] text-5xl leading-none text-white">×</span>
 					) : (
@@ -143,9 +124,7 @@ export function Header() {
 
 			<div
 				className={`pointer-events-none h-[2px] w-full bg-gradient-to-r from-transparent via-amber-300 to-transparent shadow-[0_0_12px_rgba(0,0,0,0.55)] transition-all duration-700 ${
-					menuOpen ? 'scale-x-100 opacity-100' : 'scale-x-90 opacity-0'
-				}`}
-			/>
+					menuOpen ? 'scale-x-100 opacity-100' : 'scale-x-90 opacity-0'}`}/>
 		</header>
 	)
 }

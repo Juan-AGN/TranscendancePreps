@@ -180,8 +180,6 @@ const routes: RouteObject[] = [
 	}
 ]
 
-
-
 //creamos el router, llamaos a createBrowserROuter y le pasamos el array de router.
 const router = createBrowserRouter(routes)
 

@@ -12,7 +12,7 @@ export function IntroButtons({ label, onCLick }: { label: string; onCLick?: () =
 				hover:shadow-[0_0_24px_rgba(234,179,8,0.70),0_10px_24px_rgba(90,60,20,0.28),inset_0_1px_0_rgba(255,255,255,0.75)]" >
 			<span className="relative z-10">{label}</span>
 			<span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity
-							duration-500 bg-gradient-to-r from-[#b47a12]/80 via-[#ffe58a]/70 to-[#b47a12]/80"></span>
+					duration-500 bg-gradient-to-r from-[#b47a12]/80 via-[#ffe58a]/70 to-[#b47a12]/80"></span>
 		</button>
 	)
 }
@@ -38,8 +38,8 @@ export function SplashScreen() {
 			<div className="flex flex-col items-center gap-0 max-h-[60vh] flex-shrink-0">
 				<img src="/logoT.png" alt="Logo"
 					className={`max-w-[25vw] max-h-[25vh] object-contain transition-all duration-3000 ease-out
-						${showLogo ? "opacity-100 translate-y-0" : "opacity-0 translate-y-60"}
-						animate-logo-pulse`} />
+							${showLogo ? "opacity-100 translate-y-0" : "opacity-0 translate-y-60"}
+							animate-logo-pulse`} />
 				<img src="/titleT2.png"
 					alt="Title"
 					className={`max-w-[95vw] max-h-[48vh] mt-5 object-contain transition-[opacity] duration-2500 ease-out
