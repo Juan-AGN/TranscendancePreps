@@ -1,0 +1,89 @@
+services:
+  game-back:
+    container_name: game-back
+    build:
+      context: ./game/back
+    networks:
+      - game_network
+      - nginx_network
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+    networks:
+      - nginx_network
+
+  # start of auth containers
+  # ==========================================================================
+  # CONTAINER 1: DATABASE (PostgreSQL)
+  # ==========================================================================
+  db:
+    image: postgres:16-alpine
+    container_name: transcendence_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - transcendence_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  web:
+    image: nginx
+    ports:
+      -  "9888:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    command: [nginx-debug, '-g', 'daemon off;']
+    networks:
+      - nginx_network
+
+  # ==========================================================================
+  # CONTAINER 2: BACKEND (Fastify + Prisma + TypeScript)
+  # ==========================================================================
+  backend:
+    build:
+      context: ./users/
+      dockerfile: Dockerfile
+    container_name: transcendence_backend
+    restart: always
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: ${PORT}
+      NODE_ENV: ${NODE_ENV}
+      FORTY_TWO_CLIENT_ID: ${FORTY_TWO_CLIENT_ID}
+      FORTY_TWO_CLIENT_SECRET: ${FORTY_TWO_CLIENT_SECRET}
+      FORTY_TWO_REDIRECT_URI: ${FORTY_TWO_REDIRECT_URI}
+      FRONTEND_URL: ${FRONTEND_URL}
+    volumes:
+      # Only persist avatars and prisma, do not overwrite dist/
+      - ./public/avatars:/app/public/avatars
+
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - transcendence_network
+      - nginx_network
+
+networks:
+  game_network:
+    name: game_network
+  auth_network:
+    name: auth_network
+  transcendence_network:
+    name: transcendence_network
+  nginx_network:
+    name: nginx_network
+
+volumes:
+  postgres_data:
+    driver: local
