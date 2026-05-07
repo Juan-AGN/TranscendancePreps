@@ -40,6 +40,8 @@ WORKDIR /app
 # Install OpenSSL
 RUN apt-get update -y && apt-get install -y openssl
 
+# Copy configuration files
+COPY package*.json ./
 RUN groupadd -g 1001 nodejs && \
     useradd -u 1001 -g nodejs -m nodejs
 
@@ -50,6 +52,13 @@ COPY --chown=nodejs:nodejs package*.json ./
 RUN npm ci --omit=dev
 
 # Copy the entire dist/ folder from builder
+COPY --from=builder /app/dist ./dist
+
+# Copy Prisma dependencies
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY prisma ./prisma
+COPY public ./public
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 
 # Copy Prisma dependencies
@@ -61,6 +70,7 @@ COPY --chown=nodejs:nodejs public ./public
 # Expose port
 EXPOSE 3000
 
+# Non-root user
 USER nodejs
 
 # 🔍 DEBUG: Verify structure before running

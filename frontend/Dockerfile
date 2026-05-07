@@ -1,4 +1,4 @@
-FROM node:${NODE_VERSION} AS builder
+FROM node:latest AS builder
  
  
 # Set the working directory inside the container
@@ -17,13 +17,13 @@ RUN --mount=type=cache,target=/root/.npm npm ci
 COPY . .
  
 # Build the React.js application (outputs to /app/dist)
-RUN npm run build
+RUN npm install && npx vite build
  
  
 # =========================================
 # Stage 2: Serve static files with Node.js + `serve`
 # =========================================
-FROM node:${NODE_VERSION} AS runner
+FROM node:latest AS runner
  
  
 # Set the environment to production for smaller + optimized installs
