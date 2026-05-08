@@ -453,7 +453,7 @@ function Profile() {
                 // Clicking the dark backdrop closes the modal
                 <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 p-4" onClick={e => e.target === e.currentTarget && setModalOpen(false)}>
                     <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 md:p-8">
-                        <h2 className="mb-6 text-2xl font-bold text-slate-800">✏️ Edit Profile</h2>
+                        <h2 className="mb-6 text-2xl font-bold text-slate-800">Edit Profile</h2>
 
                         <div className="mb-4">
                             <label className="mb-2 block text-sm font-semibold text-slate-700">Name</label>

@@ -309,7 +309,7 @@ function Login() {
                 <div className="px-8 pb-6">
                     <a href={`${API_URL}/auth/42`} className="block no-underline">
                         <button className="w-full rounded-xl bg-cyan-500 px-4 py-3 font-semibold text-white transition hover:-translate-y-0.5 hover:bg-cyan-600 hover:shadow-lg hover:shadow-cyan-300">
-                            🎓 Login with 42
+                            Login with 42
                         </button>
                     </a>
                 </div>
