@@ -28,7 +28,7 @@ export function HomePage() {
 
 	return (
 		<>
-			<div className="relative w-full h-[calc(100vh-88px)] via-slate-800 to-slate-900 flex flex-col items-center justify-center p-8">
+			<div className="relative w-full h-full via-slate-800 to-slate-900 flex flex-col items-center justify-center p-8">
 				{/* 
             relative: Posicionamiento relativo para que los hijos absolutos se posicionen respecto a este contenedor
             w-full: Ancho 100%

@@ -1,3 +1,5 @@
+
+//ahora no lo suamos
 //archivo cn(classname) pra centralizar y estandarizar la forma en que construyren las clases de css en react
 // si no existiera cn.ts cada componente utilizaria un clsx distinto (habria conflctos)
 import { clsx, type ClassValue } from 'clsx'

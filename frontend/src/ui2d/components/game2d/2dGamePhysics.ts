@@ -10,7 +10,7 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT, BALL_INITIAL_SPEED, BALL_SPEED_INCREMENT }
 export class GamePhysics {
 	//resetea la pelota al centro y le da una direccion inicial
 	// //direction: 1 o -1 (1 -> hacia la derecha, -1 -> hacia la izquierda) //por defecto = 1, asi cuando empiezas normalmente sale a la derecha
-	static resetBall(ball: Ball, direction: 1 | -1 = 1): void { 				
+	static resetBall(ball: Ball, direction: 1 | -1 = 1): void {
 		//la ponemos en el centro del canvas
 		ball.x = CANVAS_WIDTH / 2;
 		ball.y = CANVAS_HEIGHT / 2;
@@ -36,9 +36,9 @@ export class GamePhysics {
 
 	// BALL UPDATE (MOVE + BOUNCE + SCORE)
 	//actualiza la pelota: se mueve, rebota en paredes, rebota en palas y detecta puntos
-	static updateBall( ball: Ball, player1: Paddle, player2: Paddle, onScore: (player: 1 | 2) => void): void {
+	static updateBall(ball: Ball, player1: Paddle, player2: Paddle, onScore: (player: 1 | 2) => void): void {
 		//onScore: callback que llama cuando la pelota sale por un lado (marca un jugador)
-		
+
 		//1) mover la pelota (sumamos las velocidades a la posicion) //esto es el “motor” basico de movimiento del juego
 		ball.x += ball.velocityX;
 		ball.y += ball.velocityY;
@@ -121,7 +121,8 @@ export class GamePhysics {
 				player1.y -= player1.speed * 0.65;
 			}
 
-			if (player1.y < 0) player1.y = 0;
+			if (player1.y < 0)
+				player1.y = 0;
 			if (player1.y > CANVAS_HEIGHT - player1.height) {
 				player1.y = CANVAS_HEIGHT - player1.height;
 			}
@@ -151,11 +152,12 @@ export class GamePhysics {
 			}
 
 			//limites de la IA (muy importante)
-			if (player2.y < 0) player2.y = 0;
+			if (player2.y < 0)
+				player2.y = 0;
 			if (player2.y > CANVAS_HEIGHT - player2.height) {
 				player2.y = CANVAS_HEIGHT - player2.height;
 			}
-			
+
 		} else {
 			//modo 1v1: player2 con flechas
 			if (keys.ArrowUp && player2.y > 0) {

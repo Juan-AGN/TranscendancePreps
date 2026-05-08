@@ -1,5 +1,5 @@
 import type React from 'react'
-import arcadeBg from '../../../public/arcadebg5.png'
+const arcadeBg = '/arcadebg5.png'
 
 type BgProps = {
 	children: React.ReactNode
@@ -11,7 +11,7 @@ type BgProps = {
 	player2Score?: number
 }
 
-export function ArcadeBgLayout ({
+export function ArcadeBgLayout({
 	children,
 	backButton,
 	showGameHud = false,
@@ -19,9 +19,9 @@ export function ArcadeBgLayout ({
 	player2Name = 'PLAYER 2',
 	player1Score = 0,
 	player2Score = 0
-}: BgProps ) {
-    return (
-		<div className="flex items-center justify-center h-[calc(100vh-88px)] bg-black overflow-hidden w-full">
+}: BgProps) {
+	return (
+		<div className="flex items-center justify-center h-full bg-black overflow-hidden w-full">
 			<div className="relative h-full w-full max-w-[85rem]">
 				<img
 					src={arcadeBg}
@@ -36,7 +36,7 @@ export function ArcadeBgLayout ({
 				{backButton && (
 					<div className="absolute top-[5%] right-[6%] z-10 font-['Press_Start_2P'] 
 									hover:bg-black hover:text-white transition-colors text-yellow-400"
-							style={{fontSize: '2.5vmin'}}>
+						style={{ fontSize: '2.5vmin' }}>
 						{backButton}
 					</div>
 				)}
@@ -58,6 +58,6 @@ export function ArcadeBgLayout ({
 				)}
 			</div>
 		</div>
-    )
+	)
 
 }

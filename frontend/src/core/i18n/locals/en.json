@@ -1,0 +1,29 @@
+{
+    "header": {
+        "home": "Home",
+        "world3d": "3D World",
+        "arcade": "Arcade",
+        "game": "Game",
+        "quickPlay": "Quick Play",
+        "about": "Tech & Project",
+        "info": "Info",
+        "creators": "Creators",
+        "settings": "Settings",
+        "login": "Login"
+    },
+    "footer": {
+        "brand": "TRANSCENDENCE",
+        "project": "Alumni Project 42 Telefonica",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "copyright": "© 2026 Transcendence"
+    },
+    "startGate": {
+        "title": "PROJECT 42",
+        "subtitle": "Enter a new Pong experience",
+        "enter3d": "Explore 3D World",
+        "arcade": "Arcade",
+        "tech": "Tech Info",
+        "creators": "Creators"
+    }
+}
