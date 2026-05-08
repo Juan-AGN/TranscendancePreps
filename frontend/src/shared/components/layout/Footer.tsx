@@ -1,16 +1,23 @@
 //foooooter
 
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import { useTransition } from 'react';
+import { useTranslation } from 'react-i18next';
+import { footer } from 'framer-motion/client';
+
 
 export function Footer() {
+
+	const [ t ] = useTranslation();
+	
     return (
     <footer className=" w-full border-t border-yellow-400/40 rounded-t-[1rem] bg-blue-400/10 
 			backdrop-blur-sm py-2 px-10 ">
 			<div className="max-w-7xl mx-auto flex flex-row items-center justify-between gap-4">
 				{/* Logo / Brand */}
 				<div className="flex items-center gap-3">
-					<span className="text-sm font-bold text-black drop-shadow-lg">TRANSCENDENCE</span>
-					<span className="text-xs text-black/50">Alumni Project 42 Telefonica</span>
+					<span className="text-sm font-bold text-black drop-shadow-lg">{t('footer.brand')}</span>
+					<span className="text-xs text-black/50">{t('footer.project')}</span>
 				</div>
 
 				 {/* Footer legal del subject */}
@@ -18,18 +25,18 @@ export function Footer() {
 					 <Link to="/privacy"
 					 		className="text-black/50 hover:text-yellow-400 hover:scale-120 hover:translate-y-[-10%]
 					 			transition-all duration-300 font-small drop-shadow-md ">
-									Privacy Policy</Link>
+									{t('footer.privacy')}</Link>
 								<span className="text-white/40">|</span>
 					 
 					 <Link to="/terms"
 					 className="text-black/50 hover:text-yellow-400 hover:scale-120 hover:translate-y-[-10%]
 					 transition-all duration-300 font-small drop-shadow-md">
-						Terms of Service</Link>
+						{t('footer.terms')}</Link>
 				 </div>
 
 				 {/* Copyright */}
 				 <div className=" text-sm text-black/60 text-center md:text-right">
-					© 2026 Transcendence
+					{t('footer.copyright')}
 				 </div>
 			</div>
     </footer>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 type Submenu = 'arcade' | 'about' | null
 
@@ -12,16 +13,49 @@ const menuLinkClass =
 export function Header() {
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [openSubmenu, setOpenSubmenu] = useState<Submenu>(null)
+	const [langMenuOpen, setLangMenuOpen] = useState(false)
+	const { t, i18n } = useTranslation()
 
 	const closeMenu = () => {
 		setMenuOpen(false)
 		setOpenSubmenu(null)
+		setLangMenuOpen(false)
 	}
 
 	const toggleMenu = () => {
 		setMenuOpen(!menuOpen)
 		setOpenSubmenu(null)
+		setLangMenuOpen(false)
 	}
+
+	const activeLanguage = i18n.resolvedLanguage ?? i18n.language
+
+	const changeLanguage = (code: 'es' | 'en' | 'fr') => {
+		i18n.changeLanguage(code)
+		setLangMenuOpen(false)
+	}
+
+	const FlagLanguageButton = ({
+		code,
+		src,
+		alt,
+	}: {
+		code: 'es' | 'en' | 'fr'
+		src: string
+		alt: string
+	}) => (
+		<button
+			type="button"
+			onClick={() => changeLanguage(code)}
+			className={`block h-10 w-14 bg-transparent p-0 transition-all duration-200 hover:scale-105 ${
+				activeLanguage?.startsWith(code)
+					? 'drop-shadow-[0_0_10px_rgba(251,191,36,0.9)]'
+					: 'opacity-90 hover:opacity-100'
+			}`}
+			aria-label={`Cambiar idioma a ${alt}`}>
+			<img src={src} alt={alt} className="h-full w-full object-contain" />
+		</button>
+	)
 
 	const SubmenuButton = ({ name, id, children, }: {
 		name: string, id: Exclude<Submenu, null>, children: React.ReactNode }) => (
@@ -32,7 +66,7 @@ export function Header() {
 			<button
 				type="button"
 				onFocus={() => setOpenSubmenu(id)}
-				className={`flex items-center gap-1 ${linkClass}`}
+				className={`flex items-center gap-1  ${linkClass}`}
 				aria-expanded={openSubmenu === id} >
 				{name}
 				<span
@@ -67,49 +101,83 @@ export function Header() {
 				</Link>
 
 				<nav
-					className={`absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-10 transition-all duration-500 lg:flex ${
+					className={`absolute left-1/2 top-1/2 hidden  -translate-x-1/2 -translate-y-1/2 items-center gap-10 transition-all duration-500 lg:flex ${
 						menuOpen
 							? 'pointer-events-auto opacity-100'
 							: 'pointer-events-none -translate-y-7 opacity-0'}`}>
 					<Link to="/start" onClick={closeMenu} className={linkClass}>
-						Home
+						{t('header.home')}
 					</Link>
 
 					<Link to="/home" onClick={closeMenu} className={linkClass}>
-						3D World
+						{t('header.world3d')}
 					</Link>
 
-					<SubmenuButton name="Arcade" id="arcade">
+					<SubmenuButton name={t('header.arcade')} id="arcade">
 						<Link to="/game" onClick={closeMenu} className={menuLinkClass}>
-							Game
+							{t('header.game')}
 						</Link>
 						<Link to="/play1vsgame" onClick={closeMenu} className={menuLinkClass}>
-							Quick Play
+							{t('header.quickPlay')}
 						</Link>
 					</SubmenuButton>
 
-					<SubmenuButton name="About" id="about">
+					<SubmenuButton name={t('header.about')} id="about">
 						<Link to="/sections/tech" onClick={closeMenu} className={menuLinkClass}>
-							Info
+							{t('header.info')}
 						</Link>
 						<Link to="/sections/creators" onClick={closeMenu} className={menuLinkClass}>
-							Creators
+							{t('header.creators')}
 						</Link>
 					</SubmenuButton>
 
 					<Link to="/settings" onClick={closeMenu} className={linkClass}>
-						Settings
+						{t('header.settings')}
 					</Link>
 
 					<Link to="/login" onClick={closeMenu} className={linkClass}>
-						Login
+						{t('header.login')}
 					</Link>
 				</nav>
 
-				<button
-					onClick={toggleMenu}
-					className="flex h-10 w-10 cursor-pointer items-center justify-center bg-black/10 border border-amber-300/55 rounded-full"
-					aria-label={menuOpen ? 'Cerrar menu' : 'Abrir menu'}>
+				<div className="flex items-center gap-2">
+					<div
+						className={`relative transition-all duration-300 ${
+							menuOpen
+								? 'pointer-events-auto opacity-100'
+								: 'pointer-events-none opacity-0'
+						}`}>
+						<button
+							type="button"
+							onClick={() => setLangMenuOpen((prev) => !prev)}
+							className="flex h-10 w-10 items-center mr-10 justify-center rounded-full border border-white/30 bg-black/20 text-white transition-all duration-200 hover:border-amber-300 hover:text-amber-200"
+							aria-label="Cambiar idioma"
+							aria-expanded={langMenuOpen}>
+							<img
+								src="/WorldLogo.png"
+								alt="Selector de idioma"
+								className="h-35 w-35 object-contain"
+							/>
+						</button>
+
+						<div
+							className={`absolute right-[calc(100%+0.5rem)] top-1/2  w-30 -translate-y-1/2 rounded-xl p-1 transition-all duration-300   ${
+								langMenuOpen
+									? 'pointer-events-auto opacity-100'
+									: 'pointer-events-none opacity-0'
+							}`}>
+							<div className="flex flex-row items-center">
+								<FlagLanguageButton code="en" src="/UkFlag.png" alt="English" />
+								<FlagLanguageButton code="es" src="/spainFlag1.png" alt="Spanish" />
+								<FlagLanguageButton code="fr" src="/frenchFlag.png" alt="French" />
+							</div>
+						</div>
+					</div>
+
+					<button
+						onClick={toggleMenu}
+						className="flex h-10 w-10 cursor-pointer items-center justify-center bg-black/10 border border-amber-300/55 rounded-full"
+						aria-label={menuOpen ? 'Cerrar menu' : 'Abrir menu'}>
 					{menuOpen ? (
 						<span className=" relative -top-[5px] text-5xl leading-none text-white">×</span>
 					) : (
@@ -119,7 +187,8 @@ export function Header() {
 							<span className="block h-[2px] w-6 bg-white" />
 						</div>
 					)}
-				</button>
+					</button>
+				</div>
 			</div>
 
 			<div

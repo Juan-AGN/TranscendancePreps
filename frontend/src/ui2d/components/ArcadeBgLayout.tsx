@@ -1,5 +1,5 @@
 import type React from 'react'
-import arcadeBg from '../../../public/arcadebg5.png'
+const arcadeBg = '/arcadebg5.png'
 
 type BgProps = {
 	children: React.ReactNode

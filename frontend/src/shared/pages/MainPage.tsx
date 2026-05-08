@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { PlanetBackground } from '../components/BackgroundEffects/PlanetBackground'
 import { Footer } from '../components/layout/Footer'
+import { useTranslation } from 'react-i18next'
 
 interface StartGateProps {
 	onStart3D: () => void
@@ -19,6 +20,7 @@ interface GenreCardProps {
 	delay?: number
 	initialTilt?: number
 	imageClassName?: string
+	label: string
 }
 
 function GenreCard({
@@ -28,6 +30,7 @@ function GenreCard({
 	delay = 0,
 	initialTilt = 0,
 	imageClassName = '',
+	label,
 }: GenreCardProps) {
 	const mouseTarget = useRef({ x: 0, y: 0, active: false })
 	const smoothMouse = useRef({ x: 0, y: 0 })
@@ -106,7 +109,7 @@ function GenreCard({
 						<div className="absolute bottom-[-4.6rem] left-0 w-full flex items-center justify-center">
 							<p className="m-0 rounded-full border border-white/25 bg-black/50 px-5 py-1 text-white text-[0.75rem] md:text-[0.8rem]
 									font-light uppercase tracking-[0.18rem] backdrop-blur-md shadow-[0_0_18px_rgba(255,255,255,0.22)]">
-								{title}
+								{label}
 							</p>
 						</div>
 					</div>
@@ -131,6 +134,8 @@ export function StartGate({
 	const [isBgZooming, setIsBgZooming] = useState(false)
 	const navTimeoutRef = useRef<number | null>(null)
 	const go3DHandler = onGo3D ?? onStart3D
+
+	const { t } = useTranslation()
 
 	const handleGo3D = () => {
 		if (isBgZooming || !go3DHandler)
@@ -164,19 +169,23 @@ export function StartGate({
 				<div className="relative z-10 min-h-screen w-full flex items-center justify-center px-5 md:px-8 xl:px-10">
 					<div className="w-full max-w-[77rem] mx-auto grid grid-cols-2 xl:grid-cols-4 gap-6 md:gap-6 items-center translate-y-[4rem]">
 						<GenreCard title="tech" image="/techCard.png"
+							label={t('startGate.tech')}
 							onClick={onGoTech}
 							delay={500} initialTilt={8}
 							imageClassName="scale-[0.70] translate-x-[1rem] translate-y-[1.3rem]" />
 						<GenreCard title="3d" image="/3dcard2.png"
+							label={t('startGate.enter3d')}
 							onClick={handleGo3D}
 							delay={300} initialTilt={2}
 							imageClassName=" scale-[0.9] translate-x-[0.8rem] translate-y-[2.5rem]" />
 						<GenreCard title="arcade" image="/Ac3.png"
+							label={t('startGate.arcade')}
 							onClick={onGoArcade}
 							delay={100} initialTilt={-2}
 							imageClassName="scale-[0.58] translate-y-[2rem]" />
 						<GenreCard
 							title="creators" image="/3dcard4.png"
+							label={t('startGate.creators')}
 							onClick={onGoCreators}
 							delay={700} initialTilt={-8}
 							imageClassName="translate-x-[-0.6rem] translate-y-[3rem]" />

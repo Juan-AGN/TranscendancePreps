@@ -7,6 +7,7 @@ import {
 	DirectionalLight,
 	Vector3,
 	SceneLoader,
+	DracoCompression,
 	Color3,
 	Color4,
 	GlowLayer,
@@ -15,6 +16,13 @@ import {
 	AbstractMesh
 } from '@babylonjs/core'
 import '@babylonjs/loaders'
+
+// Ensure Draco is configured for this flow too (MainPage), not only HubScene.
+DracoCompression.Configuration.decoder = {
+	wasmUrl: 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/draco_wasm_wrapper.js',
+	wasmBinaryUrl: 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/draco_decoder.wasm',
+	fallbackUrl: 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/draco_decoder.js',
+}
 
 export function PlanetBackground() {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null)
