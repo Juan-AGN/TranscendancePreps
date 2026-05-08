@@ -1,16 +1,16 @@
-# 🏓 Transcendence
+# Transcendence
 
 This project has been created as part of the 42 curriculum by druiz-ca, isra, carlos and juan-ant.
 
 ---
 
-## 📋 Description
+## Description
 
 Transcendence is a multiplayer web application that includes user management, real-time chat, and an online Pong game. Users can register, manage their profile, add friends, and play matches in real time.
 
 ---
 
-## 🚀 Usage Instructions
+## Usage Instructions
 
 ### Prerequisites
 - Docker
@@ -36,7 +36,7 @@ docker-compose up --build
 
 ---
 
-## 👥 Team Information
+## Team Information
 
 | 42 Login | Role | Responsibility |
 |----------|------|----------------|
@@ -45,7 +45,7 @@ docker-compose up --build
 | carlos | Developer | Real-time Chat |
 | juan-ant | Developer | Game (Pong) |
 
-> ⚠️ PO, PM and Tech Lead roles pending assignment
+> PO, PM and Tech Lead roles pending assignment
 
 ---
 
@@ -57,7 +57,7 @@ docker-compose up --build
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - **React** + TypeScript + Vite
@@ -99,7 +99,7 @@ Friendship
 
 ---
 
-## ✅ Feature List
+## Feature List
 
 ### User Management (druiz-ca)
 - [x] User registration
@@ -122,20 +122,20 @@ Friendship
 
 ---
 
-## 📦 Selected Modules
+## Selected Modules
 
 | Module | Type | Points | Owner |
 |--------|------|--------|-------|
 | Standard User Management | Major | 2 | druiz-ca |
 | Pending | - | - | - |
 
-> ⚠️ Module list pending completion with the team
+> Module list pending completion with the team
 
 **Current total points: 2 / 14**
 
 ---
 
-## 🤖 AI Usage
+## AI Usage
 
 AI tools (GitHub Copilot) have been used during development to:
 - Suggest code structure
@@ -146,7 +146,7 @@ All generated code has been reviewed, understood, and validated by each team mem
 
 ---
 
-## 🔒 Security
+## Security
 
 - Passwords hashed with **bcrypt** (salt rounds: 10)
 - Authentication with **JWT**

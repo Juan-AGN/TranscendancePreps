@@ -190,7 +190,6 @@ function Login() {
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-700 p-4">
             <div className="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl">
                 <div className="bg-gradient-to-r from-indigo-500 to-violet-600 px-8 py-8 text-center text-white">
-                    <div className="mb-2 text-5xl">🏓</div>
                     <h1 className="text-3xl font-bold">Transcendence</h1>
                     <p className="mt-1 text-sm text-indigo-100">42 Project - User Management</p>
                 </div>
@@ -223,7 +222,6 @@ function Login() {
                         <div>
                             {loginAlert && (
                                 <div className={`mb-5 rounded-xl border px-4 py-3 text-sm ${loginAlert.tipo === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
-                                    {loginAlert.tipo === 'success' ? '✅ ' : '❌ '}
                                     {loginAlert.message}
                                 </div>
                             )}
@@ -262,7 +260,6 @@ function Login() {
                         <div>
                             {registerAlert && (
                                 <div className={`mb-5 rounded-xl border px-4 py-3 text-sm ${registerAlert.tipo === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
-                                    {registerAlert.tipo === 'success' ? '✅ ' : '❌ '}
                                     {registerAlert.message}
                                 </div>
                             )}
