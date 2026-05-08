@@ -3,6 +3,8 @@ services:
     container_name: game-back
     build:
       context: ./game/back
+    env_file:
+      - .env.scoreback
     networks:
       - game_network
     ports:
@@ -21,5 +23,4 @@ services:
 networks:
   game_network:
     name: game_network
-  auth_network:
-    name: auth_network
+    driver: bridge

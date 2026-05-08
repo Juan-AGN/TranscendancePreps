@@ -215,8 +215,6 @@ class GameManager {
             {
                 newy = player.y;
                 newy += player.speed;
-                if (newy + (player.hitbox / 2) > game.bordery)
-                    newy = game.bordery - (player.hitbox / 2);
                 if (game.rules.collision == true)
                 {
                     for (const otplayer of game.alive)
@@ -228,6 +226,10 @@ class GameManager {
                         }
                     }
                 }
+                if (newy + (player.hitbox / 2) > game.bordery)
+                    newy = game.bordery - (player.hitbox / 2);
+                else if (newy - (player.hitbox / 2) < 0)
+                    newy = 0 + (player.hitbox / 2);
                 player.y = newy;
             }
         }
@@ -242,8 +244,6 @@ class GameManager {
             {
                 newx = player.x;
                 newx -= player.speed;
-                if (newx - (player.hitbox / 2) < 0)
-                    newx = 0 + (player.hitbox / 2);
                 if (game.rules.collision == true)
                 {
                     for (const otplayer of game.alive)
@@ -255,6 +255,10 @@ class GameManager {
                         }
                     }
                 }
+                if (newx - (player.hitbox / 2) < 0)
+                    newx = 0 + (player.hitbox / 2);
+                else if (newx + (player.hitbox / 2) > game.borderx)
+                    newx = game.borderx - (player.hitbox / 2);
                 player.x = newx;
             }
         }
@@ -269,8 +273,6 @@ class GameManager {
             {
                 newy = player.y;
                 newy -= player.speed;
-                if (newy - (player.hitbox / 2) < 0)
-                    newy = 0 + (player.hitbox / 2);
                 if (game.rules.collision == true)
                 {
                     for (const otplayer of game.alive)
@@ -282,6 +284,10 @@ class GameManager {
                         }
                     }
                 }
+                if (newy - (player.hitbox / 2) < 0)
+                    newy = 0 + (player.hitbox / 2);
+                else if (newy + (player.hitbox / 2) > game.bordery)
+                    newy = game.bordery - (player.hitbox / 2);
                 player.y = newy;
             }
         }
@@ -296,8 +302,6 @@ class GameManager {
             {
                 newx = player.x;
                 newx += player.speed;
-                if (newx + (player.hitbox / 2) > game.borderx)
-                    newx = game.borderx - (player.hitbox / 2);
                 if (game.rules.collision == true)
                 {
                     for (const otplayer of game.alive)
@@ -309,6 +313,10 @@ class GameManager {
                         }
                     }
                 }
+                if (newx + (player.hitbox / 2) > game.borderx)
+                    newx = game.borderx - (player.hitbox / 2);
+                else if (newx - (player.hitbox / 2) < 0)
+                    newx = 0 + (player.hitbox / 2);
                 player.x = newx;
             }
         }

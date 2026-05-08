@@ -1,11 +1,19 @@
 node_modules/
 
+**/node_modules/
+
 game/back/node_modules/
 
 game/front/node_modules/
 
-dist/
-
 test.html
 
+scores
+
 .env
+
+.env.db
+
+.env.scoreback
+
+dist/
