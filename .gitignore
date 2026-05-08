@@ -17,3 +17,8 @@ scores
 .env.scoreback
 
 dist/
+dist/
+
+test.html
+
+.env

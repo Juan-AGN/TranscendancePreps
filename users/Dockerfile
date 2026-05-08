@@ -42,6 +42,11 @@ RUN apt-get update -y && apt-get install -y openssl
 
 # Copy configuration files
 COPY package*.json ./
+RUN groupadd -g 1001 nodejs && \
+    useradd -u 1001 -g nodejs -m nodejs
+
+# Copy configuration files
+COPY --chown=nodejs:nodejs package*.json ./
 
 # Install only production dependencies
 RUN npm ci --omit=dev
@@ -54,15 +59,18 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY prisma ./prisma
 COPY public ./public
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+
+# Copy Prisma dependencies
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
+COPY --chown=nodejs:nodejs prisma ./prisma
+COPY --chown=nodejs:nodejs public ./public
 
 # Expose port
 EXPOSE 3000
 
 # Non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nodejs && \
-    chown -R nodejs:nodejs /app
-
 USER nodejs
 
 # 🔍 DEBUG: Verify structure before running

@@ -1,68 +1,89 @@
 services:
+  web:
+    image: nginx
+    build:
+      context: ./nginx
+    ports:
+      -  "8889:443"
+    command: [nginx-debug, '-g', 'daemon off;']
+    networks:
+      - transcendence_nginx_network
+
   game-back:
     container_name: game-back
     build:
       context: ./game/back
-    env_file:
-      - .env.scoreback
     networks:
-      - game_network
-    ports:
-      - "8888:8888"
-    environment:
-      DATABASE_URL: postgresql://trans_user:trans_pass@db:5432/transcendence?schema=public
-    depends_on:
-      - db
+      - transcendence_nginx_network
 
-  game-front:
-    container_name: game-front
+  frontend:
+    container_name: frontend
     build:
-      context: ./game/front
+      context: ./frontend
     networks:
-      - game_network
-      - auth_network
-    ports:
-      - "7777:3000"
-  social-chat-back:
-    container_name: social-chat-back
-    build:
-      context: ./social-chat/back
-    networks:
-      - game_network
-    ports:
-      - "8890:8890"
-    environment:
-      PORT: 8890
-      DATABASE_URL: postgresql://trans_user:trans_pass@db:5432/transcendence?schema=public
-    depends_on:
-      - db
+      - transcendence_nginx_network
+
+  # start of auth containers
+  # ==========================================================================
+  # CONTAINER 1: DATABASE (PostgreSQL)
+  # ==========================================================================
   db:
     image: postgres:16-alpine
-    container_name: transcendence-db
+    container_name: transcendence_db
+    restart: always
     environment:
-      POSTGRES_USER: trans_user
-      POSTGRES_PASSWORD: trans_pass
-      POSTGRES_DB: transcendence
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
-      - game_network
+      - transcendence_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U trans_user -d transcendence"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"]
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 5
+
+  # ==========================================================================
+  # CONTAINER 2: BACKEND (Fastify + Prisma + TypeScript)
+  # ==========================================================================
+  backend:
+    build:
+      context: ./users/
+      dockerfile: Dockerfile
+    container_name: transcendence_backend
+    restart: always
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: ${PORT}
+      NODE_ENV: ${NODE_ENV}
+      FORTY_TWO_CLIENT_ID: ${FORTY_TWO_CLIENT_ID}
+      FORTY_TWO_CLIENT_SECRET: ${FORTY_TWO_CLIENT_SECRET}
+      FORTY_TWO_REDIRECT_URI: ${FORTY_TWO_REDIRECT_URI}
+      FRONTEND_URL: ${FRONTEND_URL}
+    volumes:
+      # Only persist avatars and prisma, do not overwrite dist/
+      - ./public/avatars:/app/public/avatars
+
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - transcendence_network
+      - transcendence_nginx_network
 
 networks:
   game_network:
     name: game_network
-<<<<<<< HEAD
-    driver: bridge
-=======
+  auth_network:
+    name: auth_network
+  transcendence_network:
+    name: transcendence_network
+  transcendence_nginx_network:
+    name: transcendence_nginx_network
 
 volumes:
-  db_data:
-
->>>>>>> b102577dc21a94415faa1d28b4113e4dc859a7b4
+  postgres_data:
+    driver: local
