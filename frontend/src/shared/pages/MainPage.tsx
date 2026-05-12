@@ -60,20 +60,29 @@ export function StartGate({
 					<div className="absolute left-1/2 top-[34%] h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/20 blur-[150px]" />
 					<PlanetBackground />
 				</div>
-				<div className="absolute inset-0 z-[2] pointer-events-none bg-gradient-to-b from-white/20 via-white/4 to-white/30" />
-				<div className="relative z-10 h-screen w-full flex items-center justify-center overflow-hidden px-[clamp(0.5rem,2vw,2.5rem)]">
-					<div className="w-[min(77rem,94vw)] grid grid-cols-4 gap-[clamp(0.4rem,1.4vw,1.5rem)] items-center translate-y-[clamp(1rem,6vh,4.5rem)]">
-						<GenreCard title="tech" image="/techCard.png"
+				<div className="absolute inset-0 z-[2] pointer-events-none
+								bg-gradient-to-b from-white/20 via-white/4 to-white/30" />
+				<div className="relative z-10 h-screen w-full flex items-center justify-center overflow-hidden
+								px-[clamp(0.5rem,2vw,2.5rem)]">
+					<div className="w-[min(77rem,94vw)] grid grid-cols-4 gap-[clamp(0.4rem,1.4vw,1.5rem)] items-center
+									translate-y-[clamp(1rem,6vh,4.5rem)]">
+						<GenreCard
+							title="tech"
+							image="/techCard.png"
 							label={t('startGate.tech')}
 							onClick={onGoTech}
 							delay={500} initialTilt={8}
 							imageClassName="scale-[0.70] translate-x-[1rem] translate-y-[1.3rem]" />
-						<GenreCard title="3d" image="/3dcard2.png"
+						<GenreCard
+							title="3d"
+							image="/3dcard2.png"
 							label={t('startGate.enter3d')}
 							onClick={handleGo3D}
 							delay={300} initialTilt={2}
 							imageClassName=" scale-[0.9] translate-x-[0.8rem] translate-y-[2.5rem]" />
-						<GenreCard title="arcade" image="/Ac3.png"
+						<GenreCard
+							title="arcade"
+							image="/Ac3.png"
 							label={t('startGate.arcade')}
 							onClick={onGoArcade}
 							delay={100} initialTilt={-2}

@@ -31,10 +31,9 @@ import { PrivacyPolicyPage } from "../../shared/pages/PrivacyPolicyPage"
 import { TermsOfServicePage } from "../../shared/pages/TermsOfServicePage"
 
 // Paginas de Auth
-import { LoginPage } from "../../shared/auth/pages/LoginPage"
-import { SignupPage } from "../../shared/auth/pages/SignupPage"
-import { ProfilePage } from "../../shared/auth/pages/ProfilePage"
-import { ProtectedRoute } from "../../shared/auth/components/ProtectedRoute"
+import Login from "../../shared/pages/auth/Login"
+import Profile from "../../shared/pages/auth/Profile"
+import Friends from "../../shared/pages/auth/Friends"
 
 
 const MainSectionsPage = () => {
@@ -94,35 +93,19 @@ const routes: RouteObject[] = [
 			},
 			{
 				path: 'home',
-				element: (
-					//<ProtectedRoute>
-					<HomePage />
-					//</ProtectedRoute>
-				),
+				element: <HomePage />,
 			},
 			{
 				path: 'game',
-				element: (
-					//<ProtectedRoute>
-					<Game2DPage />
-					//</ProtectedRoute>
-				),
+				element: <Game2DPage />,
 			},
 			{
 				path: 'tournament',
-				element: (
-					//<ProtectedRoute>
-					<Tournament2DPage />
-					//</ProtectedRoute>
-				),
+				element: <Tournament2DPage />,
 			},
 			{
 				path: 'settings',
-				element: (
-					//<ProtectedRoute>
-					<Settings2DPage />
-					//</ProtectedRoute>
-				),
+				element: <Settings2DPage />,
 			},
 			{
 				path: 'gamesettings',
@@ -154,19 +137,15 @@ const routes: RouteObject[] = [
 			},
 			{
 				path: 'login',
-				element: <LoginPage />,
-			},
-			{
-				path: 'signup',
-				element: <SignupPage />,
+				element: <Login />,
 			},
 			{
 				path: 'profile',
-				element: (
-					//<ProtectedRoute>
-					<ProfilePage />
-					//</ProtectedRoute>
-				),
+				element: <Profile />,
+			},
+			{
+				path: 'friends',
+				element: <Friends />,
 			},
 			{
 				path: 'privacy',
