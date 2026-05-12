@@ -29,7 +29,7 @@ app.get("/lobbies", (req: Request, res: Response) => {
 app.post("/lobbies/create", (req: Request, res: Response) => {
 	const { lobbyId, hostId } = req.body;
 	if (!lobbyManager.add(lobbyId, hostId))
-		return (res.status(500).json({ message: "Couldn't create lobby." }));
+		return (res.status(400).json({ message: "Couldn't create lobby." }));
 	return (res.send(lobbyManager.get(lobbyId)));
 });
 
@@ -39,13 +39,13 @@ app.post("/lobbies/checkout", (req: Request, res: Response) => {
 	if (lobbyId != "")
 	{
 		if (!lobbyManager.has(lobbyId))
-			return (res.status(500).json({ message: "Couldn't get lobby." }));
+			return (res.status(400).json({ message: "Couldn't get lobby." }));
 		return (res.send(lobbyManager.get(lobbyId)));
 	}
 	else
 	{
 		if (!lobbyManager.hasplayer(hostId))
-			return (res.status(500).json({ message: "Couldn't get lobby." }));
+			return (res.status(400).json({ message: "Couldn't get lobby." }));
 		return (res.send(lobbyManager.whereis(hostId)));
 	}
 });
@@ -53,28 +53,28 @@ app.post("/lobbies/checkout", (req: Request, res: Response) => {
 app.post("/lobbies/join", (req: Request, res: Response) => {
 	const { lobbyId, hostId } = req.body;
 	if (!lobbyManager.addplayer(lobbyId, hostId))
-		return (res.status(500).json({ message: "Couldn't join lobby." }));
+		return (res.status(400).json({ message: "Couldn't join lobby." }));
 	return (res.send(lobbyManager.get(lobbyId)));
 });
 
 app.post("/lobbies/leave", (req: Request, res: Response) => {
 	const { lobbyId, hostId } = req.body;
 	if (!lobbyManager.leaveplayer(lobbyId, hostId))
-		return (res.status(500).json({ message: "Couldn't leave lobby." }));
+		return (res.status(400).json({ message: "Couldn't leave lobby." }));
 	return (res.send(lobbyManager.getlobbies()));
 });
 
 app.post("/lobbies/change/spectator", (req: Request, res: Response) => {
 	const { lobbyId, hostId } = req.body;
 	if (!lobbyManager.spectToPlayerEndp(lobbyId, hostId))
-		return (res.status(500).json({ message: "Couldn't change to player." }));
+		return (res.status(400).json({ message: "Couldn't change to player." }));
 	return (res.send(lobbyManager.get(lobbyId)));
 });
 
 app.post("/lobbies/change/player", (req: Request, res: Response) => {
 	const { lobbyId, hostId } = req.body;
 	if (!lobbyManager.playerToSpectEndp(lobbyId, hostId))
-		return (res.status(500).json({ message: "Couldn't change to spectator." }));
+		return (res.status(400).json({ message: "Couldn't change to spectator." }));
 	return (res.send(lobbyManager.get(lobbyId)));
 });
 
@@ -83,7 +83,7 @@ app.post("/lobbies/ruleset", (req: Request, res: Response) => {
 
 	let toret = lobbyManager.changeruleset(lobbyId, hostId, ruleset);
 	if (toret == false)
-		return (res.status(500).json({ message: "Couldn't change lobby ruleset." }));
+		return (res.status(400).json({ message: "Couldn't change lobby ruleset." }));
 	return (res.send({message: changeErrors.SUCCESS, status: toret}));
 });
 
@@ -114,7 +114,7 @@ app.get("/game/state/:sessionId", (req: Request, res: Response) => {
 */
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-	res.status(500).send({ error: err.message });
+	res.status(400).send({ error: err.message });
 });
 
 wss.on("connection", (ws: WebSocket, req) => {
