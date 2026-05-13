@@ -185,143 +185,145 @@ function Login() {
     //   - class -> className
     //   - Variables go inside curly braces: {variable}
     //   - Events receive functions: onClick={() => doLogin()}
-    const inputClass = 'w-full rounded-xl border-1 border-yellow-400 px-4 py-3 text-slate-800 outline-none transition focus:border-yellow-400 focus:ring-1';
+    const inputClass = 'w-full rounded-[clamp(0.5rem,1.5vw,0.75rem)] border px-[clamp(0.75rem,2vw,1rem)] py-[clamp(0.45rem,1.4vh,0.75rem)] text-[clamp(0.75rem,1.6vw,0.875rem)] outline-none';
+    const tabBase = 'w-full max-w-[220px] rounded-full px-[clamp(0.75rem,2vw,1rem)] py-[clamp(0.45rem,2vh,1rem)] text-[clamp(0.65rem,1.5vw,0.875rem)] font-semibold uppercase transition-all duration-300 ease-out cursor-pointer';
+    const tabActive = 'border border-cyan-400/30 bg-cyan-300/20 text-yellow-600/80 backdrop-blur-md shadow-[0_0_16px_rgba(56,189,248,0.22),inset_0_1px_0_rgba(255,255,255,0.45)]';
+    const tabInactive = 'border border-yellow-500/35 bg-white/10 text-yellow-900/50 hover:-translate-y-[1px] hover:border-cyan-300/20 hover:bg-white/40 hover:text-yellow-800/70 hover:shadow-[0_0_18px_rgba(255,215,120,0.15)]';
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-cover bg-no-repeat p-4"
+        <div className="relative flex h-dvh w-dvw items-center justify-center overflow-hidden overflow-y-auto bg-cover bg-center bg-no-repeat p-[clamp(0.5rem,2vw,2rem)]"
             style={{ backgroundImage: "url('./bgLogin.png')" }}>
-            <div className="w-full max-w-3xl  overflow-hidden border-1 border-yellow-500/50 rounded-3xl shadow-2xl">
-                <div className="bg-transparent px-8 py-8 text-center">
-                    <div className="mb-2 text-5xl">🏓</div>
-                    <h1 className="text-3xl font-bold">Transcendence</h1>
-                    <p className="mt-1 text-sm text-indigo-100">42 Project - User Management</p>
+
+            <div className="relative w-[min(90vw,48rem)]">
+
+                <div className="absolute left-1/2 top-0 z-20 h-[clamp(90px,18vh,180px)] w-[clamp(90px,18vh,180px)] -translate-x-1/2 -translate-y-1/2
+                                bg-contain bg-center bg-no-repeat drop-shadow-[0_0_22px_rgba(56,189,248,0.45)]"
+                    style={{ backgroundImage: "url('/LoginBiometric.png')" }}>
+
                 </div>
 
-                <div className="flex ">
-                    <button
-                        className={`flex-1 px-4 py-4 text-sm font-semibold uppercase transition ${activeTab === 'login'
-                            ? 'border-b-2 rounded-full border-yellow-400 bg-white/25 text-yellow-500'
-                            : 'text-slate-400 hover:bg-black/10 rounded-full hover:text-yellow-500'}`}
-                        onClick={() => {
-                            setActiveTab('login');
-                            setLoginAlert(null);
-                            setRegisterAlert(null);
-                        }}
-                    >
-                        Sign In
-                    </button>
-                    <button
-                        className={`flex-1 px-4 py-4 text-sm font-semibold uppercase transition ${activeTab === 'register'
-                            ? 'border-b-2 rounded-full border-yellow-400 bg-white/25 text-yellow-500'
-                            : 'text-slate-400 hover:bg-black/10 rounded-full hover:text-yellow-500'}`}
-                        onClick={() => {
-                            setActiveTab('register');
-                            setLoginAlert(null);
-                            setRegisterAlert(null);
-                        }}
-                    >
-                        Sign Up
-                    </button>
-                </div>
+                <div className="w-[min(90vw,48rem)] max-h-[calc(100dvh-6rem)] overflow-y-auto bg-white/[0.15] backdrop-blur-[5px] border border-yellow-500/50 pt-[clamp(1.5rem,10vh,6rem)]
+                            rounded-[clamp(1rem,2vw,1.5rem)] shadow-[0_20px_80px_rgba(90,60,20,0.25),inset_0_1px_0_rgba(255,255,255,0.45)] ">
 
-                <div className="px-8 py-6">
-                    {activeTab === 'login' && (
-                        <div>
-                            {loginAlert && (
-                                <div className={`mb-5 rounded-xl border px-4 py-3 text-sm ${loginAlert.tipo === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
-                                    {loginAlert.tipo === 'success' ? '✅ ' : '❌ '}
-                                    {loginAlert.message}
+                    <p className="text-[clamp(0.65rem,1.5vw,0.85rem)] mb-5 tracking-[0.25em] text-center uppercase text-yellow-800/85">Identity Verification</p>
+
+                    <div className="mx-auto flex w-full max-w-[520px] justify-center gap-[clamp(0.4rem,1.5vw,1rem)] px-3">
+                        <button className={`${tabBase} ${activeTab === 'login'
+                                ? tabActive
+                                : tabInactive}`}
+                            onClick={() => {
+                                setActiveTab('login');
+                                setLoginAlert(null);
+                                setRegisterAlert(null);
+                            }}>
+                            Sign In
+                        </button>
+                        <button className={`${tabBase} ${activeTab === 'register'
+                                ? tabActive
+                                : tabInactive}`}
+                            onClick={() => {
+                                setActiveTab('register');
+                                setLoginAlert(null);
+                                setRegisterAlert(null);
+                            }}>
+                            Sign Up
+                        </button>
+                    </div>
+
+                    <div className="px-[clamp(1rem,3vw,2rem)] py-[clamp(0.75rem,2.5vh,1.5rem)]">
+                        {activeTab === 'login' && (
+                            <div>
+                                {loginAlert && (
+                                    <div className={`mb-5 rounded-xl border px-4 py-3 text-sm ${loginAlert.tipo === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
+                                        {loginAlert.tipo === 'success' ? '✅ ' : '❌ '}
+                                        {loginAlert.message}
+                                    </div>
+                                )}
+
+                                <div className="w-full max-w-sm mx-auto mb-[clamp(0.5rem,2vh,1rem)]">
+                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">Email</label>
+                                    <input
+                                        type="email"
+                                        className={inputClass}
+                                        placeholder="your@email.com"
+                                        value={loginEmail}
+                                        onChange={e => setLoginEmail(e.target.value)}
+                                        onKeyDown={e => e.key === 'Enter' && doLogin()}
+                                    />
                                 </div>
-                            )}
 
-                            <div className="w-full max-w-sm mx-auto mb-4">
-                                <label className="mb-2 block text-sm font-semibold text-slate-700">Email</label>
-                                <input
-                                    type="email"
-                                    className={inputClass}
-                                    placeholder="your@email.com"
-                                    value={loginEmail}
-                                    onChange={e => setLoginEmail(e.target.value)}
-                                    onKeyDown={e => e.key === 'Enter' && doLogin()}
-                                />
-                            </div>
-
-                            <div className="w-full max-w-sm mx-auto mb-5">
-                                <label className="mb-2 block text-sm font-semibold text-slate-700">Password</label>
-                                <input
-                                    type="password"
-                                    className={inputClass}
-                                    placeholder="Your password"
-                                    value={loginPassword}
-                                    onChange={e => setLoginPassword(e.target.value)}
-                                    onKeyDown={e => e.key === 'Enter' && doLogin()}
-                                />
-                            </div>
-
-                            <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-                                <IntroButtons label="Sign In" onCLick={doLogin} />
-                                <span className="text-xs text-slate-400">- or -</span>
-                                <a href={`${API_URL}/auth/42`} className="block no-underline">
-                                    <IntroButtons label="Login 42" />
-                                </a>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'register' && (
-                        <div>
-                            {registerAlert && (
-                                <div className={`mb-5 rounded-xl border px-4 py-3 text-sm ${registerAlert.tipo === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
-                                    {registerAlert.tipo === 'success' ? '✅ ' : '❌ '}
-                                    {registerAlert.message}
+                                <div className="w-full max-w-sm mx-auto mb-[clamp(0.5rem,2vh,1rem)]">
+                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">Password</label>
+                                    <input
+                                        type="password"
+                                        className={inputClass}
+                                        placeholder="Your password"
+                                        value={loginPassword}
+                                        onChange={e => setLoginPassword(e.target.value)}
+                                        onKeyDown={e => e.key === 'Enter' && doLogin()}
+                                    />
                                 </div>
-                            )}
 
-                            <div className="mx-auto max-w-sm w-full mb-4 ">
-                                <label className="mb-2 block text-sm font-semibold text-slate-700">Name</label>
-                                <input
-                                    type="text"
-                                    className={inputClass}
-                                    placeholder="Your full name"
-                                    value={registerName}
-                                    onChange={e => setRegisterName(e.target.value)}
-                                />
+                                <div className="mt-[clamp(2.6rem,2vh,1.5rem)] flex flex-wrap items-center justify-center gap-[clamp(0.4rem,1.5vw,1rem)]">
+                                    <IntroButtons label="Sign In" onCLick={doLogin} />
+                                    <span className="text-xs text-slate-400">- or -</span>
+                                    <a href={`${API_URL}/auth/42`} className="block no-underline">
+                                        <IntroButtons label="Login 42" />
+                                    </a>
+                                </div>
                             </div>
+                        )}
 
-                            <div className="mx-auto max-w-sm w-full mb-4">
-                                <label className="mb-2 block text-sm font-semibold text-slate-700">Email</label>
-                                <input
-                                    type="email"
-                                    className={inputClass}
-                                    placeholder="your@email.com"
-                                    value={registerEmail}
-                                    onChange={e => setRegisterEmail(e.target.value)}
-                                />
-                            </div>
+                        {activeTab === 'register' && (
+                            <div>
+                                {registerAlert && (
+                                    <div className={`mb-5 rounded-xl border px-4 py-3 text-sm ${registerAlert.tipo === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
+                                        {registerAlert.tipo === 'success' ? '✅ ' : '❌ '}
+                                        {registerAlert.message}
+                                    </div>
+                                )}
 
-                            <div className="mx-auto max-w-sm w-full mb-5">
-                                <label className="mb-2 block text-sm font-semibold text-slate-700">Password</label>
-                                <input
-                                    type="password"
-                                    className={inputClass}
-                                    placeholder="Minimum 6 characters"
-                                    value={registerPassword}
-                                    onChange={e => setRegisterPassword(e.target.value)}
-                                />
+                                <div className="mx-auto max-w-sm w-full mb-[clamp(0.5rem,2vh,1rem)] ">
+                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">Name</label>
+                                    <input
+                                        type="text"
+                                        className={inputClass}
+                                        placeholder="Your full name"
+                                        value={registerName}
+                                        onChange={e => setRegisterName(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="mx-auto max-w-sm w-full mb-[clamp(0.5rem,2vh,1rem)]">
+                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">Email</label>
+                                    <input
+                                        type="email"
+                                        className={inputClass}
+                                        placeholder="your@email.com"
+                                        value={registerEmail}
+                                        onChange={e => setRegisterEmail(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="mx-auto max-w-sm w-full mb-[clamp(0.5rem,2vh,1rem)]">
+                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">Password</label>
+                                    <input
+                                        type="password"
+                                        className={inputClass}
+                                        placeholder="Minimum 6 characters"
+                                        value={registerPassword}
+                                        onChange={e => setRegisterPassword(e.target.value)}
+                                    />
+                                </div>
+                                <div className="mt-[clamp(1.6rem,2vh,1.5rem)] flex flex-wrap items-center justify-center gap-[clamp(0.4rem,1.5vw,1rem)]">
+                                    <IntroButtons label="Create Account" onCLick={doRegister} />
+                                </div>
                             </div>
-                            <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-                            <IntroButtons label="Create Account" onCLick={doRegister}/>
-                            </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
+
+
                 </div>
-
-                <div className="px-8 pb-6" />
-
-
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 z-20">
-                <Footer />
             </div>
         </div>
 
