@@ -1,45 +1,107 @@
+// social-chat/back/content/src/routes/chat.routes.ts
+// ============================================================================
+// SOCIAL CHAT ROUTES (Express + Prisma)
+// - DM (1-1) creation/reuse
+// - GROUP creation + manage members + rename
+// - Send/read messages (cursor pagination)
+// - List conversations (sidebar)
+// - Helper: resolve user ids -> name/avatar by calling Users service
+// ============================================================================
+
 import { Router, Request, Response } from "express";
 import { prisma } from "../prisma";
 import { getUserId } from "../utils/getUserId";
 
 export const chatRouter = Router();
 
-/**
- * GET /chat/ping
- */
-chatRouter.get("/ping", (_req: Request, res: Response) => {
-  res.json({ ok: true, service: "social-chat" });
-});
+// ============================================================================
+// Small helpers (typing + validation)
+// ============================================================================
+
+function toPositiveInt(value: unknown): number | null {
+  const n = typeof value === "string" ? Number(value) : (typeof value === "number" ? value : NaN);
+  if (!Number.isInteger(n) || n <= 0) return null;
+  return n;
+}
+
+function parseLimit(raw: unknown, fallback = 50, max = 100): number {
+  const n = toPositiveInt(raw);
+  if (!n) return fallback;
+  return Math.min(n, max);
+}
+
+function parseCursor(raw: unknown): number | null {
+  const n = toPositiveInt(raw);
+  return n ?? null;
+}
+
+function uniqueStrings(list: string[]): string[] {
+  return Array.from(new Set(list));
+}
 
 /**
- * Helper: comprueba si el usuario es miembro de la conversación
+ * Helper: ensure current user is a member of a conversation.
+ * Throws an Error if not a member (the caller catches and returns 403).
  */
-async function assertMember(conversationId: number, userId: string): Promise<boolean> {
+async function assertMember(conversationId: number, userId: string): Promise<void> {
   const member = await prisma.conversationMember.findFirst({
     where: { conversationId, userId },
     select: { id: true },
   });
-  return !!member;
+  if (!member) throw new Error("Not a member");
 }
 
 /**
+ * Helper: ensure a conversation exists and is GROUP.
+ * Returns basic conversation data needed by callers.
+ */
+async function assertGroup(conversationId: number): Promise<{ id: number; type: "GROUP" | "DM"; title: string | null }> {
+  const conv = await prisma.conversation.findUnique({
+    where: { id: conversationId },
+    select: { id: true, type: true, title: true },
+  });
+
+  if (!conv) throw new Error("Conversation not found");
+  if (conv.type !== "GROUP") throw new Error("Not a GROUP conversation");
+
+  return { id: conv.id, type: conv.type, title: conv.title ?? null };
+}
+
+// ============================================================================
+// Public endpoint (no auth required if your index.ts mounts it before middleware)
+// If you mount auth middleware globally on /chat, then this becomes protected too.
+// ============================================================================
+
+/**
+ * GET /chat/ping
+ * Quick health check
+ */
+chatRouter.get("/ping", (_req: Request, res: Response) => {
+  return res.json({ ok: true, service: "social-chat" });
+});
+
+// ============================================================================
+// DM (1-1)
+// ============================================================================
+
+/**
  * POST /chat/dm
+ * Create or reuse a DM conversation between me and otherUserId.
  * Body: { otherUserId: "2" }
- * Header: x-user-id: "1"
  */
 chatRouter.post("/dm", async (req: Request, res: Response) => {
   try {
     const me = getUserId(req);
-    const { otherUserId } = req.body as { otherUserId?: string };
+    const { otherUserId } = req.body as { otherUserId?: unknown };
 
-    if (!otherUserId || typeof otherUserId !== "string") {
+    if (typeof otherUserId !== "string" || otherUserId.trim().length === 0) {
       return res.status(400).json({ error: "otherUserId is required" });
     }
     if (otherUserId === me) {
       return res.status(400).json({ error: "Cannot create DM with yourself" });
     }
 
-    // Buscar DM existente con ambos usuarios
+    // Search existing DM where both users are members
     const existing = await prisma.conversation.findFirst({
       where: {
         type: "DM",
@@ -53,7 +115,7 @@ chatRouter.post("/dm", async (req: Request, res: Response) => {
       return res.json({ conversationId: existing.id, created: false });
     }
 
-    // Crear Conversation + 2 members en transacción
+    // Create conversation + members in a single transaction
     const conversationId = await prisma.$transaction(async (tx) => {
       const conv = await tx.conversation.create({
         data: { type: "DM" },
@@ -76,9 +138,14 @@ chatRouter.post("/dm", async (req: Request, res: Response) => {
   }
 });
 
+// ============================================================================
+// Conversations (sidebar)
+// ============================================================================
+
 /**
  * GET /chat/conversations
- * Header: x-user-id
+ * List conversations where I am a member.
+ * Returns members + otherUserIds (for DM) + lastMessage preview.
  */
 chatRouter.get("/conversations", async (req: Request, res: Response) => {
   try {
@@ -91,7 +158,7 @@ chatRouter.get("/conversations", async (req: Request, res: Response) => {
           select: {
             id: true,
             type: true,
-            title: true, // <- si añadiste title
+            title: true,
             createdAt: true,
             updatedAt: true,
             members: { select: { userId: true } },
@@ -103,19 +170,32 @@ chatRouter.get("/conversations", async (req: Request, res: Response) => {
           },
         },
       },
+      orderBy: { conversationId: "desc" },
     });
 
-    const conversations = memberships.map((m) => {
+    type LastMessage = { id: number; senderId: string; content: string; createdAt: Date };
+    type ConversationItem = {
+      id: number;
+      type: "DM" | "GROUP";
+      title: string | null;
+      members: string[];
+      otherUserIds: string[];
+      lastMessage: LastMessage | null;
+      updatedAt: Date;
+      createdAt: Date;
+    };
+
+    const conversations: ConversationItem[] = memberships.map((m) => {
       const c = m.conversation;
-      const last = c.messages[0] || null;
+      const last = c.messages[0] ?? null;
 
       const memberIds = c.members.map((mm) => mm.userId);
-      const otherUserIds = c.type === "DM" ? memberIds.filter((id) => id !== me) : [];
+      const otherUserIds = memberIds.filter((id) => id !== me);
 
       return {
         id: c.id,
-        type: c.type, // DM | GROUP
-        title: c.title ?? null, // útil en GROUP
+        type: c.type,
+        title: c.title ?? null,
         members: memberIds,
         otherUserIds,
         lastMessage: last
@@ -126,8 +206,12 @@ chatRouter.get("/conversations", async (req: Request, res: Response) => {
       };
     });
 
-    // Ordenar por actividad (updatedAt ya se tocará al enviar mensajes)
-    conversations.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    // Sort by last activity (lastMessage.createdAt if exists, else createdAt)
+    conversations.sort((a, b) => {
+      const aTime = a.lastMessage ? a.lastMessage.createdAt.getTime() : a.createdAt.getTime();
+      const bTime = b.lastMessage ? b.lastMessage.createdAt.getTime() : b.createdAt.getTime();
+      return bTime - aTime;
+    });
 
     return res.json({ conversations });
   } catch (err: any) {
@@ -135,42 +219,39 @@ chatRouter.get("/conversations", async (req: Request, res: Response) => {
   }
 });
 
+// ============================================================================
+// Conversation detail (info + messages page)
+// ============================================================================
+
 /**
  * GET /chat/conversations/:id
- * Header: x-user-id
- * Query: ?limit=50&cursor=123
+ * Returns conversation info + members + a page of messages (DESC).
+ * Query:
+ *  - limit=50 (max 100)
+ *  - cursor=<messageId>  (fetch older messages)
  */
 chatRouter.get("/conversations/:id", async (req: Request, res: Response) => {
   try {
     const me = getUserId(req);
-    const conversationId = Number(req.params.id);
+    const conversationId = toPositiveInt(req.params.id);
+    if (!conversationId) return res.status(400).json({ error: "Invalid conversation id" });
 
-    if (!Number.isInteger(conversationId) || conversationId <= 0) {
-      return res.status(400).json({ error: "Invalid conversation id" });
-    }
-
-    if (!(await assertMember(conversationId, me))) {
+    // Permission check
+    try {
+      await assertMember(conversationId, me);
+    } catch {
       return res.status(403).json({ error: "You are not a member of this conversation" });
     }
 
-    // Paginación
-    const limitRaw = req.query.limit as string | undefined;
-    const cursorRaw = req.query.cursor as string | undefined;
+    const limit = parseLimit(req.query.limit, 50, 100);
+    const cursorId = parseCursor(req.query.cursor);
 
-    let limit = limitRaw ? Number(limitRaw) : 50;
-    if (!Number.isInteger(limit) || limit <= 0) limit = 50;
-    if (limit > 100) limit = 100;
-
-    const cursorId = cursorRaw ? Number(cursorRaw) : undefined;
-    const useCursor = Number.isInteger(cursorId) && (cursorId as number) > 0;
-
-    // Conversación + miembros
     const conversation = await prisma.conversation.findUnique({
       where: { id: conversationId },
       select: {
         id: true,
         type: true,
-        title: true, // <- si añadiste title
+        title: true,
         createdAt: true,
         updatedAt: true,
         members: { select: { userId: true, createdAt: true } },
@@ -183,14 +264,19 @@ chatRouter.get("/conversations/:id", async (req: Request, res: Response) => {
       where: { conversationId },
       orderBy: { id: "desc" },
       take: limit,
-      ...(useCursor ? { cursor: { id: cursorId as number }, skip: 1 } : {}),
+      ...(cursorId
+        ? {
+            cursor: { id: cursorId },
+            skip: 1, // avoid repeating cursor item
+          }
+        : {}),
       select: { id: true, conversationId: true, senderId: true, content: true, createdAt: true },
     });
 
     const nextCursor = messages.length > 0 ? messages[messages.length - 1].id : null;
 
     const memberIds = conversation.members.map((m) => m.userId);
-    const otherUserIds = conversation.type === "DM" ? memberIds.filter((id) => id !== me) : [];
+    const otherUserIds = memberIds.filter((id) => id !== me);
 
     return res.json({
       conversation: {
@@ -210,20 +296,23 @@ chatRouter.get("/conversations/:id", async (req: Request, res: Response) => {
   }
 });
 
+// ============================================================================
+// Members
+// ============================================================================
+
 /**
  * GET /chat/conversations/:id/members
- * Header: x-user-id
+ * Only members can view members.
  */
 chatRouter.get("/conversations/:id/members", async (req: Request, res: Response) => {
   try {
     const me = getUserId(req);
-    const conversationId = Number(req.params.id);
+    const conversationId = toPositiveInt(req.params.id);
+    if (!conversationId) return res.status(400).json({ error: "Invalid conversation id" });
 
-    if (!Number.isInteger(conversationId) || conversationId <= 0) {
-      return res.status(400).json({ error: "Invalid conversation id" });
-    }
-
-    if (!(await assertMember(conversationId, me))) {
+    try {
+      await assertMember(conversationId, me);
+    } catch {
       return res.status(403).json({ error: "Not a member" });
     }
 
@@ -239,39 +328,41 @@ chatRouter.get("/conversations/:id/members", async (req: Request, res: Response)
   }
 });
 
+// ============================================================================
+// Messages
+// ============================================================================
+
 /**
  * POST /chat/conversations/:id/messages
- * Body: { content: "hola" }
- * Header: x-user-id
+ * Send a message to a conversation.
+ * Body: { content: "hello" }
  */
 chatRouter.post("/conversations/:id/messages", async (req: Request, res: Response) => {
   try {
     const me = getUserId(req);
-    const conversationId = Number(req.params.id);
+    const conversationId = toPositiveInt(req.params.id);
+    if (!conversationId) return res.status(400).json({ error: "Invalid conversation id" });
 
-    if (!Number.isInteger(conversationId) || conversationId <= 0) {
-      return res.status(400).json({ error: "Invalid conversation id" });
-    }
+    const contentRaw = (req.body as { content?: unknown }).content;
+    if (typeof contentRaw !== "string") return res.status(400).json({ error: "content is required" });
 
-    const contentRaw = (req.body as { content?: string })?.content;
-    if (typeof contentRaw !== "string") {
-      return res.status(400).json({ error: "content is required" });
-    }
     const content = contentRaw.trim();
     if (content.length === 0) return res.status(400).json({ error: "content cannot be empty" });
     if (content.length > 2000) return res.status(400).json({ error: "content too long (max 2000)" });
 
-    if (!(await assertMember(conversationId, me))) {
+    try {
+      await assertMember(conversationId, me);
+    } catch {
       return res.status(403).json({ error: "You are not a member of this conversation" });
     }
 
-    // Transacción: crear mensaje + tocar Conversation.updatedAt para ordenar por actividad
     const msg = await prisma.$transaction(async (tx) => {
       const created = await tx.message.create({
         data: { conversationId, senderId: me, content },
         select: { id: true, conversationId: true, senderId: true, content: true, createdAt: true },
       });
 
+      // Touch conversation to update updatedAt (useful for sorting on sidebar)
       await tx.conversation.update({
         where: { id: conversationId },
         data: { updatedAt: new Date() },
@@ -289,36 +380,33 @@ chatRouter.post("/conversations/:id/messages", async (req: Request, res: Respons
 
 /**
  * GET /chat/conversations/:id/messages?limit=50&cursor=123
- * Header: x-user-id
+ * Read messages (DESC) with cursor pagination.
  */
 chatRouter.get("/conversations/:id/messages", async (req: Request, res: Response) => {
   try {
     const me = getUserId(req);
-    const conversationId = Number(req.params.id);
+    const conversationId = toPositiveInt(req.params.id);
+    if (!conversationId) return res.status(400).json({ error: "Invalid conversation id" });
 
-    if (!Number.isInteger(conversationId) || conversationId <= 0) {
-      return res.status(400).json({ error: "Invalid conversation id" });
-    }
-
-    if (!(await assertMember(conversationId, me))) {
+    try {
+      await assertMember(conversationId, me);
+    } catch {
       return res.status(403).json({ error: "You are not a member of this conversation" });
     }
 
-    const limitRaw = req.query.limit as string | undefined;
-    const cursorRaw = req.query.cursor as string | undefined;
-
-    let limit = limitRaw ? Number(limitRaw) : 50;
-    if (!Number.isInteger(limit) || limit <= 0) limit = 50;
-    if (limit > 100) limit = 100;
-
-    const cursorId = cursorRaw ? Number(cursorRaw) : undefined;
-    const useCursor = Number.isInteger(cursorId) && (cursorId as number) > 0;
+    const limit = parseLimit(req.query.limit, 50, 100);
+    const cursorId = parseCursor(req.query.cursor);
 
     const messages = await prisma.message.findMany({
       where: { conversationId },
       orderBy: { id: "desc" },
       take: limit,
-      ...(useCursor ? { cursor: { id: cursorId as number }, skip: 1 } : {}),
+      ...(cursorId
+        ? {
+            cursor: { id: cursorId },
+            skip: 1,
+          }
+        : {}),
       select: { id: true, conversationId: true, senderId: true, content: true, createdAt: true },
     });
 
@@ -329,110 +417,152 @@ chatRouter.get("/conversations/:id/messages", async (req: Request, res: Response
     return res.status(500).json({ error: err?.message || "Unknown error" });
   }
 });
+
+// ============================================================================
+// Groups
+// ============================================================================
+
+/**
+ * POST /chat/groups
+ * Create a GROUP conversation.
+ * Body: { title: "My group", memberIds: ["2","3"] }
+ *
+ * The creator (me) is always included.
+ */
 chatRouter.post("/groups", async (req: Request, res: Response) => {
   try {
     const me = getUserId(req);
-    const { title, memberIds } = req.body as { title?: string; memberIds?: string[] };
 
-    if (!title || typeof title !== "string" || title.trim().length === 0) {
+    const titleRaw = (req.body as { title?: unknown }).title;
+    const memberIdsRaw = (req.body as { memberIds?: unknown }).memberIds;
+
+    if (typeof titleRaw !== "string" || titleRaw.trim().length === 0) {
       return res.status(400).json({ error: "title is required" });
     }
+    const title = titleRaw.trim();
+    if (title.length > 80) return res.status(400).json({ error: "title too long (max 80)" });
 
-    // members opcional; siempre incluimos al creador
-    const members = Array.isArray(memberIds) ? memberIds.filter((x) => typeof x === "string") : [];
-    const uniqueMembers = Array.from(new Set([me, ...members]));
-
-    const conv = await prisma.$transaction(async (tx) => {
-      // Crea conversación GROUP con title
-      const created = await tx.conversation.create({
-        data: { type: "GROUP", title: title.trim() },
-        select: { id: true, type: true, title: true, createdAt: true, updatedAt: true },
-      });
-
-      // Añade miembros
-      await tx.conversationMember.createMany({
-        data: uniqueMembers.map((userId) => ({ conversationId: created.id, userId })),
-      });
-
-      return created;
-    });
-
-    return res.status(201).json({ conversation: conv, members: uniqueMembers });
-  } catch (err: any) {
-    return res.status(500).json({ error: err?.message || "Unknown error" });
-  }
-});
-chatRouter.post("/groups/:id/members", async (req: Request, res: Response) => {
-  try {
-    const me = getUserId(req);
-    const conversationId = Number(req.params.id);
-    const { memberIds } = req.body as { memberIds?: string[] };
-
-    if (!Number.isInteger(conversationId) || conversationId <= 0) {
-      return res.status(400).json({ error: "Invalid conversation id" });
-    }
-    if (!Array.isArray(memberIds) || memberIds.length === 0) {
+    if (!Array.isArray(memberIdsRaw)) {
       return res.status(400).json({ error: "memberIds is required (array)" });
     }
 
-    // Permiso simple: debes ser miembro del grupo
-    const isMember = await prisma.conversationMember.findFirst({
-      where: { conversationId, userId: me },
-      select: { id: true },
+    const memberIds = memberIdsRaw.filter((x: unknown): x is string => typeof x === "string" && x.trim().length > 0);
+    const uniqueMembers = uniqueStrings([me, ...memberIds.map((s) => s.trim())]);
+
+    if (uniqueMembers.length < 2) {
+      return res.status(400).json({ error: "Group must contain at least 2 members" });
+    }
+    if (uniqueMembers.length > 100) {
+      return res.status(400).json({ error: "Too many members (max 100)" });
+    }
+
+    const created = await prisma.$transaction(async (tx) => {
+      const conv = await tx.conversation.create({
+        data: { type: "GROUP", title },
+        select: { id: true, type: true, title: true, createdAt: true, updatedAt: true },
+      });
+
+      await tx.conversationMember.createMany({
+        data: uniqueMembers.map((uid) => ({ conversationId: conv.id, userId: uid })),
+      });
+
+      return conv;
     });
-    if (!isMember) return res.status(403).json({ error: "Not a member" });
 
-    // Asegurar que es GROUP
-    const conv = await prisma.conversation.findUnique({
-      where: { id: conversationId },
-      select: { id: true, type: true },
+    return res.status(201).json({
+      conversation: {
+        id: created.id,
+        type: created.type,
+        title: created.title ?? null,
+        createdAt: created.createdAt,
+        updatedAt: created.updatedAt,
+      },
+      members: uniqueMembers,
     });
-    if (!conv) return res.status(404).json({ error: "Conversation not found" });
-    if (conv.type !== "GROUP") return res.status(400).json({ error: "Not a GROUP conversation" });
-
-    const clean = Array.from(new Set(memberIds.filter((x) => typeof x === "string")));
-
-    await prisma.conversationMember.createMany({
-      data: clean.map((userId) => ({ conversationId, userId })),
-      skipDuplicates: true,
-    });
-
-    return res.json({ conversationId, added: clean });
   } catch (err: any) {
     return res.status(500).json({ error: err?.message || "Unknown error" });
   }
 });
+
+/**
+ * POST /chat/groups/:id/members
+ * Add members to a GROUP conversation.
+ * Body: { memberIds: ["4","5"] }
+ */
+chatRouter.post("/groups/:id/members", async (req: Request, res: Response) => {
+  try {
+    const me = getUserId(req);
+    const conversationId = toPositiveInt(req.params.id);
+    if (!conversationId) return res.status(400).json({ error: "Invalid conversation id" });
+
+    const memberIdsRaw = (req.body as { memberIds?: unknown }).memberIds;
+    if (!Array.isArray(memberIdsRaw)) {
+      return res.status(400).json({ error: "memberIds is required (array)" });
+    }
+
+    // Must be member + must be GROUP
+    try {
+      await assertMember(conversationId, me);
+      await assertGroup(conversationId);
+    } catch (e: any) {
+      const msg = String(e?.message || "");
+      if (msg === "Not a member") return res.status(403).json({ error: "Not a member" });
+      if (msg === "Not a GROUP conversation") return res.status(400).json({ error: "Not a GROUP conversation" });
+      if (msg === "Conversation not found") return res.status(404).json({ error: "Conversation not found" });
+      return res.status(400).json({ error: msg || "Invalid request" });
+    }
+
+    const memberIds = memberIdsRaw
+      .filter((x: unknown): x is string => typeof x === "string" && x.trim().length > 0)
+      .map((s: string) => s.trim());
+
+    const uniqueToAdd = uniqueStrings(memberIds).filter((id) => id !== me);
+    if (uniqueToAdd.length === 0) return res.json({ conversationId, added: [] });
+
+    await prisma.conversationMember.createMany({
+      data: uniqueToAdd.map((uid) => ({ conversationId, userId: uid })),
+      skipDuplicates: true,
+    });
+
+    return res.json({ conversationId, added: uniqueToAdd });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || "Unknown error" });
+  }
+});
+
+/**
+ * PATCH /chat/groups/:id
+ * Rename a group.
+ * Body: { title: "New title" }
+ */
 chatRouter.patch("/groups/:id", async (req: Request, res: Response) => {
   try {
     const me = getUserId(req);
-    const conversationId = Number(req.params.id);
-    const { title } = req.body as { title?: string };
+    const conversationId = toPositiveInt(req.params.id);
+    if (!conversationId) return res.status(400).json({ error: "Invalid conversation id" });
 
-    if (!Number.isInteger(conversationId) || conversationId <= 0) {
-      return res.status(400).json({ error: "Invalid conversation id" });
-    }
-    if (!title || typeof title !== "string" || title.trim().length === 0) {
+    const titleRaw = (req.body as { title?: unknown }).title;
+    if (typeof titleRaw !== "string" || titleRaw.trim().length === 0) {
       return res.status(400).json({ error: "title is required" });
     }
+    const title = titleRaw.trim();
+    if (title.length > 80) return res.status(400).json({ error: "title too long (max 80)" });
 
-    // Permiso simple: debes ser miembro
-    const isMember = await prisma.conversationMember.findFirst({
-      where: { conversationId, userId: me },
-      select: { id: true },
-    });
-    if (!isMember) return res.status(403).json({ error: "Not a member" });
-
-    // Asegurar que es GROUP
-    const conv = await prisma.conversation.findUnique({
-      where: { id: conversationId },
-      select: { id: true, type: true },
-    });
-    if (!conv) return res.status(404).json({ error: "Conversation not found" });
-    if (conv.type !== "GROUP") return res.status(400).json({ error: "Not a GROUP conversation" });
+    // Must be member + must be GROUP
+    try {
+      await assertMember(conversationId, me);
+      await assertGroup(conversationId);
+    } catch (e: any) {
+      const msg = String(e?.message || "");
+      if (msg === "Not a member") return res.status(403).json({ error: "Not a member" });
+      if (msg === "Not a GROUP conversation") return res.status(400).json({ error: "Not a GROUP conversation" });
+      if (msg === "Conversation not found") return res.status(404).json({ error: "Conversation not found" });
+      return res.status(400).json({ error: msg || "Invalid request" });
+    }
 
     const updated = await prisma.conversation.update({
       where: { id: conversationId },
-      data: { title: title.trim() },
+      data: { title, updatedAt: new Date() },
       select: { id: true, type: true, title: true, updatedAt: true },
     });
 
@@ -441,40 +571,107 @@ chatRouter.patch("/groups/:id", async (req: Request, res: Response) => {
     return res.status(500).json({ error: err?.message || "Unknown error" });
   }
 });
+
+/**
+ * DELETE /chat/groups/:id/members/:userId
+ * Remove a member from a group (simple permission: must be a member).
+ */
 chatRouter.delete("/groups/:id/members/:userId", async (req: Request, res: Response) => {
   try {
     const me = getUserId(req);
-    const conversationId = Number(req.params.id);
+    const conversationId = toPositiveInt(req.params.id);
+    if (!conversationId) return res.status(400).json({ error: "Invalid conversation id" });
 
-    // 👇 Normalizamos el param para que SIEMPRE sea string
-    const rawTarget = req.params.userId;
-    const targetUserId = Array.isArray(rawTarget) ? rawTarget[0] : rawTarget;
+    const rawTarget = req.params.userId as unknown;
+    const targetUserId = typeof rawTarget === "string" ? rawTarget : "";
 
-    if (!Number.isInteger(conversationId) || conversationId <= 0) {
-      return res.status(400).json({ error: "Invalid conversation id" });
+    if (!targetUserId) return res.status(400).json({ error: "Invalid userId" });
+
+    // Must be member + must be GROUP
+    try {
+      await assertMember(conversationId, me);
+      await assertGroup(conversationId);
+    } catch (e: any) {
+      const msg = String(e?.message || "");
+      if (msg === "Not a member") return res.status(403).json({ error: "Not a member" });
+      if (msg === "Not a GROUP conversation") return res.status(400).json({ error: "Not a GROUP conversation" });
+      if (msg === "Conversation not found") return res.status(404).json({ error: "Conversation not found" });
+      return res.status(400).json({ error: msg || "Invalid request" });
     }
-    if (!targetUserId || typeof targetUserId !== "string") {
-      return res.status(400).json({ error: "Invalid userId" });
-    }
-
-    const isMember = await prisma.conversationMember.findFirst({
-      where: { conversationId, userId: me },
-      select: { id: true },
-    });
-    if (!isMember) return res.status(403).json({ error: "Not a member" });
-
-    const conv = await prisma.conversation.findUnique({
-      where: { id: conversationId },
-      select: { id: true, type: true },
-    });
-    if (!conv) return res.status(404).json({ error: "Conversation not found" });
-    if (conv.type !== "GROUP") return res.status(400).json({ error: "Not a GROUP conversation" });
 
     const result = await prisma.conversationMember.deleteMany({
       where: { conversationId, userId: targetUserId },
     });
 
     return res.json({ conversationId, removed: targetUserId, deleted: result.count });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || "Unknown error" });
+  }
+});
+
+// ============================================================================
+// Helper endpoint: resolve user IDs -> name/avatar (calls Users service)
+// ============================================================================
+
+/**
+ * GET /chat/users/resolve?ids=1,2,3
+ * Returns: { users: [{ id, name, avatar, avatarUrl }, ...] }
+ *
+ * NOTES:
+ * - USERS_INTERNAL_URL must be set (example: http://backend:3000)
+ * - This implementation calls /users/:id in parallel.
+ *   If your Users service later supports /users/resolve, switch to that for efficiency.
+ */
+chatRouter.get("/users/resolve", async (req: Request, res: Response) => {
+  try {
+    const idsParam = req.query.ids;
+
+    let ids: string[] = [];
+
+    if (typeof idsParam === "string") {
+      ids = idsParam.split(",").map((s: string) => s.trim()).filter(Boolean);
+    } else if (Array.isArray(idsParam)) {
+      ids = idsParam
+        .flatMap((v: unknown) => (typeof v === "string" ? v.split(",") : []))
+        .map((s: string) => s.trim())
+        .filter(Boolean);
+    } else {
+      ids = [];
+    }
+
+    if (ids.length === 0) return res.status(400).json({ error: "ids is required" });
+    if (ids.length > 50) return res.status(400).json({ error: "too many ids (max 50)" });
+
+    const base = process.env.USERS_INTERNAL_URL;
+    if (!base) return res.status(500).json({ error: "USERS_INTERNAL_URL not configured" });
+
+    // Forward auth header to users service if needed
+    const auth = req.headers.authorization ?? "";
+
+    type ResolvedUser = { id: string; name: string; avatar: string | null; avatarUrl: string };
+
+    const results: Array<ResolvedUser | null> = await Promise.all(
+      ids.map(async (id: string) => {
+        const r = await fetch(`${base}/users/${encodeURIComponent(id)}`, {
+          headers: auth ? { authorization: auth } : {},
+        });
+
+        if (!r.ok) return null;
+
+        const u = (await r.json()) as { id: number | string; name?: string; avatar?: string | null };
+
+        return {
+          id: String(u.id),
+          name: String(u.name ?? ""),
+          avatar: u.avatar ?? null,
+          avatarUrl: typeof u.avatar === "string" ? u.avatar : "default-avatar.svg",
+        };
+      })
+    );
+
+    const users = results.filter((u): u is ResolvedUser => u !== null);
+
+    return res.json({ users });
   } catch (err: any) {
     return res.status(500).json({ error: err?.message || "Unknown error" });
   }

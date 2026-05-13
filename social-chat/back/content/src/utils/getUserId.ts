@@ -1,9 +1,6 @@
-import { Request } from "express";
+import type { Request } from "express";
 
 export function getUserId(req: Request): string {
-  const userId = req.header("x-user-id");
-  if (!userId) {
-    throw new Error("Missing x-user-id header");
-  }
-  return userId;
+  if (!req.user) throw new Error("Unauthenticated");
+  return String(req.user.id);
 }
