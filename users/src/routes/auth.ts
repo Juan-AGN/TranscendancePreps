@@ -4,6 +4,7 @@
 import type { FastifyInstance } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import { authenticate } from '../middleware/auth.js';
 
 const prismaClient = new PrismaClient();
 
@@ -140,5 +141,15 @@ export async function authRoutes(server: FastifyInstance) {
             const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
             return reply.redirect(`${frontendUrl}/?error=oauth_failed`);
         }
+    });
+
+    // ========================================================================
+    // ROUTE 3: VERIFY TOKEN
+    // ========================================================================
+    // HTTP Method: GET
+    // URL: http://localhost:3000/auth/me
+    // This endpoint verifies if the Bearer token is valid and returns user info
+    server.get('/auth/me', { preHandler: authenticate }, async (request, reply) => {
+        return reply.send({ ok: true, user: request.user });
     });
 }
