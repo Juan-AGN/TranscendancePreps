@@ -89,12 +89,13 @@ function Login() {
                 // Save the token AND userId in localStorage
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('userId', data.user.id);
+                localStorage.setItem('userName', data.user.name);
 
                 setLoginAlert({ message: 'Login successful! Redirecting...', tipo: 'success' });
 
                 // STEP 5: Redirect to the profile after a short delay
                 setTimeout(() => {
-                    navigate('/profile');  // before: window.location.href = '/profile.html'
+                    navigate('/start');  // before: window.location.href = '/profile.html'
                 }, 800);
 
             } else {
@@ -199,7 +200,6 @@ function Login() {
                 <div className="absolute left-1/2 top-0 z-20 h-[clamp(90px,18vh,180px)] w-[clamp(90px,18vh,180px)] -translate-x-1/2 -translate-y-1/2
                                 bg-contain bg-center bg-no-repeat drop-shadow-[0_0_22px_rgba(56,189,248,0.45)]"
                     style={{ backgroundImage: "url('/LoginBiometric.png')" }}>
-
                 </div>
 
                 <div className="w-[min(90vw,48rem)] max-h-[calc(100dvh-6rem)] overflow-y-auto bg-white/[0.15] backdrop-blur-[5px] border border-yellow-500/50 pt-[clamp(1.5rem,10vh,6rem)]
@@ -320,11 +320,12 @@ function Login() {
                                 </div>
                             </div>
                         )}
-                    </div>
-
-
+                    </div>    
                 </div>
             </div>
+            <div className="absolute bottom-0 left-0 right-0 z-20">
+				<Footer />
+			</div>
         </div>
 
     );

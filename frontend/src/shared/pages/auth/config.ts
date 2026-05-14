@@ -5,4 +5,4 @@
 // If the backend URL or port changes, only need to change it here.
 
 // Backend base URL (Fastify)
-export const API_URL = 'http://localhost:3000';
+export const API_URL = '/api/auth';
