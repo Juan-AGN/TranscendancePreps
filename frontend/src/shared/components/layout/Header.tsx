@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 type Submenu = 'arcade' | 'about' | 'profile' | 'user' | null
 
 const linkClass =
-	'text-base font-semibold tracking-wide text-white transition-all duration-200 hover:scale-105 hover:text-amber-300 hover:drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]'
+	'text-xs md:text-sm lg:text-base font-semibold tracking-wide text-white transition-all duration-200 hover:scale-105 hover:text-amber-300 hover:drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]'
 
 const menuLinkClass =
 	'block rounded-lg px-3 py-2 text-sm font-medium text-white/95 transition-all duration-200 hover:scale-105 hover:bg-amber-400/15 hover:text-amber-200'
@@ -62,7 +62,7 @@ export function Header() {
 		name: string, id: Exclude<Submenu, null>, children: React.ReactNode
 	}) => (
 		<div
-			className="relative"
+			className="relative z-30"
 			onMouseEnter={() => setOpenSubmenu(id)}
 			onMouseLeave={() => setOpenSubmenu(null)} >
 			<button
@@ -79,7 +79,7 @@ export function Header() {
 			</button>
 
 			<div
-				className={`absolute left-1/2 top-full z-20 w-32 -translate-x-1/2 rounded-xl border border-white/20 bg-black/[0.62] p-2 shadow-[0_10px_28px_rgba(0,0,0,0.35)] backdrop-blur-2xl transition-all duration-200 ${openSubmenu === id
+				className={`absolute left-1/2 top-full z-50 w-32 -translate-x-1/2 rounded-xl border border-white/20 bg-black/[0.62] p-2 shadow-[0_10px_28px_rgba(0,0,0,0.35)] backdrop-blur-2xl transition-all duration-200 ${openSubmenu === id
 					? 'pointer-events-auto translate-y-0 opacity-100'
 					: 'pointer-events-none -translate-y-2 opacity-0'}`}>
 				{children}
@@ -89,7 +89,7 @@ export function Header() {
 
 	return (
 		<header
-			className={`absolute left-0 top-0 z-[70] w-full overflow-visible transition-all duration-500 ${menuOpen
+			className={`absolute left-0 top-0 z-[70] isolate w-full overflow-visible transition-all duration-500 ${menuOpen
 				? 'bg-black/[0.12] border-b border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.2)] backdrop-blur-2xl'
 				: 'bg-transparent border-b border-transparent'}`}>
 			<div className="relative flex items-center justify-between px-6 py-1 md:px-10 md:py-5">
@@ -100,7 +100,7 @@ export function Header() {
 				</Link>
 
 				<nav
-					className={`absolute left-1/2 top-1/2 hidden  -translate-x-1/2 -translate-y-1/2 items-center gap-10 transition-all duration-500 lg:flex ${menuOpen
+					className={`absolute left-1/2 top-1/2 z-40 flex -translate-x-1/2 -translate-y-1/2 flex-wrap items-center justify-center gap-3 px-4 md:gap-6 lg:gap-10 transition-all duration-500 ${menuOpen
 						? 'pointer-events-auto opacity-100'
 						: 'pointer-events-none -translate-y-7 opacity-0'}`}>
 					<Link to="/start" onClick={closeMenu} className={linkClass}>
@@ -209,7 +209,7 @@ export function Header() {
 			</div>
 
 			<div
-				className={`pointer-events-none h-[2px] w-full bg-gradient-to-r from-transparent via-amber-300 to-transparent shadow-[0_0_12px_rgba(0,0,0,0.55)] transition-all duration-700 ${menuOpen ? 'scale-x-100 opacity-100' : 'scale-x-90 opacity-0'}`} />
+				className={`pointer-events-none relative z-0 h-[2px] w-full bg-gradient-to-r from-transparent via-amber-300 to-transparent shadow-[0_0_12px_rgba(0,0,0,0.55)] transition-all duration-700 ${menuOpen ? 'scale-x-100 opacity-100' : 'scale-x-90 opacity-0'}`} />
 		</header>
 	)
 }
