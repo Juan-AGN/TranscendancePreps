@@ -9,9 +9,7 @@ export function OlympusButton({
 	onClick,
 	className = '',
 }: OlympusButtonProps) {
-
 	return (
-
 		<button
 			onClick={onClick}
 			className={`
@@ -24,7 +22,6 @@ export function OlympusButton({
             hover:-translate-y-[2px] hover:border-yellow-400/30 hover:text-yellow-500/80 hover:bg-blue-400/60
             hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_0_0_1px_rgba(255,255,255,0.55),0_0_28px_rgba(234,179,8,0.28),0_12px_30px_rgba(120,72,10,0.18)]
             ${className}`}>
-
 			{/* glow */}
 			<div className="
                 absolute inset-0 opacity-0 transition-opacity duration-500
@@ -34,7 +31,6 @@ export function OlympusButton({
 			<span className="relative z-10 flex items-center justify-center gap-2">
 				{children}
 			</span>
-
 		</button>
 	)
 }
