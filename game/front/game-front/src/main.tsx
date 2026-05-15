@@ -6,13 +6,17 @@ import App from './App.tsx'
 import './i18n'
 import { NotificationProvider } from './notifications'
 import { LobbyProvider } from './lobby';
+import { WsProvider } from './wshandler'
+import { Lobbies, Nolobbystate} from './game_endpoints/lobbies.tsx'
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<BrowserRouter>
 		<NotificationProvider>
 			<LobbyProvider>
-				<App/>
+				<WsProvider>
+					<Nolobbystate/>
+				</WsProvider>
 			</LobbyProvider>
 		</NotificationProvider>
 		</BrowserRouter>

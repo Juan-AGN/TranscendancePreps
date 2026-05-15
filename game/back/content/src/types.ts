@@ -1,8 +1,19 @@
+import "express";
+
+declare module "express-serve-static-core" {
+  interface Request {
+    user?: {
+      id: number;
+      email: string;
+    };
+  }
+}
+
 export interface Lobby {
   id: string;
-  hostId: string;
-  players: string[];
-  spectators: string[];
+  hostId: number;
+  players: number[];
+  spectators: number[];
   status: "waiting" | "in-game";
   rules: Ruleset;
 }
@@ -12,7 +23,7 @@ export interface Lobbys {
 }
 
 export interface alive {
-  player: string;
+  player: number;
   x: number;
   y: number;
   hitbox: number;
@@ -58,7 +69,7 @@ export interface RulesState {
 export interface GameSession {
   id: string;
   alive: alive[];
-  dead: string[];
+  dead: number[];
   ball: ball[];
   borderx: number;
   bordery: number;
@@ -67,10 +78,10 @@ export interface GameSession {
 }
 
 export interface GameResults {
-  first: string;
-  second: string;
-  third: string;
-  fourth: string;
+  first: number;
+  second: number;
+  third: number;
+  fourth: number;
 }
 
 export enum LobbyAction {

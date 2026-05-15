@@ -78,4 +78,4 @@ RUN ls -la /app/dist/ || echo " /app/dist/ does not exist"
 RUN ls -la /app/dist/routes/ || echo " /app/dist/routes/ does not exist"
 
 # Start command
-CMD ["node", "dist/index.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]

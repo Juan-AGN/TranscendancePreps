@@ -14,20 +14,20 @@ class LobbyManager {
     lobbymap = new Map<string, Lobby>();
 
     //setting a relation between user and its lobbyes
-    clientlobby = new Map<string, string>();
+    clientlobby = new Map<number, string>();
 
     //map of all userswith their corresponding websockets (array in case of multiple ws for one user)
-    userrelmap = new Map<string, WebSocket[]>();
+    userrelmap = new Map<number, WebSocket[]>();
 
     gamemap = new Map<string, GameSession>();
 
-    movedPlayers : string[] = [];
+    movedPlayers : number[] = [];
 
     maxsize = 4;
 
     //getting lobby from lobby id
     get(id: string) {
-        return this.lobbymap.get(id);
+        return (this.lobbymap.get(id));
     }
 
     //checking if lobby exists from id
@@ -35,19 +35,19 @@ class LobbyManager {
         return (this.lobbymap.has(id));
     }
 
-    hasplayer(id: string) {
+    hasplayer(id: number) {
         return (this.clientlobby.has(id));
     }
 
     //checking if where an user is
-    whereis(id: string) {
+    whereis(id: number) {
         if (this.clientlobby.has(id))
             return (this.lobbymap.get(this.clientlobby.get(id)!));
         return (undefined);
     }
 
     //creating lobby with id name and player as host
-    add(id: string, player: string) {
+    add(id: string, player: number) {
         if (!this.lobbymap.has(id) && !this.clientlobby.has(player) && this.userrelmap.has(player))
         {
             const newlobby: Lobby = {
@@ -66,7 +66,7 @@ class LobbyManager {
     }
 
     //adding player to lobby id
-    addplayer(id: string, player: string) {
+    addplayer(id: string, player: number) {
         if (this.lobbymap.has(id) && !this.clientlobby.has(player) && this.userrelmap.has(player))
         {
             if (this.get(id)?.players.includes(player))
@@ -87,7 +87,7 @@ class LobbyManager {
         return (false);
     }
 
-    changeruleset(id: string, player: string, rules: Ruleset) {
+    changeruleset(id: string, player: number, rules: Ruleset) {
         if (this.lobbymap.has(id) && this.clientlobby.has(player))
         {
             const lob = this.get(id);
@@ -102,7 +102,7 @@ class LobbyManager {
         return (false);
     }
 
-    leavehost(tlobby: Lobby, player: string) {
+    leavehost(tlobby: Lobby, player: number) {
         if (tlobby.players.length != 0)
         {
             tlobby.hostId = tlobby.players[0];
@@ -118,7 +118,7 @@ class LobbyManager {
     }
 
     //player leaving from id lobby and setting new host
-    leaveplayer(id: string, player: string) {
+    leaveplayer(id: string, player: number) {
         const lob = this.get(id);
 
         if (lob == undefined)
@@ -195,7 +195,7 @@ class LobbyManager {
         lob.spectators.splice(0, 1);
     }
 
-    spectToPlayerEndp(id: string, player: string) {
+    spectToPlayerEndp(id: string, player: number) {
         const lob = this.get(id);
 
         if (lob == undefined)
@@ -218,7 +218,7 @@ class LobbyManager {
         return (true);
     }
 
-    playerToSpectEndp(id: string, player: string) {
+    playerToSpectEndp(id: string, player: number) {
         const lob = this.get(id);
 
         if (lob == undefined)
@@ -249,7 +249,7 @@ class LobbyManager {
     }
 
     //broadcast to every player an lobby action
-    broadcastlobby(id: string, player: string, action: LobbyAction)
+    broadcastlobby(id: string, player: number, action: LobbyAction)
     {
         const lob = this.get(id);
         if (lob == undefined)
@@ -346,7 +346,7 @@ class LobbyManager {
     }
 
     //adding/creating ws for user
-    newws(user: string, ws: WebSocket) {
+    newws(user: number, ws: WebSocket) {
         if (this.userrelmap.has(user))
             this.userrelmap.get(user)!.push(ws);
         else
@@ -354,7 +354,7 @@ class LobbyManager {
     }
 
     //delleting ws
-    deletews(user: string, ws: WebSocket) {
+    deletews(user: number, ws: WebSocket) {
         if (this.userrelmap.has(user))  {
             const arr = this.userrelmap.get(user)!;
             let torem = arr.indexOf(ws);
@@ -375,7 +375,7 @@ class LobbyManager {
         }
     }
 
-    setupgame(lobbyId: string, playerId: string) {
+    setupgame(lobbyId: string, playerId: number) {
         if (!this.has(lobbyId))
             return (Errors.NOLOBBY);
         
@@ -391,7 +391,7 @@ class LobbyManager {
         return (null);
     }
 
-    able(lobbyId: string, hostId: string) {
+    able(lobbyId: string, hostId: number) {
         if (!this.has(lobbyId))
             return (Errors.NOLOBBY);
 
@@ -407,7 +407,7 @@ class LobbyManager {
         return (null);
     }
 
-    playermovement(keycode: string, userid: string) {
+    playermovement(keycode: string, userid: number) {
         if (this.movedPlayers.indexOf(userid) > -1)
             return ;
         if (!this.clientlobby.has(userid))
@@ -470,7 +470,7 @@ class LobbyManager {
         for (const player of game.alive)
             game.dead.push(player.player);
 
-        let first = "", second = "", third = "", fourth = "";
+        let first = -1, second = -1, third = -1, fourth = -1;
         game.dead.reverse();
 
         if (game.dead.length > 3)
