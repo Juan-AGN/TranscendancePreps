@@ -1,4 +1,3 @@
-// layout de secciones full-screen con scroll suave CSS
 // estructura:
 //   seccion 1 -> video 3D + boton entrar mundo 3D
 //   seccion 2 -> entrada modo arcade 2D
@@ -164,7 +163,7 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 							style={{ backgroundImage: "url('/bgCreators.png')" }}> {/* fondo creators */}
 							<div className="absolute inset-0 bg-white/20" /> {/* overlay blanco semitransparente sobre el fondo */}
 
-							<div className="relative z-10 w-[min(72vw,82rem)] h-[88vh] rounded-3xl overflow-hidden flex flex-col items-center">
+							<div className="relative z-10 w-[min(82rem,90vw)] h-[88vh] rounded-3xl overflow-hidden flex flex-col items-center">
 								<div className="grid grid-cols-4 w-full max-w-5xl mt-auto items-end gap-20"> {/* 4 columnas, una por creador */}
 									{CREATORS.map((creator) => ( // itera sobre el array CREATORS
 										<div key={creator.username}
