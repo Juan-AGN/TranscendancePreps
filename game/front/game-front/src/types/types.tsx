@@ -1,14 +1,3 @@
-import "express";
-
-declare module "express-serve-static-core" {
-  interface Request {
-    user?: {
-      id: number;
-      email: string;
-    };
-  }
-}
-
 export interface Lobby {
   id: string;
   hostId: number;
@@ -23,7 +12,7 @@ export interface Lobbys {
 }
 
 export interface alive {
-  player: number;
+  player: string;
   x: number;
   y: number;
   hitbox: number;
@@ -82,6 +71,16 @@ export interface GameResults {
   second: number;
   third: number;
   fourth: number;
+}
+
+export interface UserData{
+  id: number,
+  name: string,
+  email: string,
+  avatar: string,
+  onlineStatus: boolean,
+  lastConnection: Date,
+  createdAt: Date
 }
 
 export enum LobbyAction {

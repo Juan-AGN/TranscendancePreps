@@ -110,7 +110,7 @@ class GameManager {
         return (distanceSquared <= radiusSumSquared);
     }
 
-    getplayer(user: string, game: GameSession) {
+    getplayer(user: number, game: GameSession) {
         for (const player of game.alive)
             if (player.player === user)
                 return (game.alive.indexOf(player));
@@ -206,7 +206,7 @@ class GameManager {
         game.ball.push(newball);
     }
 
-    moveplayerdown(game: GameSession, userId: string) {
+    moveplayerdown(game: GameSession, userId: number) {
         let newy = -1;
 
         for (const player of game.alive)
@@ -235,7 +235,7 @@ class GameManager {
         }
     }
 
-    moveplayerleft(game: GameSession, userId: string) {
+    moveplayerleft(game: GameSession, userId: number) {
         let newx = -1;
  
         for (const player of game.alive)
@@ -264,7 +264,7 @@ class GameManager {
         }
     }
 
-    moveplayerup(game: GameSession, userId: string) {
+    moveplayerup(game: GameSession, userId: number) {
         let newy = -1;
 
         for (const player of game.alive)
@@ -293,7 +293,7 @@ class GameManager {
         }
     }
 
-    moveplayerright(game: GameSession, userId: string) {
+    moveplayerright(game: GameSession, userId: number) {
         let newx = -1;
 
         for (const player of game.alive)

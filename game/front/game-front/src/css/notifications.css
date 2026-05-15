@@ -1,0 +1,25 @@
+.notification-box-box {
+    background-color: gray;
+    opacity: 80;
+    color: aliceblue;
+    width: 200px;
+    height: 50px;
+    overflow-y: auto;
+    align-content: center;
+    text-align: center;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 20px;
+    pointer-events: none;
+}
+
+.notification-box {
+    height: fit-content;
+    max-height: 500px;
+    overflow-y: auto;
+    width: fit-content;
+    top: 5px;
+    right: 5px;
+    position: fixed;
+    z-index: 30;
+}
