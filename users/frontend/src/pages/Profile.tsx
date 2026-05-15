@@ -338,12 +338,12 @@ function Profile() {
 
                     <div className="mt-6 flex flex-wrap justify-center gap-3">
                         <button className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-indigo-600 transition hover:-translate-y-0.5 hover:shadow-md" onClick={openModal}>
-                            📝 Edit Profile
+                            Edit Profile
                         </button>
 
                         {/* Hidden file input for the avatar */}
                         <label className="cursor-pointer rounded-full bg-white px-5 py-2 text-sm font-semibold text-indigo-600 transition hover:-translate-y-0.5 hover:shadow-md">
-                            📷 Change Avatar
+                            Change Avatar
                             <input
                                 type="file"
                                 accept="image/*"
@@ -356,16 +356,16 @@ function Profile() {
                             className={`rounded-full px-5 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-md ${user.onlineStatus ? 'bg-rose-500 hover:bg-rose-600' : 'bg-emerald-500 hover:bg-emerald-600'}`}
                             onClick={changeStatus}
                         >
-                            {user.onlineStatus ? '🔴 Disconnect' : '🟢 Connect'}
+                            {user.onlineStatus ? 'Disconnect' : 'Connect'}
                         </button>
 
                         {/* button to go to the friends page */}
                         <button className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-indigo-600 transition hover:-translate-y-0.5 hover:shadow-md" onClick={() => navigate('/friends')}>
-                            👥 My Friends
+                            My Friends
                         </button>
 
                         <button className="rounded-full bg-rose-500 px-5 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-rose-600 hover:shadow-md" onClick={logout}>
-                            🚪 Log Out
+                            Log Out
                         </button>
                     </div>
                 </div>
@@ -377,13 +377,13 @@ function Profile() {
 
                     {/* SECTION: INFORMATION */}
                     <div className="mb-10">
-                        <h2 className="mb-5 border-b-2 border-indigo-500 pb-2 text-2xl font-bold text-slate-800">📋 Profile Information</h2>
+                        <h2 className="mb-5 border-b-2 border-indigo-500 pb-2 text-2xl font-bold text-slate-800">Profile Information</h2>
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             <div className="rounded-xl border-l-4 border-indigo-500 bg-slate-50 p-4">
                                 <div className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Status</div>
                                 <div className="text-base font-medium text-slate-800">
                                     <span className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${user.onlineStatus ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
-                                        {user.onlineStatus ? '🟢 Online' : '🔴 Offline'}
+                                        {user.onlineStatus ? 'Online' : 'Offline'}
                                     </span>
                                 </div>
                             </div>
@@ -411,7 +411,7 @@ function Profile() {
 
                     {/* SECTION: FRIENDS */}
                     <div className="mb-2">
-                        <h2 className="mb-5 border-b-2 border-indigo-500 pb-2 text-2xl font-bold text-slate-800">👥 My Friends</h2>
+                        <h2 className="mb-5 border-b-2 border-indigo-500 pb-2 text-2xl font-bold text-slate-800">My Friends</h2>
                         {friends.length === 0 ? (
                             <p className="text-center text-slate-500">
                                 You have no friends yet
@@ -428,7 +428,7 @@ function Profile() {
                                         />
                                         <div className="font-semibold text-slate-800">{friend.name}</div>
                                         <div className={`text-xs ${friend.onlineStatus ? 'font-semibold text-emerald-600' : 'text-slate-500'}`}>
-                                            {friend.onlineStatus ? '🟢 Online' : '🔴 Offline'}
+                                            {friend.onlineStatus ? 'Online' : 'Offline'}
                                         </div>
                                     </div>
                                 ))}
@@ -453,7 +453,7 @@ function Profile() {
                 // Clicking the dark backdrop closes the modal
                 <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 p-4" onClick={e => e.target === e.currentTarget && setModalOpen(false)}>
                     <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 md:p-8">
-                        <h2 className="mb-6 text-2xl font-bold text-slate-800">✏️ Edit Profile</h2>
+                        <h2 className="mb-6 text-2xl font-bold text-slate-800">Edit Profile</h2>
 
                         <div className="mb-4">
                             <label className="mb-2 block text-sm font-semibold text-slate-700">Name</label>

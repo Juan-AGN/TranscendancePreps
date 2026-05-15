@@ -144,7 +144,7 @@ function Friends() {
             const data = await response.json();
 
             if (response.ok) {
-                alert('✅ Request sent successfully');
+                alert('Request sent successfully');
             } else {
                 alert(data.error);
             }
@@ -167,7 +167,7 @@ function Friends() {
             const data = await response.json();
 
             if (response.ok) {
-                alert('✅ Request accepted! You are now friends');
+                alert('Request accepted! You are now friends');
                 // Reload both lists
                 loadRequests();
                 loadFriends();
@@ -194,7 +194,7 @@ function Friends() {
             });
 
             if (response.ok) {
-                alert('✅ Request rejected');
+                alert('Request rejected');
                 loadRequests();
             } else {
                 const data = await response.json();
@@ -220,7 +220,7 @@ function Friends() {
             });
 
             if (response.ok) {
-                alert('✅ Friend removed successfully');
+                alert('Friend removed successfully');
                 loadFriends();
             } else {
                 const data = await response.json();
@@ -245,7 +245,7 @@ function Friends() {
                 ← Back to Profile
             </button>
 
-            <h1 className="mb-7 text-center text-3xl font-bold text-indigo-600">👥 Friends Management</h1>
+            <h1 className="mb-7 text-center text-3xl font-bold text-indigo-600">Friends Management</h1>
 
             {/* ============================================================ */}
             {/* TABS */}
@@ -267,7 +267,7 @@ function Friends() {
                     className={`rounded-t-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'search' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-500'}`}
                     onClick={() => changeTab('search')}
                 >
-                    🔍 Search Users
+                    Search Users
                 </button>
             </div>
 
@@ -278,7 +278,6 @@ function Friends() {
                 <div>
                     {friendsList.length === 0 ? (
                         <div className="py-12 text-center text-slate-500">
-                            <div className="mb-2 text-6xl">😔</div>
                             <div className="text-lg">You have no friends yet</div>
                             <div className="text-sm text-slate-400">Search for users to add!</div>
                         </div>
@@ -295,13 +294,13 @@ function Friends() {
                                     <div className="font-semibold text-slate-800">
                                         {friend.name}
                                         <span className={`ml-2 inline-block rounded-full px-2 py-1 text-xs font-semibold ${friend.onlineStatus ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
-                                            {friend.onlineStatus ? '🟢 Online' : '⚫ Offline'}
+                                            {friend.onlineStatus ? 'Online' : 'Offline'}
                                         </span>
                                     </div>
                                     <div className="text-sm text-slate-500">{friend.email}</div>
                                 </div>
                                 <button className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-600" onClick={() => removeFriend(friend.id)}>
-                                    🗑️ Remove
+                                    Remove
                                 </button>
                             </div>
                         ))
@@ -316,7 +315,6 @@ function Friends() {
                 <div>
                     {requestsList.length === 0 ? (
                         <div className="py-12 text-center text-slate-500">
-                            <div className="mb-2 text-6xl">📭</div>
                             <div className="text-lg">You have no pending requests</div>
                             <div className="text-sm text-slate-400">You will be notified when you receive one</div>
                         </div>
@@ -333,10 +331,10 @@ function Friends() {
                                     <div className="text-sm text-slate-500">{req.requester.email}</div>
                                 </div>
                                 <button className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-600" onClick={() => acceptRequest(req.requester.id)}>
-                                    ✅ Accept
+                                    Accept
                                 </button>
                                 <button className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-600" onClick={() => rejectRequest(req.requester.id)}>
-                                    ❌ Reject
+                                    Reject
                                 </button>
                             </div>
                         ))
@@ -358,12 +356,11 @@ function Friends() {
                             onKeyDown={e => e.key === 'Enter' && searchUsers()}
                             className="min-w-0 flex-1 rounded-xl border-2 border-slate-200 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
                         />
-                        <button className="rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-600" onClick={searchUsers}>🔍 Search</button>
+                        <button className="rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-600" onClick={searchUsers}>Search</button>
                     </div>
 
                     {searchResults.length === 0 && searchInput.length >= 2 && (
                         <div className="py-12 text-center text-slate-500">
-                            <div className="mb-2 text-6xl">🔍</div>
                             <div className="text-lg">No users found</div>
                             <div className="text-sm text-slate-400">Try a different search term</div>
                         </div>
@@ -380,13 +377,13 @@ function Friends() {
                                 <div className="font-semibold text-slate-800">
                                     {result.name}
                                     <span className={`ml-2 inline-block rounded-full px-2 py-1 text-xs font-semibold ${result.onlineStatus ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
-                                        {result.onlineStatus ? '🟢 Online' : '⚫ Offline'}
+                                        {result.onlineStatus ? 'Online' : 'Offline'}
                                     </span>
                                 </div>
                                 <div className="text-sm text-slate-500">{result.email}</div>
                             </div>
                             <button className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600" onClick={() => sendRequest(result.id)}>
-                                ➕ Add friend
+                                Add friend
                             </button>
                         </div>
                     ))}

@@ -17,7 +17,7 @@ function Privacy() {
                 ← Back
             </button>
 
-            <h1 className="mb-2 text-3xl font-bold text-indigo-800">🔒 Privacy Policy</h1>
+            <h1 className="mb-2 text-3xl font-bold text-indigo-800">Privacy Policy</h1>
             <p className="mb-6 text-sm text-slate-500">Last updated: March 3, 2026</p>
 
             {/* ── SECTION 1 ── */}
