@@ -8,6 +8,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from './config';
+import { OlympusButton } from '../../components/Buttons/ProfileButton';
+import { Search, UserRoundPlus, Users, Frown } from 'lucide-react';
 
 // ============================================================================
 // TYPES
@@ -237,161 +239,166 @@ function Friends() {
     // RENDER
     // ========================================================================
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-violet-700 p-4 md:p-6">
-            <div className="mx-auto max-w-6xl rounded-3xl bg-white p-6 shadow-2xl md:p-10">
+        <div className="min-h-screen bg-cover bg-center bg-no-repeat px-4 pb-6 pt-32"
+            style={{ backgroundImage: "url('bgFriends.png')" }}>
 
-            {/* BACK BUTTON */}
-            <button className="mb-5 rounded-xl bg-slate-500 px-4 py-2 text-sm font-semibold text-white transition hover:-translate-x-0.5 hover:bg-slate-600" onClick={() => navigate('/profile')}>
-                ← Back to Profile
-            </button>
+            <div className="mx-auto max-w-6xl min-h-[65vh] overflow-hidden rounded-3xl border border-yellow-500/45 bg-white/[0.07] backdrop-blur-[55px]
+                            shadow-[0_20px_80px_rgba(90,60,20,0.25),inset_0_1px_0_rgba(255,255,255,0.45)] ">
 
-            <h1 className="mb-7 text-center text-3xl font-bold text-indigo-600">👥 Friends Management</h1>
 
-            {/* ============================================================ */}
-            {/* TABS */}
-            {/* ============================================================ */}
-            <div className="mb-7 flex flex-wrap gap-3 border-b-2 border-slate-100 pb-3">
-                <button
-                    className={`rounded-t-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'my-friends' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-500'}`}
-                    onClick={() => changeTab('my-friends')}
-                >
-                    My Friends ({friendsList.length})
-                </button>
-                <button
-                    className={`rounded-t-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'requests' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-500'}`}
-                    onClick={() => changeTab('requests')}
-                >
-                    Pending Requests ({requestsList.length})
-                </button>
-                <button
-                    className={`rounded-t-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'search' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-500'}`}
-                    onClick={() => changeTab('search')}
-                >
-                    🔍 Search Users
-                </button>
-            </div>
+                <h1 className="mt-8 mb-7 text-center text-2xl font-bold text-yellow-700/80 uppercase">👥 Friends Management</h1>
 
-            {/* ============================================================ */}
-            {/* TAB 1: MY FRIENDS */}
-            {/* ============================================================ */}
-            {activeTab === 'my-friends' && (
-                <div>
-                    {friendsList.length === 0 ? (
-                        <div className="py-12 text-center text-slate-500">
-                            <div className="mb-2 text-6xl">😔</div>
-                            <div className="text-lg">You have no friends yet</div>
-                            <div className="text-sm text-slate-400">Search for users to add!</div>
+                {/* ============================================================ */}
+                {/* TABS */}
+                {/* ============================================================ */}
+                <div className="mt-15 mb-10 w-full flex flex-wrap items-center justify-center gap-3  pb-3">
+                    <OlympusButton onClick={() => changeTab("my-friends")}>
+                        <Users
+                            size={15}
+                            strokeWidth={2.2}
+                            className="text-yellow-700" />
+                        <span>Friends</span>
+                    </OlympusButton>
+                    <OlympusButton onClick={() => changeTab('requests')}>
+                        <UserRoundPlus
+                            size={15}
+                            strokeWidth={2.2}
+                            className="text-yellow-700" />
+                        <span>Pendind Requests</span>
+                        <span>({requestsList.length})</span>
+
+                    </OlympusButton>
+                    <OlympusButton onClick={() => changeTab('search')}>
+                        <Search
+                            size={15}
+                            strokeWidth={2.2}
+                            className="text-yellow-700" />
+                        <span>Search Users</span>
+
+                    </OlympusButton>
+                </div>
+
+                {/* ============================================================ */}
+                {/* TAB 1: MY FRIENDS */}
+                {/* ============================================================ */}
+                {activeTab === 'my-friends' && (
+                    <div>
+                        {friendsList.length === 0 ? (
+                            <div className="py-12 text-center text-slate-500">
+                                <div className="mb-2 text-6xl">😔</div>                     
+                                <div className="text-lg">You have no friends yet</div>
+                                <div className="text-sm text-slate-400">Search for users to add!</div>
+                            </div>
+                        ) : (
+                            // .map() in React is like a forEach to display lists
+                            friendsList.map(friend => (
+                                <div key={friend.id} className="mb-3 flex flex-col items-center gap-4 rounded-2xl border border-transparent bg-slate-50 p-4 transition hover:border-indigo-200 hover:bg-white hover:shadow-md md:flex-row">
+                                    <img
+                                        src={friend.avatar ? `${API_URL}${friend.avatar}` : `${API_URL}/avatars/default-avatar.svg`}
+                                        alt="Avatar"
+                                        className="h-16 w-16 rounded-full border-2 border-indigo-400 object-cover"
+                                    />
+                                    <div className="flex-1 text-center md:text-left">
+                                        <div className="font-semibold text-slate-800">
+                                            {friend.name}
+                                            <span className={`ml-2 inline-block rounded-full px-2 py-1 text-xs font-semibold ${friend.onlineStatus ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
+                                                {friend.onlineStatus ? '🟢 Online' : '⚫ Offline'}
+                                            </span>
+                                        </div>
+                                        <div className="text-sm text-slate-500">{friend.email}</div>
+                                    </div>
+                                    <button className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-600" onClick={() => removeFriend(friend.id)}>
+                                        🗑️ Remove
+                                    </button>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                )}
+
+                {/* ============================================================ */}
+                {/* TAB 2: PENDING REQUESTS */}
+                {/* ============================================================ */}
+                {activeTab === 'requests' && (
+                    <div>
+                        {requestsList.length === 0 ? (
+                            <div className="py-12 text-center text-slate-500">
+                                <div className="mb-2 text-6xl">📭</div>
+                                <div className="text-lg">You have no pending requests</div>
+                                <div className="text-sm text-slate-400">You will be notified when you receive one</div>
+                            </div>
+                        ) : (
+                            requestsList.map(req => (
+                                <div key={req.id} className="mb-3 flex flex-col items-center gap-4 rounded-2xl border border-transparent bg-slate-50 p-4 transition hover:border-indigo-200 hover:bg-white hover:shadow-md md:flex-row">
+                                    <img
+                                        src={req.requester.avatar ? `${API_URL}${req.requester.avatar}` : `${API_URL}/avatars/default-avatar.svg`}
+                                        alt="Avatar"
+                                        className="h-16 w-16 rounded-full border-2 border-indigo-400 object-cover"
+                                    />
+                                    <div className="flex-1 text-center md:text-left">
+                                        <div className="font-semibold text-slate-800">{req.requester.name}</div>
+                                        <div className="text-sm text-slate-500">{req.requester.email}</div>
+                                    </div>
+                                    <button className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-600" onClick={() => acceptRequest(req.requester.id)}>
+                                        ✅ Accept
+                                    </button>
+                                    <button className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-600" onClick={() => rejectRequest(req.requester.id)}>
+                                        ❌ Reject
+                                    </button>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                )}
+
+                {/* ============================================================ */}
+                {/* TAB 3: SEARCH USERS */}
+                {/* ============================================================ */}
+                {activeTab === 'search' && (
+                    <div>
+                        <div className="mb-6 flex flex-col gap-3 md:flex-row">
+                            <input
+                                type="text"
+                                placeholder="Search by name or email..."
+                                value={searchInput}
+                                onChange={e => setSearchInput(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && searchUsers()}
+                                className="min-w-0 flex-1 rounded-xl border-2 border-slate-200 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                            />
+                            <button className="rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-600" onClick={searchUsers}>🔍 Search</button>
                         </div>
-                    ) : (
-                        // .map() in React is like a forEach to display lists
-                        friendsList.map(friend => (
-                            <div key={friend.id} className="mb-3 flex flex-col items-center gap-4 rounded-2xl border border-transparent bg-slate-50 p-4 transition hover:border-indigo-200 hover:bg-white hover:shadow-md md:flex-row">
+
+                        {searchResults.length === 0 && searchInput.length >= 2 && (
+                            <div className="py-12 text-center text-slate-500">
+                                <div className="mb-2 text-6xl">🔍</div>
+                                <div className="text-lg">No users found</div>
+                                <div className="text-sm text-slate-400">Try a different search term</div>
+                            </div>
+                        )}
+
+                        {searchResults.map(result => (
+                            <div key={result.id} className="mb-3 flex flex-col items-center gap-4 rounded-2xl border border-transparent bg-slate-50 p-4 transition hover:border-indigo-200 hover:bg-white hover:shadow-md md:flex-row">
                                 <img
-                                    src={friend.avatar ? `${API_URL}${friend.avatar}` : `${API_URL}/avatars/default-avatar.svg`}
+                                    src={result.avatar ? `${API_URL}${result.avatar}` : `${API_URL}/avatars/default-avatar.svg`}
                                     alt="Avatar"
                                     className="h-16 w-16 rounded-full border-2 border-indigo-400 object-cover"
                                 />
                                 <div className="flex-1 text-center md:text-left">
                                     <div className="font-semibold text-slate-800">
-                                        {friend.name}
-                                        <span className={`ml-2 inline-block rounded-full px-2 py-1 text-xs font-semibold ${friend.onlineStatus ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
-                                            {friend.onlineStatus ? '🟢 Online' : '⚫ Offline'}
+                                        {result.name}
+                                        <span className={`ml-2 inline-block rounded-full px-2 py-1 text-xs font-semibold ${result.onlineStatus ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
+                                            {result.onlineStatus ? '🟢 Online' : '⚫ Offline'}
                                         </span>
                                     </div>
-                                    <div className="text-sm text-slate-500">{friend.email}</div>
+                                    <div className="text-sm text-slate-500">{result.email}</div>
                                 </div>
-                                <button className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-600" onClick={() => removeFriend(friend.id)}>
-                                    🗑️ Remove
+                                <button className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600" onClick={() => sendRequest(result.id)}>
+                                    ➕ Add friend
                                 </button>
                             </div>
-                        ))
-                    )}
-                </div>
-            )}
-
-            {/* ============================================================ */}
-            {/* TAB 2: PENDING REQUESTS */}
-            {/* ============================================================ */}
-            {activeTab === 'requests' && (
-                <div>
-                    {requestsList.length === 0 ? (
-                        <div className="py-12 text-center text-slate-500">
-                            <div className="mb-2 text-6xl">📭</div>
-                            <div className="text-lg">You have no pending requests</div>
-                            <div className="text-sm text-slate-400">You will be notified when you receive one</div>
-                        </div>
-                    ) : (
-                        requestsList.map(req => (
-                            <div key={req.id} className="mb-3 flex flex-col items-center gap-4 rounded-2xl border border-transparent bg-slate-50 p-4 transition hover:border-indigo-200 hover:bg-white hover:shadow-md md:flex-row">
-                                <img
-                                    src={req.requester.avatar ? `${API_URL}${req.requester.avatar}` : `${API_URL}/avatars/default-avatar.svg`}
-                                    alt="Avatar"
-                                    className="h-16 w-16 rounded-full border-2 border-indigo-400 object-cover"
-                                />
-                                <div className="flex-1 text-center md:text-left">
-                                    <div className="font-semibold text-slate-800">{req.requester.name}</div>
-                                    <div className="text-sm text-slate-500">{req.requester.email}</div>
-                                </div>
-                                <button className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-600" onClick={() => acceptRequest(req.requester.id)}>
-                                    ✅ Accept
-                                </button>
-                                <button className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-600" onClick={() => rejectRequest(req.requester.id)}>
-                                    ❌ Reject
-                                </button>
-                            </div>
-                        ))
-                    )}
-                </div>
-            )}
-
-            {/* ============================================================ */}
-            {/* TAB 3: SEARCH USERS */}
-            {/* ============================================================ */}
-            {activeTab === 'search' && (
-                <div>
-                    <div className="mb-6 flex flex-col gap-3 md:flex-row">
-                        <input
-                            type="text"
-                            placeholder="Search by name or email..."
-                            value={searchInput}
-                            onChange={e => setSearchInput(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && searchUsers()}
-                            className="min-w-0 flex-1 rounded-xl border-2 border-slate-200 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-                        />
-                        <button className="rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-600" onClick={searchUsers}>🔍 Search</button>
+                        ))}
                     </div>
-
-                    {searchResults.length === 0 && searchInput.length >= 2 && (
-                        <div className="py-12 text-center text-slate-500">
-                            <div className="mb-2 text-6xl">🔍</div>
-                            <div className="text-lg">No users found</div>
-                            <div className="text-sm text-slate-400">Try a different search term</div>
-                        </div>
-                    )}
-
-                    {searchResults.map(result => (
-                        <div key={result.id} className="mb-3 flex flex-col items-center gap-4 rounded-2xl border border-transparent bg-slate-50 p-4 transition hover:border-indigo-200 hover:bg-white hover:shadow-md md:flex-row">
-                            <img
-                                src={result.avatar ? `${API_URL}${result.avatar}` : `${API_URL}/avatars/default-avatar.svg`}
-                                alt="Avatar"
-                                className="h-16 w-16 rounded-full border-2 border-indigo-400 object-cover"
-                            />
-                            <div className="flex-1 text-center md:text-left">
-                                <div className="font-semibold text-slate-800">
-                                    {result.name}
-                                    <span className={`ml-2 inline-block rounded-full px-2 py-1 text-xs font-semibold ${result.onlineStatus ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
-                                        {result.onlineStatus ? '🟢 Online' : '⚫ Offline'}
-                                    </span>
-                                </div>
-                                <div className="text-sm text-slate-500">{result.email}</div>
-                            </div>
-                            <button className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600" onClick={() => sendRequest(result.id)}>
-                                ➕ Add friend
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            )}
+                )}
 
             </div>
         </div>

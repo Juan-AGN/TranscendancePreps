@@ -12,7 +12,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';  // for navigating between pages
 import { API_URL } from './config';
 import { Footer } from '../../components/layout/Footer';
-import { IntroButtons } from '../IntroPage';
+import { IntroButtons } from '../../components/Buttons/IntroButtons';
 
 // ============================================================================
 // MAIN COMPONENT: Login

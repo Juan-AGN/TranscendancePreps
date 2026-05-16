@@ -129,7 +129,7 @@ export function Header() {
 						</Link>
 					</SubmenuButton>
 
-					<Link to="/settings" onClick={closeMenu} className={linkClass}>
+					<Link to="/settingsUiPage" onClick={closeMenu} className={linkClass}>
 						{t('header.settings')}
 					</Link>
 

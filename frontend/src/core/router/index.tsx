@@ -29,6 +29,7 @@ import { SpectatorMode2d } from "../../ui2d/pages/game2D/NoPlayerLocal2d"
 
 import { PrivacyPolicyPage } from "../../shared/pages/PrivacyPolicyPage"
 import { TermsOfServicePage } from "../../shared/pages/TermsOfServicePage"
+import { SettingsUiPage } from "../../shared/pages/SettingsUiPage"
 
 // Paginas de Auth
 import Login from "../../shared/pages/auth/Login"
@@ -106,6 +107,10 @@ const routes: RouteObject[] = [
 			{
 				path: 'settings',
 				element: <Settings2DPage />,
+			},
+			{
+				path: 'settingsUiPage',
+				element: <SettingsUiPage />,
 			},
 			{
 				path: 'gamesettings',
