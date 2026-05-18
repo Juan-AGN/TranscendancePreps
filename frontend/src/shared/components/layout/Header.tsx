@@ -94,7 +94,7 @@ export function Header() {
 				: 'bg-transparent border-b border-transparent'}`}>
 			<div className="relative flex items-center justify-between px-6 py-1 md:px-10 md:py-5">
 				<Link to="/start" onClick={closeMenu}>
-					<img src="/images/logo242.png"
+					<img src="/images/InitTranscendenceIcon.png"
 						alt="logo"
 						className="h-16 w-auto object-contain md:h-20" />
 				</Link>
