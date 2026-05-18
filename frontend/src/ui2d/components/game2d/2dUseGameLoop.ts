@@ -28,7 +28,7 @@ import type { MutableRefObject, RefObject } from "react";
 import { GamePhysics } from "./2dGamePhysics";
 import { Game2dRenderer } from "./2dGameRender";
 import { GameInput } from "./2dGameInput";
-import { FRAME_DURATION } from "./2dGameConfig";
+import { FRAME_DURATION, SERVE_DELAY_START, SERVE_DELAY_SCORE } from "./2dGameConfig";
 import type { Paddle, Ball, Keys, Game2dState, Game2DMode } from "./2dGameState";
 
 //definimos el contrato que debe tener el hook..
@@ -61,6 +61,7 @@ export function use2dGameLoop({
 																//limpiar canvas, dibujar palasm bola, y texto// .current puede ser null al principio
 		const inputHandlerRef = useRef<GameInput | null>(null);
 		const gameStateRef = useRef<Game2dState>(gameState);
+		const serveCountdownRef = useRef<number>(0); // frames de espera antes de mover la bola (saque)
 
 		//hook q ejecuta el codigo cuando el componente ya esta montado en el DOM/cuando cambien dependencias o se desmonta.// end con []->una vez
 		useEffect(() => {
@@ -135,18 +136,23 @@ export function use2dGameLoop({
 					GamePhysics.updatePaddles(player1Ref.current, player2Ref.current, keysRef.current,
 						ballRef.current, gameMode);
 					
-					//lomismo con la bola
-					GamePhysics.updateBall(ballRef.current, player1Ref.current, player2Ref.current, onScore);
+					//lomismo con la bola: solo si el countdown de saque ha terminado
+					if (serveCountdownRef.current > 0) {
+						serveCountdownRef.current--;
+					} else {
+						GamePhysics.updateBall(ballRef.current, player1Ref.current, player2Ref.current,
+							(player) => { serveCountdownRef.current = SERVE_DELAY_SCORE; onScore(player); });
+					}
 				}
 				
 				// siempre renderizamos el frame act.. aunq el juego este pause o haya winner
 				// porque necesitamos dibujar el estado visual (marcador, winner, pausa, etc.)
 				if (rendererRef.current) {
 					// render(...) -> dibuja TODO en el canvas,recibe: 
-					// - player1-player2-ball- currentGameState(pra saber si mostrar winner o pausa)
+					// - player1-player2-ball- currentGameState(pra saber si mostrar winner o pausa)r
 					// - gameMode (puede afectar UI)
 					rendererRef.current.render(player1Ref.current, player2Ref.current,
-						ballRef.current, currentGameState, gameMode);
+						ballRef.current, currentGameState);
 				}
 			};
 			
@@ -185,8 +191,14 @@ export function use2dGameLoop({
 		// Por eso usamos gameStateRef: // sincronizamos React → Motor cada vez que cambia el estado.
 		// [gameState] -> dependencia: si el estado cambia, React ejecuta este bloqu		
 		useEffect(() => {
+			const wasPlaying = gameStateRef.current.isPlaying;
 			gameStateRef.current = gameState;//actualiz el ref interno con el estado + reciente
-			
+
+			// al arrancar la partida (SPACE por primera vez) → countdown de saque
+			if (!wasPlaying && gameState.isPlaying) {
+				serveCountdownRef.current = SERVE_DELAY_START;
+			}
+
 			// si ya existe el manejador de input (GameInput) le pasamos el nuevo estado del juego
 			// esto permite que el input se adapte a cambios como:- pausa- start- winner
 			if (inputHandlerRef.current) {

@@ -1,9 +1,9 @@
-import type React from 'react'
-const arcadeBg = '/images/arcadebg5.png'
+import type React from 'react';
+const arcadeBg = '/images/arcadebg5.png';
 
 type BgProps = {
 	children: React.ReactNode
-	backButton?: React.ReactNode
+	onBack?: () => void
 	showGameHud?: boolean
 	player1Name?: string
 	player2Name?: string
@@ -13,7 +13,7 @@ type BgProps = {
 
 export function ArcadeBgLayout({
 	children,
-	backButton,
+	onBack,
 	showGameHud = false,
 	player1Name = 'PLAYER 1',
 	player2Name = 'PLAYER 2',
@@ -26,32 +26,38 @@ export function ArcadeBgLayout({
 				<img
 					src={arcadeBg}
 					alt="Arcade"
-					className="w-full h-full object-fill block"
+					className="w-full h-full object-fill block pointer-events-none"
 				/>
 				{/* Overlay posicionado relativo a la imagen real, no al contenedor */}
 				<div className="absolute left-[8%] top-[21%] w-[85%] h-[60%] flex flex-col items-center justify-center overflow-auto">
 					{children}
 				</div>
 				{/* Botón back: siempre top-right relativo a la imagen */}
-				{backButton && (
-					<div className="absolute top-[5%] right-[6%] z-10 font-['Press_Start_2P'] 
-									hover:bg-black hover:text-white transition-colors text-yellow-400"
+				{onBack && (
+					<button
+						onClick={onBack}
+						className="absolute top-[5%] right-[6%] z-[80] font-['Press_Start_2P'] text-yellow-400
+								cursor-pointer hover:bg-black hover:text-white transition-colors px-2 py-1"
 						style={{ fontSize: '2.5vmin' }}>
-						{backButton}
-					</div>
+						← BACK
+					</button>
 				)}
 				{showGameHud && (
 					<>
-						<div className="absolute bottom-[8%] left-[25%] z-10 font-['Press_Start_2P'] text-yellow-400">
-							<span>{player1Name}</span>
+						<div className="absolute bottom-[8%] left-[25%] z-10 font-['Press_Start_2P'] text-yellow-400 max-w-[20%] overflow-hidden"
+							style={{ fontSize: '2vmin' }}>
+							<span className="block whitespace-nowrap truncate">{player1Name}</span>
 						</div>
-						<div className="absolute bottom-[8%] right-[25%] font-['Press_Start_2P'] text-yellow-400">
-							<span>{player2Name}</span>
+						<div className="absolute bottom-[8%] right-[25%] font-['Press_Start_2P'] text-yellow-400 max-w-[20%] overflow-hidden"
+							style={{ fontSize: '2vmin' }}>
+							<span className="block whitespace-nowrap truncate">{player2Name}</span>
 						</div>
-						<div className="absolute bottom-[7.9%] left-[54%] font-['Press_Start_2P'] text-yellow-400">
+						<div className="absolute bottom-[7.9%] right-[53%] font-['Press_Start_2P'] text-yellow-400"
+							style={{ fontSize: '2vmin' }}>
 							<span>{player1Score}</span>
 						</div>
-						<div className="absolute bottom-[7.9%] right-[53%] font-['Press_Start_2P'] text-yellow-400">
+						<div className="absolute bottom-[7.9%] left-[54%] font-['Press_Start_2P'] text-yellow-400"
+							style={{ fontSize: '2vmin' }}>
 							<span>{player2Score}</span>
 						</div>
 					</>

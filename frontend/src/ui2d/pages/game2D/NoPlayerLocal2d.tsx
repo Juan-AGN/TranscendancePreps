@@ -40,12 +40,7 @@ export function SpectatorMode2d() {
 		player2Name="PLAYER 2"
 		player1Score={scores.player1}
 		player2Score={scores.player2}
-		backButton={
-				<button
-					onClick={() => navigate('/game')}>
-					← BACK
-				</button>
-			}>	
+		onBack={() => navigate('/game')}>	
 					<Game2DCanvas
 						gameMode="spectator"
 						maxScore={5}

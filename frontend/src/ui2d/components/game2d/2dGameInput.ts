@@ -91,16 +91,20 @@ export class GameInput {
 	handleKeyUp = (e: KeyboardEvent): void => {
 
 		//cuando soltamos W => dejamos de subir
-		if (e.key === 'w' || e.key === 'W') this.keys.w = false;
+		if (e.key === 'w' || e.key === 'W')
+			this.keys.w = false;
 
 		//cuando soltamos S => dejamos de bajar
-		if (e.key === 's' || e.key === 'S') this.keys.s = false;
+		if (e.key === 's' || e.key === 'S')
+			this.keys.s = false;
 
 		//cuando soltamos flecha arriba
-		if (e.key === 'ArrowUp') this.keys.ArrowUp = false;
+		if (e.key === 'ArrowUp')
+			this.keys.ArrowUp = false;
 
 		//cuando soltamos flecha abajo
-		if (e.key === 'ArrowDown') this.keys.ArrowDown = false;
+		if (e.key === 'ArrowDown')
+			this.keys.ArrowDown = false;
 	};
 
 	// UPDATE STATE

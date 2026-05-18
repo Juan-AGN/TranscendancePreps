@@ -17,6 +17,8 @@ export const BALL_SPEED_INCREMENT = 0.5		//Inc velocidad de la pelota tras cada 
 
 //game reglas
 export const MAX_SCORE = 5					//puntuacino
+export const SERVE_DELAY_START = 60			//frames de espera al iniciar partida (90 = ~1.5 seg)
+export const SERVE_DELAY_SCORE = 40			//frames de espera tras marcar punto  (30 = ~0.5 seg)
 
 //render loop config
 export const FPS = 60						//frames x seg

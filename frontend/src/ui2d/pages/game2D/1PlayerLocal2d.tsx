@@ -24,12 +24,7 @@ export function Player1vsLocal2D() {
 			player2Name="IA"
 			player1Score={scores.player1}
 			player2Score={scores.player2}
-			backButton={
-				<button
-					onClick={() => navigate('/game')}>
-					← BACK
-				</button>
-			}
+			onBack={() => navigate('/game')}
 		>	
 			<Game2DCanvas
 				gameMode="1vIA"

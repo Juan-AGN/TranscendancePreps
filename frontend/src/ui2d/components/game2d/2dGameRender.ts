@@ -53,7 +53,7 @@ export class Game2dRenderer {
 
 
 	//renderizamos el juego //metodo que pinta un frame(render(fotograma))
-	render (player1: Paddle, player2: Paddle, ball: Ball, gameState: Game2dState, gameMode: Game2DMode): void {
+	render (player1: Paddle, player2: Paddle, ball: Ball, gameState: Game2dState): void {
 
 		this.drawRec(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, COLORS.background);
 		//para borrar el frame anterior y evitar rstros
@@ -68,20 +68,6 @@ export class Game2dRenderer {
 		// Dibujar controles en la parte inferior
 		this.ctx.font = '14px monospace';
 		
-		// Lado izquierdo (Player 1 o IA)
-		if (gameMode === 'spectator') {
-			this.drawText('IA', 60, CANVAS_HEIGHT - 20, COLORS.text, 14, 'left');
-		} else {
-			this.drawText('W/S', 60, CANVAS_HEIGHT + 2, COLORS.text, 14, 'left');
-		}
-		
-		// Lado derecho (Player 2 o IA)
-		if (gameMode === '1v1') {
-			this.drawText('↑/↓', CANVAS_WIDTH - 0, CANVAS_HEIGHT - 20, COLORS.text, 14, 'right');
-		} else {
-			this.drawText('IA', CANVAS_WIDTH - 60, CANVAS_HEIGHT - 20, COLORS.text, 14, 'right');
-		}
-
 		// Mensajes de estado
 		if (!gameState.isPlaying && !gameState.winner) {
 			this.drawText(

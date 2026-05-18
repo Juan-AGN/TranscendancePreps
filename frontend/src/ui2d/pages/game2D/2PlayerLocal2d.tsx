@@ -42,13 +42,7 @@ export function Player2vsLocal2D() {
 		player2Name="PLAYER 2"
 		player1Score={scores.player1}
 		player2Score={scores.player2}
-		backButton={
-				<button
-					onClick={() => navigate('/game')}
-				>
-					← BACK
-				</button>
-			}>	
+		onBack={() => navigate('/game')}>	
 					<Game2DCanvas
 						gameMode="1v1"
 						maxScore={5}
