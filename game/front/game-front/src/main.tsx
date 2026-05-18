@@ -7,7 +7,7 @@ import './i18n'
 import { NotificationProvider } from './notifications'
 import { LobbyProvider } from './lobby';
 import { WsProvider } from './wshandler'
-import { Lobbies, Nolobbystate} from './game_endpoints/lobbies.tsx'
+import { Lobbies, Handler } from './game_endpoints/lobbies.tsx'
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
@@ -15,7 +15,7 @@ createRoot(document.getElementById('root')!).render(
 		<NotificationProvider>
 			<LobbyProvider>
 				<WsProvider>
-					<Nolobbystate/>
+					<Handler/>
 				</WsProvider>
 			</LobbyProvider>
 		</NotificationProvider>

@@ -262,7 +262,7 @@ class LobbyManager {
                 for (const ws of wsarr)
                 {
                     if (ws && ws.readyState === WebSocket.OPEN) 
-                        ws.send(JSON.stringify( {type: WsAction.LOBBYUPDATE, lobby: id, user: player, action: action} ));
+                        ws.send(JSON.stringify( {type: WsAction.LOBBYUPDATE, lobby: id, user: player, action: action, lobbystate: this.get(id)} ));
                 } 
             }
         }
@@ -275,7 +275,7 @@ class LobbyManager {
                 for (const ws of wsarr)
                 {
                     if (ws && ws.readyState === WebSocket.OPEN) 
-                        ws.send(JSON.stringify( {type: WsAction.LOBBYUPDATE, lobby: id, user: player, action: action} ));
+                        ws.send(JSON.stringify( {type: WsAction.LOBBYUPDATE, lobby: id, user: player, action: action, lobbystate: this.get(id)} ));
                 }
             }
         }
@@ -326,7 +326,7 @@ class LobbyManager {
                 for (const ws of wsarr)
                 {
                     if (ws && ws.readyState === WebSocket.OPEN) 
-                        ws.send(JSON.stringify( { type: WsAction.GAMERESULT, results: result }));
+                        ws.send(JSON.stringify( { type: WsAction.GAMERESULT, results: result, lobbystate: this.get(id)}));
                 } 
             }
         }

@@ -3,7 +3,9 @@ import type { GameSession, Lobby } from "./types/types";
 import { NotificationProvider, useNotification } from './notifications';
 import { LobbyProvider, useLobby } from './lobby';
 import { LobbyAction,  } from './types/types';
-import { Singledivgame } from './commoncomp/commoncomp';
+import { Doubledivvert, Singledivgame, Doubledivgame } from './commoncomp/commoncomp';
+import { Lobbies } from "./game_endpoints/lobbies";
+import { div } from "framer-motion/client";
 
 let address = window.location.host;
 
@@ -75,7 +77,7 @@ export const WsProvider = ({
 
     async function lobbyupdate(msg: any) {
         const me = await names.getme();
-
+            
         if (msg.action == "LEAVE" || msg.action == "LEAVESPECTATOR")
         {
             if (msg.user === me)
@@ -85,11 +87,16 @@ export const WsProvider = ({
             }
         }
 
+        addLobby(msg.lobbystate);
+
+        if (msg.user === me)
+            return ;
+
         if (msg.action === LobbyAction.HOST)
             addNotification(`User ${await names.checknameupdate(msg.user)} became the new lobby host.`);
-        else if (msg.action === LobbyAction.JOIN || LobbyAction.SPECTATOR)
+        else if (msg.action === LobbyAction.JOIN)
             addNotification(`User ${await names.checknameupdate(msg.user)} joined the lobby.`);
-        else if (msg.action === LobbyAction.LEAVE || LobbyAction.LEAVESPECTATOR)
+        else if (msg.action === LobbyAction.LEAVE)
             addNotification(`User ${await names.checknameupdate(msg.user)} left the lobby.`);
         else if (msg.action === LobbyAction.STARTGAME)
             addNotification(`Game started.`);
@@ -143,9 +150,8 @@ export const WsProvider = ({
 
     if (!token)
         return (<WsContext.Provider value={{ }}><Singledivgame Component={nologgederror}></Singledivgame></WsContext.Provider>);
-    return (<WsContext.Provider value={{ }}>
-            {children}
-        </WsContext.Provider>);
+    else
+        return (<WsContext.Provider value={{ }}>{children}</WsContext.Provider>);
 };
 
 export const useWs = () => {

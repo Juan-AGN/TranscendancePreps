@@ -76,10 +76,10 @@ app.post("/lobbies/checkout", authmiddleware, (req: Request, res: Response) => {
 	const { lobbyId } = req.body;
 	const hostId = req.user!.id;
 
-	if (lobbyId != "")
+	if (lobbyId && lobbyId != "")
 	{
 		if (!lobbyManager.has(lobbyId))
-			return (res.send({ message: "Not in lobby." }));
+			return (res.send({ message: "Not a lobby." }));
 		return (res.send({lobby: lobbyManager.get(lobbyId), message: "true"}));
 	}
 	else
