@@ -112,9 +112,9 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 			)}
 
 			{selectedSection === 'tech' && ( // sección Tech: solo visible si selectedSection === 'tech'
-				<section className="h-screen flex items-center justify-center py-16 px-5 bg-center bg-no-repeat bg-[length:100%_100%]"
+				<section className="min-h-screen flex items-center justify-center py-16 px-5 bg-center bg-no-repeat bg-[length:100%_100%]"
 					style={{ backgroundImage: "url('/images/bgTech.png')" }}> {/* fondo tech */}
-					<div className="relative w-[min(70vw,70rem)] h-[60vh] rounded-3xl overflow-hidden
+					<div className="relative w-[min(80vw,70rem)] max-h-[80vh] rounded-3xl overflow-y-auto premium-scrollbar
 										shadow-[1px_1px_3px_1px_#eab308,-1px_-1px_20px_1px_#eab100]/40 bg-black/60 px-8 py-12 md:px-12 md:py-14">
 						<div className="w-full h-full flex flex-col justify-center">
 							<h2 className="text-yellow-400 text-3xl md:text-3xl uppercase tracking-[0.40rem] mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
@@ -138,13 +138,13 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 										auth system, game modes, and a visual identity inspired by futuristic arcade culture.
 									</p>
 								</div>
-								<div className="grid grid-cols-2"> {/* grid 2 columnas para los logos de tecnologías */}
+								<div className="grid grid-cols-2 "> {/* grid 2 columnas para los logos de tecnologías */}
 									{LOGOS.map((tech) => ( // itera sobre el array LOGOS
 										<div
 											key={tech.name}
 											className="group p-2 flex flex-col items-center text-center hover:border-yellow-300/40
 														hover:shadow-[0px_0px_25px_0px_rgba(250,204,21,0.12)] transition-all duration-500">
-											<div className="w-40 h-25  flex items-center justify-center">
+											<div className="w-[clamp(8.5rem,10vw,10rem)] h-[clamp(3rem,7vw,6.25rem)] flex items-center justify-center">
 												<img src={tech.image} alt={tech.alt}
 													className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" />
 											</div>
