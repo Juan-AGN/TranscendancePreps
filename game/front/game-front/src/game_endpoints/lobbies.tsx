@@ -68,6 +68,45 @@ async function joinlobby(which: string, addNotification: (msg: string) => void, 
     }
 }
 
+async function leavelobby(which: string, addNotification: (msg: string) => void, addLobby: (id: Lobby | null) => void) {
+    const token = localStorage.getItem("token");
+
+    if (!token)
+    {
+        addNotification("Please, log again.");
+        return (null);
+    }
+    const tlobby = await isinLobby();
+    if (tlobby == null)
+    {
+        addNotification("Lobby left.");
+        addLobby(null);
+        return ;
+    }
+    try {
+	    const res = await fetch(`${apiBase}/lobbies/leave`, {
+            method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				authorization: `Bearer ${token}`,
+			},
+            body: JSON.stringify({"lobbyId": `${which}`}),
+        });
+        if (!res.ok)
+        {
+            addNotification("Unable to leave lobby.");
+            return ;
+        }
+        addLobby(null);
+	    return ;
+    }
+    catch
+    {
+        addNotification("Unable to leave lobby.");
+        return ;
+    }
+}
+
 async function changetopectator(addNotification: (msg: string) => void, tlobby: Lobby | null) {
     const token = localStorage.getItem("token");
 
@@ -289,7 +328,7 @@ export function SingLobby() {
 }
 
 export function ControlBar() {
-    const { names, lobby } = useLobby();
+    const { names, lobby, addLobby } = useLobby();
     const [ host, setHost ] = useState(`User ${lobby!.hostId}`);
     const [ pos, setPos ] = useState(-1);
     const { addNotification } = useNotification();
@@ -312,6 +351,10 @@ export function ControlBar() {
             changetoplay(addNotification, lobby);
         else
             addNotification("Unable to change to player.");
+    }
+
+    function leavelob() {
+        leavelobby(lobby!.id, addNotification, addLobby);
     }
 
     async function checkplaystate() {
@@ -339,6 +382,7 @@ export function ControlBar() {
         {(pos === -1 || pos === 2) && 
             <div className="h-15 w-[80%] bg-radial from-cyan-100 to-blue-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-cyan-100 hover:to-cyan-200 transition delay-150 duration-300 ease-in-out my-1" onClick={toplaychange}>TO PLAYER</div>
         }
+        <div className="h-15 w-[80%] bg-radial from-red-100 to-red-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-red-100 hover:to-red-200 transition delay-150 duration-300 ease-in-out my-1" onClick={leavelob}>LEAVE</div>
     </div>);
 }
 
