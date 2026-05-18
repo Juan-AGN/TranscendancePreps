@@ -23,7 +23,7 @@ export class Arcade extends InteractiveObject {
 
 	protected async load(): Promise<void> {
 		try {
-			const result = await SceneLoader.ImportMeshAsync('', '/arcade.glb', '', this.scene);
+			const result = await SceneLoader.ImportMeshAsync('', '/models/arcade.glb', '', this.scene);
 			if (result.meshes.length === 0) { console.warn('Arcade: no se cargaron meshes'); return; }
 			this.rootMesh = result.meshes[0] as Mesh;
 			this.rootMesh.position = this.position.clone();

@@ -22,10 +22,10 @@ interface HubButtonProps {
 
 export function HubButton({
 	onClick,
-	imgSrc = '/WorldPong3D.png',    // imagen por defecto si no se pasa otra
+	imgSrc = '/images/WorldPong3D.png',    // imagen por defecto si no se pasa otra
 	imgAlt = 'Enter 3D',            // alt por defecto
-	ringSrc = '/ring.png',          // anillo (puedes cambiarlo o quitarlo)
-	videoSrc = '/videoPong.mp4',    // video hover (cuidado con peso)
+	ringSrc = '/images/ring.png',          // anillo (puedes cambiarlo o quitarlo)
+	videoSrc = '/videos/videoPong.mp4',    // video hover (cuidado con peso)
 }: HubButtonProps) {
 
 	// ===== ESTADO =====

@@ -193,13 +193,13 @@ function Login() {
 
     return (
         <div className="relative flex h-dvh w-dvw items-center justify-center overflow-hidden overflow-y-auto bg-cover bg-center bg-no-repeat p-[clamp(0.5rem,2vw,2rem)]"
-            style={{ backgroundImage: "url('./bgLogin.png')" }}>
+            style={{ backgroundImage: "url('./images/bgLogin.png')" }}>
 
             <div className="relative w-[min(90vw,48rem)]">
 
                 <div className="absolute left-1/2 top-0 z-20 h-[clamp(90px,18vh,180px)] w-[clamp(90px,18vh,180px)] -translate-x-1/2 -translate-y-1/2
                                 bg-contain bg-center bg-no-repeat drop-shadow-[0_0_22px_rgba(56,189,248,0.45)]"
-                    style={{ backgroundImage: "url('/LoginBiometric.png')" }}>
+                    style={{ backgroundImage: "url('/images/LoginBiometric.png')" }}>
                 </div>
 
                 <div className="w-[min(90vw,48rem)] max-h-[calc(100dvh-6rem)] overflow-y-auto bg-white/[0.15] backdrop-blur-[5px] border border-yellow-500/50 pt-[clamp(1.5rem,10vh,6rem)]

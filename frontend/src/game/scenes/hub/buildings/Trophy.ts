@@ -20,7 +20,7 @@ export class Trophy extends InteractiveObject {
 
 	protected async load(): Promise<void> {
 		try {
-			const result = await SceneLoader.ImportMeshAsync('', '/trphy.glb', '', this.scene);
+			const result = await SceneLoader.ImportMeshAsync('', '/models/trphy.glb', '', this.scene);
 			if (result.meshes.length === 0) {
 				console.warn('Trophy: no se cargaron meshes');
 				return;

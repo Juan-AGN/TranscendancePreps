@@ -94,7 +94,7 @@ export function Header() {
 				: 'bg-transparent border-b border-transparent'}`}>
 			<div className="relative flex items-center justify-between px-6 py-1 md:px-10 md:py-5">
 				<Link to="/start" onClick={closeMenu}>
-					<img src="/logo242.png"
+					<img src="/images/logo242.png"
 						alt="logo"
 						className="h-16 w-auto object-contain md:h-20" />
 				</Link>
@@ -172,7 +172,7 @@ export function Header() {
 							aria-label="Cambiar idioma"
 							aria-expanded={langMenuOpen}>
 							<img
-								src="/WorldLogo.png"
+								src="/images/WorldLogo.png"
 								alt="Selector de idioma"
 								className="h-35 w-35 object-contain"
 							/>
@@ -184,9 +184,9 @@ export function Header() {
 								: 'pointer-events-none opacity-0'
 								}`}>
 							<div className="flex flex-row items-center">
-								<FlagLanguageButton code="en" src="/UkFlag.png" alt="English" />
-								<FlagLanguageButton code="es" src="/spainFlag1.png" alt="Spanish" />
-								<FlagLanguageButton code="fr" src="/frenchFlag.png" alt="French" />
+								<FlagLanguageButton code="en" src="/images/UkFlag.png" alt="English" />
+								<FlagLanguageButton code="es" src="/images/spainFlag1.png" alt="Spanish" />
+								<FlagLanguageButton code="fr" src="/images/frenchFlag.png" alt="French" />
 							</div>
 						</div>
 					</div>

@@ -12,8 +12,8 @@ export function getAssetPath(path: string): string {
   // return path.startsWith('/') ? path : `/${path}`
   //   - Logica ternaria (if/else simplificado):
   //   - Pregunta: ¿El texto empieza con una barra '/'?
-  //   - Si es VERDAD (?): Devuelve el path tal cual (ej: '/model.glb').
-  //   - Si es FALSO (:): Le pega una barra al principio (ej: 'model.glb' -> '/model.glb').
+  //   - Si es VERDAD (?): Devuelve el path tal cual (ej: '/models/model.glb').
+  //models/   - Si es FALSO (:): Le pega una barra al principio (ej: 'model.glb' -> '/models/model.glb').
   //   - IMPORTANCIA: Esto evita errores 404. El navegador necesita la barra inicial 
   //     para saber que debe buscar el archivo en la raiz del servidor.
   return path.startsWith('/') ? path : `/${path}`
@@ -52,7 +52,7 @@ export const MODELS = {
 //   - 'as const' convierte este objeto en "Read-Only" (Solo lectura).
 //   - Le dice a TypeScript: "Los valores de este objeto NUNCA cambiaran".
 //   - En vez de tratar MODELS.PING_PONG como un "string" generico, 
-//     TypeScript sabe que es exactamente el texto literal "/ping_pong.glb".
+//     TypeScript sabe que es exactamente el texto literal "/models/ping_pong.glb".
 //     Ayuda a evitar errores de escritura (typos) en el autocompletado.
 
 

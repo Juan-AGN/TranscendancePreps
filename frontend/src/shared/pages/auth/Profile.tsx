@@ -311,7 +311,7 @@ function Profile() {
         return (
             <div
                 className="flex min-h-screen items-center justify-center bg-cover bg-center bg-no-repeat text-xl text-yellow-900"
-                style={{ backgroundImage: "url('/bgLogin.png')" }}
+                style={{ backgroundImage: "url('/images/bgLogin.png')" }}
             >
                 Loading profile...
             </div>
@@ -321,7 +321,7 @@ function Profile() {
     return (
         <div
             className="min-h-screen bg-cover bg-center bg-no-repeat px-4 pb-6 pt-24 md:px-6 md:pb-8 md:pt-32"
-            style={{ backgroundImage: "url('/bg6.png')" }}
+            style={{ backgroundImage: "url('/images/bg6.png')" }}
         >
             {/* ================================================================ */}
             {/* FLOATING NOTIFICATION */}
@@ -342,11 +342,11 @@ function Profile() {
                     <div className="relative inline-block">
                         <img
                             className="h-36 w-36 rounded-full border-4 border-cyan-200/60 object-cover shadow-[0_0_30px_rgba(56,189,248,0.25)]"
-                            src={user.avatar ? `${API_URL}${user.avatar}` : '/NoImage.png'}
+                            src={user.avatar ? `${API_URL}${user.avatar}` : '/images/NoImage.png'}
                             onError={(e) => {
                                 const img = e.target as HTMLImageElement;
                                 img.onerror = null;
-                                img.src = '/NoImage.png';
+                                img.src = '/images/NoImage.png';
                             }}
                             alt="Avatar"
                         />
@@ -479,11 +479,11 @@ function Profile() {
                                     {friends.map(friend => (
                                         <div key={friend.id} className="rounded-xl border border-cyan-300/30 bg-white/60 p-4 text-center backdrop-blur-sm transition hover:shadow-md">
                                             <img
-                                                src={friend.avatar ? `${API_URL}${friend.avatar}` : '/NoImage.png'}
+                                                src={friend.avatar ? `${API_URL}${friend.avatar}` : '/images/NoImage.png'}
                                                 onError={(e) => {
                                                     const img = e.target as HTMLImageElement;
                                                     img.onerror = null;
-                                                    img.src = '/NoImage.png';
+                                                    img.src = '/images/NoImage.png';
                                                 }}
                                                 alt={friend.name}
                                                 className="mx-auto mb-3 block h-20 w-20 rounded-full border-2 border-cyan-400/70 object-cover"

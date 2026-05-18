@@ -20,7 +20,7 @@ export class PingPongTable extends InteractiveObject {
 
 	protected async load(): Promise<void> {
 		try {
-			const result = await SceneLoader.ImportMeshAsync('', '/table1.glb', '', this.scene);
+			const result = await SceneLoader.ImportMeshAsync('', '/models/table1.glb', '', this.scene);
 			if (result.meshes.length === 0) {
 				console.warn('PingPongTable: no se cargaron meshes');
 				return;

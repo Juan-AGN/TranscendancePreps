@@ -91,7 +91,7 @@ export function GenreCard({
 								transition-transform duration-150 ease-out"
 					style={{ transform: `rotateX(${cardRotateX}deg) rotateY(${cardRotateY}deg)` }}>
 
-					<img src="/pedestal2.png"
+					<img src="/images/pedestal2.png"
 						alt=""
 						className="absolute left-1/2 bottom-[clamp(-4.5rem,-5vw,-2rem)] z-20 w-[90%]
 									pointer-events-none select-none transition-all duration-300"

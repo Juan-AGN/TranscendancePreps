@@ -20,14 +20,14 @@ export function SplashScreen() {
 		<div
 			className="fixed inset-0 bg-black flex flex-col items-center justify-start overflow-hidden
 					bg-center bg-no-repeat bg-cover"
-			style={{ backgroundImage: "url('/bg7.png')" }}>
+			style={{ backgroundImage: "url('/images/bg7.png')" }}>
 			<div className="w-full max-w-[1400px] min-h-full flex flex-col items-center justify-between px-4 pt-[clamp(2rem,8vh,6.25rem)] pb-[clamp(1rem,4vh,2.5rem)]">
 				<div className="flex flex-col items-center gap-[clamp(0.15rem,0.6vh,0.4rem)] w-full">
-					<img src="/logoT.png" alt="Logo"
+					<img src="/images/logoT.png" alt="Logo"
 						className={`w-[clamp(110px,22vw,420px)] max-h-[22vh] object-contain transition-all duration-3000 ease-out
 							${showLogo ? "opacity-100 translate-y-0" : "opacity-0 translate-y-60"}
 							animate-logo-pulse`} />
-					<img src="/titleT2.png"
+					<img src="/images/titleT2.png"
 						alt="Title"
 						className={`w-[clamp(280px,88vw,1200px)] max-h-[34vh] mt-[clamp(0.5rem,2vh,1.25rem)] object-contain transition-[opacity] duration-2500 ease-out
 						${showTitle ? "opacity-100" : "opacity-0"}`}

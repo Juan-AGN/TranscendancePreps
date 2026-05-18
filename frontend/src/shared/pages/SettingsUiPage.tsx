@@ -19,7 +19,7 @@ export function SettingsUiPage() {
 	return (
 		<div
 			className="min-h-screen bg-cover bg-center bg-no-repeat px-4 pb-6 pt-32 md:px-6"
-			style={{ backgroundImage: "url('/bg6.png')" }}>
+			style={{ backgroundImage: "url('/images/bg6.png')" }}>
 			<div className="mx-auto min-h-[65vh] w-full max-w-6xl overflow-hidden rounded-3xl border border-yellow-500/45 bg-white/[0.07]
 							backdrop-blur-[50px] shadow-[0_20px_80px_rgba(90,60,20,0.25),inset_0_1px_0_rgba(255,255,255,0.45)]">
 				<div className="mt-8 text-center text-6xl font-medium text-[#a67c42] font-['Cormorant_Garamond'] uppercase tracking-[0.32em] md:text-6xl">
@@ -91,19 +91,19 @@ export function SettingsUiPage() {
 									active={language === 'english'}
 									onClick={() => setLanguage('english')}
 									label="English"
-									src="/UkFlag.png"
+									src="/images/UkFlag.png"
 									alt="English"/>
 								<FlagOptionButton
 									active={language === 'spanish'}
 									onClick={() => setLanguage('spanish')}
 									label="Spanish"
-									src="/spainFlag1.png"
+									src="/images/spainFlag1.png"
 									alt="Spanish"/>
 								<FlagOptionButton
 									active={language === 'french'}
 									onClick={() => setLanguage('french')}
 									label="French"
-									src="/frenchFlag.png"
+									src="/images/frenchFlag.png"
 									alt="French"/>
 							</div>
 						</SettingRow>

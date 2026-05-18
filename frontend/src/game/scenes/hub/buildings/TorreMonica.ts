@@ -20,7 +20,7 @@ export class TorreMonica extends InteractiveObject {
 
 	protected async load(): Promise<void> {
 		try {
-			const result = await SceneLoader.ImportMeshAsync('', '/TorreMonica.glb', '', this.scene);
+			const result = await SceneLoader.ImportMeshAsync('', '/models/TorreMonica.glb', '', this.scene);
 			if (result.meshes.length === 0) {
 				console.warn('TorreMonica: no se cargaron meshes');
 				return;

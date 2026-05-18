@@ -27,7 +27,7 @@ export class LaFarola extends InteractiveObject {
 
 	protected async load(): Promise<void> {
 		try {
-			const result = await SceneLoader.ImportMeshAsync('', '/lafarola.glb', '', this.scene);
+			const result = await SceneLoader.ImportMeshAsync('', '/models/lafarola.glb', '', this.scene);
 			if (result.meshes.length === 0) {
 				console.warn('LaFarola: no se cargaron meshes');
 				return;

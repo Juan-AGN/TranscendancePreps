@@ -3,7 +3,7 @@
 
 // CARGA DEL MODELO GLB 
 // ruta del modelo (yo lo tengo en /public)
-export const STICKMAN_GLB_PATH = '/stickman.glb'; // donde esta el modelo del muñeco
+export const STICKMAN_GLB_PATH = '/models/stickman.glb'; // donde esta el modelo del muñeco
 export const STICKMAN_SCALE = 3; // multiplico tamaño pa que se vea bien en escena
 
 // filtros pa aplicar cosas solo a ciertos meshes del GLB

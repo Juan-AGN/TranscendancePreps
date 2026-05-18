@@ -52,7 +52,7 @@ export function StartGate({
 		<div className="relative h-screen w-full overflow-hidden">
 			<motion.div
 				className="absolute inset-0 bg-center bg-cover"
-				style={{ backgroundImage: "url('/bg6.png')", transformOrigin: '50% 34%', }}
+				style={{ backgroundImage: "url('/images/bg6.png')", transformOrigin: '50% 34%', }}
 				initial={{ scale: 1, opacity: 1 }}
 				animate={isBgZooming ? { scale: PLANET_ZOOM_SCALE, opacity: 0.88 } : { scale: 1, opacity: 1 }}
 				transition={{ duration: BG_ZOOM_DURATION_MS / 1000, ease: [0.3, 0.05, 0.18, 1] }}>
@@ -68,27 +68,27 @@ export function StartGate({
 									translate-y-[clamp(1rem,6vh,4.5rem)]">
 						<GenreCard
 							title="tech"
-							image="/techCard.png"
+							image="/images/techCard.png"
 							label={t('startGate.tech')}
 							onClick={onGoTech}
 							delay={500} initialTilt={8}
 							imageClassName="scale-[0.70] translate-x-[1rem] translate-y-[1.3rem]" />
 						<GenreCard
 							title="3d"
-							image="/3dcard2.png"
+							image="/images/3dcard2.png"
 							label={t('startGate.enter3d')}
 							onClick={handleGo3D}
 							delay={300} initialTilt={2}
 							imageClassName=" scale-[0.9] translate-x-[0.8rem] translate-y-[2.5rem]" />
 						<GenreCard
 							title="arcade"
-							image="/Ac3.png"
+							image="/images/Ac3.png"
 							label={t('startGate.arcade')}
 							onClick={onGoArcade}
 							delay={100} initialTilt={-2}
 							imageClassName="scale-[0.58] translate-y-[2rem]" />
 						<GenreCard
-							title="creators" image="/3dcard4.png"
+							title="creators" image="/images/3dcard4.png"
 							label={t('startGate.creators')}
 							onClick={onGoCreators}
 							delay={700} initialTilt={-8}

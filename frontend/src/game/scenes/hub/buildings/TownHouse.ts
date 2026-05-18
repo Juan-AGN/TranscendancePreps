@@ -20,7 +20,7 @@ export class TownHouse extends InteractiveObject {
 
 	protected async load(): Promise<void> {
 		try {
-			const result = await SceneLoader.ImportMeshAsync('', '/polo.glb', '', this.scene);
+			const result = await SceneLoader.ImportMeshAsync('', '/models/polo.glb', '', this.scene);
 			if (result.meshes.length === 0) {
 				console.warn('TownHouse: no se cargaron meshes');
 				return;

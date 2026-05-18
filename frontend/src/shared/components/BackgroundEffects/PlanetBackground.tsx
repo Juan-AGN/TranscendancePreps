@@ -79,7 +79,7 @@ export function PlanetBackground() {
 
 		SceneLoader.ImportMesh(
 			'',
-			'/',
+			'/models/',
 			'planetbg3.glb',
 			scene,
 			(meshes) => {
