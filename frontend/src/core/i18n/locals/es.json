@@ -25,5 +25,31 @@
         "arcade": "Arcade",
         "tech": "Tech Info",
         "creators": "Creadores"
+    },
+    "sections": {
+        "3d": {
+            "explore": "Explorar"
+        },
+        "arcade": {
+            "welcome": "Bienvenido al Arcade Retro Pong",
+            "simple": "El juego es simple y fácil...",
+            "challenge": "¡pero el desafío es brutal!",
+            "skills": "velocidad, precisión, concentración,",
+            "noMistakes": "sin margen para los errores.",
+            "ready": "¿Estás listo?",
+            "enterBtn": "Arcade Arena"
+        },
+        "tech": {
+            "title": "Tech & Proyecto",
+            "subtitle": "Sobre el proyecto",
+            "desc1": "Transcendence es una reinterpretación moderna del clásico Pong, combinando jugabilidad competitiva, espíritu arcade retro y un hub 3D inmersivo. El proyecto mezcla frontend, backend, interacción en tiempo real y diseño visual para crear una experiencia digital completa donde los usuarios pueden explorar, jugar, competir y conectarse dentro de la misma plataforma.",
+            "desc2": "El objetivo no era solo construir un juego, sino crear un universo completo a su alrededor: un entorno 3D navegable, una interfaz pulida, lógica backend estructurada, sistema de autenticación, modos de juego e identidad visual inspirada en la cultura arcade futurista."
+        },
+        "creators": {
+            "technicalLead": "Technical Lead",
+            "projectManager": "Project Manager",
+            "backendDev": "Backend Developer",
+            "productOwner": "Product Owner"
+        }
     }
 }

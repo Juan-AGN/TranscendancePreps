@@ -5,6 +5,7 @@
 //   seccion 4 -> meet the creators
 
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 type MainSection = 'tech' | '3d' | 'arcade' | 'creators' // tipo union: las 4 secciones posibles
 
@@ -15,10 +16,10 @@ interface Mainpage2Props {
 }
 
 const CREATORS = [                                                                               // lista estática de los 4 creadores
-	{ image: '/images/israChar.png', role: 'Technical Lead', username: 'albelope' },
-	{ image: '/images/juanCHar2.png', role: 'Project Manager', username: 'juan' },
-	{ image: '/images/danichar4.png', role: 'Backend Developer', username: 'd-ruiz' },
-	{ image: '/images/carlosChar5.png', role: 'Product Owner', username: 'cagarci' },
+	{ image: '/images/israChar.png', role: 'sections.creators.technicalLead', username: 'albelope' },
+	{ image: '/images/juanCHar2.png', role: 'sections.creators.projectManager', username: 'juan' },
+	{ image: '/images/danichar4.png', role: 'sections.creators.backendDev', username: 'd-ruiz' },
+	{ image: '/images/carlosChar5.png', role: 'sections.creators.productOwner', username: 'cagarci' },
 ]
 
 const LOGOS = [                                               // tecnologías del stack mostradas en la sección tech
@@ -63,6 +64,7 @@ function ButtonMainPage({ label, onClick,
 }
 
 export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2Props) { // componente principal: renderiza solo la sección activa
+	const { t } = useTranslation()
 	return (
 		<motion.div
 			initial={{ opacity: 0, scale: 1, filter: 'blur(6px)' }}
@@ -81,7 +83,7 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 						</div>
 						<div className="relative flex h-24 min-w-[28rem] items-center justify-center rounded-full
 									bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.55)_40%,rgba(0,0,0,0.28)_66%,transparent_72%)] ">
-							<ButtonMainPage label="explore" onClick={onStart3D} />
+							<ButtonMainPage label={t('sections.3d.explore')} onClick={onStart3D} />
 						</div>
 					</div>
 				</section>
@@ -95,15 +97,15 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 						<div className="relative w-full h-full">
 							<h2 className="absolute left-[15%] top-[20%] z-20 max-w-[86%] md:max-w-[46%] text-[clamp(0.95rem,2vw,2rem)]
 												font-light leading-[1.45] font-black/10 text-white tracking-[0.03em]">
-								<span className="block">Welcome to Retro Arcade Pong </span>
-								<span className="block">Our game is simple & easy...</span>
-								<span className="block">but the challenge is elite!</span>
-								<span className="block">speed, precision, focus, </span>
-								<span className="block">and no room for mistakes.</span>
-								<span className="block"> Are you ready?</span>
+							<span className="block">{t('sections.arcade.welcome')}</span>
+							<span className="block">{t('sections.arcade.simple')}</span>
+							<span className="block">{t('sections.arcade.challenge')}</span>
+							<span className="block">{t('sections.arcade.skills')}</span>
+							<span className="block">{t('sections.arcade.noMistakes')}</span>
+							<span className="block">{t('sections.arcade.ready')}</span>
 							</h2>
 							<div className="absolute left-[35%] bottom-[10%] z-20 ">
-								<ButtonMainPage label="Arcade Arena" onClick={onGo2DMenu} /> {/* botón que navega al menú 2D */}
+							<ButtonMainPage label={t('sections.arcade.enterBtn')} onClick={onGo2DMenu} /> {/* botón que navega al menú 2D */}
 							</div>
 							<img src="/images/Ac3.png" alt="Arcade 2D" className="absolute right-[5%]  h-[100%] w-auto object-contain z-10" /> {/* imagen decorativa arcade a la derecha */}
 						</div>
@@ -118,24 +120,18 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 										shadow-[1px_1px_3px_1px_#eab308,-1px_-1px_20px_1px_#eab100]/40 bg-black/60 px-8 py-12 md:px-12 md:py-14">
 						<div className="w-full h-full flex flex-col justify-center">
 							<h2 className="text-yellow-400 text-3xl md:text-3xl uppercase tracking-[0.40rem] mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-								Tech & Project
+							{t('sections.tech.title')}
 							</h2>
 							<div className="grid grid-cols-1 xl:grid-cols-[1.7fr_1fr] gap-6 items-center h-full">
 								<div className="flex flex-col justify-center">
 									<h3 className="text-white text-2xl md:text-2xl uppercase tracking-[0.30rem] mb-6">
-										About the project
+										{t('sections.tech.subtitle')}
 									</h3>
 									<p className="text-white/90 font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-[0.09rem]  text-sm md:text-lg leading-7 md:leading-8 max-w-3xl">
-										Transcendence is a modern reinterpretation of the classic Pong experience,
-										combining competitive gameplay, a retro arcade spirit, and an immersive 3D hub.
-										The project mixes frontend, backend, real-time interaction and visual design
-										to create a complete digital experience where users can explore, play,
-										compete and connect inside the same platform.
+										{t('sections.tech.desc1')}
 									</p>
 									<p className="text-white/70 font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-[0.05rem] text-sm md:text-base leading-7 mt-6 max-w-3xl">
-										The goal was not only to build a game, but to create a full universe around it:
-										a navigable 3D environment, a polished interface, structured backend logic,
-										auth system, game modes, and a visual identity inspired by futuristic arcade culture.
+										{t('sections.tech.desc2')}
 									</p>
 								</div>
 								<div className="grid grid-cols-2 "> {/* grid 2 columnas para los logos de tecnologías */}
@@ -195,7 +191,7 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 															bg-gradient-to-br from-white via-[#e8e4de] to-[#cec9c0] px-4 py-1 text-[0.85rem]  
 															leading-none tracking-[0.05rem] text-[#6b4e18] font-black uppercase
 															shadow-[0_2px_0_rgba(255,255,255,0.9)_inset,0_-1px_0_rgba(0,0,0,0.18)_inset,0_4px_14px_rgba(0,0,0,0.45),0_0_10px_rgba(201,164,71,0.35)]">
-													{creator.role}
+													{t(creator.role)}
 												</h3>
 												<div className="relative w-full h-full overflow-visible mt-23">
 													<img alt={creator.username}
