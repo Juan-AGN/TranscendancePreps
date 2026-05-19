@@ -4,7 +4,7 @@ import { gameManager } from "./gameManager";
 import http from "http";
 import url from "url";
 import { WebSocketServer, WebSocket } from "ws";
-import { Errors, changeErrors } from "./types";
+import { Errors, changeErrors, generalErrors } from "./types";
 var cors = require('cors');
 import jwt from 'jsonwebtoken';
 
@@ -18,6 +18,35 @@ const wss = new WebSocketServer({ server });
 app.use(express.json());
 
 app.use(cors());
+
+export function sendError(res: Response, error: generalErrors) {
+    switch (error) {
+        case generalErrors.WORKED:
+            return res.status(200).json({ message: "OK" });
+
+        case generalErrors.LOBBYDOESNTEXIST:
+		case generalErrors.LOBBYALREADYEXIST:
+            return res.status(404).json({ message: error });
+
+        case generalErrors.NOTINTHELOBBY:
+        case generalErrors.ALREADYINTHELOBBY:
+        case generalErrors.ALREADYINALOBBY:
+        case generalErrors.NOWS:
+        case generalErrors.LOBBYINGAME:
+        case generalErrors.PLAYERSFULL:
+        case generalErrors.NOTENOUGHPLAYERS:
+            return res.status(409).json({ message: error });
+
+        case generalErrors.NOTHOST:
+        case generalErrors.NOTANEXPECTATOR:
+        case generalErrors.NOTAPLAYER:
+        case generalErrors.NOTINALOBBY:
+            return res.status(403).json({ message: error });
+
+        default:
+            return res.status(400).json({ message: "Unknown error" });
+    }
+}
 
 function authmiddleware(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
@@ -67,8 +96,12 @@ app.post("/lobbies/create", authmiddleware, (req: Request, res: Response) => {
 	const { lobbyId } = req.body;
 	const hostId = req.user!.id;
 
-	if (!lobbyManager.add(lobbyId, hostId))
-		return (res.status(400).json({ message: "Couldn't create lobby." }));
+	if (lobbyId === "" || lobbyId.trim().length === 0)
+		return (res.status(422).json({ message: "Bad lobby name." }));
+
+	const error = lobbyManager.add(lobbyId, hostId);
+	if (error != generalErrors.WORKED)
+		return (sendError(res, error));
 	return (res.send(lobbyManager.get(lobbyId)));
 });
 
@@ -93,32 +126,36 @@ app.post("/lobbies/checkout", authmiddleware, (req: Request, res: Response) => {
 app.post("/lobbies/join", authmiddleware, (req: Request, res: Response) => {
 	const { lobbyId } = req.body;
 	const hostId = req.user!.id;
-	if (!lobbyManager.addplayer(lobbyId, hostId))
-		return (res.status(400).json({ message: "Couldn't join lobby." }));
+	const error = lobbyManager.addplayer(lobbyId, hostId);
+	if (error != generalErrors.WORKED)
+		return (sendError(res, error));
 	return (res.send(lobbyManager.get(lobbyId)));
 });
 
 app.post("/lobbies/leave", authmiddleware, (req: Request, res: Response) => {
 	const { lobbyId } = req.body;
 	const hostId = req.user!.id;
-	if (!lobbyManager.leaveplayer(lobbyId, hostId))
-		return (res.status(400).json({ message: "Couldn't leave lobby." }));
+	const error = lobbyManager.leaveplayer(lobbyId, hostId);
+	if (error != generalErrors.WORKED)
+		return (sendError(res, error));
 	return (res.send(lobbyManager.getlobbies()));
 });
 
 app.post("/lobbies/change/spectator", authmiddleware, (req: Request, res: Response) => {
 	const { lobbyId } = req.body;
 	const hostId = req.user!.id;
-	if (!lobbyManager.spectToPlayerEndp(lobbyId, hostId))
-		return (res.status(400).json({ message: "Couldn't change to player." }));
+	const error = lobbyManager.spectToPlayerEndp(lobbyId, hostId)
+	if (error != generalErrors.WORKED)
+		return (sendError(res, error));
 	return (res.send(lobbyManager.get(lobbyId)));
 });
 
 app.post("/lobbies/change/player", authmiddleware, (req: Request, res: Response) => {
 	const { lobbyId } = req.body;
 	const hostId = req.user!.id;
-	if (!lobbyManager.playerToSpectEndp(lobbyId, hostId))
-		return (res.status(400).json({ message: "Couldn't change to spectator." }));
+	const error = lobbyManager.playerToSpectEndp(lobbyId, hostId);
+	if (error != generalErrors.WORKED)
+		return (sendError(res, error));
 	return (res.send(lobbyManager.get(lobbyId)));
 });
 
@@ -127,8 +164,8 @@ app.post("/lobbies/ruleset", authmiddleware, (req: Request, res: Response) => {
 	const hostId = req.user!.id;
 
 	let toret = lobbyManager.changeruleset(lobbyId, hostId, ruleset);
-	if (toret == false)
-		return (res.status(400).json({ message: "Couldn't change lobby ruleset." }));
+	if (toret === generalErrors.RULESNOTPROVIDED || toret === generalErrors.LOBBYINGAME || toret === generalErrors.NOTHOST || toret === generalErrors.NOTINALOBBY || toret === generalErrors.LOBBYDOESNTEXIST)
+		return (sendError(res, toret));
 	return (res.send({message: changeErrors.SUCCESS, status: toret}));
 });
 
@@ -136,10 +173,10 @@ app.post("/lobbies/ruleset", authmiddleware, (req: Request, res: Response) => {
 app.post("/lobbies/start", authmiddleware, (req: Request, res: Response) => {
 	const { lobbyId } = req.body;
 	const hostId = req.user!.id;
-	const result = lobbyManager.able(lobbyId, hostId);
+	const error = lobbyManager.able(lobbyId, hostId);
 
-	if (result !== null) 
-		return res.status(400).send({ message: result });
+	if (error != generalErrors.WORKED)
+		return (sendError(res, error));
 
 	res.send("starting");
 

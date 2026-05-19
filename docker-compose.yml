@@ -67,7 +67,7 @@ services:
       FRONTEND_URL: ${FRONTEND_URL}
     volumes:
       # Only persist avatars and prisma, do not overwrite dist/
-      - ./public/avatars:/app/public/avatars
+      - avatars_data:/app/public/avatars
 
     depends_on:
       db:
@@ -106,3 +106,5 @@ networks:
 volumes:
   postgres_data:
     driver: local
+  avatars_data:
+      driver: local

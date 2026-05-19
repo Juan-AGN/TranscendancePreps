@@ -63,8 +63,8 @@ export class Usernames {
 			else
 			{
 				const res = await response.json();
-				this.imgmap.set(id, res.avatarUrl);
-				return (res.avatarUrl);
+				this.imgmap.set(id, `${apiBase}${res.avatarUrl}`);
+				return (`${apiBase}${res.avatarUrl}`);
 			}
 		}
 		catch (error)
@@ -74,6 +74,12 @@ export class Usernames {
 			else
 				return(this.imgmap.get(id) ?? "");
 		}
+	}
+
+	checkimg(id: number) {
+		if (this.imgmap.has(id))
+			return (this.imgmap.get(id));
+		else return (undefined);
 	}
 
 	async getme() {
@@ -108,6 +114,17 @@ export class Usernames {
 				return (-1);
 			}
 		}
+	}
+
+	getmenoupdt() {
+		const token = localStorage.getItem("token");
+
+		if (!token)
+			this.me = -1;
+		if (this.me != -1)
+			return (this.me);
+		else
+			return (-1);
 	}
 }
 

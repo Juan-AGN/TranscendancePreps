@@ -10,8 +10,8 @@ import type { Lobbys, Lobby } from "../types/types"
 const wsbase = `wss://${noport}:8889/api/game`;
 const apiBase = `https://${noport}:8889/api/game`;
 import { LobbyProvider, useLobby, isinLobby } from '../lobby';
-import { Singledivgame, Doubledivgame, Doubledivvert } from '../commoncomp/commoncomp';
-import { div } from 'framer-motion/client';
+import { Singledivgame, Doubledivgame, Doubledivvert, TextField } from '../commoncomp/commoncomp';
+import { div, s } from 'framer-motion/client';
 
 async function listLobbies() {
     try {
@@ -27,22 +27,9 @@ async function listLobbies() {
     }
 }
 
-async function joinlobby(which: string, addNotification: (msg: string) => void, addLobby: (id: Lobby | null) => void) {
+async function joinlobby(which: string, handleApiError: (msg: any) => void, addLobby: (id: Lobby | null) => void) {
     const token = localStorage.getItem("token");
-    
 
-    if (!token)
-    {
-        addNotification("Please, log again.");
-        return (null);
-    }
-    const tlobby = await isinLobby();
-    if (tlobby != null)
-    {
-        addNotification("Already in a lobby.");
-        addLobby(tlobby);
-        return (tlobby);
-    }
     try {
 	    const res = await fetch(`${apiBase}/lobbies/join`, {
             method: "POST",
@@ -52,37 +39,79 @@ async function joinlobby(which: string, addNotification: (msg: string) => void, 
 			},
             body: JSON.stringify({"lobbyId": `${which}`}),
         });
+        const data = await res.json();
         if (!res.ok)
         {
-            addNotification("Unable to join lobby.");
+            handleApiError(data.message ?? data.error);
             return (null);
         }
-	    const data = await res.json();
         addLobby(data);
 	    return(data);
     }
-    catch
+    catch (err)
     {
-        addNotification("Unable to join lobby.");
-        return (null);
+        handleApiError(err);
+        return ;
     }
 }
 
-async function leavelobby(which: string, addNotification: (msg: string) => void, addLobby: (id: Lobby | null) => void) {
+async function startgame(which: string, handleApiError: (msg: any) => void, addLobby: (id: Lobby | null) => void) {
     const token = localStorage.getItem("token");
 
-    if (!token)
-    {
-        addNotification("Please, log again.");
-        return (null);
+    try {
+	    const res = await fetch(`${apiBase}/lobbies/start`, {
+            method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				authorization: `Bearer ${token}`,
+			},
+            body: JSON.stringify({"lobbyId": `${which}`}),
+        });
+        const data = await res.json();
+        if (!res.ok)
+            handleApiError(data.message ?? data.error);
+
+	    return ;
     }
-    const tlobby = await isinLobby();
-    if (tlobby == null)
+    catch (err)
     {
-        addNotification("Lobby left.");
-        addLobby(null);
+        handleApiError(err);
         return ;
     }
+}
+
+async function createlobby(which: string, handleApiError: (msg: any) => void, addLobby: (id: Lobby | null) => void) {
+    const token = localStorage.getItem("token");
+
+    try {
+	    const res = await fetch(`${apiBase}/lobbies/create`, {
+            method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				authorization: `Bearer ${token}`,
+			},
+            body: JSON.stringify({"lobbyId": `${which}`}),
+        });
+        const data = await res.json();
+        if (!res.ok)
+        {
+            handleApiError(data.message ?? data.error);
+            return ;
+        }
+
+        addLobby(data);
+	    return(data);
+    }
+    catch (err)
+    {
+        handleApiError(err);
+        return ;
+    }
+}
+
+async function leavelobby(which: string, handleApiError: (msg: any) => void, addLobby: (id: Lobby | null) => void) {
+    const token = localStorage.getItem("token");
+
     try {
 	    const res = await fetch(`${apiBase}/lobbies/leave`, {
             method: "POST",
@@ -92,34 +121,29 @@ async function leavelobby(which: string, addNotification: (msg: string) => void,
 			},
             body: JSON.stringify({"lobbyId": `${which}`}),
         });
+        const data = await res.json();
         if (!res.ok)
         {
-            addNotification("Unable to leave lobby.");
+            handleApiError(data.message ?? data.error);
             return ;
         }
+
         addLobby(null);
 	    return ;
     }
-    catch
+    catch (err)
     {
-        addNotification("Unable to leave lobby.");
+        handleApiError(err);
         return ;
     }
 }
 
-async function changetopectator(addNotification: (msg: string) => void, tlobby: Lobby | null) {
+async function changetopectator(handleApiError: (msg: any) => void, tlobby: Lobby | null) {
     const token = localStorage.getItem("token");
 
-    if (!token)
-    {
-        addNotification("Please, log again.");
-        return ;
-    }
     if (!tlobby)
-    {
-        addNotification("Not in a lobby.");
         return ;
-    }
+
     try {
 	    const res = await fetch(`${apiBase}/lobbies/change/player`, {
             method: "POST",
@@ -129,33 +153,25 @@ async function changetopectator(addNotification: (msg: string) => void, tlobby: 
 			},
             body: JSON.stringify({"lobbyId": `${tlobby.id}`}),
         });
+        const data = await res.json();
         if (!res.ok)
-        {
-            addNotification("Unable to change to spectator.");
-            return ;
-        }
+            handleApiError(data.message ?? data.error);
+    
 	    return ;
     }
-    catch
+    catch (err)
     {
-        addNotification("Unable to change to spectator.");
-        return (null);
+        handleApiError(err);
+        return ;
     }
 }
 
-async function changetoplay(addNotification: (msg: string) => void, tlobby: Lobby | null) {
+async function changetoplay(handleApiError: (msg: any) => void, tlobby: Lobby | null) {
     const token = localStorage.getItem("token");
 
-    if (!token)
-    {
-        addNotification("Please, log again.");
-        return ;
-    }
     if (!tlobby)
-    {
-        addNotification("Not in a lobby.");
         return ;
-    }
+
     try {
 	    const res = await fetch(`${apiBase}/lobbies/change/spectator`, {
             method: "POST",
@@ -165,24 +181,23 @@ async function changetoplay(addNotification: (msg: string) => void, tlobby: Lobb
 			},
             body: JSON.stringify({"lobbyId": `${tlobby.id}`}),
         });
+        const data = await res.json();
         if (!res.ok)
-        {
-            addNotification("Unable to change to player.");
-            return ;
-        }
+            handleApiError(data.message ?? data.error);
+
 	    return ;
     }
-    catch
+    catch (err)
     {
-        addNotification("Unable to change to player.");
-        return (null);
+        handleApiError(err);
+        return ;
     }
 }
 
 export function MiniLobby({ lobbyItem }: { lobbyItem: Lobby }) {
     const { names, addLobby } = useLobby();
     const [name, setName] = useState(`User ${lobbyItem.hostId}`);
-    const { addNotification } = useNotification();
+    const { handleApiError } = useNotification();
     const lobbyx = lobbyItem.id;
 
     useEffect(() => {
@@ -190,7 +205,7 @@ export function MiniLobby({ lobbyItem }: { lobbyItem: Lobby }) {
     }, [lobbyItem.hostId]);
 
     const joinlobbyx = () => {
-        joinlobby(lobbyx, addNotification, addLobby);
+        joinlobby(lobbyx, handleApiError, addLobby);
     };
 
     return (
@@ -246,15 +261,15 @@ export function MiniUser({user}: {user: number}) {
 
     async function updtimg() {
         setImg(await names.checkimgupdate(user));
-        
     }
+
     useEffect(() => {
         updtusername();
         updtimg();
     }, [lobby]);
 
     if (img && img != "")
-        return (<div className='text-center bg-linear-to-r from-cyan-200 to-blue-300 w-[40%] m-2 p-2 rounded-2xl shadow flex overflow-auto h-10'><img className="rounded-3xl h-[80%] mr-2" src={img}></img>{username}</div>);
+        return (<div className='text-center bg-linear-to-r from-cyan-200 to-blue-300 w-[40%] m-2 p-2 rounded-2xl shadow flex overflow-auto h-10'><img className="rounded-3xl h-[80%] aspect-square mr-2" src={img}></img>{username}</div>);
     else
         return (<div className='text-center bg-linear-to-r from-cyan-200 to-blue-300 w-[40%] m-2 p-2 rounded-2xl shadow h-10'>{username}</div>);
 }
@@ -278,9 +293,9 @@ export function Minimini({user}: {user: number}) {
     }, [lobby]);
 
     if (img && img != "")
-        return (<div className='text-center bg-linear-to-r from-cyan-200 to-blue-300 w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap'><img className="rounded-3xl h-[80%] mr-2" src={img}></img> {username}</div>);
+        return (<div className='text-center bg-linear-to-r from-yellow-200 to-yellow-300 w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap'><img className="rounded-3xl h-[80%] aspect-square mr-2" src={img}></img> {username}</div>);
     else
-        return (<div className='text-center bg-linear-to-r from-cyan-200 to-blue-300 w-fit m-2 p-2 rounded-2xl shadow h-10 flex-nowrap whitespace-nowrap'>{username}</div>);
+        return (<div className='text-center bg-linear-to-r from-yellow-200 to-yellow-300 w-fit m-2 p-2 rounded-2xl shadow h-10 flex-nowrap whitespace-nowrap'>{username}</div>);
 }
 
 export function SingLobby() {
@@ -329,32 +344,28 @@ export function SingLobby() {
 
 export function ControlBar() {
     const { names, lobby, addLobby } = useLobby();
-    const [ host, setHost ] = useState(`User ${lobby!.hostId}`);
     const [ pos, setPos ] = useState(-1);
-    const { addNotification } = useNotification();
+    const { handleApiError } = useNotification();
+    const [ host, setHost ] = useState(-1);
 
     async function tospectchange() {
-        const me = await names.getme();
-        const index = lobby?.players.indexOf(me);
-    
-        if (me === -1 || (index != undefined && index > -1))
-            changetopectator(addNotification, lobby);
-        else
-            addNotification("Unable to change to spectator.");
+        changetopectator(handleApiError, lobby);
     }
 
     async function toplaychange() {
-        const me = await names.getme();
-        const index = lobby?.spectators.indexOf(me);
-    
-        if (me === -1 || (index != undefined && index > -1))
-            changetoplay(addNotification, lobby);
-        else
-            addNotification("Unable to change to player.");
+        changetoplay(handleApiError, lobby);
     }
 
     function leavelob() {
-        leavelobby(lobby!.id, addNotification, addLobby);
+        leavelobby(lobby!.id, handleApiError, addLobby);
+    }
+
+    function strtgame() {
+        startgame(lobby!.id, handleApiError, addLobby);
+    }
+
+    async function updthost() {
+        setHost(await names.getme());
     }
 
     async function checkplaystate() {
@@ -372,12 +383,16 @@ export function ControlBar() {
 
     useEffect(() => {
         checkplaystate();
+        if (lobby)
+            updthost();
     }, [ lobby ]);
 
     return (<div className="flex justify-center flex-wrap h-full items-start overflow-auto content-center">
-        <div className="h-15 w-[80%] bg-radial from-cyan-100 to-blue-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-cyan-100 hover:to-cyan-200 transition delay-150 duration-300 ease-in-out my-1">START GAME</div>
+        {host === -1 || host === lobby!.hostId && 
+            <div className="h-15 w-[80%] bg-radial from-cyan-100 to-blue-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-cyan-100 hover:to-cyan-200 transition delay-150 duration-300 ease-in-out my-1" onClick={strtgame}>START GAME</div>
+        }
         {(pos === -1 || pos === 1) && 
-            <div className="h-15 w-[80%] bg-radial from-cyan-100 to-blue-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-cyan-100 hover:to-cyan-200 transition delay-150 duration-300 ease-in-out my-1" onClick={tospectchange}>TO SPECTATOR</div>
+            <div className="h-15 w-[80%] bg-radial from-yellow-100 to-yellow-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-yellow-100 hover:to-yellow-200 transition delay-150 duration-300 ease-in-out my-1" onClick={tospectchange}>TO SPECTATOR</div>
         }
         {(pos === -1 || pos === 2) && 
             <div className="h-15 w-[80%] bg-radial from-cyan-100 to-blue-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-cyan-100 hover:to-cyan-200 transition delay-150 duration-300 ease-in-out my-1" onClick={toplaychange}>TO PLAYER</div>
@@ -386,26 +401,28 @@ export function ControlBar() {
     </div>);
 }
 
-export function Handler() {
-    const { names, lobby } = useLobby();
-    const [ host, setHost ] = useState(-1);
+function Lobcreator() {
+    const [ lobname, setLobname ] = useState("");
+    const { addNotification, handleApiError } = useNotification();
+    const { addLobby } = useLobby();
 
-    async function updthost() {
-        setHost(await names.getme());
+    function creator() {
+        if (lobname === "" || lobname.trim().length === 0)
+        {
+            addNotification("Bad lobby name input.");
+            return ;
+        }
+        createlobby(lobname, handleApiError, addLobby);
     }
 
-    useEffect(() => {
-        if (lobby)
-            updthost();
-    }, [ lobby ]);
+    return (<div className="content-center w-full h-full flex justify-center align-middle items-center"><TextField value={lobname} onChange={setLobname} text={'CREATE'} submit={creator} tw={90}></TextField></div>);
+}
+
+export function Handler() {
+    const { lobby } = useLobby();
 
     if (!lobby)
-        return (<Doubledivvert ComponentBig={Lobbies} ComponentSmall={div}/>);
-    else
-    {        
-        if (host === -1 || host === lobby!.hostId)
-            return (<Doubledivgame ComponentBig={SingLobby} ComponentSmall={ControlBar}/>);
-        else
-            return (<Doubledivgame ComponentBig={SingLobby} ComponentSmall={ControlBar}/>)
-    }
+        return (<Doubledivvert ComponentBig={Lobbies} ComponentSmall={Lobcreator}/>);
+    else      
+        return (<Doubledivgame ComponentBig={SingLobby} ComponentSmall={ControlBar}/>)
 }

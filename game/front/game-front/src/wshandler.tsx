@@ -2,10 +2,11 @@ import { createContext, useContext, useState, ReactNode, useRef, useEffect } fro
 import type { GameSession, Lobby } from "./types/types";
 import { NotificationProvider, useNotification } from './notifications';
 import { LobbyProvider, useLobby } from './lobby';
-import { LobbyAction,  } from './types/types';
+import { LobbyAction } from './types/types';
 import { Doubledivvert, Singledivgame, Doubledivgame } from './commoncomp/commoncomp';
 import { Lobbies } from "./game_endpoints/lobbies";
 import { div } from "framer-motion/client";
+import { Gamehandler } from "./gamestate/gamestate";
 
 let address = window.location.host;
 
@@ -21,7 +22,8 @@ const apiBaselob = `wss://${noport}:8889/api/game`
 const WsContext = createContext<WsContextType | null>(null);
 
 type WsContextType = {
-
+    game : GameSession | null;
+    addGame: (g: GameSession | null) => void;
 }
 
 export const useHeldKey = () => {
@@ -108,7 +110,10 @@ export const WsProvider = ({
             addNotification(`Lobby ruleset changed.`);
     }
 
-        
+	const addGame = (g: GameSession | null) => {
+		setGame(g);
+	};
+
     useEffect(() => {
         if (token)
         {
@@ -124,7 +129,7 @@ export const WsProvider = ({
                         lobbyupdate(msg);
                     if (msg.type == "GAMESTATE")
                     {
-                        setGame(msg.context);
+                        setGame(msg.game);
 
                         if (heldKeyRef.current) {
                             const keyMap = {
@@ -149,9 +154,11 @@ export const WsProvider = ({
     }, [token]);
 
     if (!token)
-        return (<WsContext.Provider value={{ }}><Singledivgame Component={nologgederror}></Singledivgame></WsContext.Provider>);
+        return (<WsContext.Provider value={{ game, addGame }}><Singledivgame Component={nologgederror}></Singledivgame></WsContext.Provider>);
+    else if (!game)
+        return (<WsContext.Provider value={{ game, addGame }}>{children}</WsContext.Provider>);
     else
-        return (<WsContext.Provider value={{ }}>{children}</WsContext.Provider>);
+        return (<WsContext.Provider value={{ game, addGame }}><Gamehandler/></WsContext.Provider>);
 };
 
 export const useWs = () => {

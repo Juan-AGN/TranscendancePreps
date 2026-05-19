@@ -51,21 +51,16 @@ COPY --chown=nodejs:nodejs package*.json ./
 # Install only production dependencies
 RUN npm ci --omit=dev
 
-# Copy the entire dist/ folder from builder
-COPY --from=builder /app/dist ./dist
-
-# Copy Prisma dependencies
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY prisma ./prisma
-COPY public ./public
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 
 # Copy Prisma dependencies
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 COPY --chown=nodejs:nodejs prisma ./prisma
-COPY --chown=nodejs:nodejs public ./public
+COPY --from=builder --chown=nodejs:nodejs /app/public ./public
+
+RUN mkdir -p /app/public/avatars && \
+    chown -R nodejs:nodejs /app/public
 
 # Expose port
 EXPOSE 3000
