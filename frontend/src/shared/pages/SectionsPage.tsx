@@ -158,7 +158,7 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 				<section
 					className="relative h-screen flex items-center justify-center py-12 overflow-hidden bg-center bg-[length:100%_100%]"
 					style={{ backgroundImage: "url('/images/bgCreators.png')" }}> {/* fondo creators */}
-					<div className="absolute inset-0 bg-white/20" /> {/* overlay blanco semitransparente sobre el fondo */}
+					<div className="absolute inset-0 bg-white/20 dark:bg-black/70" />
 
 					<div className="relative z-10 w-[min(82rem,90vw)] h-[88vh] rounded-3xl flex flex-col justify-end items-center pb-4">
 						{/* scroll solo en pantallas extremas donde ni 2 cols caben */}
@@ -167,13 +167,13 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 								{CREATORS.map((creator) => ( // itera sobre el array CREATORS
 									<div key={creator.username}
 										className="creator-card group/creator flex flex-col items-center justify-end origin-bottom 
-													scale-[0.52] sm:scale-[0.62] md:scale-[0.72] lg:scale-[0.84] xl:scale-100">
+													scale-[0.42] sm:scale-[0.52] md:scale-[0.62] lg:scale-[0.74] xl:scale-100 transition-all duration-1000">
 										<div className="flex flex-col items-center">
 											<div className="peer group order-2 relative z-10 flex items-center justify-center overflow-visible cursor-pointer
 															transition-all duration-500 ease-out hover:-translate-y-1 hover:scale-[1.04]"> {/* placa con username; order-2 → queda debajo del personaje */}
 												<img src="/images/placa5.png"
 													alt={`placa ${creator.username}`}
-													className="h-[12rem] w-[17rem] scale-x-[1.0] md:scale-x-[1.2] xl:scale-x-[1.0] object-contain 
+													className="h-[12rem] w-[17rem] scale-x-[1.0] md:scale-x-[1.2] xl:scale-x-[1.0] object-cover 
 															drop-shadow-[0_10px_14px_rgba(0,0,0,0.45)] transition-all duration-500 ease-out
 															group-hover:drop-shadow-[0_4px_22px_rgba(56,189,248,0.85)]"/>
 												<span className="absolute mt-17 text-[1.5rem] font-bold font-serif uppercase  text-[#7a5a32]
@@ -193,7 +193,7 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 															shadow-[0_2px_0_rgba(255,255,255,0.9)_inset,0_-1px_0_rgba(0,0,0,0.18)_inset,0_4px_14px_rgba(0,0,0,0.45),0_0_10px_rgba(201,164,71,0.35)]">
 													{t(creator.role)}
 												</h3>
-												<div className="relative w-full h-full overflow-visible mt-23">
+												<div className="relative w-full h-full overflow-visible mt-22">
 													<img alt={creator.username}
 														src={creator.image}
 														className="w-full h-full z-10 object-cover object-top

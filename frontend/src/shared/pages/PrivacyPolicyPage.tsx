@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next'
 export function PrivacyPolicyPage() {
 	const { t } = useTranslation()
 	return (
-		<div className="min-h-screen bg-black py-20 px-6 md:px-12 text-white/80">
+		<div className="min-h-screen bg-stone-100 dark:bg-black py-20 px-6 md:px-12 text-stone-800 dark:text-white/80 transition-colors duration-300">
 			<div className="max-w-3xl mx-auto space-y-8">
 				<div>
-					<h1 className="text-4xl font-bold text-white mb-1">{t('privacy.title')}</h1>
-					<p className="text-white/40 text-sm">{t('privacy.updated')}</p>
+					<h1 className="text-4xl font-bold text-stone-900 dark:text-white mb-1">{t('privacy.title')}</h1>
+					<p className="text-stone-400 dark:text-white/40 text-sm">{t('privacy.updated')}</p>
 				</div>
 
 				<div>

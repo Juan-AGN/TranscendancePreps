@@ -4,6 +4,9 @@ import './index.css'
 import App from './App.tsx'
 import './core/i18n/i18n.ts';
 
+const saved = localStorage.getItem('theme') ?? 'dark';
+document.documentElement.dataset.theme = saved;
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

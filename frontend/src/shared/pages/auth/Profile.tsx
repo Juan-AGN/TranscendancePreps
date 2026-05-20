@@ -310,19 +310,21 @@ function Profile() {
     if (!user) {
         return (
             <div
-                className="flex min-h-screen items-center justify-center bg-cover bg-center bg-no-repeat text-xl text-yellow-900"
+                className="relative flex min-h-screen items-center justify-center bg-cover bg-center bg-no-repeat text-xl text-yellow-900"
                 style={{ backgroundImage: "url('/images/bgLogin.png')" }}
             >
-                Loading profile...
+                <div className="hidden dark:block absolute inset-0 bg-black/70 pointer-events-none" />
+                <span className="relative z-10">Loading profile...</span>
             </div>
         );
     }
 
     return (
         <div
-            className="min-h-screen bg-cover bg-center bg-no-repeat px-4 pb-6 pt-24 md:px-6 md:pb-8 md:pt-32"
+            className="relative min-h-screen bg-cover bg-center bg-no-repeat px-4 pb-6 pt-24 md:px-6 md:pb-8 md:pt-32"
             style={{ backgroundImage: "url('/images/bg6.png')" }}
         >
+            <div className="hidden dark:block absolute inset-0 bg-black/70 pointer-events-none" />
             {/* ================================================================ */}
             {/* FLOATING NOTIFICATION */}
             {/* Only rendered if notification is not null */}
@@ -333,7 +335,7 @@ function Profile() {
                 </div>
             )}
 
-            <div className="mx-auto max-w-6xl overflow-hidden rounded-3xl border border-yellow-500/45 bg-white/[0.07] shadow-[0_20px_80px_rgba(90,60,20,0.25),inset_0_1px_0_rgba(255,255,255,0.45)] backdrop-blur-[6px]">
+            <div className="relative z-10 mx-auto max-w-6xl overflow-hidden rounded-3xl border border-yellow-500/45 bg-white/[0.07] shadow-[0_20px_80px_rgba(90,60,20,0.25),inset_0_1px_0_rgba(255,255,255,0.45)] backdrop-blur-[6px]">
 
                 {/* ============================================================ */}
                 {/* PROFILE HEADER */}

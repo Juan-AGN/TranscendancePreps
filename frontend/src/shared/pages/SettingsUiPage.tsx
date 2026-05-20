@@ -7,7 +7,9 @@ type ActiveTab = 'general' | 'social' | 'environment' | 'system';
 
 export function SettingsUiPage() {
 	const [activeTab, setActiveTab] = useState<ActiveTab>('general');
-	const [themeMode, setThemeMode] = useState<'light' | 'dark' >('light');
+	const [themeMode, setThemeMode] = useState<'light' | 'dark'>(
+		() => (localStorage.getItem('theme') as 'light' | 'dark') ?? 'dark'
+	);
 	const [textSize, setTextSize] = useState<'small' | 'medium' | 'large'>('medium');
 	const [language, setLanguage] = useState<'english' | 'spanish' | 'french'>('english');
 	const [friendNotifications, setFriendNotifications] = useState(true);
@@ -16,12 +18,19 @@ export function SettingsUiPage() {
 	const [masterVolume, setMasterVolume] = useState(70);
 	const [effectsSound, setEffectsSound] = useState(true);
 
+	const handleThemeChange = (mode: 'light' | 'dark') => {
+		setThemeMode(mode);
+		document.documentElement.dataset.theme = mode;
+		localStorage.setItem('theme', mode);
+	};
+
 	return (
 		<div
-			className="min-h-screen bg-cover bg-center bg-no-repeat px-4 pb-6 pt-32 md:px-6"
+			className="relative min-h-screen bg-cover bg-center bg-no-repeat px-4 pb-6 pt-32 md:px-6"
 			style={{ backgroundImage: "url('/images/bg6.png')" }}>
-			<div className="mx-auto min-h-[65vh] w-full max-w-6xl overflow-hidden rounded-3xl border border-yellow-500/45 bg-white/[0.07]
-							backdrop-blur-[50px] shadow-[0_20px_80px_rgba(90,60,20,0.25),inset_0_1px_0_rgba(255,255,255,0.45)]">
+			<div className="hidden dark:block absolute inset-0 bg-black/70 pointer-events-none" />
+			<div className="relative z-10 mx-auto min-h-[65vh] w-full max-w-6xl overflow-hidden rounded-3xl border border-yellow-500/45 bg-white/70 dark:bg-white/[0.07]
+							backdrop-blur-[50px] shadow-[0_20px_80px_rgba(90,60,20,0.25),inset_0_1px_0_rgba(255,255,255,0.45)] transition-colors duration-300">
 				<div className="mt-8 text-center text-6xl font-medium text-[#a67c42] font-['Cormorant_Garamond'] uppercase tracking-[0.32em] md:text-6xl">
 					Settings
 				</div>
@@ -58,10 +67,10 @@ export function SettingsUiPage() {
 							title="Theme Mode"
 							description="Choose between lightor dark">
 							<div className="flex rounded-full border border-yellow-500/30 bg-white/20 p-1">
-								<OptionButton active={themeMode === 'light'} onClick={() => setThemeMode('light')}>
-									Light
-								</OptionButton>
-								<OptionButton active={themeMode === 'dark'} onClick={() => setThemeMode('dark')}>
+							<OptionButton active={themeMode === 'light'} onClick={() => handleThemeChange('light')}>
+								Light
+							</OptionButton>
+							<OptionButton active={themeMode === 'dark'} onClick={() => handleThemeChange('dark')}>
 									Dark
 								</OptionButton>
 							</div>
@@ -216,7 +225,7 @@ function SettingRow({
 	children: React.ReactNode;
 }) {
 	return (
-		<div className="rounded-2xl border border-yellow-500/25 bg-white/10 p-5 backdrop-blur-md">
+		<div className="rounded-2xl border border-yellow-500/25 bg-white/80 dark:bg-white/10 p-5 backdrop-blur-md transition-colors duration-300">
 			<div className="flex items-center justify-between gap-6">
 				<div>
 					<h3 className="text-sm font-bold uppercase tracking-[0.18em] text-yellow-700/70">

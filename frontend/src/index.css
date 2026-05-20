@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /* Personalización de Tailwind v4 */
 @theme {
@@ -40,6 +41,10 @@
 		height: 100%;
 		margin: 0;
 		padding: 0;
+	}
+
+	body {
+		@apply bg-stone-100 dark:bg-neutral-950 transition-colors duration-300;
 	}
 
 	#root {
@@ -231,3 +236,7 @@
 		inset 0 1px 3px rgba(255, 255, 255, 0.9),
 		inset 0 -2px 5px rgba(0, 0, 0, 0.45);
 }
+
+
+
+

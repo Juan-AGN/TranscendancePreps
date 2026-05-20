@@ -85,7 +85,7 @@ export function GenreCard({
 				onClick={onClick}
 				aria-label={title}
 				className="absolute inset-0 z-40 cursor-pointer bg-transparent border-0" />
-
+		
 			<div className="relative w-full h-full [perspective:800px]">
 				<div className="relative w-full h-full [transform-style:preserve-3d]
 								transition-transform duration-150 ease-out"

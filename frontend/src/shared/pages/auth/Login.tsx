@@ -194,8 +194,9 @@ function Login() {
     return (
         <div className="relative flex h-dvh w-dvw items-center justify-center overflow-hidden overflow-y-auto bg-cover bg-center bg-no-repeat p-[clamp(0.5rem,2vw,2rem)]"
             style={{ backgroundImage: "url('./images/bgLogin.png')" }}>
+            <div className="hidden dark:block absolute inset-0 bg-black/70 pointer-events-none" />
 
-            <div className="relative w-[min(90vw,48rem)]">
+            <div className="relative z-10 w-[min(90vw,48rem)]">
 
                 <div className="absolute left-1/2 top-0 z-20 h-[clamp(90px,18vh,180px)] w-[clamp(90px,18vh,180px)] -translate-x-1/2 -translate-y-1/2
                                 bg-contain bg-center bg-no-repeat drop-shadow-[0_0_22px_rgba(56,189,248,0.45)]"

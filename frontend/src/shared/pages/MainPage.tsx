@@ -62,17 +62,20 @@ export function StartGate({
 				</div>
 				<div className="absolute inset-0 z-[2] pointer-events-none
 								bg-gradient-to-b from-white/20 via-white/4 to-white/30" />
+				<div className="hidden dark:block absolute inset-0 z-[3] pointer-events-none bg-black/70" />
 				<div className="relative z-10 h-screen w-full flex items-center justify-center overflow-hidden
 								px-[clamp(0.5rem,2vw,2.5rem)]">
 					<div className="w-[min(77rem,94vw)] grid grid-cols-4 gap-[clamp(0.4rem,1.4vw,1.5rem)] items-center
 									translate-y-[clamp(1rem,6vh,4.5rem)]">
+						
 						<GenreCard
 							title="tech"
 							image="/images/techCard.png"
 							label={t('startGate.tech')}
 							onClick={onGoTech}
 							delay={500} initialTilt={8}
-							imageClassName="scale-[0.70] translate-x-[1rem] translate-y-[1.3rem]" />
+							imageClassName="scale-[0.70] translate-x-[1rem] translate-y-[1.3rem]"
+							 />
 						<GenreCard
 							title="3d"
 							image="/images/3dcard2.png"
