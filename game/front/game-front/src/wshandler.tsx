@@ -1,11 +1,9 @@
-import { createContext, useContext, useState, ReactNode, useRef, useEffect } from "react";
-import type { GameSession, Lobby } from "./types/types";
-import { NotificationProvider, useNotification } from './notifications';
-import { LobbyProvider, useLobby } from './lobby';
+import { createContext, useContext, useState, useRef, useEffect } from "react";
+import type { GameSession, GameResults } from "./types/types";
+import { useNotification } from './notifications';
+import {  useLobby } from './lobby';
 import { LobbyAction } from './types/types';
-import { Doubledivvert, Singledivgame, Doubledivgame } from './commoncomp/commoncomp';
-import { Lobbies } from "./game_endpoints/lobbies";
-import { div } from "framer-motion/client";
+import { Singledivgame } from './commoncomp/commoncomp';
 import { Gamehandler } from "./gamestate/gamestate";
 
 let address = window.location.host;
@@ -15,8 +13,6 @@ let noport = "";
 if (address.includes(":"))
     noport = address.split(":")[0];
 
-const apiBase = `https://${noport}:8889/api/auth`
-
 const apiBaselob = `wss://${noport}:8889/api/game`
 
 const WsContext = createContext<WsContextType | null>(null);
@@ -24,6 +20,7 @@ const WsContext = createContext<WsContextType | null>(null);
 type WsContextType = {
     game : GameSession | null;
     addGame: (g: GameSession | null) => void;
+    result : GameResults | null;
 }
 
 export const useHeldKey = () => {
@@ -65,13 +62,12 @@ export const WsProvider = ({
 }: {
     children: React.ReactNode;
 }) => {
-    const { addNotification } = useNotification();
-	const token = localStorage.getItem("token");
+    const { addNotification, token, addToken } = useNotification();
     const { names, lobby, addLobby } = useLobby();
     const heldKey = useHeldKey();
     const heldKeyRef = useRef(null);
     const [ game, setGame ] = useState< GameSession | null >(null);
-    const [ result, setResults ] = useState< GameSession | null >(null);
+    const [ result, setResults ] = useState< GameResults | null >(null);
 
 	useEffect(() => {
 		heldKeyRef.current = heldKey;
@@ -79,7 +75,7 @@ export const WsProvider = ({
 
     async function lobbyupdate(msg: any) {
         const me = await names.getme();
-            
+
         if (msg.action == "LEAVE" || msg.action == "LEAVESPECTATOR")
         {
             if (msg.user === me)
@@ -115,12 +111,23 @@ export const WsProvider = ({
 	};
 
     useEffect(() => {
+        if (lobby === null)
+            setResults(null);
+    }, [lobby]);
+
+    useEffect(() => {
         if (token)
         {
             const socket = new WebSocket(`${apiBaselob}/?token=${token}`);
 
             socket.onerror = () => {
                 addNotification("Unable to auth.");
+                addToken(null);
+                addLobby(null);
+            };
+
+            socket.onclose = () => {
+                addLobby(null);
             };
 
             socket.onmessage = (event) => {
@@ -154,11 +161,11 @@ export const WsProvider = ({
     }, [token]);
 
     if (!token)
-        return (<WsContext.Provider value={{ game, addGame }}><Singledivgame Component={nologgederror}></Singledivgame></WsContext.Provider>);
+        return (<WsContext.Provider value={{ game, addGame, result }}><Singledivgame Component={nologgederror}></Singledivgame></WsContext.Provider>);
     else if (!game)
-        return (<WsContext.Provider value={{ game, addGame }}>{children}</WsContext.Provider>);
+        return (<WsContext.Provider value={{ game, addGame, result }}>{children}</WsContext.Provider>);
     else
-        return (<WsContext.Provider value={{ game, addGame }}><Gamehandler/></WsContext.Provider>);
+        return (<WsContext.Provider value={{ game, addGame, result }}><Gamehandler/></WsContext.Provider>);
 };
 
 export const useWs = () => {

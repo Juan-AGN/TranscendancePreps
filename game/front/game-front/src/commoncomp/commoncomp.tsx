@@ -1,5 +1,3 @@
-import { useEffect, useRef, useState } from "react";
-
 type Props = {
   ComponentBig: React.ComponentType;
   ComponentSmall: any;
@@ -10,7 +8,7 @@ export function Doubledivvert({ ComponentBig, ComponentSmall }: Props)
     return (
 	<div className="fixed inset-0 flex items-center justify-center pointer-events-none">
 		<div>
-		<div className="w-[90vw] h-[50vw] landscape:w-[90vw] landscape:h-[50vh] aspect-auto bg-mauve-400/10 backdrop-blur-xs z-10 pointer-events-auto rounded-2xl m-4 shadow shadow">
+		<div className="w-[90vw] h-[50vw] landscape:w-[90vw] landscape:h-[50vh] aspect-auto bg-mauve-400/10 backdrop-blur-xs z-10 pointer-events-auto rounded-2xl m-4 shadow">
 			<ComponentBig/>
 		</div> 
 		<div className="w-[90vw] h-[10vw] landscape:w-[90vw] landscape:h-[10vh] aspect-auto bg-mauve-400/10 backdrop-blur-xs z-10 pointer-events-auto rounded-2xl m-4 shadow">

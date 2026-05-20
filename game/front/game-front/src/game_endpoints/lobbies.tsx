@@ -4,14 +4,13 @@ let noport = "";
 if (address.includes(":"))
 	noport = address.split(":")[0];
 
-import { NotificationProvider, useNotification } from '../notifications';
+import { useNotification } from '../notifications';
 import { useEffect, useState } from "react";
 import type { Lobbys, Lobby } from "../types/types"
-const wsbase = `wss://${noport}:8889/api/game`;
 const apiBase = `https://${noport}:8889/api/game`;
-import { LobbyProvider, useLobby, isinLobby } from '../lobby';
-import { Singledivgame, Doubledivgame, Doubledivvert, TextField } from '../commoncomp/commoncomp';
-import { div, s } from 'framer-motion/client';
+import { useLobby } from '../lobby';
+import { Doubledivgame, Doubledivvert, TextField } from '../commoncomp/commoncomp';
+import { useWs } from '../wshandler';
 
 async function listLobbies() {
     try {
@@ -55,7 +54,7 @@ async function joinlobby(which: string, handleApiError: (msg: any) => void, addL
     }
 }
 
-async function startgame(which: string, handleApiError: (msg: any) => void, addLobby: (id: Lobby | null) => void) {
+async function startgame(which: string, handleApiError: (msg: any) => void) {
     const token = localStorage.getItem("token");
 
     try {
@@ -269,9 +268,9 @@ export function MiniUser({user}: {user: number}) {
     }, [lobby]);
 
     if (img && img != "")
-        return (<div className='text-center bg-linear-to-r from-cyan-200 to-blue-300 w-[40%] m-2 p-2 rounded-2xl shadow flex overflow-auto h-10'><img className="rounded-3xl h-[80%] aspect-square mr-2" src={img}></img>{username}</div>);
+        return (<div className='text-center bg-linear-to-r from-cyan-200 to-blue-300 w-[40%] m-2 p-2 rounded-2xl shadow flex overflow-auto h-10 items-center content-center'><img className="rounded-3xl h-[80%] aspect-square mr-2" src={img}></img>{username}</div>);
     else
-        return (<div className='text-center bg-linear-to-r from-cyan-200 to-blue-300 w-[40%] m-2 p-2 rounded-2xl shadow h-10'>{username}</div>);
+        return (<div className='text-center bg-linear-to-r from-cyan-200 to-blue-300 w-[40%] m-2 p-2 rounded-2xl shadow h-10 justify-center items-center content-center'>{username}</div>);
 }
 
 export function Minimini({user}: {user: number}) {
@@ -285,20 +284,76 @@ export function Minimini({user}: {user: number}) {
 
     async function updtimg() {
         setImg(await names.checkimgupdate(user));
-        
     }
+
     useEffect(() => {
         updtusername();
         updtimg();
     }, [lobby]);
 
     if (img && img != "")
-        return (<div className='text-center bg-linear-to-r from-yellow-200 to-yellow-300 w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap'><img className="rounded-3xl h-[80%] aspect-square mr-2" src={img}></img> {username}</div>);
+        return (<div className='text-center bg-linear-to-r from-yellow-200 to-yellow-300 w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap justify-center items-center content-center'><img className="rounded-3xl h-[80%] aspect-square mr-2" src={img}></img> {username}</div>);
     else
-        return (<div className='text-center bg-linear-to-r from-yellow-200 to-yellow-300 w-fit m-2 p-2 rounded-2xl shadow h-10 flex-nowrap whitespace-nowrap'>{username}</div>);
+        return (<div className='text-center bg-linear-to-r from-yellow-200 to-yellow-300 w-fit m-2 p-2 rounded-2xl shadow h-10 flex-nowrap whitespace-nowrap justify-center items-center content-center'>{username}</div>);
+}
+
+type ResProps = {
+    place: number;
+    user : number;
+};
+
+export function Placement({place, user} : ResProps)
+{
+    const { result } = useWs();
+    const [ username, setUsername ] = useState(`User ${result?.first}`);
+    const [ img, setImg ] = useState("");
+    const { names } = useLobby();
+    const [ colors, setColors ] = useState("bg-linear-to-r from-amber-200 to-amber-300");
+
+    async function updtusername() {
+        setUsername(await names.checknameupdate(user));
+    }
+
+    async function updtimg() {
+        setImg(await names.checkimgupdate(user));
+    }
+
+    useEffect(() => {
+        updtusername();
+        updtimg();
+        if (place === 1)
+            setColors("bg-linear-to-r from-amber-200 to-amber-300");
+        else if (place === 2)
+            setColors("bg-linear-to-r from-mist-200 to-mist-300");
+        else if (place === 3)
+            setColors("bg-linear-to-r from-orange-200 to-orange-300");
+        else if (place === 4)
+            setColors("bg-linear-to-r from-stone-400 to-stone-500");
+    });
+
+    if (img && img != "")
+        return (<div className={`text-center bg-linear-to-r ${colors} w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap justify-center items-center content-center`}><p>{place}º </p><img className="rounded-3xl h-[80%] aspect-square m-2" src={img}></img> {username}</div>);
+    else
+        return (<div className={`text-center bg-linear-to-r ${colors} w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap justify-center items-center content-center`}><p className="m-2">{place}º </p>{username}</div>);
+}
+
+export function ShowResults() {
+    const { result } = useWs();
+
+    return (<div className="flex align-middle justify-center overflow-x-auto">
+        <Placement place={1} user={result!.first}/>
+        <Placement place={2} user={result!.second}/>
+        {result?.third && result.third !== -1 &&
+            <Placement place={3} user={result!.third}/>
+        }
+        {result?.fourth && result.fourth !== -1 &&
+            <Placement place={4} user={result!.fourth}/>
+        }
+    </div>)
 }
 
 export function SingLobby() {
+    const { result } = useWs();
     const { names, lobby } = useLobby();
     const [ host, setHost ] = useState(`User ${lobby!.hostId}`);
 
@@ -315,6 +370,14 @@ export function SingLobby() {
         return (<p className="align-middle h-full w-full text-center justify-center items-center content-center">Lobby needed</p>)
 
     return (<div className="flex justify-center flex-wrap h-full items-start overflow-auto content-center">
+        { result &&
+            <div className="text-center content-center w-full">
+            <p className="text-1.5xl"><b>LAST GAME RESULTS</b></p>
+            <ShowResults/>
+            </div>
+            
+        }
+        <br></br>
         <div className="w-[20vw] overflow-auto py-8" >
             <p><b>Lobby:</b> {lobby.id}</p>
             <p><b>Lobby owner:</b> {host}</p>
@@ -330,7 +393,7 @@ export function SingLobby() {
             </div>
         </div>
         {lobby.spectators.length > 0 &&
-        <div className="text-center content-center mt-5">
+        <div className="text-center content-center">
             <p className="text-1.5xl"><b>SPECTATORS</b></p>
             <div className="flex w-[70vw] align-middle justify-start overflow-x-auto">
             {lobby.spectators.map((user: number) => (
@@ -361,7 +424,7 @@ export function ControlBar() {
     }
 
     function strtgame() {
-        startgame(lobby!.id, handleApiError, addLobby);
+        startgame(lobby!.id, handleApiError);
     }
 
     async function updthost() {
@@ -387,12 +450,12 @@ export function ControlBar() {
             updthost();
     }, [ lobby ]);
 
-    return (<div className="flex justify-center flex-wrap h-full items-start overflow-auto content-center">
+    return (<div className="flex justify-center flex-wrap h-full items-start overflow-auto content-center text-xs ">
         {host === -1 || host === lobby!.hostId && 
             <div className="h-15 w-[80%] bg-radial from-cyan-100 to-blue-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-cyan-100 hover:to-cyan-200 transition delay-150 duration-300 ease-in-out my-1" onClick={strtgame}>START GAME</div>
         }
         {(pos === -1 || pos === 1) && 
-            <div className="h-15 w-[80%] bg-radial from-yellow-100 to-yellow-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-yellow-100 hover:to-yellow-200 transition delay-150 duration-300 ease-in-out my-1" onClick={tospectchange}>TO SPECTATOR</div>
+            <div className="h-15 w-[80%] bg-radial from-yellow-100 to-yellow-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-yellow-100 hover:to-yellow-200 transition delay-150 duration-300 ease-in-out my-1 overflow-x-auto" onClick={tospectchange}>TO SPECTATOR</div>
         }
         {(pos === -1 || pos === 2) && 
             <div className="h-15 w-[80%] bg-radial from-cyan-100 to-blue-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-cyan-100 hover:to-cyan-200 transition delay-150 duration-300 ease-in-out my-1" onClick={toplaychange}>TO PLAYER</div>

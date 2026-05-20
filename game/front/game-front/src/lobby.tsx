@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useRef, useEffect } from "react";
+import { createContext, useContext, useState, useRef, useEffect } from "react";
 import type { Lobby } from "./types/types";
 
 const LobbyContext = createContext<LobbyContextType | null>(null);
@@ -53,7 +53,7 @@ export class Usernames {
 
 	async checkimgupdate(id: number) {
 		if (this.imgmap.has(id))
-			return (this.imgmap.get(id));
+			return (this.imgmap.get(id) ?? "");
 
 		try
 		{

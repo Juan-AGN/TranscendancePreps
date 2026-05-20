@@ -25,7 +25,6 @@ export function sendError(res: Response, error: generalErrors) {
             return res.status(200).json({ message: "OK" });
 
         case generalErrors.LOBBYDOESNTEXIST:
-		case generalErrors.LOBBYALREADYEXIST:
             return res.status(404).json({ message: error });
 
         case generalErrors.NOTINTHELOBBY:
@@ -35,6 +34,7 @@ export function sendError(res: Response, error: generalErrors) {
         case generalErrors.LOBBYINGAME:
         case generalErrors.PLAYERSFULL:
         case generalErrors.NOTENOUGHPLAYERS:
+		case generalErrors.LOBBYALREADYEXIST:
             return res.status(409).json({ message: error });
 
         case generalErrors.NOTHOST:
@@ -178,7 +178,7 @@ app.post("/lobbies/start", authmiddleware, (req: Request, res: Response) => {
 	if (error != generalErrors.WORKED)
 		return (sendError(res, error));
 
-	res.send("starting");
+	res.send({message: changeErrors.SUCCESS});
 
 	lobbyManager.setupgame(lobbyId, hostId);
 });

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState } from "react";
 
 import './css/notifications.css';
 
@@ -7,6 +7,8 @@ const NotificationContext = createContext<NotificationContextType | null>(null);
 type NotificationContextType = {
     addNotification: (msg: string) => void;
 	handleApiError: (res: any) => void;
+	addToken: (msg: string | null) => void;
+	token : string | null;
 }
 import { generalErrors } from "./types/types";
 
@@ -22,7 +24,7 @@ const errorMessages: Record<number, string> = {
     [generalErrors.NOTAPLAYER]: "You are not a player",
     [generalErrors.NOTINALOBBY]: "You are not in a lobby",
 
-    [generalErrors.ALREADYINTHELOBBY]: "Already in a lobby",
+    [generalErrors.ALREADYINTHELOBBY]: "Already in the lobby",
     [generalErrors.ALREADYINALOBBY]: "Already in a lobby",
 
     [generalErrors.NOWS]: "No WebSocket connection",
@@ -39,6 +41,7 @@ export const NotificationProvider = ({
 	children: React.ReactNode;
 }) => {
 	const [notifications, setNotifications] = useState<string[]>([]);
+	const [ token, setToken ] = useState(localStorage.getItem("token"));
 
 	const addNotification = (msg: string) => {
 		setNotifications(prev => [...prev, msg]);
@@ -48,12 +51,17 @@ export const NotificationProvider = ({
 		}, 4000);
 	};
 
+	const addToken = (ttoken: string | null) => {
+		setToken(ttoken);
+	};
+
 	function handleApiError(res: any) {
 		const code = res?.code ?? res?.error ?? res;
 
-		if (code === 401) {
-			addNotification("Session expired. Please log in again.");
+		if (code === 'Invalid token' || code === 'Invalid or expired token' || code === 'Authentication token not provided') {
+			addNotification("Session expired. Please log again.");
 			localStorage.removeItem("token");
+			setToken(null);
 			return;
 		}
 	
@@ -63,7 +71,7 @@ export const NotificationProvider = ({
 	}
 
 	return (
-		<NotificationContext.Provider value={{ addNotification, handleApiError }}>
+		<NotificationContext.Provider value={{ addNotification, handleApiError, addToken, token }}>
 			{children}
 
 			<div className="notification-box">
