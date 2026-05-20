@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 import { IntroButtons } from "../components/Buttons/IntroButtons"
 
 
 export function SplashScreen() {
 	const navigate = useNavigate()
+	const { t } = useTranslation()
 	const [showLogo, setShowLogo] = useState(false)
 	const [showTitle, setShowTitle] = useState(false)
 	const [showButtons, setShowButtons] = useState(false)
@@ -35,19 +37,19 @@ export function SplashScreen() {
 					<p className={`text-center text-yellow-600 text-[clamp(0.62rem,1.1vw,1.1rem)] tracking-[0.18em] uppercase font-light px-3
 							transition-opacity duration-1100 ease-out mt-[clamp(-0.4rem,-0.8vh,-0.15rem)]
 					${showTitle ? "opacity-100" : "opacity-0"}`}>
-						3D HUB · ARCADE PONG · REALTIME BATTLES · 42 PROJECT
+					{t('splash.tagline')}
 					</p>
 				</div>
 				<div className={`w-full flex flex-wrap items-center justify-center py-[clamp(1rem,3.6vh,2.5rem)] gap-[clamp(0.6rem,1.8vw,2rem)] transition-all duration-2700 ease-out
 				${showButtons ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
-					<IntroButtons label="Guest" onCLick={() => navigate("start")} />
-					<IntroButtons label="42 Login" onCLick={() => navigate("Login42")} />
-					<IntroButtons label="Login" onCLick={() => navigate("login")} />
+				<IntroButtons label={t('splash.guest')} onCLick={() => navigate("start")} />
+				<IntroButtons label={t('splash.login42')} onCLick={() => navigate("Login42")} />
+				<IntroButtons label={t('splash.login')} onCLick={() => navigate("login")} />
 				</div>
 				<p className={`text-center text-yellow-600 text-[clamp(0.62rem,1.05vw,1rem)] py-[clamp(0.4rem,2vh,1.8rem)] tracking-[0.14em] uppercase font-light px-3
 						transition-opacity duration-1100 ease-out
 					${showTitle ? "opacity-100" : "opacity-0"}`}>
-					v1.0 - · - realtime pong experience - · - 42 malaga
+					{t('splash.version')}
 				</p>
 			</div>
 		</div>

@@ -26,6 +26,13 @@
         "tech": "Tech Info",
         "creators": "Creadores"
     },
+    "splash": {
+        "tagline": "3D HUB · ARCADE PONG · BATALLAS EN TIEMPO REAL · PROYECTO 42",
+        "version": "v1.0 - · - experiencia pong en tiempo real - · - 42 málaga",
+        "guest": "Invitado",
+        "login42": "42 Login",
+        "login": "Iniciar Sesión"
+    },
     "sections": {
         "3d": {
             "explore": "Explorar"
@@ -51,5 +58,47 @@
             "backendDev": "Backend Developer",
             "productOwner": "Product Owner"
         }
+    },
+    "privacy": {
+        "title": "Política de Privacidad",
+        "updated": "Mayo 2026",
+        "s1Title": "1. Quiénes Somos",
+        "s1Text": "Transcendence es un proyecto final desarrollado por cuatro estudiantes de 42 Málaga. Incluye un hub 3D, un juego competitivo de Pong y cuentas de usuario. Es un proyecto académico, no un producto comercial.",
+        "s2Title": "2. Datos que Recopilamos",
+        "s2Text": "Almacenamos tu nombre de usuario, dirección de correo electrónico, contraseña cifrada, estadísticas de juego y un token de sesión. No se recopilan datos de pago ni de ubicación.",
+        "s3Title": "3. Cómo los Usamos",
+        "s3Text": "Únicamente para que la aplicación funcione: autenticación, perfiles y funciones del juego. No compartimos ni vendemos tus datos con nadie.",
+        "s4Title": "4. Cookies",
+        "s4Text": "Usamos una única cookie de sesión para mantenerte conectado. Sin cookies de seguimiento ni publicidad. Al cerrar sesión desaparece inmediatamente.",
+        "s5Title": "5. Seguridad",
+        "s5Text": "Las contraseñas se cifran con bcrypt y la aplicación corre en un entorno Docker aislado. Es un proyecto estudiantil — evita reutilizar contraseñas de otros servicios.",
+        "s6Title": "6. Login con Terceros",
+        "s6Text": "Puedes iniciar sesión con tu cuenta de 42 mediante OAuth. En ese caso, solo recibimos tu nombre de usuario e ID de 42. No tenemos acceso a tu contraseña ni a ningún otro dato de su plataforma.",
+        "s7Title": "7. Eliminación de Cuenta",
+        "s7Text": "Puedes eliminar tu cuenta en cualquier momento desde la página de ajustes. Todos los datos asociados serán eliminados de forma permanente.",
+        "s8Title": "8. Quién Puede Usarlo",
+        "s8Text": "Esta aplicación está destinada a estudiantes y evaluadores de 42 Málaga. El acceso fuera de ese contexto no está oficialmente soportado.",
+        "footer": "Transcendence — 42 Málaga · 2026"
+    },
+    "terms": {
+        "title": "Términos de Servicio",
+        "updated": "Mayo 2026",
+        "s1Title": "1. Sobre Este Proyecto",
+        "s1Text": "Transcendence es un proyecto académico desarrollado por cuatro estudiantes de 42 Málaga. Al usar la plataforma aceptas estos términos. No es un servicio comercial.",
+        "s2Title": "2. Quién Puede Usarlo",
+        "s2Text": "Esta plataforma está destinada a estudiantes y evaluadores de 42 Málaga. El acceso fuera de ese contexto no está oficialmente soportado.",
+        "s3Title": "3. Tu Cuenta",
+        "s3Text": "Eres responsable de tu cuenta y tus credenciales. No compartas tu contraseña. Cualquier actividad bajo tu cuenta es tu responsabilidad.",
+        "s4Title": "4. Uso Aceptable",
+        "s4Text": "No intentes explotar la plataforma, hostigar a otros usuarios ni usar herramientas automatizadas para interactuar con el servicio. Juega limpio.",
+        "s5Title": "5. Nombres de Usuario y Contenido",
+        "s5Text": "Los nombres de usuario y el contenido del perfil no deben ser ofensivos ni discriminatorios. Podemos eliminar cuentas que incumplan esto.",
+        "s6Title": "6. Disponibilidad",
+        "s6Text": "Es un proyecto estudiantil sin garantía de disponibilidad. El servicio puede quedar fuera de línea o modificarse en cualquier momento.",
+        "s7Title": "7. Responsabilidad",
+        "s7Text": "Transcendence es un proyecto educativo. No somos responsables de pérdidas de datos, interrupciones del servicio ni daños derivados de su uso.",
+        "s8Title": "8. Eliminación de Cuenta",
+        "s8Text": "Puedes eliminar tu cuenta en cualquier momento desde la página de ajustes. Las cuentas que incumplan estos términos pueden ser eliminadas sin previo aviso.",
+        "footer": "Transcendence — 42 Málaga · 2026"
     }
 }

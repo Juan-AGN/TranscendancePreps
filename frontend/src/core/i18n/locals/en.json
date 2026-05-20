@@ -1,55 +1,104 @@
 {
-    "header": {
-        "home": "Home",
-        "world3d": "3D World",
-        "arcade": "Arcade",
-        "game": "Game",
-        "quickPlay": "Quick Play",
-        "about": "Tech & Project",
-        "info": "Info",
-        "creators": "Creators",
-        "settings": "Settings",
-        "login": "Login"
-    },
-    "footer": {
-        "brand": "TRANSCENDENCE",
-        "project": "Alumni Project 42 Telefonica",
-        "privacy": "Privacy Policy",
-        "terms": "Terms of Service",
-        "copyright": "© 2026 Transcendence"
-    },
-    "startGate": {
-        "title": "PROJECT 42",
-        "subtitle": "Enter a new Pong experience",
-        "enter3d": "Explore 3D World",
-        "arcade": "Arcade",
-        "tech": "Tech Info",
-        "creators": "Creators"
-    },
-    "sections": {
-        "3d": {
-            "explore": "Explore"
-        },
-        "arcade": {
-            "welcome": "Welcome to Retro Arcade Pong",
-            "simple": "Our game is simple & easy...",
-            "challenge": "but the challenge is elite!",
-            "skills": "speed, precision, focus,",
-            "noMistakes": "and no room for mistakes.",
-            "ready": "Are you ready?",
-            "enterBtn": "Arcade Arena"
-        },
-        "tech": {
-            "title": "Tech & Project",
-            "subtitle": "About the project",
-            "desc1": "Transcendence is a modern reinterpretation of the classic Pong experience, combining competitive gameplay, a retro arcade spirit, and an immersive 3D hub. The project mixes frontend, backend, real-time interaction and visual design to create a complete digital experience where users can explore, play, compete and connect inside the same platform.",
-            "desc2": "The goal was not only to build a game, but to create a full universe around it: a navigable 3D environment, a polished interface, structured backend logic, auth system, game modes, and a visual identity inspired by futuristic arcade culture."
-        },
-        "creators": {
-            "technicalLead": "Technical Lead",
-            "projectManager": "Project Manager",
-            "backendDev": "Backend Developer",
-            "productOwner": "Product Owner"
-        }
-    }
+	"header": {
+		"home": "Home",
+		"world3d": "3D World",
+		"arcade": "Arcade",
+		"game": "Game",
+		"quickPlay": "Quick Play",
+		"about": "Tech & Project",
+		"info": "Info",
+		"creators": "Creators",
+		"settings": "Settings",
+		"login": "Login"
+	},
+	"footer": {
+		"brand": "TRANSCENDENCE",
+		"project": "Alumni Project 42 Telefonica",
+		"privacy": "Privacy Policy",
+		"terms": "Terms of Service",
+		"copyright": "© 2026 Transcendence"
+	},
+	"startGate": {
+		"title": "PROJECT 42",
+		"subtitle": "Enter a new Pong experience",
+		"enter3d": "Explore 3D World",
+		"arcade": "Arcade",
+		"tech": "Tech Info",
+		"creators": "Creators"
+	},
+	"splash": {
+		"tagline": "3D HUB · ARCADE PONG · REALTIME BATTLES · 42 PROJECT",
+		"version": "v1.0 - · - realtime pong experience - · - 42 malaga",
+		"guest": "Guest",
+		"login42": "42 Login",
+		"login": "Login"
+	},
+	"sections": {
+		"3d": {
+			"explore": "Explore"
+		},
+		"arcade": {
+			"welcome": "Welcome to Retro Arcade Pong",
+			"simple": "Our game is simple & easy...",
+			"challenge": "but the challenge is elite!",
+			"skills": "speed, precision, focus,",
+			"noMistakes": "and no room for mistakes.",
+			"ready": "Are you ready?",
+			"enterBtn": "Arcade Arena"
+		},
+		"tech": {
+			"title": "Tech & Project",
+			"subtitle": "About the project",
+			"desc1": "Transcendence is a modern reinterpretation of the classic Pong experience, combining competitive gameplay, a retro arcade spirit, and an immersive 3D hub. The project mixes frontend, backend, real-time interaction and visual design to create a complete digital experience where users can explore, play, compete and connect inside the same platform.",
+			"desc2": "The goal was not only to build a game, but to create a full universe around it: a navigable 3D environment, a polished interface, structured backend logic, auth system, game modes, and a visual identity inspired by futuristic arcade culture."
+		},
+		"creators": {
+			"technicalLead": "Technical Lead",
+			"projectManager": "Project Manager",
+			"backendDev": "Backend Developer",
+			"productOwner": "Product Owner"
+		}
+	},
+	"privacy": {
+		"title": "Privacy Policy",
+		"updated": "May 2026",
+		"s1Title": "1. Who We Are",
+		"s1Text": "Transcendence is a final project developed by four students at 42 Málaga. It includes a 3D hub, a competitive Pong game and user accounts. This is an academic project, not a commercial product.",
+		"s2Title": "2. Data We Collect",
+		"s2Text": "We store your username, email address, hashed password, game statistics and a session token. No payment or location data is collected.",
+		"s3Title": "3. How We Use It",
+		"s3Text": "Solely to run the application — authentication, profiles and game features. We do not share or sell your data with anyone.",
+		"s4Title": "4. Cookies",
+		"s4Text": "We use a single session cookie to keep you logged in. No tracking or advertising cookies. Logging out removes it immediately.",
+		"s5Title": "5. Security",
+		"s5Text": "Passwords are hashed with bcrypt and the application runs in an isolated Docker environment. This is a student project — avoid reusing passwords from other services.",
+		"s6Title": "6. Third-party Login",
+		"s6Text": "You can log in using your 42 account via OAuth. In that case, we only receive your 42 username and ID. We do not have access to your 42 password or any other data from their platform.",
+		"s7Title": "7. Account Deletion",
+		"s7Text": "You can delete your account at any time from the settings page. All associated data will be permanently removed.",
+		"s8Title": "8. Who Can Use This",
+		"s8Text": "This application is intended for 42 Málaga students and evaluators. Access outside that context is not officially supported.",
+		"footer": "Transcendence — 42 Málaga · 2026"
+	},
+	"terms": {
+		"title": "Terms of Service",
+		"updated": "May 2026",
+		"s1Title": "1. About This Project",
+		"s1Text": "Transcendence is an academic project developed by four students at 42 Málaga. By using the platform you accept these terms. This is not a commercial service.",
+		"s2Title": "2. Who Can Use It",
+		"s2Text": "This platform is intended for 42 Málaga students and evaluators. Access outside that context is not officially supported.",
+		"s3Title": "3. Your Account",
+		"s3Text": "You are responsible for your account and credentials. Do not share your password. Any activity under your account is your responsibility.",
+		"s4Title": "4. Acceptable Use",
+		"s4Text": "Do not attempt to exploit the platform, harass other users or use automated tools to interact with the service. Play fair.",
+		"s5Title": "5. Usernames & Content",
+		"s5Text": "Usernames and profile content must not be offensive or discriminatory. We may remove accounts that violate this.",
+		"s6Title": "6. Availability",
+		"s6Text": "This is a student project with no uptime guarantee. The service may go offline or change at any time.",
+		"s7Title": "7. Liability",
+		"s7Text": "Transcendence is an educational project. We are not liable for data loss, service interruptions or any damages arising from its use.",
+		"s8Title": "8. Account Deletion",
+		"s8Text": "You can delete your account at any time from the settings page. Accounts that violate these terms may be removed without notice.",
+		"footer": "Transcendence — 42 Málaga · 2026"
+	}
 }

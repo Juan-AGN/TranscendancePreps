@@ -26,6 +26,13 @@
         "tech": "Tech Info",
         "creators": "Createurs"
     },
+    "splash": {
+        "tagline": "3D HUB · ARCADE PONG · BATAILLES EN TEMPS RÉEL · PROJET 42",
+        "version": "v1.0 - · - expérience pong en temps réel - · - 42 malaga",
+        "guest": "Invité",
+        "login42": "42 Login",
+        "login": "Connexion"
+    },
     "sections": {
         "3d": {
             "explore": "Explorer"
@@ -51,5 +58,47 @@
             "backendDev": "Backend Developer",
             "productOwner": "Product Owner"
         }
+    },
+    "privacy": {
+        "title": "Politique de Confidentialité",
+        "updated": "Mai 2026",
+        "s1Title": "1. Qui Sommes-Nous",
+        "s1Text": "Transcendence est un projet final développé par quatre étudiants de 42 Málaga. Il comprend un hub 3D, un jeu de Pong compétitif et des comptes utilisateurs. C'est un projet académique, pas un produit commercial.",
+        "s2Title": "2. Données Collectées",
+        "s2Text": "Nous stockons votre nom d'utilisateur, adresse e-mail, mot de passe haché, statistiques de jeu et un token de session. Aucune donnée de paiement ou de localisation n'est collectée.",
+        "s3Title": "3. Comment Nous les Utilisons",
+        "s3Text": "Uniquement pour faire fonctionner l'application — authentification, profils et fonctionnalités du jeu. Nous ne partageons ni ne vendons vos données.",
+        "s4Title": "4. Cookies",
+        "s4Text": "Nous utilisons un seul cookie de session pour vous garder connecté. Pas de cookies de suivi ni de publicité. La déconnexion le supprime immédiatement.",
+        "s5Title": "5. Sécurité",
+        "s5Text": "Les mots de passe sont hachés avec bcrypt et l'application tourne dans un environnement Docker isolé. C'est un projet étudiant — évitez de réutiliser des mots de passe d'autres services.",
+        "s6Title": "6. Connexion Tierce",
+        "s6Text": "Vous pouvez vous connecter avec votre compte 42 via OAuth. Dans ce cas, nous recevons uniquement votre nom d'utilisateur et votre ID 42. Nous n'avons pas accès à votre mot de passe ni à d'autres données de leur plateforme.",
+        "s7Title": "7. Suppression du Compte",
+        "s7Text": "Vous pouvez supprimer votre compte à tout moment depuis la page des paramètres. Toutes les données associées seront définitivement supprimées.",
+        "s8Title": "8. Qui Peut l'Utiliser",
+        "s8Text": "Cette application est destinée aux étudiants et évaluateurs de 42 Málaga. L'accès en dehors de ce contexte n'est pas officiellement pris en charge.",
+        "footer": "Transcendence — 42 Málaga · 2026"
+    },
+    "terms": {
+        "title": "Conditions d'Utilisation",
+        "updated": "Mai 2026",
+        "s1Title": "1. À Propos du Projet",
+        "s1Text": "Transcendence est un projet académique développé par quatre étudiants de 42 Málaga. En utilisant la plateforme, vous acceptez ces conditions. Ce n'est pas un service commercial.",
+        "s2Title": "2. Qui Peut l'Utiliser",
+        "s2Text": "Cette plateforme est destinée aux étudiants et évaluateurs de 42 Málaga. L'accès en dehors de ce contexte n'est pas officiellement pris en charge.",
+        "s3Title": "3. Votre Compte",
+        "s3Text": "Vous êtes responsable de votre compte et de vos identifiants. Ne partagez pas votre mot de passe. Toute activité sous votre compte est de votre responsabilité.",
+        "s4Title": "4. Utilisation Acceptable",
+        "s4Text": "N'essayez pas d'exploiter la plateforme, de harceler d'autres utilisateurs ou d'utiliser des outils automatisés. Jouez fair-play.",
+        "s5Title": "5. Noms d'Utilisateur et Contenu",
+        "s5Text": "Les noms d'utilisateur et le contenu du profil ne doivent pas être offensants ou discriminatoires. Nous pouvons supprimer les comptes qui ne respectent pas cela.",
+        "s6Title": "6. Disponibilité",
+        "s6Text": "C'est un projet étudiant sans garantie de disponibilité. Le service peut être mis hors ligne ou modifié à tout moment.",
+        "s7Title": "7. Responsabilité",
+        "s7Text": "Transcendence est un projet éducatif. Nous ne sommes pas responsables des pertes de données, interruptions de service ou dommages découlant de son utilisation.",
+        "s8Title": "8. Suppression du Compte",
+        "s8Text": "Vous pouvez supprimer votre compte à tout moment depuis la page des paramètres. Les comptes qui enfreignent ces conditions peuvent être supprimés sans préavis.",
+        "footer": "Transcendence — 42 Málaga · 2026"
     }
 }
