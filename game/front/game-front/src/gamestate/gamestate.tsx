@@ -1,16 +1,28 @@
-import { createContext, useContext, useState, useRef, useEffect } from "react";
-import type { GameSession, Lobby } from "../types/types";
-import { NotificationProvider, useNotification } from '../notifications';
-import { LobbyProvider, useLobby } from '../lobby';
-import { Doubledivvert, Singledivgame, Doubledivgame } from '../commoncomp/commoncomp';
-import { div } from "framer-motion/client";
+import { useRef, useEffect } from "react";
+import { useNotification } from '../notifications';
+import { useLobby } from '../lobby';
 import { useWs } from "../wshandler";
+import { leavelobby } from "../game_endpoints/lobbies";
 
 
 export function Gamehandler() {
     const canvasRef = useRef(null);
     const { game, addGame } = useWs();
-    const { names } = useLobby();
+	 const { handleApiError } = useNotification();
+    const { names, lobby, addLobby } = useLobby();
+
+	function leavelob() {
+		if (lobby)
+		{
+			leavelobby(lobby!.id, handleApiError, addLobby);
+			addGame(null);
+		}
+		else
+		{
+			addLobby(null);
+			addGame(null);
+		}
+    }
 
     function paintgame(dimensions : number) {
         if (!game) return;
@@ -20,10 +32,8 @@ export function Gamehandler() {
     	if (!ctx) return;
 
         const startx = (dimensions - game.borderx) / 2;
-        const limitx = dimensions - startx;
     
         const starty = (dimensions - game.bordery) / 2;
-        const limity = dimensions - starty;
 
         ctx.clearRect(0, 0, game.borderx, game.bordery);
 		ctx.fillStyle= "grey";
@@ -103,9 +113,15 @@ export function Gamehandler() {
     }, [game]);
 
     if (game!.borderx > 1500 || game!.bordery > 1500)
-        return (<div className="fixed inset-0 flex items-center justify-center pointer-events-none"><canvas ref={canvasRef} width={2000} height={2000} className=" aspect-square w-[85vw] h-[85vw] landscape:w-[85vh] landscape:h-[85vh] shadow-2xl inset-shadow-purple-50 border-4 border-double rounded-xl"></canvas></div>);
+        return (<div className="fixed inset-0 flex items-center justify-center pointer-events-none flex-col">
+			<div className="h-5 w-20 bg-radial from-red-100/20 to-red-300/20 rounded-t-2xl cursor-pointer text-center content-center shadow hover:from-red-100 hover:to-red-200 transition delay-150 duration-300 ease-in-out pointer-events-auto ext-sm" onClick={leavelob}>LEAVE</div>
+			<canvas ref={canvasRef} width={2000} height={2000} className=" aspect-square w-[85vw] h-[85vw] landscape:w-[85vh] landscape:h-[85vh] shadow-2xl inset-shadow-purple-50 border-4 border-double rounded-xl"></canvas></div>);
     else if (game!.borderx > 1000 || game!.bordery > 1000)
-        return (<div className="fixed inset-0 flex items-center justify-center pointer-events-none"><canvas ref={canvasRef} width={1500} height={1500} className=" aspect-square w-[85vw] h-[85vw] landscape:w-[85vh] landscape:h-[85vh] shadow-2xl inset-shadow-purple-50 border-4 border-double rounded-xl"></canvas></div>);
+        return (<div className="fixed inset-0 flex items-center justify-center pointer-events-none flex-col">
+			<div className="h-5 w-20 bg-radial from-red-100/20 to-red-300/20 rounded-t-2xl cursor-pointer text-center content-center shadow hover:from-red-100 hover:to-red-200 transition delay-150 duration-300 ease-in-out pointer-events-auto ext-sm" onClick={leavelob}>LEAVE</div>
+			<canvas ref={canvasRef} width={1500} height={1500} className=" aspect-square w-[85vw] h-[85vw] landscape:w-[85vh] landscape:h-[85vh] shadow-2xl inset-shadow-purple-50 border-4 border-double rounded-xl"></canvas></div>);
     else
-        return (<div className="fixed inset-0 flex items-center justify-center pointer-events-none"><canvas ref={canvasRef} width={1000} height={1000} className=" aspect-square w-[85vw] h-[85vw] landscape:w-[85vh] landscape:h-[85vh] shadow-2xl inset-shadow-purple-50 border-4 border-double rounded-xl"></canvas></div>);
+        return (<div className="fixed inset-0 flex items-center justify-center pointer-events-none flex-col">
+			<div className="h-5 w-20 bg-radial from-red-100/20 to-red-300/20 rounded-t-2xl cursor-pointer text-center content-center shadow hover:from-red-100 hover:to-red-200 transition delay-150 duration-300 ease-in-out pointer-events-auto text-sm" onClick={leavelob}>LEAVE</div>
+			<canvas ref={canvasRef} width={1000} height={1000} className=" aspect-square w-[85vw] h-[85vw] landscape:w-[85vh] landscape:h-[85vh] shadow-2xl inset-shadow-purple-50 border-4 border-double rounded-xl"></canvas></div>);
 }

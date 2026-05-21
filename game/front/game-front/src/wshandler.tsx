@@ -94,7 +94,7 @@ export const WsProvider = ({
             return ;
 
         if (msg.action === LobbyAction.HOST)
-            addNotification(`User ${await names.checknameupdate(msg.user)} became the new lobby host.`);
+            addNotification(`User ${await names.checknameupdate(msg.user)} became the host.`);
         else if (msg.action === LobbyAction.JOIN)
             addNotification(`User ${await names.checknameupdate(msg.user)} joined the lobby.`);
         else if (msg.action === LobbyAction.LEAVE)

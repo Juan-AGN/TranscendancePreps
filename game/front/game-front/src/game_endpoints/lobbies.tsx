@@ -145,7 +145,7 @@ async function createlobby(which: string, handleApiError: (msg: any) => void, ad
     }
 }
 
-async function leavelobby(which: string, handleApiError: (msg: any) => void, addLobby: (id: Lobby | null) => void) {
+export async function leavelobby(which: string, handleApiError: (msg: any) => void, addLobby: (id: Lobby | null) => void) {
     const token = localStorage.getItem("token");
 
     try {
@@ -495,7 +495,7 @@ export function RulesSetter({
             <div
             key={rule.key}
             className="bg-linear-to-r from-mist-400 to-mist-500 
-            w-[90%] rounded-xl p-2 mb-2 flex flex-col"
+            w-[90%] rounded-xl p-2 mb-1 flex flex-col"
             >
             <div className="flex justify-between text-xs mb-1">
                 <span>{rule.label}</span>
@@ -513,10 +513,10 @@ export function RulesSetter({
                 className="w-full"
             />
 
-            <div className="flex justify-between text-[10px] mt-1">
+            {/* <div className="flex justify-between text-[10px] mt-1">
                 <span>{limits[rule.key].min}</span>
                 <span>{limits[rule.key].max}</span>
-            </div>
+            </div> */}
             </div>
         ))}
         </div>
@@ -574,7 +574,7 @@ export function SettingsMenu( { setRulesm } : SettingsProps) {
         maxballs: 0,
         collision: true,
     }
-    const [nrules, setNrules] = useState(defaultrules);
+    const [nrules, setNrules] = useState(lobby!.rules);
 
     function closethebox() {
         setRulesm(0);
