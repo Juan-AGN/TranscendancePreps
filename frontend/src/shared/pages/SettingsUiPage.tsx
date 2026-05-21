@@ -1,28 +1,53 @@
 import { OlympusButton } from "../components/Buttons/ProfileButton"
 import { Palette, Bell, Monitor, Info } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { OptionButton, FlagOptionButton, ToggleButton } from "../components/Buttons/SettingsUiButtons";
+import { useTranslation } from 'react-i18next';
+
 
 type ActiveTab = 'general' | 'social' | 'environment' | 'system';
 
 export function SettingsUiPage() {
+	const { t, i18n } = useTranslation();
 	const [activeTab, setActiveTab] = useState<ActiveTab>('general');
 	const [themeMode, setThemeMode] = useState<'light' | 'dark'>(
-		() => (localStorage.getItem('theme') as 'light' | 'dark') ?? 'dark'
+		() => (localStorage.getItem('theme') as 'light' | 'dark') ?? 'light'
 	);
-	const [textSize, setTextSize] = useState<'small' | 'medium' | 'large'>('medium');
-	const [language, setLanguage] = useState<'english' | 'spanish' | 'french'>('english');
+	const [textSize, setTextSize] = useState<'small' | 'medium' | 'large'>(
+		() => (localStorage.getItem('textSize') as 'small' | 'medium' | 'large') ?? 'medium'
+	);
+	const [language, setLanguage] = useState<'english' | 'spanish' | 'french'>(() => {
+		const map: Record<string, 'english' | 'spanish' | 'french'> = { en: 'english', es: 'spanish', fr: 'french' };
+		return map[i18n.resolvedLanguage ?? 'en'] ?? 'english';
+	});
 	const [friendNotifications, setFriendNotifications] = useState(true);
 	const [matchNotifications, setMatchNotifications] = useState(true);
 	const [profileVisibility, setProfileVisibility] = useState<'public' | 'private'>('public');
 	const [masterVolume, setMasterVolume] = useState(70);
 	const [effectsSound, setEffectsSound] = useState(true);
 
+	useEffect(() => {
+		const saved = localStorage.getItem('textSize') ?? 'medium';
+		document.documentElement.dataset.fontSize = saved;
+	}, []);
+
 	const handleThemeChange = (mode: 'light' | 'dark') => {
 		setThemeMode(mode);
 		document.documentElement.dataset.theme = mode;
 		localStorage.setItem('theme', mode);
 	};
+
+	const handleTextSize = (size: 'small' | 'medium' | 'large') => {
+		setTextSize(size);
+		document.documentElement.dataset.fontSize = size;
+		localStorage.setItem('textSize', size);
+	}
+
+	const handleLanguage = (language: 'english' | 'spanish' | 'french') => {
+		setLanguage(language);
+		const map = {english: 'en', spanish: 'es', french: 'fr'} as const;
+		i18n.changeLanguage(map[language]);
+	}
 
 	return (
 		<div
@@ -32,27 +57,27 @@ export function SettingsUiPage() {
 			<div className="relative z-10 mx-auto min-h-[65vh] w-full max-w-6xl overflow-hidden rounded-3xl border border-yellow-500/45 bg-white/70 dark:bg-white/[0.07]
 							backdrop-blur-[50px] shadow-[0_20px_80px_rgba(90,60,20,0.25),inset_0_1px_0_rgba(255,255,255,0.45)] transition-colors duration-300">
 				<div className="mt-8 text-center text-6xl font-medium text-[#a67c42] font-['Cormorant_Garamond'] uppercase tracking-[0.32em] md:text-6xl">
-					Settings
+					{t('settingsPage.title')}
 				</div>
 				<div className="mt-8 flex flex-wrap justify-center gap-3">
 					<OlympusButton onClick={() => setActiveTab('general')}>
 						<Palette size={15} strokeWidth={2.2} className="text-yellow-700" />
-						<span>General</span>
+						<span>{t('settingsPage.tabs.general')}</span>
 					</OlympusButton>
 
 					<OlympusButton onClick={() => setActiveTab('social')}>
 						<Bell size={15} strokeWidth={2.2} className="text-yellow-700" />
-						<span>Social</span>
+						<span>{t('settingsPage.tabs.social')}</span>
 					</OlympusButton>
 
 					<OlympusButton onClick={() => setActiveTab('environment')}>
 						<Monitor size={15} strokeWidth={2.2} className="text-yellow-700" />
-						<span>Environment</span>
+						<span>{t('settingsPage.tabs.environment')}</span>
 					</OlympusButton>
 
 					<OlympusButton onClick={() => setActiveTab('system')}>
 						<Info size={15} strokeWidth={2.2} className="text-yellow-700" />
-						<span>System</span>
+						<span>{t('settingsPage.tabs.system')}</span>
 					</OlympusButton>
 				</div>
 
@@ -60,57 +85,57 @@ export function SettingsUiPage() {
 				{activeTab === 'general' && (
 					<section className="mx-auto mt-8 w-full max-w-4xl space-y-4 px-6 pb-10">
 						<p className="text-center text-sm text-black/60">
-							General application preferences
+							{t('settingsPage.general.subtitle')}
 						</p>
 
 						<SettingRow
-							title="Theme Mode"
-							description="Choose between lightor dark">
+							title={t('settingsPage.general.theme.title')}
+							description={t('settingsPage.general.theme.desc')}>
 							<div className="flex rounded-full border border-yellow-500/30 bg-white/20 p-1">
 							<OptionButton active={themeMode === 'light'} onClick={() => handleThemeChange('light')}>
-								Light
+								{t('settingsPage.general.theme.light')}
 							</OptionButton>
 							<OptionButton active={themeMode === 'dark'} onClick={() => handleThemeChange('dark')}>
-									Dark
+									{t('settingsPage.general.theme.dark')}
 								</OptionButton>
 							</div>
 						</SettingRow>
 
 						<SettingRow
-							title="Text Size"
-							description="Choose small, medium or large text across the interface.">
+							title={t('settingsPage.general.textSize.title')}
+							description={t('settingsPage.general.textSize.desc')}>
 							<div className="flex rounded-full border border-yellow-500/30 bg-white/20 p-1">
-								<OptionButton active={textSize === 'small'} onClick={() => setTextSize('small')}>
-									Small
+								<OptionButton active={textSize === 'small'} onClick={() => handleTextSize('small')}>
+									{t('settingsPage.general.textSize.small')}
 								</OptionButton>
-								<OptionButton active={textSize === 'medium'} onClick={() => setTextSize('medium')}>
-									Medium
+								<OptionButton active={textSize === 'medium'} onClick={() => handleTextSize('medium')}>
+									{t('settingsPage.general.textSize.medium')}
 								</OptionButton>
-								<OptionButton active={textSize === 'large'} onClick={() => setTextSize('large')}>
-									Large
+								<OptionButton active={textSize === 'large'} onClick={() => handleTextSize('large')}>
+									{t('settingsPage.general.textSize.large')}
 								</OptionButton>
 							</div>
 						</SettingRow>
 
 						<SettingRow
-							title="Language"
-							description="Select the language used across Transcendence.">
+							title={t('settingsPage.general.language.title')}
+							description={t('settingsPage.general.language.desc')}>
 							<div className="flex flex-wrap items-center gap-2 rounded-2xl border border-yellow-500/30 bg-white/20 p-2">
 								<FlagOptionButton
 									active={language === 'english'}
-									onClick={() => setLanguage('english')}
+									onClick={() => handleLanguage('english')}
 									label="English"
 									src="/images/UkFlag.png"
 									alt="English"/>
 								<FlagOptionButton
 									active={language === 'spanish'}
-									onClick={() => setLanguage('spanish')}
+									onClick={() => handleLanguage('spanish')}
 									label="Spanish"
 									src="/images/spainFlag1.png"
 									alt="Spanish"/>
 								<FlagOptionButton
 									active={language === 'french'}
-									onClick={() => setLanguage('french')}
+									onClick={() => handleLanguage('french')}
 									label="French"
 									src="/images/frenchFlag.png"
 									alt="French"/>
@@ -123,30 +148,30 @@ export function SettingsUiPage() {
 				{activeTab === 'social' && (
 					<section className="mx-auto mt-8 w-full max-w-4xl space-y-4 px-6 pb-10">
 						<p className="text-center text-sm text-black/60">
-							Manage your social activity and privacy
+							{t('settingsPage.social.subtitle')}
 						</p>
 
 						<SettingRow
-							title="Friend Requests"
-							description="Receive notifications when someone sends you a friend request.">
+							title={t('settingsPage.social.friends.title')}
+							description={t('settingsPage.social.friends.desc')}>
 							<ToggleButton enabled={friendNotifications} onClick={() => setFriendNotifications(!friendNotifications)} />
 						</SettingRow>
 
 						<SettingRow
-							title="Match Invitations"
-							description="Get notified when another player invites you to play.">
+							title={t('settingsPage.social.match.title')}
+							description={t('settingsPage.social.match.desc')}>
 							<ToggleButton enabled={matchNotifications} onClick={() => setMatchNotifications(!matchNotifications)} />
 						</SettingRow>
 
 						<SettingRow
-							title="Profile Visibility"
-							description="Choose whether your profile is visible to other players.">
+							title={t('settingsPage.social.visibility.title')}
+							description={t('settingsPage.social.visibility.desc')}>
 							<div className="flex rounded-full border border-yellow-500/30 bg-white/20 p-1">
 								<OptionButton active={profileVisibility === 'public'} onClick={() => setProfileVisibility('public')}>
-									Public
+									{t('settingsPage.social.visibility.public')}
 								</OptionButton>
 								<OptionButton active={profileVisibility === 'private'} onClick={() => setProfileVisibility('private')}>
-									Private
+									{t('settingsPage.social.visibility.private')}
 								</OptionButton>
 							</div>
 						</SettingRow>
@@ -157,12 +182,12 @@ export function SettingsUiPage() {
 				{activeTab === 'environment' && (
 					<section className="mx-auto mt-8 w-full max-w-4xl space-y-4 px-6 pb-10">
 						<p className="text-center text-sm text-black/60">
-							Adjust the visual and sound behavior of the interface
+							{t('settingsPage.environment.subtitle')}
 						</p>
 
 						<SettingRow
-							title="Master Volume"
-							description="Control overall game and interface sound level.">
+							title={t('settingsPage.environment.volume.title')}
+							description={t('settingsPage.environment.volume.desc')}>
 							<div className="w-full max-w-xs">
 								<div className="mb-2 text-right text-xs font-bold uppercase text-yellow-800/75">
 									{masterVolume}%
@@ -179,8 +204,8 @@ export function SettingsUiPage() {
 						</SettingRow>
 
 						<SettingRow
-							title="Effects Sound"
-							description="Enable or disable game effects sounds.">
+							title={t('settingsPage.environment.effects.title')}
+							description={t('settingsPage.environment.effects.desc')}>
 							<ToggleButton enabled={effectsSound} onClick={() => setEffectsSound(!effectsSound)} />
 						</SettingRow>
 					</section>
@@ -190,22 +215,22 @@ export function SettingsUiPage() {
 				{activeTab === 'system' && (
 					<section className="mx-auto mt-8 w-full max-w-4xl space-y-4 px-6 pb-10">
 						<p className="text-center text-sm text-black/60">
-							Transcendence system information
+							{t('settingsPage.system.subtitle')}
 						</p>
 
 						<SettingRow
-							title="Version"
-							description="Current application version.">
+							title={t('settingsPage.system.version.title')}
+							description={t('settingsPage.system.version.desc')}>
 							<span className="rounded-full bg-white/20 px-5 py-2 text-xs font-bold uppercase text-black/55">
 								v1.0
 							</span>
 						</SettingRow>
 
 						<SettingRow
-							title="Server Status"
-							description="Backend connection status.">
+							title={t('settingsPage.system.server.title')}
+							description={t('settingsPage.system.server.desc')}>
 							<span className="rounded-full bg-emerald-400/20 px-5 py-2 text-xs font-bold uppercase text-emerald-700">
-								Connected
+								{t('settingsPage.system.server.connected')}
 							</span>
 						</SettingRow>
 					</section>

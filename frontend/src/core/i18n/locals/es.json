@@ -100,5 +100,36 @@
         "s8Title": "8. Eliminación de Cuenta",
         "s8Text": "Puedes eliminar tu cuenta en cualquier momento desde la página de ajustes. Las cuentas que incumplan estos términos pueden ser eliminadas sin previo aviso.",
         "footer": "Transcendence — 42 Málaga · 2026"
+    },
+    "settingsPage": {
+        "title": "Ajustes",
+        "tabs": {
+            "general": "General",
+            "social": "Social",
+            "environment": "Entorno",
+            "system": "Sistema"
+        },
+        "general": {
+            "subtitle": "Preferencias generales de la aplicación",
+            "theme": { "title": "Modo de Tema", "desc": "Elige entre claro u oscuro", "light": "Claro", "dark": "Oscuro" },
+            "textSize": { "title": "Tamaño de Texto", "desc": "Elige texto pequeño, mediano o grande en toda la interfaz.", "small": "Pequeño", "medium": "Mediano", "large": "Grande" },
+            "language": { "title": "Idioma", "desc": "Selecciona el idioma usado en Transcendence." }
+        },
+        "social": {
+            "subtitle": "Gestiona tu actividad social y privacidad",
+            "friends": { "title": "Solicitudes de Amistad", "desc": "Recibe notificaciones cuando alguien te envíe una solicitud de amistad." },
+            "match": { "title": "Invitaciones de Partida", "desc": "Recibe notificaciones cuando otro jugador te invite a jugar." },
+            "visibility": { "title": "Visibilidad del Perfil", "desc": "Elige si tu perfil es visible para otros jugadores.", "public": "Público", "private": "Privado" }
+        },
+        "environment": {
+            "subtitle": "Ajusta el comportamiento visual y sonoro de la interfaz",
+            "volume": { "title": "Volumen Principal", "desc": "Controla el nivel de sonido general del juego y la interfaz." },
+            "effects": { "title": "Efectos de Sonido", "desc": "Activa o desactiva los efectos de sonido del juego." }
+        },
+        "system": {
+            "subtitle": "Información del sistema de Transcendence",
+            "version": { "title": "Versión", "desc": "Versión actual de la aplicación." },
+            "server": { "title": "Estado del Servidor", "desc": "Estado de la conexión con el backend.", "connected": "Conectado" }
+        }
     }
 }

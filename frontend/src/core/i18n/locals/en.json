@@ -100,5 +100,36 @@
 		"s8Title": "8. Account Deletion",
 		"s8Text": "You can delete your account at any time from the settings page. Accounts that violate these terms may be removed without notice.",
 		"footer": "Transcendence — 42 Málaga · 2026"
+	},
+	"settingsPage": {
+		"title": "Settings",
+		"tabs": {
+			"general": "General",
+			"social": "Social",
+			"environment": "Environment",
+			"system": "System"
+		},
+		"general": {
+			"subtitle": "General application preferences",
+			"theme": { "title": "Theme Mode", "desc": "Choose between light or dark", "light": "Light", "dark": "Dark" },
+			"textSize": { "title": "Text Size", "desc": "Choose small, medium or large text across the interface.", "small": "Small", "medium": "Medium", "large": "Large" },
+			"language": { "title": "Language", "desc": "Select the language used across Transcendence." }
+		},
+		"social": {
+			"subtitle": "Manage your social activity and privacy",
+			"friends": { "title": "Friend Requests", "desc": "Receive notifications when someone sends you a friend request." },
+			"match": { "title": "Match Invitations", "desc": "Get notified when another player invites you to play." },
+			"visibility": { "title": "Profile Visibility", "desc": "Choose whether your profile is visible to other players.", "public": "Public", "private": "Private" }
+		},
+		"environment": {
+			"subtitle": "Adjust the visual and sound behavior of the interface",
+			"volume": { "title": "Master Volume", "desc": "Control overall game and interface sound level." },
+			"effects": { "title": "Effects Sound", "desc": "Enable or disable game effects sounds." }
+		},
+		"system": {
+			"subtitle": "Transcendence system information",
+			"version": { "title": "Version", "desc": "Current application version." },
+			"server": { "title": "Server Status", "desc": "Backend connection status.", "connected": "Connected" }
+		}
 	}
 }

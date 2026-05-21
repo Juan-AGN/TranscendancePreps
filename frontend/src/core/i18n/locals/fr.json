@@ -100,5 +100,36 @@
         "s8Title": "8. Suppression du Compte",
         "s8Text": "Vous pouvez supprimer votre compte à tout moment depuis la page des paramètres. Les comptes qui enfreignent ces conditions peuvent être supprimés sans préavis.",
         "footer": "Transcendence — 42 Málaga · 2026"
+    },
+    "settingsPage": {
+        "title": "Paramètres",
+        "tabs": {
+            "general": "Général",
+            "social": "Social",
+            "environment": "Environnement",
+            "system": "Système"
+        },
+        "general": {
+            "subtitle": "Préférences générales de l'application",
+            "theme": { "title": "Mode de Thème", "desc": "Choisissez entre clair ou sombre", "light": "Clair", "dark": "Sombre" },
+            "textSize": { "title": "Taille du Texte", "desc": "Choisissez une taille de texte petite, moyenne ou grande.", "small": "Petit", "medium": "Moyen", "large": "Grand" },
+            "language": { "title": "Langue", "desc": "Sélectionnez la langue utilisée dans Transcendence." }
+        },
+        "social": {
+            "subtitle": "Gérez votre activité sociale et votre confidentialité",
+            "friends": { "title": "Demandes d'Amis", "desc": "Recevez des notifications lorsque quelqu'un vous envoie une demande d'ami." },
+            "match": { "title": "Invitations de Partie", "desc": "Soyez notifié quand un autre joueur vous invite à jouer." },
+            "visibility": { "title": "Visibilité du Profil", "desc": "Choisissez si votre profil est visible pour les autres joueurs.", "public": "Public", "private": "Privé" }
+        },
+        "environment": {
+            "subtitle": "Ajustez le comportement visuel et sonore de l'interface",
+            "volume": { "title": "Volume Principal", "desc": "Contrôlez le niveau sonore global du jeu et de l'interface." },
+            "effects": { "title": "Effets Sonores", "desc": "Activez ou désactivez les effets sonores du jeu." }
+        },
+        "system": {
+            "subtitle": "Informations système de Transcendence",
+            "version": { "title": "Version", "desc": "Version actuelle de l'application." },
+            "server": { "title": "État du Serveur", "desc": "État de la connexion avec le backend.", "connected": "Connecté" }
+        }
     }
 }
