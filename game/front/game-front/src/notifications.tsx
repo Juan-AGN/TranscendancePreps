@@ -33,6 +33,8 @@ const errorMessages: Record<number, string> = {
     [generalErrors.NOTINTHELOBBY]: "You are not in the lobby",
     [generalErrors.PLAYERSFULL]: "Lobby is full",
     [generalErrors.NOTENOUGHPLAYERS]: "Not enough players to start",
+	[generalErrors.RULESERROR]: "Some rules weren't able to be changed",
+
 };
 
 export const NotificationProvider = ({

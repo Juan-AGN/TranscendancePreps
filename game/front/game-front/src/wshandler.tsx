@@ -87,6 +87,9 @@ export const WsProvider = ({
 
         addLobby(msg.lobbystate);
 
+        if (msg.action === LobbyAction.UPDATERULESET)
+            addNotification(`Lobby ruleset changed.`);
+
         if (msg.user === me)
             return ;
 
@@ -102,8 +105,6 @@ export const WsProvider = ({
             addNotification(`User ${await names.checknameupdate(msg.user)} switched to player.`);
         else if (msg.action === LobbyAction.SWITCHTOSPECTATOR)
             addNotification(`User ${await names.checknameupdate(msg.user)} switched to spectator.`);
-        else if (msg.action === LobbyAction.UPDATERULESET)
-            addNotification(`Lobby ruleset changed.`);
     }
 
 	const addGame = (g: GameSession | null) => {

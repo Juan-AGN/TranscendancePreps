@@ -158,5 +158,7 @@ export enum generalErrors {
   NOTINTHELOBBY = 3003,
   PLAYERSFULL = 3004,
   NOTENOUGHPLAYERS = 3005,
+
+  RULESERROR = 4001
 }
 
