@@ -601,13 +601,13 @@ const defaultrules : Ruleset = {
 
 const bullethell : Ruleset = {
     waitingnewball: 500,
-    maxx: 1000,
-    maxy: 1000,
+    maxx: 800,
+    maxy: 800,
     ballhitbox: 5,
     playerhitbox: 60,
     ballspeed: 1,
     playerspeed: 10,
-    speedrandom: 10,
+    speedrandom: 0,
     hitboxrandom: 10,
     maxballs: 0,
     collision: true,
@@ -621,7 +621,7 @@ const macrobullethell : Ruleset = {
     playerhitbox: 90,
     ballspeed: 1,
     playerspeed: 10,
-    speedrandom: 10,
+    speedrandom: 0,
     hitboxrandom: 10,
     maxballs: 0,
     collision: true,
@@ -629,9 +629,9 @@ const macrobullethell : Ruleset = {
 
 const closequarters : Ruleset = {
     waitingnewball: 5000,
-    maxx: 500,
-    maxy: 500,
-    ballhitbox: 20,
+    maxx: 600,
+    maxy: 600,
+    ballhitbox: 40,
     playerhitbox: 40,
     ballspeed: 5,
     playerspeed: 10,
@@ -644,13 +644,13 @@ const closequarters : Ruleset = {
 const lopghall : Ruleset = {
     waitingnewball: 4000,
     maxx: 2000,
-    maxy: 500,
-    ballhitbox: 50,
+    maxy: 600,
+    ballhitbox: 90,
     playerhitbox: 90,
     ballspeed: 15,
     playerspeed: 15,
     speedrandom: 10,
-    hitboxrandom: 20,
+    hitboxrandom: 30,
     maxballs: 0,
     collision: true,
 }
@@ -661,8 +661,8 @@ const giantball : Ruleset = {
     maxy: 1800,
     ballhitbox: 200,
     playerhitbox: 100,
-    ballspeed: 10,
-    playerspeed: 2,
+    ballspeed: 3,
+    playerspeed: 10,
     speedrandom: 10,
     hitboxrandom: 100,
     maxballs: 0,
@@ -694,7 +694,7 @@ export function SettingsMenu( { setRulesm } : SettingsProps) {
             setNrules(defaultrules);
         else if (value === "bullethell")
             setNrules(bullethell);
-        else if (value === "macrobullethell")
+        else if (value === "mbullethell")
             setNrules(macrobullethell);
         else if (value === "closequarters")
             setNrules(closequarters);
