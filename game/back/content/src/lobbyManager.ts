@@ -1,4 +1,4 @@
-import { Lobby, Lobbys, LobbyAction, WsAction, Errors, GameSession, GameAction, GameResults, Ruleset, RulesState, changeErrors } from "./types";
+import { Lobby, Lobbys, LobbyAction, WsAction, Errors, GameSession, GameAction, GameResults, Ruleset, RulesState, changeErrors, generalErrors } from "./types";
 import { WebSocketServer, WebSocket } from "ws";
 import { gameManager } from "./gameManager";
 import { rulesetHandler } from "./rulesetHandler";
@@ -48,58 +48,64 @@ class LobbyManager {
 
     //creating lobby with id name and player as host
     add(id: string, player: number) {
-        if (!this.lobbymap.has(id) && !this.clientlobby.has(player) && this.userrelmap.has(player))
-        {
-            const newlobby: Lobby = {
-                id,
-                hostId: player,
-                players: [player],
-                spectators: [],
-                status: "waiting",
-                rules: rulesetHandler.defaultruleset(),
-            };
-            this.clientlobby.set(player, id);
-            this.lobbymap.set(id, newlobby);
-            return (true);
-        }
-        return (false);
+        if (this.lobbymap.has(id))
+            return (generalErrors.LOBBYALREADYEXIST);
+        if (this.clientlobby.has(player))
+            return (generalErrors.ALREADYINTHELOBBY);
+        if (!this.userrelmap.has(player))
+            return (generalErrors.NOWS);
+        const newlobby: Lobby = {
+            id,
+            hostId: player,
+            players: [player],
+            spectators: [],
+            status: "waiting",
+            rules: rulesetHandler.defaultruleset(),
+        };
+        this.clientlobby.set(player, id);
+        this.lobbymap.set(id, newlobby);
+        return (generalErrors.WORKED);
     }
 
     //adding player to lobby id
     addplayer(id: string, player: number) {
-        if (this.lobbymap.has(id) && !this.clientlobby.has(player) && this.userrelmap.has(player))
+        if (!this.lobbymap.has(id))
+            return (generalErrors.LOBBYDOESNTEXIST);
+        if (this.clientlobby.has(player))
+            return (generalErrors.ALREADYINALOBBY)
+        if (!this.userrelmap.has(player))
+            return (generalErrors.NOWS);
+        if (this.get(id)?.players.includes(player))
+            return (generalErrors.ALREADYINTHELOBBY);
+        this.clientlobby.set(player, id);
+        if (this.get(id)?.status == "in-game" || this.get(id)!.players.length >= this.maxsize)
         {
-            if (this.get(id)?.players.includes(player))
-                return (false);
-            this.clientlobby.set(player, id);
-            if (this.get(id)?.status == "in-game" || this.get(id)!.players.length >= this.maxsize)
-            {
-                this.get(id)?.spectators.push(player);
-                this.broadcastlobby(id, player, LobbyAction.SPECTATOR);
-            }
-            else
-            {
-                this.get(id)?.players.push(player);
-                this.broadcastlobby(id, player, LobbyAction.JOIN);
-            }
-            return (true);
+            this.get(id)?.spectators.push(player);
+            this.broadcastlobby(id, player, LobbyAction.SPECTATOR);
         }
-        return (false);
+        else
+        {
+            this.get(id)?.players.push(player);
+            this.broadcastlobby(id, player, LobbyAction.JOIN);
+        }
+        return (generalErrors.WORKED);
     }
 
     changeruleset(id: string, player: number, rules: Ruleset) {
-        if (this.lobbymap.has(id) && this.clientlobby.has(player))
-        {
-            const lob = this.get(id);
-            if (lob!.hostId! != player || lob!.status == "in-game")
-                return (false);
-            const ruleset = rulesetHandler.newrules(lob!, rules);
-            if (ruleset == undefined)
-                return (false);
-            this.broadcastlobby(id, player, LobbyAction.UPDATERULESET);
-            return (ruleset);
-        }
-        return (false);
+        if (!this.lobbymap.has(id))
+            return (generalErrors.LOBBYDOESNTEXIST);
+        if (!this.clientlobby.has(player))
+            return (generalErrors.NOTINALOBBY)
+        const lob = this.get(id);
+        if (lob!.hostId! != player) 
+            return (generalErrors.NOTHOST);
+        if (lob!.status == "in-game")
+            return (generalErrors.LOBBYINGAME);
+        const ruleset = rulesetHandler.newrules(lob!, rules);
+        if (ruleset == undefined)
+            return (generalErrors.RULESNOTPROVIDED);
+        this.broadcastlobby(id, player, LobbyAction.UPDATERULESET);
+        return (ruleset);
     }
 
     leavehost(tlobby: Lobby, player: number) {
@@ -122,9 +128,9 @@ class LobbyManager {
         const lob = this.get(id);
 
         if (lob == undefined)
-            return (false);
+            return (generalErrors.LOBBYDOESNTEXIST);
         if (!lob.players.includes(player) && !lob.spectators.includes(player))
-            return (false);
+            return (generalErrors.NOTINTHELOBBY);
 
         if (lob.spectators.includes(player))
         {
@@ -135,7 +141,7 @@ class LobbyManager {
             this.clientlobby.delete(player);
             if (lob.hostId == player)
                 this.leavehost(lob, player);
-            return (true);
+            return (generalErrors.WORKED);
         }
 
         if (lob.status == "in-game")
@@ -143,7 +149,7 @@ class LobbyManager {
             let game = this.gamemap.get(id)!;
 
             if (this.lobbymap.get(id)?.players.indexOf(player)! < 0)
-                return (false);
+                return (generalErrors.NOTINTHELOBBY);
             
             let index = gameManager.getplayer(player, game);
             if (index != -1)
@@ -161,20 +167,20 @@ class LobbyManager {
             this.leavehost(lob, player);
 
         this.clientlobby.delete(player);
-        return (true);
+        return (generalErrors.WORKED);
     }
 
     spectToPlayer(id: string) {
         const lob = this.get(id);
 
         if (lob == undefined)
-            return (false);
+            return (generalErrors.LOBBYDOESNTEXIST);
 
         if (lob.spectators.length === 0)
-            return (false)
+            return (generalErrors.NOTANEXPECTATOR);
 
         if (lob.players.length >= this.maxsize)
-            return (false)
+            return (generalErrors.PLAYERSFULL);
 
         lob.players.push(lob.spectators[0]);
         this.broadcastlobby(id, lob.spectators[0], LobbyAction.SWITCHTOPLAYER);
@@ -185,10 +191,10 @@ class LobbyManager {
         const lob = this.get(id);
 
         if (lob == undefined)
-            return (false);
+            return (generalErrors.LOBBYDOESNTEXIST);
 
         if (lob.players.length === 0)
-            return (false);
+            return (generalErrors.NOTAPLAYER);
 
         lob.players.push(lob.spectators[0]);
         this.broadcastlobby(id, lob.spectators[0], LobbyAction.SWITCHTOPLAYER);
@@ -199,43 +205,43 @@ class LobbyManager {
         const lob = this.get(id);
 
         if (lob == undefined)
-            return (false);
+            return (generalErrors.LOBBYDOESNTEXIST);
 
         let index = lob.spectators.indexOf(player);
 
         if (index == -1)
-            return (false);
+            return (generalErrors.NOTANEXPECTATOR);
 
         if (lob.spectators.length === 0)
-            return (false);
+            return (generalErrors.NOTANEXPECTATOR);
 
         if (lob.players.length >= this.maxsize)
-            return (false);
+            return (generalErrors.PLAYERSFULL);
 
         lob.players.push(lob.spectators[index]);
         lob.spectators.splice(index, 1);
         this.broadcastlobby(id, player, LobbyAction.SWITCHTOPLAYER);
-        return (true);
+        return (generalErrors.WORKED);
     }
 
     playerToSpectEndp(id: string, player: number) {
         const lob = this.get(id);
 
         if (lob == undefined)
-            return (false);
+            return (generalErrors.LOBBYDOESNTEXIST);
 
         let index = lob.players.indexOf(player);
 
         if (index == -1)
-            return (false);
+            return (generalErrors.NOTAPLAYER);
 
         if (lob.players.length === 0)
-            return (false);
+            return (generalErrors.NOTAPLAYER);
 
         lob.spectators.push(lob.players[index]);
         lob.players.splice(index, 1);
         this.broadcastlobby(id, player, LobbyAction.SWITCHTOSPECTATOR);
-        return (true);
+        return (generalErrors.WORKED);
     }
 
     //getter for all lobbyes
@@ -245,7 +251,7 @@ class LobbyManager {
         };
         for (const [key, value] of this.lobbymap)
             lob.all.push(value);
-        return lob;
+        return (lob);
     }
 
     //broadcast to every player an lobby action
@@ -262,7 +268,7 @@ class LobbyManager {
                 for (const ws of wsarr)
                 {
                     if (ws && ws.readyState === WebSocket.OPEN) 
-                        ws.send(JSON.stringify( {type: WsAction.LOBBYUPDATE, lobby: id, user: player, action: action} ));
+                        ws.send(JSON.stringify( {type: WsAction.LOBBYUPDATE, lobby: id, user: player, action: action, lobbystate: this.get(id)} ));
                 } 
             }
         }
@@ -275,7 +281,7 @@ class LobbyManager {
                 for (const ws of wsarr)
                 {
                     if (ws && ws.readyState === WebSocket.OPEN) 
-                        ws.send(JSON.stringify( {type: WsAction.LOBBYUPDATE, lobby: id, user: player, action: action} ));
+                        ws.send(JSON.stringify( {type: WsAction.LOBBYUPDATE, lobby: id, user: player, action: action, lobbystate: this.get(id)} ));
                 }
             }
         }
@@ -326,7 +332,7 @@ class LobbyManager {
                 for (const ws of wsarr)
                 {
                     if (ws && ws.readyState === WebSocket.OPEN) 
-                        ws.send(JSON.stringify( { type: WsAction.GAMERESULT, results: result }));
+                        ws.send(JSON.stringify( { type: WsAction.GAMERESULT, results: result, lobbystate: this.get(id)}));
                 } 
             }
         }
@@ -393,18 +399,18 @@ class LobbyManager {
 
     able(lobbyId: string, hostId: number) {
         if (!this.has(lobbyId))
-            return (Errors.NOLOBBY);
+            return (generalErrors.LOBBYDOESNTEXIST);
 
         let lob = this.get(lobbyId)!;
 
         if (hostId != lob.hostId)
-            return (Errors.NOTHOST);
+            return (generalErrors.NOTHOST);
         if (lob.status == "in-game")
-            return (Errors.INGAME);
+            return (generalErrors.LOBBYINGAME);
         if (lob.players.length < 2)
-            return (Errors.NOPLAYERS);
+            return (generalErrors.NOTENOUGHPLAYERS);
         lob.status = "in-game";
-        return (null);
+        return (generalErrors.WORKED);
     }
 
     playermovement(keycode: string, userid: number) {

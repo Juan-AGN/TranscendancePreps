@@ -3,14 +3,15 @@
     opacity: 80;
     color: aliceblue;
     width: 200px;
-    height: 50px;
+    height: 30px;
     overflow-y: auto;
     align-content: center;
     text-align: center;
     margin: 10px;
-    padding: 10px;
+    padding: 3px;
     border-radius: 20px;
     pointer-events: none;
+    font-size: small;
 }
 
 .notification-box {

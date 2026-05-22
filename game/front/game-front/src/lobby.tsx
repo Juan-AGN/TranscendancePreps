@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useRef } from "react";
+import { createContext, useContext, useState, useRef, useEffect } from "react";
 import type { Lobby } from "./types/types";
 
 const LobbyContext = createContext<LobbyContextType | null>(null);
@@ -16,6 +16,7 @@ const apiBaselob = `https://${noport}:8889/api/game`
 
 export class Usernames {
 	usermap = new Map<number, string>();
+	imgmap = new Map<number, string>();
 	me : number = -1;
 
 	checkname(id: number) {
@@ -48,6 +49,37 @@ export class Usernames {
 			else
 				return(this.usermap.get(id) ?? `User ${id}`);
 		}
+	}
+
+	async checkimgupdate(id: number) {
+		if (this.imgmap.has(id))
+			return (this.imgmap.get(id) ?? "");
+
+		try
+		{
+			let response = await fetch(`${apiBase}/users/${id}/avatar`);
+			if (!response.ok)
+				return("");
+			else
+			{
+				const res = await response.json();
+				this.imgmap.set(id, `${apiBase}${res.avatarUrl}`);
+				return (`${apiBase}${res.avatarUrl}`);
+			}
+		}
+		catch (error)
+		{
+			if (!this.imgmap.has(id))
+				return("");
+			else
+				return(this.imgmap.get(id) ?? "");
+		}
+	}
+
+	checkimg(id: number) {
+		if (this.imgmap.has(id))
+			return (this.imgmap.get(id));
+		else return (undefined);
 	}
 
 	async getme() {
@@ -83,6 +115,17 @@ export class Usernames {
 			}
 		}
 	}
+
+	getmenoupdt() {
+		const token = localStorage.getItem("token");
+
+		if (!token)
+			this.me = -1;
+		if (this.me != -1)
+			return (this.me);
+		else
+			return (-1);
+	}
 }
 
 export async function isinLobby() {
@@ -98,6 +141,7 @@ export async function isinLobby() {
 				"Content-Type": "application/json",
 				authorization: `Bearer ${token}`,
 			},
+			body: JSON.stringify({lobbyId: ""}),
 		});
 		if (!res.ok)
 			return (null);
@@ -138,7 +182,9 @@ export const LobbyProvider = ({
 			setLobby(lob);
 	};
 
-	checkLobby();
+	useEffect(() => {
+		checkLobby();
+	}, []);
 
 	return (<LobbyContext.Provider
 			value={{

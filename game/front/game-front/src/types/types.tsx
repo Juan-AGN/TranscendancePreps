@@ -12,7 +12,7 @@ export interface Lobbys {
 }
 
 export interface alive {
-  player: string;
+  player: number;
   x: number;
   y: number;
   hitbox: number;
@@ -134,3 +134,31 @@ export enum changeErrors {
   NOCHANGE = "NOCHANGE",
   NOTNUMBER = "NOTNUMBER",
 }
+
+export enum generalErrors {
+  WORKED = 0,
+
+  ALREADYINTHELOBBY = 1001,
+  ALREADYINALOBBY = 1002,
+
+  LOBBYDOESNTEXIST = 1003,
+  LOBBYALREADYEXIST = 1006,
+
+  INVALIDNAME = 1004,
+  RULESNOTPROVIDED = 1005,
+
+  NOTANEXPECTATOR = 2001,
+  NOTAPLAYER = 2002,
+  NOTINALOBBY = 2003,
+  NOTHOST = 2004,
+
+  NOWS = 3001,
+  LOBBYINGAME = 3002,
+
+  NOTINTHELOBBY = 3003,
+  PLAYERSFULL = 3004,
+  NOTENOUGHPLAYERS = 3005,
+
+  RULESERROR = 4001
+}
+

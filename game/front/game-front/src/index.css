@@ -139,3 +139,23 @@
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
 }
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track{
+  background: linear-gradient(45deg, #ff8c00 0%, #ffd700 50%, #ff6347 100%);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #FFFFFF 0%, #F5F5F5 50%, #E8E8E8 100%);
+  box-shadow: 1, 1, #B9B4B1;
+  border-radius: 10px;
+}
+
+html {
+    background-image: url("https://preview.redd.it/fraud-cybergrind-textures-skyboxes-v0-mel6p8etsbog1.png?auto=webp&s=454ca1074b779efede7ffe62b8b90b5038ad5caa");
+
+}

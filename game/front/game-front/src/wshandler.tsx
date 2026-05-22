@@ -1,9 +1,10 @@
-import { createContext, useContext, useState, ReactNode, useRef, useEffect } from "react";
-import type { GameSession, Lobby } from "./types/types";
-import { NotificationProvider, useNotification } from './notifications';
-import { LobbyProvider, useLobby } from './lobby';
-import { LobbyAction,  } from './types/types';
+import { createContext, useContext, useState, useRef, useEffect } from "react";
+import type { GameSession, GameResults } from "./types/types";
+import { useNotification } from './notifications';
+import {  useLobby } from './lobby';
+import { LobbyAction } from './types/types';
 import { Singledivgame } from './commoncomp/commoncomp';
+import { Gamehandler } from "./gamestate/gamestate";
 
 let address = window.location.host;
 
@@ -12,14 +13,14 @@ let noport = "";
 if (address.includes(":"))
     noport = address.split(":")[0];
 
-const apiBase = `https://${noport}:8889/api/auth`
-
 const apiBaselob = `wss://${noport}:8889/api/game`
 
 const WsContext = createContext<WsContextType | null>(null);
 
 type WsContextType = {
-
+    game : GameSession | null;
+    addGame: (g: GameSession | null) => void;
+    result : GameResults | null;
 }
 
 export const useHeldKey = () => {
@@ -61,13 +62,12 @@ export const WsProvider = ({
 }: {
     children: React.ReactNode;
 }) => {
-    const { addNotification } = useNotification();
-	const token = localStorage.getItem("token");
+    const { addNotification, token, addToken } = useNotification();
     const { names, lobby, addLobby } = useLobby();
     const heldKey = useHeldKey();
     const heldKeyRef = useRef(null);
     const [ game, setGame ] = useState< GameSession | null >(null);
-    const [ result, setResults ] = useState< GameSession | null >(null);
+    const [ result, setResults ] = useState< GameResults | null >(null);
 
 	useEffect(() => {
 		heldKeyRef.current = heldKey;
@@ -85,11 +85,19 @@ export const WsProvider = ({
             }
         }
 
+        addLobby(msg.lobbystate);
+
+        if (msg.action === LobbyAction.UPDATERULESET)
+            addNotification(`Lobby ruleset changed.`);
+
+        if (msg.user === me)
+            return ;
+
         if (msg.action === LobbyAction.HOST)
-            addNotification(`User ${await names.checknameupdate(msg.user)} became the new lobby host.`);
-        else if (msg.action === LobbyAction.JOIN || LobbyAction.SPECTATOR)
+            addNotification(`User ${await names.checknameupdate(msg.user)} became the host.`);
+        else if (msg.action === LobbyAction.JOIN)
             addNotification(`User ${await names.checknameupdate(msg.user)} joined the lobby.`);
-        else if (msg.action === LobbyAction.LEAVE || LobbyAction.LEAVESPECTATOR)
+        else if (msg.action === LobbyAction.LEAVE)
             addNotification(`User ${await names.checknameupdate(msg.user)} left the lobby.`);
         else if (msg.action === LobbyAction.STARTGAME)
             addNotification(`Game started.`);
@@ -97,11 +105,17 @@ export const WsProvider = ({
             addNotification(`User ${await names.checknameupdate(msg.user)} switched to player.`);
         else if (msg.action === LobbyAction.SWITCHTOSPECTATOR)
             addNotification(`User ${await names.checknameupdate(msg.user)} switched to spectator.`);
-        else if (msg.action === LobbyAction.UPDATERULESET)
-            addNotification(`Lobby ruleset changed.`);
     }
 
-        
+	const addGame = (g: GameSession | null) => {
+		setGame(g);
+	};
+
+    useEffect(() => {
+        if (lobby === null)
+            setResults(null);
+    }, [lobby]);
+
     useEffect(() => {
         if (token)
         {
@@ -109,6 +123,12 @@ export const WsProvider = ({
 
             socket.onerror = () => {
                 addNotification("Unable to auth.");
+                addToken(null);
+                addLobby(null);
+            };
+
+            socket.onclose = () => {
+                addLobby(null);
             };
 
             socket.onmessage = (event) => {
@@ -117,7 +137,7 @@ export const WsProvider = ({
                         lobbyupdate(msg);
                     if (msg.type == "GAMESTATE")
                     {
-                        setGame(msg.context);
+                        setGame(msg.game);
 
                         if (heldKeyRef.current) {
                             const keyMap = {
@@ -142,10 +162,11 @@ export const WsProvider = ({
     }, [token]);
 
     if (!token)
-        return (<WsContext.Provider value={{ }}><Singledivgame Component={nologgederror}></Singledivgame></WsContext.Provider>);
-    return (<WsContext.Provider value={{ }}>
-            {children}
-        </WsContext.Provider>);
+        return (<WsContext.Provider value={{ game, addGame, result }}><Singledivgame Component={nologgederror}></Singledivgame></WsContext.Provider>);
+    else if (!game)
+        return (<WsContext.Provider value={{ game, addGame, result }}>{children}</WsContext.Provider>);
+    else
+        return (<WsContext.Provider value={{ game, addGame, result }}><Gamehandler/></WsContext.Provider>);
 };
 
 export const useWs = () => {
