@@ -512,11 +512,6 @@ export function RulesSetter({
                 }
                 className="w-full"
             />
-
-            {/* <div className="flex justify-between text-[10px] mt-1">
-                <span>{limits[rule.key].min}</span>
-                <span>{limits[rule.key].max}</span>
-            </div> */}
             </div>
         ))}
         </div>
@@ -557,24 +552,129 @@ export function Crules() {
     </div>)
 }
 
+export function Prerules({ srules }: { srules: Ruleset }) {
+    const [ tcollision, setTcolission ] = useState("Yes");
+    const [ mb, setMb ] = useState("Infinite");
+
+    useEffect(() => {
+        if (srules.collision)
+            setTcolission("Yes");
+        else
+            setTcolission("No");
+        if (srules.maxballs === 0)
+            setMb("Infinite");
+        else
+            setMb(`${srules.maxballs}`);
+
+    }, [srules]);
+
+
+    return (<div className=' justify-center content-center flex flex-col items-center w-[40vw]'>
+        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Time for new ball: {srules.waitingnewball}</p></div>
+        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball speed: {srules.ballspeed}</p></div>
+        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Player collision: {tcollision}</p></div>
+        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Player hitbox: {srules.playerhitbox}</p></div>
+        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Player speed: {srules.playerspeed}</p></div>
+        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball hitbox: {srules.ballhitbox}</p></div>
+        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball hitbox modifier: {srules.hitboxrandom}</p></div>
+        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball speed: {srules.ballspeed}</p></div>
+        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball speed modifier: {srules.speedrandom}</p></div>
+        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Border x: {srules.maxx}</p></div>
+        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Border y: {srules.maxy}</p></div>
+        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Max nº of balls: {mb}</p></div>
+    </div>)
+}
+
+const defaultrules : Ruleset = {
+    waitingnewball: 5000,
+    maxx: 1000,
+    maxy: 750,
+    ballhitbox: 50,
+    playerhitbox: 90,
+    ballspeed: 10,
+    playerspeed: 10,
+    speedrandom: 10,
+    hitboxrandom: 0,
+    maxballs: 0,
+    collision: true,
+}
+
+const bullethell : Ruleset = {
+    waitingnewball: 500,
+    maxx: 1000,
+    maxy: 1000,
+    ballhitbox: 5,
+    playerhitbox: 60,
+    ballspeed: 1,
+    playerspeed: 10,
+    speedrandom: 10,
+    hitboxrandom: 10,
+    maxballs: 0,
+    collision: true,
+}
+
+const macrobullethell : Ruleset = {
+    waitingnewball: 500,
+    maxx: 2000,
+    maxy: 2000,
+    ballhitbox: 5,
+    playerhitbox: 90,
+    ballspeed: 1,
+    playerspeed: 10,
+    speedrandom: 10,
+    hitboxrandom: 10,
+    maxballs: 0,
+    collision: true,
+}
+
+const closequarters : Ruleset = {
+    waitingnewball: 5000,
+    maxx: 500,
+    maxy: 500,
+    ballhitbox: 20,
+    playerhitbox: 40,
+    ballspeed: 5,
+    playerspeed: 10,
+    speedrandom: 5,
+    hitboxrandom: 10,
+    maxballs: 0,
+    collision: true,
+}
+
+const lopghall : Ruleset = {
+    waitingnewball: 4000,
+    maxx: 2000,
+    maxy: 500,
+    ballhitbox: 50,
+    playerhitbox: 90,
+    ballspeed: 15,
+    playerspeed: 15,
+    speedrandom: 10,
+    hitboxrandom: 20,
+    maxballs: 0,
+    collision: true,
+}
+
+const giantball : Ruleset = {
+    waitingnewball: 3000,
+    maxx: 2000,
+    maxy: 1800,
+    ballhitbox: 200,
+    playerhitbox: 100,
+    ballspeed: 10,
+    playerspeed: 2,
+    speedrandom: 10,
+    hitboxrandom: 100,
+    maxballs: 0,
+    collision: true,
+}
+
 export function SettingsMenu( { setRulesm } : SettingsProps) {
     const { handleApiError } = useNotification();
     const { lobby } = useLobby();
 
-    const defaultrules : Ruleset = {
-        waitingnewball: 5000,
-        maxx: 1000,
-        maxy: 750,
-        ballhitbox: 50,
-        playerhitbox: 90,
-        ballspeed: 10,
-        playerspeed: 10,
-        speedrandom: 10,
-        hitboxrandom: 0,
-        maxballs: 0,
-        collision: true,
-    }
     const [nrules, setNrules] = useState(lobby!.rules);
+    const [nshow, setNshow] = useState(0);
 
     function closethebox() {
         setRulesm(0);
@@ -584,8 +684,25 @@ export function SettingsMenu( { setRulesm } : SettingsProps) {
         fetchrules(lobby!.id, handleApiError, nrules);
     }
 
-    function resettodefault() {
-        setNrules(defaultrules);
+    const handleChange = (value: string) => {
+        if (value === "custom")
+        {
+            setNshow(0);
+            return ;
+        }
+        else if (value === "default")
+            setNrules(defaultrules);
+        else if (value === "bullethell")
+            setNrules(bullethell);
+        else if (value === "macrobullethell")
+            setNrules(macrobullethell);
+        else if (value === "closequarters")
+            setNrules(closequarters);
+        else if (value === "lopghall")
+            setNrules(lopghall);
+        else if (value === "giantball")
+            setNrules(giantball);
+        setNshow(1);
     }
 
     return (createPortal(
@@ -594,15 +711,29 @@ export function SettingsMenu( { setRulesm } : SettingsProps) {
                 <div className="w-10 h-10 flexpointer-events-none text-center text-3xl absolute top-2 right-4 bg-radial from-green-100/20 to-green-300/20 shadow hover:from-green-100 hover:to-green-200 cursor-pointer pointer-events-auto transition delay-150 duration-300 ease-in-out rounded-full z-30 trasnspa" onClick={closethebox}>{"X"}</div>
                 <div className="w-[40vw] h-[60vw] landscape:w-[40vw] landscape:h-[60vh] items-center text-center flex absolute left-0 flex-col overflow-y-auto">
                     <p><b>CHANGE RULES</b></p>
-                    <RulesSetter rules={nrules} setRules={setNrules}/>
+                    {nshow !== 0 &&
+                        <Prerules srules={nrules}/>
+                    }
+                    {nshow === 0 &&
+                        <RulesSetter rules={nrules} setRules={setNrules}/>
+                    }
                 </div>
                 <div className="w-[40vw] h-[60vw] landscape:w-[40vw] landscape:h-[60vh] items-center justify-center text-center absolute right-0 overflow-y-auto">
                     <p><b>CURRENT RULES</b></p>
                     <Crules/>
                 </div>
                 <div className="w-[80vw] h-[10vw] landscape:w-[40vw] landscape:h-[10vh] items-center justify-center text-center flex bottom-0 absolute">
-                    <div className="h-8 w-[20%] bg-radial from-green-100 to-green-300 rounded-ms cursor-pointer text-center content-center shadow hover:from-green-100 hover:to-green-200 transition delay-150 duration-300 ease-in-out mx-1 rounded-2xl text-xs" onClick={sendrules}>CHANGE RULES</div>
-                    <div className="h-8 w-[20%] bg-radial from-green-100 to-green-300 rounded-ms cursor-pointer text-center content-center shadow hover:from-green-100 hover:to-green-200 transition delay-150 duration-300 ease-in-out mx-1 rounded-2xl text-xs" onClick={resettodefault}>DEFAULT RULES</div>
+                    <div className="h-8 w-[20%] bg-radial from-green-100 to-green-300 rounded-ms cursor-pointer text-center content-center shadow hover:from-green-100 hover:to-green-200 transition delay-150 duration-300 ease-in-out mx-1 rounded-2xl text-xs" onClick={sendrules}>SUBMIT RULES</div>
+                    <select onChange={(e) => handleChange(e.currentTarget.value)} className="h-8 w-[40%] bg-radial from-green-100 to-green-300 rounded-ms cursor-pointer text-center content-center shadow hover:from-green-100 hover:to-green-200 transition delay-150 duration-300 ease-in-out mx-1 rounded-2xl text-xs">
+                        <option value="custom">Custom rules</option>
+                        <option value="default" >Default rules</option>
+                        <option value="default" >Default rules</option>
+                        <option value="bullethell">Bullet hell</option>
+                        <option value="mbullethell">Macro bullet hell</option>
+                        <option value="closequarters">Close quarters</option>
+                        <option value="lopghall">Long hall</option>
+                        <option value="giantball">Giant ball</option>
+                    </select>
                 </div>
             </div>
         </div>,
@@ -684,7 +815,7 @@ export function ControlBar() {
     }, [ lobby ]);
 
     return (<div className="flex justify-center flex-wrap h-full items-start overflow-auto content-center text-xs ">
-        {host === -1 || host === lobby!.hostId && 
+        {(host === -1 || host === lobby!.hostId) && 
             <div className="h-15 w-[80%] bg-radial from-cyan-100 to-blue-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-cyan-100 hover:to-cyan-200 transition delay-150 duration-300 ease-in-out my-1" onClick={strtgame}>START GAME</div>
         }
         {(pos === -1 || pos === 1) && 
@@ -693,7 +824,7 @@ export function ControlBar() {
         {(pos === -1 || pos === 2) && 
             <div className="h-15 w-[80%] bg-radial from-cyan-100 to-blue-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-cyan-100 hover:to-cyan-200 transition delay-150 duration-300 ease-in-out my-1" onClick={toplaychange}>TO PLAYER</div>
         }
-        {host === -1 || host === lobby!.hostId && 
+        {(host === -1 || host === lobby!.hostId) && 
             <div className="h-15 w-[80%] bg-radial from-green-100 to-green-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-green-100 hover:to-green-200 transition delay-150 duration-300 ease-in-out my-1" onClick={openrulesm}>CHANGE RULES</div>
         }
         {host !== -1 && host !== lobby!.hostId && 
