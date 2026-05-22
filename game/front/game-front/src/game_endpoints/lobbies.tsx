@@ -727,7 +727,6 @@ export function SettingsMenu( { setRulesm } : SettingsProps) {
                     <select onChange={(e) => handleChange(e.currentTarget.value)} className="h-8 w-[40%] bg-radial from-green-100 to-green-300 rounded-ms cursor-pointer text-center content-center shadow hover:from-green-100 hover:to-green-200 transition delay-150 duration-300 ease-in-out mx-1 rounded-2xl text-xs">
                         <option value="custom">Custom rules</option>
                         <option value="default" >Default rules</option>
-                        <option value="default" >Default rules</option>
                         <option value="bullethell">Bullet hell</option>
                         <option value="mbullethell">Macro bullet hell</option>
                         <option value="closequarters">Close quarters</option>
