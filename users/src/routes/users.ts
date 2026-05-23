@@ -270,7 +270,7 @@ export async function usersRoutes(server: FastifyInstance) {
         
         // STEP 3: Return the avatar URL
         reply.send({
-            avatarUrl: user.avatar || 'default-avatar.svg'
+            avatarUrl: user.avatar || '/avatars/default-avatar.svg'
         });
     });
     
@@ -371,7 +371,7 @@ export async function usersRoutes(server: FastifyInstance) {
             
             // STEP 9: Delete the previous avatar (if it is not the default)
             if (previousAvatar?.avatar && 
-                previousAvatar.avatar !== 'default-avatar.svg' && 
+                previousAvatar.avatar !== '/avatars/default-avatar.svg' &&
                 previousAvatar.avatar.startsWith('/avatars/')) // If it is a valid avatar (checks the path)
                 {
                 // Build the full path to delete it
@@ -429,7 +429,7 @@ export async function usersRoutes(server: FastifyInstance) {
             
             // STEP 3: Delete the physical file (if not the default)
             if (user.avatar && 
-                user.avatar !== 'default-avatar.svg' && 
+                user.avatar !== '/avatars/default-avatar.svg' &&
                 user.avatar.startsWith('/avatars/')) {
                 
                 const avatarPath = path.join(__dirname, '..', '..', 'public', user.avatar);
@@ -441,7 +441,7 @@ export async function usersRoutes(server: FastifyInstance) {
             // STEP 4: Update the DB to the default avatar
             const updatedUser = await prismaClient.user.update({
                 where: { id: userId },
-                data: { avatar: 'default-avatar.svg' },
+                data: { avatar: '/avatars/default-avatar.svg' },
                 select: {
                     id: true,
                     name: true,
