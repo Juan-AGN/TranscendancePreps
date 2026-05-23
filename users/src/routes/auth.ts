@@ -109,7 +109,7 @@ export async function authRoutes(server: FastifyInstance) {
                         name:        fortyTwoUserData.login,
                         email:       fortyTwoUserData.email,
                         password:    null,   // OAuth users have no password
-                        avatar:      fortyTwoUserData.image?.link || 'default-avatar.png',
+                        avatar:      fortyTwoUserData.image?.link || '/avatars/default-avatar.svg',
                         fortyTwoId:  fortyTwoUserData.id,
                         onlineStatus: true
                     }
