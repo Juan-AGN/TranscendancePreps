@@ -3,6 +3,7 @@ import { Palette, Bell, Monitor, Info } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { OptionButton, FlagOptionButton, ToggleButton } from "../components/Buttons/SettingsUiButtons";
 import { useTranslation } from 'react-i18next';
+import { useAudioStore } from "../store/audioStore";
 
 
 type ActiveTab = 'general' | 'social' | 'environment' | 'system';
@@ -23,8 +24,7 @@ export function SettingsUiPage() {
 	const [friendNotifications, setFriendNotifications] = useState(true);
 	const [matchNotifications, setMatchNotifications] = useState(true);
 	const [profileVisibility, setProfileVisibility] = useState<'public' | 'private'>('public');
-	const [masterVolume, setMasterVolume] = useState(70);
-	const [effectsSound, setEffectsSound] = useState(true);
+	const { masterVolume, effectsSound, setMasterVolume, setEffectsSound } = useAudioStore();
 
 	useEffect(() => {
 		const saved = localStorage.getItem('textSize') ?? 'medium';
