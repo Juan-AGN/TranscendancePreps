@@ -12,10 +12,10 @@ const DISPLAYSETTINGS2D_OPTIONS = [
 ];
 
 const COLOR_LABELS: Record<string, string> = {
+	'#70ee31': 'GREEN',
 	'#ffffff': 'WHITE',
 	'#ffee00': 'YELLOW',
 	'#ff4444': 'RED',
-	'#70ee31': 'GREEN',
 };
 
 export function DisplaySettings2DPage() {

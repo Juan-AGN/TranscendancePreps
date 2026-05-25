@@ -8,6 +8,8 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT, BALL_SPEED_INCREMENT } from './2dGameConfi
 // use2dGameSettingsStore -> leemos la velocidad de bola elegida fuera de React con .getState()
 // BALL_SPEED_MAP         -> convierte 'slow' | 'normal' | 'fast' en un numero real
 import { use2dGameSettingsStore, BALL_SPEED_MAP } from '../../../shared/store/game2dSettingsStore';
+import { useDisplay2dStore, BALL_SIZE_MAP } from '../../../shared/store/display2dSettingsStore';
+//BALL_SIZE_MAP -> convierte 'small' | 'normal' | 'large' en radio de pixeles
 //exportamos la clase GamePhysics
 //static pq esta clase no necesita memoria interna, no guarda nada, solo hace calculos sobre objetos q le pasas
 export class GamePhysics {
@@ -21,6 +23,9 @@ export class GamePhysics {
 		//se ejecuta cada vez q alguien anota, asi la velocidad siempre es la correcta durante la partida
 		const { ballSpeed } = use2dGameSettingsStore.getState();
 		ball.speed = BALL_SPEED_MAP[ballSpeed as keyof typeof BALL_SPEED_MAP];
+		//actualizamos el radio por si el jugador cambio ballSize en display settings
+		const { ballSize } = useDisplay2dStore.getState();
+		ball.radius = BALL_SIZE_MAP[ballSize];
 
 		//le damos un angulo random pequeño pa q no sea siempre recta y aburrida
 		// //Math.random() -> [0..1) //(Math.random() - 0.5) -> [-0.5..0.5) //* (Math.PI / 4) -> rango final [-PI/8 .. PI/8] (pequeña inclinación)

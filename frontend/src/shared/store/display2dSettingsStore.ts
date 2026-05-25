@@ -2,8 +2,8 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
 //colores disponibles para ciclar
-export const BALL_COLORS   = ['#ffffff', '#ffee00', '#00ffff', '#ff4444'] as const
-export const PADDLE_COLORS = ['#70ee31', '#ffee00', '#00ffff', '#ff4444'] as const
+export const BALL_COLORS   = ['#70ee31', '#ffee00', '#ff4444'] as const
+export const PADDLE_COLORS = ['#70ee31', '#ffee00', '#ff4444'] as const
 export type BallColorOption   = typeof BALL_COLORS[number]
 export type PaddleColorOption = typeof PADDLE_COLORS[number]
 
@@ -26,7 +26,7 @@ interface Display2dState {
 export const useDisplay2dStore = create<Display2dState>()(
 	persist(
 		(set) => ({
-			ballColor: '#ffffff' as BallColorOption,
+			ballColor: '#70ee31' as BallColorOption,
 			paddleColor: '#70ee31' as PaddleColorOption,
 			ballSize: 'normal' as BallSizeOption,
 			ballTrail: false,
@@ -36,7 +36,7 @@ export const useDisplay2dStore = create<Display2dState>()(
 			setBallTrail: (v) => set({ ballTrail: v }),
 		}),
 		{
-			name: 'display-2d-settings',
+			name: 'display-2d-settings-v3',
 			storage: createJSONStorage(() => localStorage),
 		}
 	)
