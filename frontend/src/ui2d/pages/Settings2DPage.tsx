@@ -1,12 +1,11 @@
-import { useState } from 'react'
+import { useState } from 'react';
 //hook de react (react lo actuliza solo(le da memoria))
-import { useNavigate, useLocation } from 'react-router-dom'
-import { ArcadeBgLayout } from '../components/ArcadeBgLayout'
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ArcadeBgLayout } from '../components/ArcadeBgLayout';
 
 // const de un arru de options del menu
 const SETTINGS2D_OPTIONS = [
 	{id: 'game', label: 'GAME SETTINGS', path: '/gamesettings'},// aun por determinar los paths de settgins y juego 2d
-	{id: 'diffcicult', label: 'DIFFICULT', path: '/difficultlevel'},// aun por determinar los paths de settgins y juego 2d
 	{id: 'audio', label: 'AUDIO', path: '/audio'},// aun por determinar los paths de settgins y juego 2d
 	{id: 'display', label: 'DISPLAY', path: '/display'},// aun por determinar los paths de settgins y juego 2d
 	{id: 'back', label: '← BACK', path: '/menu2D'},
@@ -14,9 +13,9 @@ const SETTINGS2D_OPTIONS = [
 
 //compo de react
 export function Settings2DPage() {
-	const [hovered, setHovered] = useState<string | null>(null)
-	const navigate = useNavigate()
-	const location = useLocation()
+	const [hovered, setHovered] = useState<string | null>(null);
+	const navigate = useNavigate();
+	const location = useLocation();
 	
 
 	return (

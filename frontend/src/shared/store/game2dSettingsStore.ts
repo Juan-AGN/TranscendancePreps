@@ -29,7 +29,7 @@ interface Game2dSettingsState {
     setBallSpeed: (v: 'slow' | 'normal' | 'fast') => void;
 }
 
-export const use2dGameSetingsStore = create<Game2dSettingsState>() ( 
+export const use2dGameSettingsStore = create<Game2dSettingsState>() ( 
     persist(
         (set) => ({
             // Default values on first load (or after browser closes)

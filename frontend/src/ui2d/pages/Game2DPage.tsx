@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState } from 'react';
 //hook de react (react lo actuliza solo(le da memoria))
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom';
 
-import { ArcadeBgLayout } from '../components/ArcadeBgLayout'
+import { ArcadeBgLayout } from '../components/ArcadeBgLayout';
 
 // const de un arru de options del menu
 const GAME2D_OPTIONS = [
@@ -14,9 +14,9 @@ const GAME2D_OPTIONS = [
 
 //compo de react
 export function Game2DPage() {
-	const [hovered, setHovered] = useState<string | null>(null)
-	const navigate = useNavigate()
-	const location = useLocation()
+	const [hovered, setHovered] = useState<string | null>(null);
+	const navigate = useNavigate();
+	const location = useLocation();
 	
 
 	return (

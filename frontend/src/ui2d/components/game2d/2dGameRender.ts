@@ -1,15 +1,19 @@
 //file que dibujea todo loq vemos //lee los estados de player1 ballm gamestade etc.. y lo pintamos.
 
-import type { Ball, Paddle, Game2dState, Game2DMode } from './2dGameState';
+import type { Ball, Paddle, Game2dState } from './2dGameState';
 //importamos solo los tipos
 import { CANVAS_WIDTH, CANVAS_HEIGHT, COLORS } from './2dGameConfig';
 //importamos constantes del juego(sizes and colores)
+import { useDisplay2dStore } from '../../../shared/store/display2dSettingsStore';
+//leemos los ajustes visuales del jugador (color bola, color pala, trail...)
 
 export class Game2dRenderer {
 	//ctx = context of CanvasRenderingContext2d(pincel)
 	//provate comoc en c++ solo se usa dentro de l clase
 	// // contiene todas las funciones para dibujar (fillRect, arc, fillText...)
-	private ctx: CanvasRenderingContext2D; 
+	private ctx: CanvasRenderingContext2D;
+	//trail -> array con las ultimas posiciones de la bola para dibujar el rastro
+	private trailPositions: { x: number; y: number }[] = [];
 	//CRC2D  es parte de la canvas API(clase interna del navegador)
 	constructor(ctx: CanvasRenderingContext2D) {
 		this.ctx = ctx;
@@ -54,16 +58,32 @@ export class Game2dRenderer {
 
 	//renderizamos el juego //metodo que pinta un frame(render(fotograma))
 	render (player1: Paddle, player2: Paddle, ball: Ball, gameState: Game2dState): void {
+		//leemos ajustes visuales del store (fuera de React usamos .getState())
+		const { ballColor, paddleColor, ballTrail } = useDisplay2dStore.getState();
 
 		this.drawRec(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, COLORS.background);
 		//para borrar el frame anterior y evitar rstros
 
 		this.drawNet();		//dibuja elemnos fijos(red)
 
-		this.drawRec(player1.x, player1.y, player1.width, player1.height, COLORS.foreground);
-		this.drawRec(player2.x, player2.y, player2.width, player2.height, COLORS.foreground);
+		//trail -> guardamos posicion actual y dibujamos las anteriores con opacidad decreciente
+		if (ballTrail) {
+			this.trailPositions.push({ x: ball.x, y: ball.y });
+			if (this.trailPositions.length > 8) this.trailPositions.shift();
+			this.trailPositions.forEach((pos, i) => {
+				const alpha = (i + 1) / this.trailPositions.length * 0.4;
+				this.ctx.globalAlpha = alpha;
+				this.drawCircle(pos.x, pos.y, ball.radius * 0.7, ballColor);
+			});
+			this.ctx.globalAlpha = 1;
+		} else {
+			this.trailPositions = [];
+		}
 
-		this.drawCircle(ball.x, ball.y, ball.radius, COLORS.foreground);
+		this.drawRec(player1.x, player1.y, player1.width, player1.height, paddleColor);
+		this.drawRec(player2.x, player2.y, player2.width, player2.height, paddleColor);
+
+		this.drawCircle(ball.x, ball.y, ball.radius, ballColor);
 
 		// Dibujar controles en la parte inferior
 		this.ctx.font = '14px monospace';
