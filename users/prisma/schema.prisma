@@ -18,7 +18,7 @@ model User {
   name           String    @map("nombre")
   email          String    @unique
   password       String?
-  avatar         String?   @default("default-avatar.png")
+  avatar         String?   @default("/avatars/default-avatar.svg")
   onlineStatus   Boolean   @default(false) @map("estadoOnline")
   lastConnection DateTime? @map("ultimaConexion")
   createdAt      DateTime  @default(now())
