@@ -1,0 +1,777 @@
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+
+type ConversationItem = {
+  id: number;
+  type: "DM" | "GROUP";
+  title: string | null;
+  members: string[];
+  otherUserIds: string[];
+  lastMessage: null | { id: number; senderId: string; content: string; createdAt: string };
+  updatedAt: string;
+  createdAt: string;
+};
+
+type MessageItem = {
+  id: number;
+  conversationId: number;
+  senderId: string;
+  content: string;
+  createdAt: string;
+};
+
+type OnlineUser = {
+  id: number;
+  name: string;
+  email: string;
+  avatar?: string | null;
+  onlineStatus: boolean;
+};
+
+type FriendUser = { id: number; name: string; email: string };
+
+type PendingRequest = {
+  id: number;
+  requesterId: number;
+  requester: { id: number; name: string; email: string };
+};
+
+type ResolvedUser = { id: string; name: string; avatar?: string | null };
+
+function getToken(): string | null {
+  const t = localStorage.getItem("token");
+  return t && t.trim() ? t : null;
+}
+function getMyUserId(): number | null {
+  const u = localStorage.getItem("userId");
+  const n = u ? Number(u) : NaN;
+  return Number.isFinite(n) ? n : null;
+}
+
+const CHAT_API = "/api/chat";
+const AUTH_API = "/api/auth";
+
+async function chatApi<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = getToken();
+  if (!token) throw new Error("Missing token. Please login first.");
+
+  const headers = new Headers(init?.headers || {});
+  headers.set("Content-Type", "application/json");
+  headers.set("Authorization", `Bearer ${token}`);
+
+  const res = await fetch(`${CHAT_API}${path}`, { ...init, headers });
+  if (!res.ok) throw new Error((await res.text().catch(() => "")) || `Chat failed (${res.status})`);
+  return (await res.json()) as T;
+}
+
+async function usersApi<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = getToken();
+  if (!token) throw new Error("Missing token. Please login first.");
+
+  const headers = new Headers(init?.headers || {});
+  headers.set("Authorization", `Bearer ${token}`);
+
+  const res = await fetch(`${AUTH_API}${path}`, { ...init, headers });
+  if (!res.ok) throw new Error((await res.text().catch(() => "")) || `Users failed (${res.status})`);
+  return (await res.json()) as T;
+}
+
+export function ChatWidget() {
+  const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState<"chats" | "friends" | "online" | "offline">("chats");
+  const [badgeCount, setBadgeCount] = useState(0);
+
+  const token = getToken();
+  const myUserId = getMyUserId();
+
+  // Chat state
+  const [conversations, setConversations] = useState<ConversationItem[]>([]);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [messages, setMessages] = useState<MessageItem[]>([]);
+  const [input, setInput] = useState("");
+
+  // Resolve names for DM/group members
+  const [userMap, setUserMap] = useState<Record<string, ResolvedUser>>({});
+
+  // Users/Friends state
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
+  const [allUsers, setAllUsers] = useState<OnlineUser[]>([]);
+  const [friends, setFriends] = useState<FriendUser[]>([]);
+  const [pending, setPending] = useState<PendingRequest[]>([]);
+  const [sentRequests, setSentRequests] = useState<Record<number, true>>({});
+
+  // UI
+  const [error, setError] = useState<string | null>(null);
+  const [loadingConvs, setLoadingConvs] = useState(false);
+  const [loadingMsgs, setLoadingMsgs] = useState(false);
+  const [loadingOnline, setLoadingOnline] = useState(false);
+  const [loadingAll, setLoadingAll] = useState(false);
+  const [loadingFriends, setLoadingFriends] = useState(false);
+  const [loadingPending, setLoadingPending] = useState(false);
+
+  // Seen helpers for unread badge
+  function getSeenId(convId: number): number {
+    const v = localStorage.getItem(`chat:lastSeen:${convId}`);
+    return v ? Number(v) : 0;
+  }
+  function setSeenId(convId: number, msgId: number) {
+    localStorage.setItem(`chat:lastSeen:${convId}`, String(msgId));
+  }
+
+  const onlineSet = useMemo(() => new Set(onlineUsers.map((u) => u.id)), [onlineUsers]);
+  const friendSet = useMemo(() => new Set(friends.map((f) => f.id)), [friends]);
+
+  const selected = useMemo(
+    () => conversations.find((c) => c.id === selectedId) || null,
+    [conversations, selectedId]
+  );
+
+  const selectedTitle = useMemo(() => {
+    if (!selected) return "Select a conversation";
+    if (selected.type === "GROUP") return selected.title || `Group #${selected.id}`;
+    const otherId = selected.otherUserIds[0];
+    return userMap[otherId]?.name || `User ${otherId}`;
+  }, [selected, userMap]);
+
+  const onlineFriends = useMemo(() => friends.filter((f) => onlineSet.has(f.id)), [friends, onlineSet]);
+  const offlineFriends = useMemo(() => friends.filter((f) => !onlineSet.has(f.id)), [friends, onlineSet]);
+
+  const offlineUsers = useMemo(() => {
+    return allUsers.filter((u) => {
+      if (myUserId && u.id === myUserId) return false;
+      return !onlineSet.has(u.id);
+    });
+  }, [allUsers, onlineSet, myUserId]);
+
+  async function resolveUsers(ids: string[]) {
+    const unique = Array.from(new Set(ids.map((x) => String(x).trim()).filter(Boolean))).slice(0, 50);
+    if (unique.length === 0) return;
+
+    const qs = unique.join(",");
+    const data = await chatApi<{ users: ResolvedUser[] }>(`/users/resolve?ids=${encodeURIComponent(qs)}`);
+
+    const map: Record<string, ResolvedUser> = {};
+    for (const u of data.users) map[u.id] = u;
+    setUserMap((prev) => ({ ...prev, ...map }));
+  }
+
+  async function loadConversations() {
+    setLoadingConvs(true);
+    setError(null);
+    try {
+      const data = await chatApi<{ conversations: ConversationItem[] }>("/conversations");
+      setConversations(data.conversations);
+
+      // resolve user ids to names (for DM titles)
+      const idsToResolve: string[] = [];
+      for (const c of data.conversations) {
+        for (const id of c.members) idsToResolve.push(String(id));
+      }
+      await resolveUsers(idsToResolve);
+
+      if (data.conversations.length && selectedId === null) setSelectedId(data.conversations[0].id);
+    } catch (e: any) {
+      setError(e?.message || "Failed to load conversations");
+    } finally {
+      setLoadingConvs(false);
+    }
+  }
+
+  async function loadMessages(conversationId: number) {
+    setLoadingMsgs(true);
+    setError(null);
+    try {
+      const data = await chatApi<{ messages: MessageItem[]; nextCursor: number | null }>(
+        `/conversations/${conversationId}/messages?limit=50`
+      );
+
+      // Prisma devuelve DESC (más nuevo primero)
+      const newestId = data.messages?.[0]?.id;
+      if (newestId) setSeenId(conversationId, newestId);
+
+      // UI los muestra ASC
+      setMessages([...data.messages].reverse());
+    } catch (e: any) {
+      setError(e?.message || "Failed to load messages");
+    } finally {
+      setLoadingMsgs(false);
+    }
+  }
+
+  async function sendMessage() {
+    if (!selectedId) return;
+    const content = input.trim();
+    if (!content) return;
+
+    setError(null);
+    setInput("");
+
+    try {
+      const msg = await chatApi<MessageItem>(`/conversations/${selectedId}/messages`, {
+        method: "POST",
+        body: JSON.stringify({ content }),
+      });
+
+      setMessages((prev) => [...prev, msg]);
+      // marcar visto el propio mensaje también
+      setSeenId(selectedId, msg.id);
+
+      await loadConversations();
+    } catch (e: any) {
+      setError(e?.message || "Failed to send message");
+      setInput(content);
+    }
+  }
+
+  async function openDmWith(userId: number) {
+    setError(null);
+    const data = await chatApi<{ conversationId: number; created: boolean }>(`/dm`, {
+      method: "POST",
+      body: JSON.stringify({ otherUserId: String(userId) }),
+    });
+
+    setTab("chats");
+    setSelectedId(data.conversationId);
+
+    await loadConversations();
+    await loadMessages(data.conversationId);
+  }
+
+  async function createGroup(title: string, memberIds: string[]) {
+    try {
+      setError(null);
+
+      const clean = Array.from(new Set(memberIds.map((s) => String(s).trim()).filter(Boolean)));
+
+      if (!title.trim()) {
+        setError("Group title is required");
+        return;
+      }
+      if (clean.length === 0) {
+        setError("You must add at least 1 member id");
+        return;
+      }
+
+      const data = await chatApi<{ conversation: { id: number } }>(`/groups`, {
+        method: "POST",
+        body: JSON.stringify({ title: title.trim(), memberIds: clean }),
+      });
+
+      const convId = data?.conversation?.id;
+      if (!convId) throw new Error("Invalid response: missing conversation id");
+
+      setTab("chats");
+      setSelectedId(convId);
+
+      await loadConversations();
+      await loadMessages(convId);
+    } catch (err: any) {
+      setError(err?.message || "Failed to create group");
+    }
+  }
+
+  async function loadOnline() {
+    setLoadingOnline(true);
+    setError(null);
+    try {
+      const data = await usersApi<{ total: number; users: OnlineUser[] }>(`/users/filter/online`);
+      const list = (data.users || []).filter((u) => !myUserId || u.id !== myUserId);
+      setOnlineUsers(list);
+    } catch (e: any) {
+      setError(e?.message || "Failed to load online users");
+    } finally {
+      setLoadingOnline(false);
+    }
+  }
+
+  async function loadAllUsers() {
+    setLoadingAll(true);
+    setError(null);
+    try {
+      const data = await usersApi<{ total: number; users: OnlineUser[] }>(`/users`);
+      setAllUsers(data.users || []);
+    } catch (e: any) {
+      setError(e?.message || "Failed to load users");
+    } finally {
+      setLoadingAll(false);
+    }
+  }
+
+  async function loadFriends() {
+    if (!myUserId) return;
+    setLoadingFriends(true);
+    setError(null);
+    try {
+      const data = await usersApi<{ total: number; friends: FriendUser[] }>(`/users/${myUserId}/my_friends`);
+      setFriends(data.friends || []);
+    } catch (e: any) {
+      setError(e?.message || "Failed to load friends");
+    } finally {
+      setLoadingFriends(false);
+    }
+  }
+
+  async function loadPending() {
+    if (!myUserId) return;
+    setLoadingPending(true);
+    setError(null);
+    try {
+      const data = await usersApi<{ total: number; requests: PendingRequest[] }>(`/users/${myUserId}/pending_requests`);
+      setPending(data.requests || []);
+    } catch (e: any) {
+      setError(e?.message || "Failed to load pending requests");
+    } finally {
+      setLoadingPending(false);
+    }
+  }
+
+  async function sendFriendRequest(friendId: number) {
+    if (!myUserId) return;
+    setError(null);
+    try {
+      await usersApi(`/users/${myUserId}/send_request/${friendId}`, { method: "POST" });
+      setSentRequests((prev) => ({ ...prev, [friendId]: true }));
+      await loadPending();
+    } catch (e: any) {
+      setError(e?.message || "Failed to send friend request");
+    }
+  }
+
+  async function acceptRequest(friendId: number) {
+    if (!myUserId) return;
+    setError(null);
+    try {
+      await usersApi(`/users/${myUserId}/accept_request/${friendId}`, { method: "POST" });
+      await loadPending();
+      await loadFriends();
+      await loadOnline();
+    } catch (e: any) {
+      setError(e?.message || "Failed to accept request");
+    }
+  }
+
+  async function rejectRequest(friendId: number) {
+    if (!myUserId) return;
+    setError(null);
+    try {
+      await usersApi(`/users/${myUserId}/reject_request/${friendId}`, { method: "DELETE" });
+      await loadPending();
+    } catch (e: any) {
+      setError(e?.message || "Failed to reject request");
+    }
+  }
+
+  // Load initial data when opening
+  useEffect(() => {
+    if (!open) return;
+    loadConversations();
+    loadOnline();
+  }, [open]);
+
+  // Load messages when selecting a conversation
+  useEffect(() => {
+    if (!open || !selectedId) return;
+    loadMessages(selectedId);
+  }, [open, selectedId]);
+
+  // Load data when switching tabs
+  useEffect(() => {
+    if (!open) return;
+
+    if (tab === "friends") {
+      loadFriends();
+      loadPending();
+      loadOnline();
+    }
+    if (tab === "online") {
+      loadOnline();
+    }
+    if (tab === "offline") {
+      loadAllUsers();
+      loadOnline();
+      loadFriends();
+    }
+  }, [open, tab]);
+
+  // Refresh online list every 10s when looking at Online or Friends
+  useEffect(() => {
+    if (!open) return;
+    if (tab !== "online" && tab !== "friends") return;
+
+    loadOnline();
+    const id = window.setInterval(loadOnline, 10_000);
+    return () => window.clearInterval(id);
+  }, [open, tab]);
+
+  // Badge polling (unread msgs + pending requests)
+  useEffect(() => {
+    const t = localStorage.getItem("token");
+    if (!t) return;
+
+    let stopped = false;
+
+    const tick = async () => {
+      try {
+        const convs = await chatApi<{ conversations: ConversationItem[] }>("/conversations");
+        let unread = 0;
+
+        const myId = localStorage.getItem("userId") || "";
+
+        for (const c of convs.conversations) {
+          if (!c.lastMessage) continue;
+
+          const seen = getSeenId(c.id);
+          const lastId = c.lastMessage.id;
+          const mine = myId ? c.lastMessage.senderId === String(myId) : false;
+
+          if (!mine && lastId > seen) unread += 1;
+        }
+
+        let pendingCount = 0;
+        const uid = localStorage.getItem("userId");
+        if (uid) {
+          const p = await usersApi<{ requests: any[] }>(`/users/${uid}/pending_requests`);
+          pendingCount = p.requests?.length || 0;
+        }
+
+        if (!stopped) setBadgeCount(unread + pendingCount);
+      } catch {
+        // ignore
+      }
+    };
+
+    tick();
+    const id = window.setInterval(tick, 10_000);
+    return () => {
+      stopped = true;
+      window.clearInterval(id);
+    };
+  }, []);
+
+  return (
+    <>
+      {/* Floating button (hidden while chat is open) */}
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          className="relative fixed bottom-5 right-5 z-[9999] flex h-14 w-14 items-center justify-center rounded-full bg-black text-2xl text-white shadow-[0_10px_30px_rgba(0,0,0,0.25)] hover:scale-105 transition"
+          aria-label="Open chat"
+          title="Chat"
+        >
+          💬
+          {badgeCount > 0 && (
+            <span className="absolute -top-1 -right-1 rounded-full bg-red-600 text-white text-xs font-bold px-2 py-[2px]">
+              {badgeCount > 99 ? "99+" : badgeCount}
+            </span>
+          )}
+        </button>
+      )}
+
+      {open && (
+        <div onClick={() => setOpen(false)} className="fixed inset-0 z-[9998] flex items-end justify-end bg-black/40 p-4">
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="grid h-[520px] w-[900px] max-w-[95vw] grid-cols-[340px_1fr] overflow-hidden rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.25)]"
+          >
+            {/* SIDEBAR */}
+            <div className="flex flex-col border-r border-gray-200">
+              {/* header */}
+              <div className="border-b border-gray-200 px-3 py-2 font-bold flex items-center justify-between">
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    className={`rounded-lg px-3 py-1 text-sm ${tab === "chats" ? "bg-black text-white" : "hover:bg-gray-100"}`}
+                    onClick={() => setTab("chats")}
+                  >
+                    Chats
+                  </button>
+                  <button
+                    className={`rounded-lg px-3 py-1 text-sm ${tab === "friends" ? "bg-black text-white" : "hover:bg-gray-100"}`}
+                    onClick={() => setTab("friends")}
+                  >
+                    Friends
+                  </button>
+                  <button
+                    className={`rounded-lg px-3 py-1 text-sm ${tab === "online" ? "bg-black text-white" : "hover:bg-gray-100"}`}
+                    onClick={() => setTab("online")}
+                  >
+                    Online
+                  </button>
+                  <button
+                    className={`rounded-lg px-3 py-1 text-sm ${tab === "offline" ? "bg-black text-white" : "hover:bg-gray-100"}`}
+                    onClick={() => setTab("offline")}
+                  >
+                    Offline
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setOpen(false)}
+                  className="rounded-md px-2 py-1 text-sm hover:bg-gray-100"
+                  title="Close"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* scroll content */}
+              <div className="flex-1 overflow-auto p-2">
+                {/* New group only on Friends */}
+                {tab === "friends" && (
+                  <button
+                    onClick={() => {
+                      const title = prompt("Group title?") || "";
+                      if (!title.trim()) return;
+
+                      const ids = prompt("Member ids (comma separated), e.g. 2,3,4") || "";
+                      const memberIds = ids.split(",").map((s) => s.trim()).filter(Boolean);
+                      if (memberIds.length === 0) return;
+
+                      createGroup(title.trim(), memberIds);
+                    }}
+                    className="mb-2 w-full rounded-lg bg-black px-3 py-2 text-sm font-bold text-white"
+                  >
+                    + New Group
+                  </button>
+                )}
+
+                {!token && (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                    No token found. Please <Link className="underline" to="/login">login</Link>.
+                  </div>
+                )}
+
+                {error && (
+                  <div className="mb-2 rounded-lg border border-red-200 bg-red-50 p-2 text-sm text-red-900">
+                    <b>Error:</b> {error}
+                  </div>
+                )}
+
+                {/* CHATS */}
+                {tab === "chats" && (
+                  <>
+                    {loadingConvs && <div className="p-2 text-gray-600">Loading…</div>}
+                    {!loadingConvs && conversations.length === 0 && <div className="p-2 text-gray-600">No conversations yet</div>}
+
+                    {conversations.map((c) => {
+                      const active = c.id === selectedId;
+
+                      let title = "";
+                      if (c.type === "GROUP") {
+                        title = c.title || `Group #${c.id}`;
+                      } else {
+                        const otherId = c.otherUserIds[0];
+                        title = userMap[otherId]?.name || `User ${otherId}`;
+                      }
+
+                      const preview = c.lastMessage ? c.lastMessage.content : "(no messages)";
+
+                      return (
+                        <button
+                          key={c.id}
+                          onClick={() => setSelectedId(c.id)}
+                          className={[
+                            "mb-2 w-full rounded-xl border px-3 py-2 text-left transition",
+                            active ? "border-black bg-black text-white" : "border-gray-200 bg-white hover:bg-gray-50",
+                          ].join(" ")}
+                        >
+                          <div className="text-sm font-bold mb-1">{title}</div>
+                          <div className="text-xs opacity-80 truncate">{preview}</div>
+                        </button>
+                      );
+                    })}
+                  </>
+                )}
+
+                {/* FRIENDS */}
+                {tab === "friends" && (
+                  <>
+                    <div className="mb-2 text-xs font-bold text-gray-700">Pending requests</div>
+                    {loadingPending && <div className="p-2 text-gray-600">Loading pending…</div>}
+                    {!loadingPending && pending.length === 0 && <div className="mb-3 p-2 text-gray-600">No pending requests</div>}
+
+                    {pending.map((p) => (
+                      <div key={p.id} className="mb-2 rounded-xl border border-gray-200 bg-white p-2">
+                        <div className="text-sm font-bold truncate">{p.requester.name}</div>
+                        <div className="text-xs text-gray-600 truncate">{p.requester.email}</div>
+                        <div className="mt-2 flex gap-2">
+                          <button
+                            onClick={() => acceptRequest(p.requester.id)}
+                            className="rounded-lg bg-black px-3 py-1 text-xs font-bold text-white"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => rejectRequest(p.requester.id)}
+                            className="rounded-lg border border-gray-300 px-3 py-1 text-xs font-bold"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+
+                    <div className="mt-4 mb-2 text-xs font-bold text-gray-700">Friends Online</div>
+                    {loadingFriends && <div className="p-2 text-gray-600">Loading friends…</div>}
+                    {!loadingFriends && onlineFriends.length === 0 && <div className="mb-3 p-2 text-gray-600">No friends online</div>}
+
+                    {onlineFriends.map((f) => (
+                      <div key={f.id} className="mb-2 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full bg-green-500" />
+                            <div className="text-sm font-bold truncate">{f.name}</div>
+                          </div>
+                          <div className="text-xs text-gray-600 truncate">{f.email}</div>
+                        </div>
+                        <button onClick={() => openDmWith(f.id)} className="ml-2 rounded-lg bg-black px-3 py-1 text-sm font-bold text-white">
+                          DM
+                        </button>
+                      </div>
+                    ))}
+
+                    <div className="mt-4 mb-2 text-xs font-bold text-gray-700">Friends Offline</div>
+                    {!loadingFriends && offlineFriends.length === 0 && <div className="p-2 text-gray-600">No friends offline</div>}
+
+                    {offlineFriends.map((f) => (
+                      <div key={f.id} className="mb-2 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full bg-gray-300" />
+                            <div className="text-sm font-bold truncate">{f.name}</div>
+                          </div>
+                          <div className="text-xs text-gray-600 truncate">{f.email}</div>
+                        </div>
+                        <button onClick={() => openDmWith(f.id)} className="ml-2 rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold">
+                          DM
+                        </button>
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {/* ONLINE USERS */}
+                {tab === "online" && (
+                  <>
+                    {loadingOnline && <div className="p-2 text-gray-600">Loading online users…</div>}
+                    {!loadingOnline && onlineUsers.length === 0 && <div className="p-2 text-gray-600">No one online</div>}
+
+                    {onlineUsers.map((u) => {
+                      const isFriend = friendSet.has(u.id);
+                      return (
+                        <div key={u.id} className="mb-2 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="h-2 w-2 rounded-full bg-green-500" />
+                              <div className="text-sm font-bold truncate">{u.name}</div>
+                            </div>
+                            <div className="text-xs text-gray-600 truncate">{u.email}</div>
+                          </div>
+
+                          {isFriend ? (
+                            <button onClick={() => openDmWith(u.id)} className="rounded-lg bg-black px-3 py-1 text-sm font-bold text-white">
+                              DM
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => sendFriendRequest(u.id)}
+                              className="rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold"
+                              disabled={!!sentRequests[u.id]}
+                              title={sentRequests[u.id] ? "Request sent" : "Send friend request"}
+                            >
+                              {sentRequests[u.id] ? "Requested" : "Add"}
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+
+                {/* OFFLINE USERS */}
+                {tab === "offline" && (
+                  <>
+                    {loadingAll && <div className="p-2 text-gray-600">Loading offline users…</div>}
+                    {!loadingAll && offlineUsers.length === 0 && <div className="p-2 text-gray-600">No offline users</div>}
+
+                    {offlineUsers.map((u) => {
+                      const isFriend = friendSet.has(u.id);
+                      return (
+                        <div key={u.id} className="mb-2 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="h-2 w-2 rounded-full bg-gray-300" />
+                              <div className="text-sm font-bold truncate">{u.name}</div>
+                            </div>
+                            <div className="text-xs text-gray-600 truncate">{u.email}</div>
+                          </div>
+
+                          {isFriend ? (
+                            <button onClick={() => openDmWith(u.id)} className="rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold">
+                              DM
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => sendFriendRequest(u.id)}
+                              className="rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold"
+                              disabled={!!sentRequests[u.id]}
+                              title={sentRequests[u.id] ? "Request sent" : "Send friend request"}
+                            >
+                              {sentRequests[u.id] ? "Requested" : "Add"}
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* RIGHT PANEL (messages) */}
+            <div className="flex flex-col">
+              <div className="border-b border-gray-200 px-3 py-2 font-bold">{selectedTitle}</div>
+
+              <div className="flex-1 overflow-auto bg-gray-50 p-3">
+                {loadingMsgs && <div className="text-gray-600">Loading messages…</div>}
+                {!loadingMsgs && selectedId && messages.length === 0 && <div className="text-gray-600">No messages yet</div>}
+
+                {messages.map((m) => {
+                  const mine = myUserId ? m.senderId === String(myUserId) : false;
+                  return (
+                    <div key={m.id} className={`mb-3 flex ${mine ? "justify-end" : "justify-start"}`}>
+                      <div
+                        className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm shadow-sm ${
+                          mine ? "bg-black text-white" : "bg-white border border-gray-200 text-gray-900"
+                        }`}
+                      >
+                        <div className="mb-1 text-[11px] opacity-75">
+                          {(userMap[m.senderId]?.name || `User ${m.senderId}`)} · {new Date(m.createdAt).toLocaleString()}
+                        </div>
+                        <div className="whitespace-pre-wrap">{m.content}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="border-t border-gray-200 p-3 flex gap-2">
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Write a message…"
+                  className="flex-1 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-amber-300"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") sendMessage();
+                  }}
+                />
+                <button onClick={sendMessage} className="rounded-xl bg-black px-4 py-2 font-bold text-white hover:opacity-90">
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
