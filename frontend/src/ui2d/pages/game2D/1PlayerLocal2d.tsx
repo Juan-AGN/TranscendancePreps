@@ -21,7 +21,7 @@ export function Player1vsLocal2D() {
 		<ArcadeBgLayout
 			showGameHud
 			player1Name="PLAYER 1"
-			player2Name="IA"
+			player2Name="COMPUTER"
 			player1Score={scores.player1}
 			player2Score={scores.player2}
 			onBack={() => navigate('/game')}

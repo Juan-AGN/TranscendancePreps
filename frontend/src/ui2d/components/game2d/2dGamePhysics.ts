@@ -53,9 +53,16 @@ export class GamePhysics {
 		ball.x += ball.velocityX;
 		ball.y += ball.velocityY;
 
-		//2) colision con paredes arriba/abajo //si toca el techo o el suelo, invertimos velocityY (rebote vertical)
-		if (ball.y - ball.radius <= 0 || ball.y + ball.radius >= CANVAS_HEIGHT) {
-			ball.velocityY *= -1;
+		//2) colision con paredes arriba/abajo — separados y con clamp de posicion
+		//si solo invertimos velocidad sin clampear, la bola puede quedar fuera del canvas
+		//y en el siguiente frame volver a invertir -> queda oscilando en la pared
+		if (ball.y - ball.radius <= 0) {
+			ball.y = ball.radius;						//clamp: sacamos la bola de la pared
+			ball.velocityY = Math.abs(ball.velocityY);	//forzamos q vaya hacia abajo
+		}
+		if (ball.y + ball.radius >= CANVAS_HEIGHT) {
+			ball.y = CANVAS_HEIGHT - ball.radius;		//clamp: sacamos la bola de la pared
+			ball.velocityY = -Math.abs(ball.velocityY);	//forzamos q vaya hacia arriba
 		}
 
 		//3) colision con pala jugador 1 (izquierda)

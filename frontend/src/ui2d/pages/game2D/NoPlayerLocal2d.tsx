@@ -38,8 +38,8 @@ export function SpectatorMode2d() {
 		</div>*/
 		<ArcadeBgLayout
 		showGameHud
-		player1Name="PLAYER 1"
-		player2Name="PLAYER 2"
+		player1Name="SPECTATOR 1"
+		player2Name="SPECTATOR 2"
 		player1Score={scores.player1}
 		player2Score={scores.player2}
 		onBack={() => navigate('/game')}>	
