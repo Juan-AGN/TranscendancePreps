@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+// hook de i18n: t() devuelve el texto en el idioma activo
 import { ArcadeBgLayout } from '../../components/ArcadeBgLayout';
 import { useAudioStore } from '../../../shared/store/audioStore';
 
 //misma estructura q GameSettings2DPage -> un boton por ajuste q cicla el valor al hacer click
 const AUDIOSETTINGS2D_OPTIONS = [
-	{ id: 'music', label: 'MUSIC', path: '' },
-	{ id: 'sfx', label: 'SFX', path: '' },
-	{ id: 'back', label: '← BACK', path: '/settings' },
+	{ id: 'music', path: '' },
+	{ id: 'sfx',   path: '' },
+	{ id: 'back',  path: '/settings' },
 ];
 
 export function AudioSettings2DPage() {
@@ -16,6 +18,7 @@ export function AudioSettings2DPage() {
 	const location = useLocation();
 	//leemos del store de audio (localStorage -> se mantiene entre sesiones)
 	const { musicEnabled, sfxEnabled, setMusicEnabled, setSfxEnabled } = useAudioStore();
+	const { t } = useTranslation();
 
 	//devuelve el valor actual a mostrar junto al label del boton
 	const getOptionValue = (id: string) => {
@@ -40,8 +43,8 @@ export function AudioSettings2DPage() {
 
 	return (
 		<ArcadeBgLayout>
-			<h1 className="text-[2.75rem] text-blue-300 font-bold mb-[0.55rem] font-['Press_Start_2P']">
-				AUDIO SETTINGS
+			<h1 className="text-[clamp(1rem,4vw,2.75rem)] text-blue-300 font-bold mb-[0.55rem] font-['Press_Start_2P']">
+				{t('arcade2d.audioSettings.title')}
 			</h1>
 
 			<nav className="flex flex-col gap-[0.5rem] w-full max-w-[24rem]">
@@ -60,14 +63,13 @@ export function AudioSettings2DPage() {
 							onBlur={() => setHovered(null)}
 							onClick={() => handleOptionClick(option.id, option.path)}
 							className={[
-								"relative px-[1rem] py-[0.25rem] text-[1rem] font-black uppercase font-['Press_Start_2P']",
-								'border-[0.05rem] border-black',
+								"relative py-[clamp(0rem,0.2vw,0.5rem)] text-[clamp(0.35rem,1.45vw,1rem)] font-black uppercase font-['Press_Start_2P']",
 								isHighlighted
 									? 'bg-black text-white scale-120'
 									: 'bg-black text-yellow-400',
 							].join(' ')}
 						>
-							<span>{option.label}</span>
+							<span>{t(`arcade2d.audioSettings.${option.id}`)}</span>
 							{optionValue !== '' && (
 								<span className="ml-[1rem] text-blue-300">
 									{optionValue}

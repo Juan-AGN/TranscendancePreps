@@ -1,21 +1,25 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+// hook de i18n: t() devuelve el texto en el idioma activo
 import { ArcadeBgLayout } from '../../components/ArcadeBgLayout'
 import { useDisplay2dStore, BALL_COLORS, PADDLE_COLORS, BALL_SIZE_MAP } from '../../../shared/store/display2dSettingsStore'
 
 const DISPLAYSETTINGS2D_OPTIONS = [
-	{ id: 'ballcolor',   label: 'BALL COLOR',   path: '' },
-	{ id: 'paddlecolor', label: 'PADDLE COLOR', path: '' },
-	{ id: 'ballsize',    label: 'BALL SIZE',    path: '' },
-	{ id: 'balltrail',   label: 'BALL TRAIL',   path: '' },
-	{ id: 'back',        label: '← BACK',       path: '/settings' },
+	{ id: 'ballcolor',   path: '' },
+	{ id: 'paddlecolor', path: '' },
+	{ id: 'ballsize',    path: '' },
+	{ id: 'balltrail',   path: '' },
+	{ id: 'back',        path: '/settings' },
 ];
 
-const COLOR_LABELS: Record<string, string> = {
-	'#70ee31': 'GREEN',
-	'#ffffff': 'WHITE',
-	'#ffee00': 'YELLOW',
-	'#ff4444': 'RED',
+// mapa hex -> clave i18n del color (usada en getColorLabel)
+const COLOR_KEY_MAP: Record<string, string> = {
+	'#70ee31': 'green',
+	'#ffffff': 'white',
+	'#ffee00': 'yellow',
+	'#ff4444': 'red',
+	'#00ffff': 'cyan',
 };
 
 export function DisplaySettings2DPage() {
@@ -26,13 +30,19 @@ export function DisplaySettings2DPage() {
 		ballColor, paddleColor, ballSize, ballTrail,
 		setBallColor, setPaddleColor, setBallSize, setBallTrail,
 	} = useDisplay2dStore();
+	const { t } = useTranslation();
+
+	const getColorLabel = (hex: string) => {
+		const key = COLOR_KEY_MAP[hex];
+		return key ? t(`arcade2d.displaySettings.${key}`) : hex;
+	};
 
 	//devuelve el valor actual a mostrar
 	const getOptionValue = (id: string) => {
 		if (id === 'ballcolor')
-			return COLOR_LABELS[ballColor]   ?? ballColor;
+			return getColorLabel(ballColor);
 		if (id === 'paddlecolor')
-			return COLOR_LABELS[paddleColor] ?? paddleColor;
+			return getColorLabel(paddleColor);
 		if (id === 'ballsize')
 			return ballSize.toUpperCase();
 		if (id === 'balltrail')
@@ -66,11 +76,11 @@ export function DisplaySettings2DPage() {
 
 	return (
 		<ArcadeBgLayout>
-			<h1 className="text-[2.75rem] text-blue-300 font-bold mb-[0.55rem] font-['Press_Start_2P']">
-				DISPLAY SETTINGS
+			<h1 className="text-[clamp(1rem,4vw,2.75rem)] text-blue-300 font-bold mb-[0.55rem] font-['Press_Start_2P']">
+				{t('arcade2d.displaySettings.title')}
 			</h1>
 
-			<nav className="flex flex-col gap-[0.5rem] w-full max-w-[24rem]">
+			<nav className="flex flex-col gap-[0.3rem] w-full max-w-[26rem]">
 				{DISPLAYSETTINGS2D_OPTIONS.map((option) => {
 					const isActive = location.pathname === option.path;
 					const isHighlighted = hovered === option.id || isActive;
@@ -86,14 +96,13 @@ export function DisplaySettings2DPage() {
 						onBlur={() => setHovered(null)}
 						onClick={() => handleOptionClick(option.id, option.path)}
 						className={[
-							"relative px-[1rem] py-[0.25rem] text-[1rem] font-black uppercase font-['Press_Start_2P']",
-							'border-[0.05rem] border-black',
+							"relative py-[clamp(0rem,0.2vw,0.5rem)] text-[clamp(0.35rem,1.45vw,1rem)] font-black uppercase font-['Press_Start_2P']",
 							isHighlighted
-								? 'bg-black text-white scale-120'
+								? 'bg-black text-white scale-[1.05]'
 								: 'bg-black text-yellow-400',
 						].join(' ')}
 						>
-							<span>{option.label}</span>
+							<span>{t(`arcade2d.displaySettings.${option.id}`)}</span>
 							{optionValue !== '' && (
 								<span className="ml-[1rem] text-blue-300">
 									{optionValue}

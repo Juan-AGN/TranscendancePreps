@@ -1,0 +1,53 @@
+/* ── Logo 3D ───────────────────────────────────────────── */
+@keyframes logoPulse {
+	0%,
+	100% {
+		filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.6)) drop-shadow(0 0 28px rgba(14, 165, 233, 0.3));
+	}
+	50% {
+		filter: drop-shadow(0 0 22px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 55px rgba(14, 165, 233, 0.6));
+	}
+}
+
+@keyframes float {
+	0%,
+	100% {
+		transform: translateY(0px);
+	}
+	50% {
+		transform: translateY(-14px);
+	}
+}
+
+/* ── Generales ─────────────────────────────────────────── */
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes cardIn {
+	0% {
+		opacity: 0;
+		transform: translateY(154px) scale(0.28);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@keyframes floatBob {
+	0%,
+	100% {
+		transform: translateY(0px);
+	}
+	50% {
+		transform: translateY(-10px);
+	}
+}

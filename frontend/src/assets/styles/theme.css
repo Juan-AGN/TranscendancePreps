@@ -1,0 +1,6 @@
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* Personalización de Tailwind v4 — tokens de animación */
+@theme {
+	--animate-logo-pulse: logoPulse 3s ease-in-out infinite;
+}

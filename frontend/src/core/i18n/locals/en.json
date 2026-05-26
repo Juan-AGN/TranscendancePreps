@@ -9,7 +9,8 @@
 		"info": "Info",
 		"creators": "Creators",
 		"settings": "Settings",
-		"login": "Login"
+		"login": "Login",
+		"profile": "Profile"
 	},
 	"footer": {
 		"brand": "TRANSCENDENCE",
@@ -100,6 +101,63 @@
 		"s8Title": "8. Account Deletion",
 		"s8Text": "You can delete your account at any time from the settings page. Accounts that violate these terms may be removed without notice.",
 		"footer": "Transcendence — 42 Málaga · 2026"
+	},
+	"arcade2d": {
+		"menu": {
+			"title": "ARCADE",
+			"home": "HOME",
+			"game": "GAME",
+			"tournament": "TOURNAMENT (SOON)",
+			"settings": "SETTINGS",
+			"login": "LOGIN"
+		},
+		"game": {
+			"title": "GAME MODE",
+			"1player": "1 PLAYER LOCAL",
+			"2player": "2 PLAYER LOCAL",
+			"spectator": "SPECTATOR MODE",
+			"back": "← BACK"
+		},
+		"settings": {
+			"title": "SETTINGS",
+			"gameSetting": "GAME SETTINGS",
+			"audio": "AUDIO",
+			"display": "DISPLAY",
+			"back": "← BACK"
+		},
+		"gameSettings": {
+			"title": "GAME SETTINGS",
+			"scorelimit": "SCORE LIMIT",
+			"paddlesize": "PADDLE SIZE",
+			"ballspeed": "BALL SPEED",
+			"back": "← BACK"
+		},
+		"audioSettings": {
+			"title": "AUDIO SETTINGS",
+			"music": "MUSIC",
+			"sfx": "SFX",
+			"back": "← BACK"
+		},
+		"displaySettings": {
+			"title": "DISPLAY SETTINGS",
+			"ballcolor": "BALL COLOR",
+			"paddlecolor": "PADDLE COLOR",
+			"ballsize": "BALL SIZE",
+			"balltrail": "BALL TRAIL",
+			"back": "← BACK",
+			"green": "GREEN",
+			"white": "WHITE",
+			"yellow": "YELLOW",
+			"red": "RED",
+			"cyan": "CYAN"
+		},
+		"hud": {
+			"player1": "PLAYER 1",
+			"player2": "PLAYER 2",
+			"computer": "COMPUTER",
+			"spectator1": "SPECTATOR 1",
+			"spectator2": "SPECTATOR 2"
+		}
 	},
 	"settingsPage": {
 		"title": "Settings",
