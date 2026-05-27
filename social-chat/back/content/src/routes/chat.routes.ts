@@ -138,6 +138,35 @@ chatRouter.post("/dm", async (req: Request, res: Response) => {
   }
 });
 
+chatRouter.delete("/conversations/:id", async (req: Request, res: Response) => {
+  try {
+    const me = getUserId(req);
+    const conversationId = Number(req.params.id);
+
+    if (!Number.isInteger(conversationId) || conversationId <= 0) {
+      return res.status(400).json({ error: "Invalid conversation id" });
+    }
+
+    const result = await prisma.conversationMember.deleteMany({
+      where: {
+        conversationId,
+        userId: me,
+      },
+    });
+
+    if (result.count === 0) {
+      return res.status(404).json({ error: "Conversation not found for this user" });
+    }
+
+    return res.json({
+      conversationId,
+      removedForUser: me,
+      deleted: result.count,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || "Unknown error" });
+  }
+});
 // ============================================================================
 // Conversations (sidebar)
 // ============================================================================

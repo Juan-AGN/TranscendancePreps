@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 
 type ConversationItem = {
   id: number;
@@ -80,8 +79,9 @@ export function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"chats" | "friends" | "online" | "offline">("chats");
   const [badgeCount, setBadgeCount] = useState(0);
+  const [groupTitle, setGroupTitle] = useState("");
+  const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
 
-  const token = getToken();
   const myUserId = getMyUserId();
 
   // Chat state
@@ -101,7 +101,7 @@ export function ChatWidget() {
   const [sentRequests, setSentRequests] = useState<Record<number, true>>({});
 
   // UI
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [loadingConvs, setLoadingConvs] = useState(false);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const [loadingOnline, setLoadingOnline] = useState(false);
@@ -269,6 +269,55 @@ export function ChatWidget() {
       setError(err?.message || "Failed to create group");
     }
   }
+function toggleGroupFriend(id: number) {
+  const value = String(id);
+
+  setSelectedGroupIds((prev) => {
+    if (prev.includes(value)) {
+      return prev.filter((x) => x !== value);
+    }
+    return [...prev, value];
+  });
+}
+
+async function createGroupFromFriends() {
+  if (!groupTitle.trim()) {
+    setError("Group title is required");
+    return;
+  }
+
+  if (selectedGroupIds.length === 0) {
+    setError("Select at least one friend");
+    return;
+  }
+
+  await createGroup(groupTitle.trim(), selectedGroupIds);
+
+  setGroupTitle("");
+  setSelectedGroupIds([]);
+}
+
+async function deleteConversationForMe(conversationId: number) {
+  const ok = window.confirm("Remove this conversation from your chat list?");
+  if (!ok) return;
+
+  try {
+    setError(null);
+
+    await chatApi(`/conversations/${conversationId}`, {
+      method: "DELETE",
+    });
+
+    if (selectedId === conversationId) {
+      setSelectedId(null);
+      setMessages([]);
+    }
+
+    await loadConversations();
+  } catch (err: any) {
+    setError(err?.message || "Failed to delete conversation");
+  }
+}
 
   async function loadOnline() {
     setLoadingOnline(true);
@@ -454,7 +503,7 @@ export function ChatWidget() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="relative fixed bottom-5 right-5 z-[9999] flex h-14 w-14 items-center justify-center rounded-full bg-black text-2xl text-white shadow-[0_10px_30px_rgba(0,0,0,0.25)] hover:scale-105 transition"
+          className="relative fixed bottom-1 right-1 z-[9999] flex h-14 w-14 items-center justify-center rounded-full bg-black text-2xl text-white shadow-[0_10px_30px_rgba(0,0,0,0.25)] hover:scale-105 transition"
           aria-label="Open chat"
           title="Chat"
         >
@@ -517,32 +566,45 @@ export function ChatWidget() {
               <div className="flex-1 overflow-auto p-2">
                 {/* New group only on Friends */}
                 {tab === "friends" && (
-                  <button
-                    onClick={() => {
-                      const title = prompt("Group title?") || "";
-                      if (!title.trim()) return;
+                  <div className="mb-3 rounded-xl border border-gray-200 bg-white p-3">
+                    <div className="mb-2 text-sm font-bold">Create group</div>
 
-                      const ids = prompt("Member ids (comma separated), e.g. 2,3,4") || "";
-                      const memberIds = ids.split(",").map((s) => s.trim()).filter(Boolean);
-                      if (memberIds.length === 0) return;
+                    <input
+                      value={groupTitle}
+                      onChange={(e) => setGroupTitle(e.target.value)}
+                      placeholder="Group name"
+                      className="mb-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none"
+                    />
 
-                      createGroup(title.trim(), memberIds);
-                    }}
-                    className="mb-2 w-full rounded-lg bg-black px-3 py-2 text-sm font-bold text-white"
-                  >
-                    + New Group
-                  </button>
-                )}
+                    <div className="mb-2 max-h-32 overflow-auto rounded-lg border border-gray-100 p-2">
+                      {friends.length === 0 && (
+                        <div className="text-xs text-gray-500">
+                          No friends available
+                        </div>
+                      )}
 
-                {!token && (
-                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-                    No token found. Please <Link className="underline" to="/login">login</Link>.
-                  </div>
-                )}
+                      {friends.map((f) => (
+                        <label
+                          key={f.id}
+                          className="mb-1 flex cursor-pointer items-center gap-2 text-sm"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedGroupIds.includes(String(f.id))}
+                            onChange={() => toggleGroupFriend(f.id)}
+                          />
+                          <span>{f.name}</span>
+                          <span className="text-xs text-gray-500">{f.email}</span>
+                        </label>
+                      ))}
+                    </div>
 
-                {error && (
-                  <div className="mb-2 rounded-lg border border-red-200 bg-red-50 p-2 text-sm text-red-900">
-                    <b>Error:</b> {error}
+                    <button
+                      onClick={createGroupFromFriends}
+                      className="w-full rounded-lg bg-black px-3 py-2 text-sm font-bold text-white"
+                    >
+                      + Create group
+                    </button>
                   </div>
                 )}
 
@@ -566,17 +628,35 @@ export function ChatWidget() {
                       const preview = c.lastMessage ? c.lastMessage.content : "(no messages)";
 
                       return (
-                        <button
+                        <div
                           key={c.id}
-                          onClick={() => setSelectedId(c.id)}
                           className={[
-                            "mb-2 w-full rounded-xl border px-3 py-2 text-left transition",
+                            "mb-2 flex items-center gap-2 rounded-xl border px-3 py-2 transition",
                             active ? "border-black bg-black text-white" : "border-gray-200 bg-white hover:bg-gray-50",
                           ].join(" ")}
                         >
-                          <div className="text-sm font-bold mb-1">{title}</div>
-                          <div className="text-xs opacity-80 truncate">{preview}</div>
-                        </button>
+                          <button
+                            onClick={() => setSelectedId(c.id)}
+                            className="min-w-0 flex-1 text-left"
+                          >
+                            <div className="text-sm font-bold mb-1 truncate">{title}</div>
+                            <div className="text-xs opacity-80 truncate">{preview}</div>
+                          </button>
+
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteConversationForMe(c.id);
+                            }}
+                            className={[
+                              "rounded-lg px-2 py-1 text-xs font-bold",
+                              active ? "bg-white text-black" : "border border-gray-300 text-gray-700",
+                            ].join(" ")}
+                            title="Remove conversation"
+                          >
+                            ✕
+                          </button>
+                        </div>
                       );
                     })}
                   </>
