@@ -4,7 +4,12 @@
 //la idea es pasar el estado (ball + paddles + keys + mode) y esto lo actualiza (mutando los objetos) //importamos solo los tipos(TS) del estado del juego
 import type { Ball, Paddle, Keys, Game2DMode } from './2dGameState';
 //importamos constantes del config del juego2d (tamaños, velocidades, etc.)
-import { CANVAS_WIDTH, CANVAS_HEIGHT, BALL_INITIAL_SPEED, BALL_SPEED_INCREMENT } from './2dGameConfig';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, BALL_SPEED_INCREMENT } from './2dGameConfig';
+// use2dGameSettingsStore -> leemos la velocidad de bola elegida fuera de React con .getState()
+// BALL_SPEED_MAP         -> convierte 'slow' | 'normal' | 'fast' en un numero real
+import { use2dGameSettingsStore, BALL_SPEED_MAP } from '../../../shared/store/game2dSettingsStore';
+import { useDisplay2dStore, BALL_SIZE_MAP } from '../../../shared/store/display2dSettingsStore';
+//BALL_SIZE_MAP -> convierte 'small' | 'normal' | 'large' en radio de pixeles
 //exportamos la clase GamePhysics
 //static pq esta clase no necesita memoria interna, no guarda nada, solo hace calculos sobre objetos q le pasas
 export class GamePhysics {
@@ -14,8 +19,13 @@ export class GamePhysics {
 		//la ponemos en el centro del canvas
 		ball.x = CANVAS_WIDTH / 2;
 		ball.y = CANVAS_HEIGHT / 2;
-		//reseteamos la speed base (cada punto vuelve a la velocidad inicial)
-		ball.speed = BALL_INITIAL_SPEED;
+		//reseteamos la speed al valor del ajuste elegido por el jugador (no una constante hardcodeada)
+		//se ejecuta cada vez q alguien anota, asi la velocidad siempre es la correcta durante la partida
+		const { ballSpeed } = use2dGameSettingsStore.getState();
+		ball.speed = BALL_SPEED_MAP[ballSpeed as keyof typeof BALL_SPEED_MAP];
+		//actualizamos el radio por si el jugador cambio ballSize en display settings
+		const { ballSize } = useDisplay2dStore.getState();
+		ball.radius = BALL_SIZE_MAP[ballSize];
 
 		//le damos un angulo random pequeño pa q no sea siempre recta y aburrida
 		// //Math.random() -> [0..1) //(Math.random() - 0.5) -> [-0.5..0.5) //* (Math.PI / 4) -> rango final [-PI/8 .. PI/8] (pequeña inclinación)
@@ -43,9 +53,16 @@ export class GamePhysics {
 		ball.x += ball.velocityX;
 		ball.y += ball.velocityY;
 
-		//2) colision con paredes arriba/abajo //si toca el techo o el suelo, invertimos velocityY (rebote vertical)
-		if (ball.y - ball.radius <= 0 || ball.y + ball.radius >= CANVAS_HEIGHT) {
-			ball.velocityY *= -1;
+		//2) colision con paredes arriba/abajo — separados y con clamp de posicion
+		//si solo invertimos velocidad sin clampear, la bola puede quedar fuera del canvas
+		//y en el siguiente frame volver a invertir -> queda oscilando en la pared
+		if (ball.y - ball.radius <= 0) {
+			ball.y = ball.radius;						//clamp: sacamos la bola de la pared
+			ball.velocityY = Math.abs(ball.velocityY);	//forzamos q vaya hacia abajo
+		}
+		if (ball.y + ball.radius >= CANVAS_HEIGHT) {
+			ball.y = CANVAS_HEIGHT - ball.radius;		//clamp: sacamos la bola de la pared
+			ball.velocityY = -Math.abs(ball.velocityY);	//forzamos q vaya hacia arriba
 		}
 
 		//3) colision con pala jugador 1 (izquierda)

@@ -1,0 +1,43 @@
+/* Regla para juego 3D — canvas ocupa todo */
+@layer base {
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    #root {
+        width: 100%;
+        height: 100%;
+    }
+    /* Canvas de Babylon.js */
+    canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+        outline: none;
+        touch-action: none;
+    }
+}
+
+/* Configuración de fuentes estándar */
+:root {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+        Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    color: #333333;
+}
+
+[data-font-size="small"] {
+    font-size: 85%;
+}
+
+[data-font-size="medium"] {
+    font-size: 100%;
+}
+
+[data-font-size="large"] {
+    font-size: 120%;
+}

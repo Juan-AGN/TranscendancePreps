@@ -16,6 +16,7 @@ import type { Game2dState, Game2dCanvasProps } from './game2d/2dGameState'; // t
 import { GamePhysics } from './game2d/2dGamePhysics'; // fsica: necesitamos resetBall cuando alguien anota
 import { useGameEntities } from './game2d/2dGameUseEntities';// hook que crea y gestiona refs de entidades (paddles/ball/keys/reset)
 import { use2dGameLoop } from './game2d/2dUseGameLoop'; // hook motor: arranca el loop, input, física, render
+import { use2dGameSettingsStore } from '../../shared/store/game2dSettingsStore'; // para leer scoreLimit siempre actualizado
 
 // PROPS DEL COMPONENTE
 // gameMode: '1v1' (dos jugadores) o '1vIA' (contra IA)
@@ -59,7 +60,9 @@ export function Game2DCanvas({ gameMode = '1v1', maxScore = MAX_SCORE, onGameEnd
 		onScoreChange?.(player1.score, player2.score);
 
 		// check si alguien gano
-		if (scorer.score >= maxScore) {
+		//leemos scoreLimit del store en vez de la prop -> siempre actualizado aunque cambie mid-game
+		const { scoreLimit } = use2dGameSettingsStore.getState();
+		if (scorer.score >= scoreLimit) {
 			// terminar partida
 			setGameState({ isPlaying: false, isPaused: false, winner: winnerName });
 			// avisar al componente padre (opcional, para stats/modal)

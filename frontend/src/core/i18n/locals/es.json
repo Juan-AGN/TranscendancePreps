@@ -9,11 +9,12 @@
         "info": "Info",
         "creators": "Creadores",
         "settings": "Ajustes",
-        "login": "Iniciar Sesión"
+        "login": "Iniciar Sesión",
+        "profile": "Perfil"
     },
     "footer": {
         "brand": "TRANSCENDENCE",
-        "project": "Alumni Projecto 42 Telefonica",
+        "project": "Proyecto de Estudiantes",
         "privacy": "Politica de Privacidad",
         "terms": "Terminos y Condiciones",
         "copyright": "© 2026 Transcendence"
@@ -100,6 +101,63 @@
         "s8Title": "8. Eliminación de Cuenta",
         "s8Text": "Puedes eliminar tu cuenta en cualquier momento desde la página de ajustes. Las cuentas que incumplan estos términos pueden ser eliminadas sin previo aviso.",
         "footer": "Transcendence — 42 Málaga · 2026"
+    },
+    "arcade2d": {
+        "menu": {
+            "title": "ARCADE",
+            "home": "HOME",
+            "game": "JUEGO",
+            "tournament": "TORNEO (PRONTO)",
+            "settings": "AJUSTES",
+            "login": "LOGIN"
+        },
+        "game": {
+            "title": "MODO DE JUEGO",
+            "1player": "1 JUGADOR LOCAL",
+            "2player": "2 JUGADORES LOCAL",
+            "spectator": "MODO ESPECTADOR",
+            "back": "← VOLVER"
+        },
+        "settings": {
+            "title": "AJUSTES",
+            "gameSetting": "AJUSTES DE JUEGO",
+            "audio": "AUDIO",
+            "display": "PANTALLA",
+            "back": "← VOLVER"
+        },
+        "gameSettings": {
+            "title": "AJUSTES DE JUEGO",
+            "scorelimit": "LÍMITE DE PUNTOS",
+            "paddlesize": "TAMAÑO PADDLE",
+            "ballspeed": "VELOCIDAD",
+            "back": "← VOLVER"
+        },
+        "audioSettings": {
+            "title": "AJUSTES DE AUDIO",
+            "music": "MÚSICA",
+            "sfx": "SFX",
+            "back": "← VOLVER"
+        },
+        "displaySettings": {
+            "title": "AJUSTES VISUALES",
+            "ballcolor": "COLOR BOLA",
+            "paddlecolor": "COLOR PADDLE",
+            "ballsize": "TAMAÑO BOLA",
+            "balltrail": "ESTELA",
+            "back": "← VOLVER",
+            "green": "VERDE",
+            "white": "BLANCO",
+            "yellow": "AMARILLO",
+            "red": "ROJO",
+            "cyan": "CYAN"
+        },
+        "hud": {
+            "player1": "JUGADOR 1",
+            "player2": "JUGADOR 2",
+            "computer": "ORDENADOR",
+            "spectator1": "ESPECTADOR 1",
+            "spectator2": "ESPECTADOR 2"
+        }
     },
     "settingsPage": {
         "title": "Ajustes",

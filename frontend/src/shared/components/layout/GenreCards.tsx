@@ -85,7 +85,7 @@ export function GenreCard({
 				onClick={onClick}
 				aria-label={title}
 				className="absolute inset-0 z-40 cursor-pointer bg-transparent border-0" />
-		
+
 			<div className="relative w-full h-full [perspective:800px]">
 				<div className="relative w-full h-full [transform-style:preserve-3d]
 								transition-transform duration-150 ease-out"
@@ -94,32 +94,41 @@ export function GenreCard({
 					<img src="/images/pedestal2.png"
 						alt=""
 						className="absolute left-1/2 bottom-[clamp(-4.5rem,-5vw,-2rem)] z-20 w-[90%]
-									pointer-events-none select-none transition-all duration-300"
+									pointer-events-none select-none"
 						style={{
 							opacity: cardMotion.active ? 1 : 0.9,
-							transform: `translateX(-50%) scale(${cardMotion.active ? 1.14 : 1})`,
+							transform: `translateX(-50%) scale(${cardMotion.active ? 1.10 : 1})`,
+							transition: cardMotion.active
+								? 'transform 180ms ease-out, opacity 180ms ease-out, filter 180ms ease-out'
+								: 'transform 350ms ease-in-out, opacity 350ms ease-in-out, filter 350ms ease-in-out',
+							filter: cardMotion.active ? 'drop-shadow(0 2px 20px rgb(59, 177, 249))' : 'none',
 						}} />
 
 					<div className="absolute inset-0 z-30 flex flex-col items-center justify-center pointer-events-none"
 						style={{ transform: 'translateZ(30px)' }}>
 
 						<div className="w-full h-full flex items-center justify-center transition-transform duration-150 ease-out"
-							style={{ transform: `translate(${imageMoveXBase * -85}px, ${imageMoveYBase * -85}px)`, }}>
+							style={{ transform: `translate(${imageMoveXBase * -85}px, ${imageMoveYBase * -85}px)` }}>
 
 							<div className="w-full h-full flex items-center justify-center"
 								style={{ animation: cardMotion.active ? 'floatBob 2s ease-in-out infinite' : 'none', }}>
 
 								<img src={image}
 									alt={title}
-									className={` object-contain ${imageClassName}`} />
+									className={`object-contain ${imageClassName}`}
+									style={{
+										filter: cardMotion.active
+											? 'drop-shadow(0 0 1px rgb(10, 10, 0)) drop-shadow(0 -5px 40px rgb(59, 177, 251))' : 'none',
+										transition: 'filter 200ms ease-out',
+									}} />
 							</div>
 						</div>
 
-						<div className="absolute bottom-[clamp(-4.6rem,-10vh,-2.1rem)]
-									left-0 w-full flex items-center justify-center">
-							<p className="m-0 rounded-full border border-white/25 bg-black/50 px-5 py-1
-										text-white text-[0.75rem] md:text-[0.8rem]
-                                    	font-light uppercase tracking-[0.18rem] backdrop-blur-md shadow-[0_0_18px_rgba(255,255,255,0.22)]">
+						<div className="absolute top-[clamp(-2.5rem,-10vh,-2.1rem)] left-0 w-full flex items-center justify-center">
+							<p className={`m-0 rounded-full px-4 py-1 font-semibold text-[clamp(0.35rem,0.95vw,0.9rem)] tracking-[0.2rem] font-['Orbitron'] transition-all duration-800
+											${cardMotion.active
+									? 'opacity-100 bg-blue-400/20 border border-blue-400/10 text-blue-400 uppercase tracking-[0.2rem] backdrop-blur-md shadow-[0_0px_22px_rgba(96,165,250,0.55)] border-blue-300/80'
+									: 'opacity-0 rounded-full py-5 text-yellow-800 uppercase'}`}>
 								{label}
 							</p>
 						</div>

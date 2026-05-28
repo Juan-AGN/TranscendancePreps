@@ -9,11 +9,12 @@
         "info": "Info",
         "creators": "Créateurs",
         "settings": "Paramètres",
-        "login": "Connexion"
+        "login": "Connexion",
+        "profile": "Profil"
     },
     "footer": {
         "brand": "TRANSCENDENCE",
-        "project": "Projet Alumni 42 Telefónica",
+        "project": "Projet étudiants",
         "privacy": "Politique de Confidentialité",
         "terms": "Conditions Générales",
         "copyright": "© 2026 Transcendence"
@@ -100,6 +101,63 @@
         "s8Title": "8. Suppression du Compte",
         "s8Text": "Vous pouvez supprimer votre compte à tout moment depuis la page des paramètres. Les comptes qui enfreignent ces conditions peuvent être supprimés sans préavis.",
         "footer": "Transcendence — 42 Málaga · 2026"
+    },
+    "arcade2d": {
+        "menu": {
+            "title": "ARCADE",
+            "home": "ACCUEIL",
+            "game": "JEU",
+            "tournament": "TOURNOI (BIENTÔT)",
+            "settings": "PARAMÈTRES",
+            "login": "LOGIN"
+        },
+        "game": {
+            "title": "MODE DE JEU",
+            "1player": "1 JOUEUR LOCAL",
+            "2player": "2 JOUEURS LOCAL",
+            "spectator": "MODE SPECTATEUR",
+            "back": "← RETOUR"
+        },
+        "settings": {
+            "title": "PARAMÈTRES",
+            "gameSetting": "PARAMÈTRES DU JEU",
+            "audio": "AUDIO",
+            "display": "AFFICHAGE",
+            "back": "← RETOUR"
+        },
+        "gameSettings": {
+            "title": "PARAMÈTRES DU JEU",
+            "scorelimit": "LIMITE DE SCORE",
+            "paddlesize": "TAILLE RAQUETTE",
+            "ballspeed": "VITESSE BALLE",
+            "back": "← RETOUR"
+        },
+        "audioSettings": {
+            "title": "PARAMÈTRES AUDIO",
+            "music": "MUSIQUE",
+            "sfx": "SFX",
+            "back": "← RETOUR"
+        },
+        "displaySettings": {
+            "title": "PARAMÈTRES D'AFFICHAGE",
+            "ballcolor": "COULEUR BALLE",
+            "paddlecolor": "COULEUR RAQUETTE",
+            "ballsize": "TAILLE BALLE",
+            "balltrail": "TRAÎNÉE BALLE",
+            "back": "← RETOUR",
+            "green": "VERT",
+            "white": "BLANC",
+            "yellow": "JAUNE",
+            "red": "ROUGE",
+            "cyan": "CYAN"
+        },
+        "hud": {
+            "player1": "JOUEUR 1",
+            "player2": "JOUEUR 2",
+            "computer": "ORDINATEUR",
+            "spectator1": "SPECTATEUR 1",
+            "spectator2": "SPECTATEUR 2"
+        }
     },
     "settingsPage": {
         "title": "Paramètres",
