@@ -6,6 +6,7 @@
 
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { MainPageButton } from '../components/Buttons/MainPageButton'
 
 type MainSection = 'tech' | '3d' | 'arcade' | 'creators' // tipo union: las 4 secciones posibles
 
@@ -31,38 +32,6 @@ const LOGOS = [                                               // tecnologías de
 	{ image: '/images/imgDocker.png', alt: 'Docker', name: 'Docker' },
 ]
 
-function ButtonMainPage({ label, onClick,
-	tracking = "tracking-[0.8rem]",
-	textColor = "text-blue-300",              // color de texto por defecto
-	size = "w-14 h-14",                       // tamaño del botón circular por defecto
-	hoverTracking = "group-hover:tracking-[0.9rem]", // espaciado al hacer hover
-	textSize = "text-[1rem]",                 // tamaño de fuente por defecto
-}: {
-	label: string
-	onClick?: () => void
-	tracking?: string
-	textColor?: string
-	size?: string
-	hoverTracking?: string
-	textSize?: string
-}) {
-	return (
-		<button
-			onClick={onClick}
-			className={`${size} flex items-center justify-center ${textColor} cursor-pointer
-				rounded-full border-5 border-white/20 uppercase
-				shadow-[1px_1px_10px_1px_#eab308,-1px_-1px_10px_1px_#eab308]
-				transition-all duration-700 ease-out select-none group overflow-visible
-				hover:bg-black hover:shadow-[2px_2px_50px_2px_#3b82f6,0px_0px_20px_2px_#eab308] hover:text-yellow-300`}>
-			{/* glow amarillo en reposo; hover → fondo negro + glow azul/amarillo + texto yellow */}
-			<span className={`whitespace-nowrap ${tracking} ${hoverTracking} ${textSize}
-				transition-all duration-1000 ease-out inline-block origin-center`}>
-				{label}
-			</span>
-		</button>
-	)
-}
-
 export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2Props) { // componente principal: renderiza solo la sección activa
 	const { t } = useTranslation()
 	return (
@@ -70,10 +39,10 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 			initial={{ opacity: 0, scale: 1, filter: 'blur(6px)' }}
 			animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
 			transition={{ duration: 2.1, delay: 0.52, ease: [0.22, 1, 0.36, 1] }}
-			className="h-full overflow-y-auto overflow-x-hidden scroll-smooth bg-black"
+			className="h-full  overflow-x-hidden scroll-smooth bg-black"
 		> {/* contenedor raíz, scroll suave */}
 			{selectedSection === '3d' && ( // sección 3D: solo visible si selectedSection === '3d'
-				<section className="h-screen flex items-center justify-center py-16 bg-top bg-cover bg-no-repeat"
+				<section className="min-h-screen overflow-y-visible flex items-center justify-center py-[clamp(2rem,5vh,4rem)] bg-top bg-cover bg-no-repeat"
 					style={{ backgroundImage: "url('/images/bgvideo.png')" }}> {/* fondo de pantalla completa */}
 					<div className="w-[min(78vw,80rem)] flex flex-col items-center gap-12">
 						<div className="relative w-full h-[65vh] rounded-3xl overflow-hidden ">
@@ -81,9 +50,9 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 							<video src="/videos/main3dvideo.mp4" autoPlay loop muted playsInline
 								className="absolute inset-0 w-full h-full object-cover opacity-80" />
 						</div>
-						<div className="relative flex h-24 min-w-[28rem] items-center justify-center rounded-full
+						<div className="relative flex h-[clamp(4.5rem,10vh,4rem)] w-[clamp(12rem,30vw,24rem)] items-center justify-center rounded-full
 									bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.55)_40%,rgba(0,0,0,0.28)_66%,transparent_72%)] ">
-							<ButtonMainPage label={t('sections.3d.explore')} onClick={onStart3D} />
+							<MainPageButton label={t('sections.3d.explore')} onClick={onStart3D} />
 						</div>
 					</div>
 				</section>
@@ -97,15 +66,15 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 						<div className="relative w-full h-full">
 							<h2 className="absolute left-[15%] top-[20%] z-20 max-w-[86%] md:max-w-[46%] text-[clamp(0.95rem,2vw,2rem)]
 												font-light leading-[1.45] font-black/10 text-white tracking-[0.03em]">
-							<span className="block">{t('sections.arcade.welcome')}</span>
-							<span className="block">{t('sections.arcade.simple')}</span>
-							<span className="block">{t('sections.arcade.challenge')}</span>
-							<span className="block">{t('sections.arcade.skills')}</span>
-							<span className="block">{t('sections.arcade.noMistakes')}</span>
-							<span className="block">{t('sections.arcade.ready')}</span>
+								<span className="block">{t('sections.arcade.welcome')}</span>
+								<span className="block">{t('sections.arcade.simple')}</span>
+								<span className="block">{t('sections.arcade.challenge')}</span>
+								<span className="block">{t('sections.arcade.skills')}</span>
+								<span className="block">{t('sections.arcade.noMistakes')}</span>
+								<span className="block">{t('sections.arcade.ready')}</span>
 							</h2>
 							<div className="absolute left-[35%] bottom-[10%] z-20 ">
-							<ButtonMainPage label={t('sections.arcade.enterBtn')} onClick={onGo2DMenu} /> {/* botón que navega al menú 2D */}
+								<MainPageButton label={t('sections.arcade.enterBtn')} onClick={onGo2DMenu} /> {/* botón que navega al menú 2D */}
 							</div>
 							<img src="/images/Ac3.png" alt="Arcade 2D" className="absolute right-[5%]  h-[100%] w-auto object-contain z-10" /> {/* imagen decorativa arcade a la derecha */}
 						</div>
@@ -120,7 +89,7 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 										shadow-[1px_1px_3px_1px_#eab308,-1px_-1px_20px_1px_#eab100]/40 bg-black/60 px-8 py-12 md:px-12 md:py-14">
 						<div className="w-full h-full flex flex-col justify-center">
 							<h2 className="text-yellow-400 text-3xl md:text-3xl uppercase tracking-[0.40rem] mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-							{t('sections.tech.title')}
+								{t('sections.tech.title')}
 							</h2>
 							<div className="grid grid-cols-1 xl:grid-cols-[1.7fr_1fr] gap-6 items-center h-full">
 								<div className="flex flex-col justify-center">

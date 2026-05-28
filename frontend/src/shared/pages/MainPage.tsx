@@ -57,6 +57,13 @@ export function StartGate({
 				animate={isBgZooming ? { scale: PLANET_ZOOM_SCALE, opacity: 0.88 } : { scale: 1, opacity: 1 }}
 				transition={{ duration: BG_ZOOM_DURATION_MS / 1000, ease: [0.3, 0.05, 0.18, 1] }}>
 				<div className="absolute inset-0 z-[1] pointer-events-none">
+					<div className="absolute left-1/2 top-[10%] -translate-x-1/2 ">
+						<h1 className="font-['Orbitron'] uppercase text-[clamp(0.7rem,1.55vw,1.65rem)] tracking-[clamp(0.28rem,0.8vw,0.65rem)]
+							font-medium leading-none text-white/55 bg-clip-text bg-gradient-to-b from-white via-slate-200 to-blue-500
+							select-none drop-shadow-[0_4px_2px_rgba(0,0,0,0.35)]">
+							Transcendence</h1>
+
+					</div>
 					<div className="absolute left-1/2 top-[34%] h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/20 blur-[150px]" />
 					<PlanetBackground />
 				</div>
@@ -65,37 +72,37 @@ export function StartGate({
 				<div className="hidden dark:block absolute inset-0 z-[3] pointer-events-none bg-black/70" />
 				<div className="relative z-10 h-screen w-full flex items-center justify-center overflow-hidden
 								px-[clamp(0.5rem,2vw,2.5rem)]">
-					<div className="w-[min(77rem,94vw)] grid grid-cols-4 gap-[clamp(0.4rem,1.4vw,1.5rem)] items-center
-									translate-y-[clamp(1rem,6vh,4.5rem)]">
-						
+					<div className="w-[min(77rem,94vw)]  grid grid-cols-4 gap-[clamp(0.4rem,1.4vw,1.5rem)] items-center
+									translate-y-[clamp(1rem,7vh,4.5rem)]">
+
 						<GenreCard
 							title="tech"
 							image="/images/techCard.png"
 							label={t('startGate.tech')}
 							onClick={onGoTech}
 							delay={500} initialTilt={8}
-							imageClassName="scale-[0.70] translate-x-[1rem] translate-y-[1.3rem]"
-							 />
+							imageClassName="scale-[0.70] translate-x-[1rem] translate-y-[clamp(1rem,5vh,3.5rem)]"
+						/>
 						<GenreCard
 							title="3d"
 							image="/images/3dcard2.png"
 							label={t('startGate.enter3d')}
 							onClick={handleGo3D}
 							delay={300} initialTilt={2}
-							imageClassName=" scale-[0.9] translate-x-[0.8rem] translate-y-[2.5rem]" />
+							imageClassName=" scale-[0.9] translate-x-[0.8rem] translate-y-[clamp(1rem,6vh,3rem)]" />
 						<GenreCard
 							title="arcade"
 							image="/images/Ac3.png"
 							label={t('startGate.arcade')}
 							onClick={onGoArcade}
 							delay={100} initialTilt={-2}
-							imageClassName="scale-[0.58] translate-y-[2rem]" />
+							imageClassName="scale-[0.58] translate-y-[clamp(1rem,6vh,3.5rem)]" />
 						<GenreCard
 							title="creators" image="/images/3dcard4.png"
 							label={t('startGate.creators')}
 							onClick={onGoCreators}
 							delay={700} initialTilt={-8}
-							imageClassName="translate-x-[-0.6rem] translate-y-[3rem]" />
+							imageClassName="translate-x-[-0.6rem] translate-y-[clamp(1rem,6vh,3.5rem)]" />
 					</div>
 				</div>
 			</motion.div>
