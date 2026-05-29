@@ -195,14 +195,16 @@ export async function friendsRoutes(server: FastifyInstance) {
                     select: {
                         id: true,
                         name: true,
-                        email: true
+                        email: true,
+                        avatar: true
                     }
                 },
                 receiver: {
                     select: {
                         id: true,
                         name: true,
-                        email: true
+                        email: true,
+                        avatar: true
                     }
                 }
             }
