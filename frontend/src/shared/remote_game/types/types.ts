@@ -83,82 +83,83 @@ export interface UserData{
   createdAt: Date
 }
 
-export enum LobbyAction {
-  JOIN = "JOIN",
-  SPECTATOR = "SPECTATOR",
-  LEAVE = "LEAVE",
-  HOST = "HOST",
-  SWITCHTOPLAYER = "SWITCHTOPLAYER",
-  SWITCHTOSPECTATOR = "SWITCHTOSPECTATOR",
-  LEAVESPECTATOR = "LEAVESPECTATOR",
-  STARTGAME = "STARTGAME",
-  UPDATERULESET = "UPDATERULESET",
-}
+export const LobbyAction = {
+  JOIN : "JOIN",
+  SPECTATOR : "SPECTATOR",
+  LEAVE : "LEAVE",
+  HOST : "HOST",
+  SWITCHTOPLAYER : "SWITCHTOPLAYER",
+  SWITCHTOSPECTATOR : "SWITCHTOSPECTATOR",
+  LEAVESPECTATOR : "LEAVESPECTATOR",
+  STARTGAME : "STARTGAME",
+  UPDATERULESET : "UPDATERULESET",
+} as const;
 
-export enum GameAction {
-  START = "START",
-  END = "END",
-  STATE = "STATE",
-}
+export const GameAction = {
+  START : "START",
+  END : "END",
+  STATE : "STATE",
+} as const;
 
-export enum GameResult {
-  WIN = "WIN",
-  LOSE = "LOSE",
-}
+export const GameResult = {
+  WIN : "WIN",
+  LOSE : "LOSE",
+} as const;
 
-export enum GamePlacement {
-  FIRST = "FIRST",
-  SECOND = "SECOND",
-  THIRD = "THIRD",
-  FOURTH = "FOURTH",
-}
+export const GamePlacement = {
+  FIRST : "FIRST",
+  SECOND : "SECOND",
+  THIRD : "THIRD",
+  FOURTH : "FOURTH",
+} as const;
 
-export enum WsAction {
-  LOBBYUPDATE = "LOBBYUPDATE",
-  GAMESTATE = "GAMESTATE",
-  GAMERESULT = "GAMERESULT",
-}
+export const WsAction = {
+  LOBBYUPDATE : "LOBBYUPDATE",
+  GAMESTATE : "GAMESTATE",
+  GAMERESULT : "GAMERESULT",
+} as const;
 
-export enum Errors {
-  NOTHOST = "NOTHOST",
-  NOLOBBY = "NOLOBBY",
-  NOPLAYERS = "NOTENOUGHPLAYERS",
-  INGAME = "INGAME",
-}
+export const Errors = {
+  NOTHOST : "NOTHOST",
+  NOLOBBY : "NOLOBBY",
+  NOPLAYERS : "NOTENOUGHPLAYERS",
+  INGAME : "INGAME",
+} as const;
 
-export enum changeErrors {
-  TOOLOW = "TOOLOW",
-  SUCCESS= "SUCCESS",
-  UNKNOWN = "UNKNOWN",
-  TOOHIGH = "TOOHIGH",
-  NOCHANGE = "NOCHANGE",
-  NOTNUMBER = "NOTNUMBER",
-}
+export const changeErrors = {
+  TOOLOW : "TOOLOW",
+  SUCCESS: "SUCCESS",
+  UNKNOWN : "UNKNOWN",
+  TOOHIGH : "TOOHIGH",
+  NOCHANGE : "NOCHANGE",
+  NOTNUMBER : "NOTNUMBER",
+} as const;
+export type changeErrors = typeof changeErrors[keyof typeof changeErrors];
 
-export enum generalErrors {
-  WORKED = 0,
+export const generalErrors = {
+  WORKED : 0,
 
-  ALREADYINTHELOBBY = 1001,
-  ALREADYINALOBBY = 1002,
+  ALREADYINTHELOBBY : 1001,
+  ALREADYINALOBBY : 1002,
 
-  LOBBYDOESNTEXIST = 1003,
-  LOBBYALREADYEXIST = 1006,
+  LOBBYDOESNTEXIST : 1003,
+  LOBBYALREADYEXIST : 1006,
 
-  INVALIDNAME = 1004,
-  RULESNOTPROVIDED = 1005,
+  INVALIDNAME : 1004,
+  RULESNOTPROVIDED : 1005,
 
-  NOTANEXPECTATOR = 2001,
-  NOTAPLAYER = 2002,
-  NOTINALOBBY = 2003,
-  NOTHOST = 2004,
+  NOTANEXPECTATOR : 2001,
+  NOTAPLAYER : 2002,
+  NOTINALOBBY : 2003,
+  NOTHOST : 2004,
 
-  NOWS = 3001,
-  LOBBYINGAME = 3002,
+  NOWS : 3001,
+  LOBBYINGAME : 3002,
 
-  NOTINTHELOBBY = 3003,
-  PLAYERSFULL = 3004,
-  NOTENOUGHPLAYERS = 3005,
+  NOTINTHELOBBY : 3003,
+  PLAYERSFULL : 3004,
+  NOTENOUGHPLAYERS : 3005,
 
-  RULESERROR = 4001
-}
+  RULESERROR : 4001
+} as const;
 

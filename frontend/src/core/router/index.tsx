@@ -35,6 +35,8 @@ import Login from "../../shared/pages/auth/Login"
 import Profile from "../../shared/pages/auth/Profile"
 import Friends from "../../shared/pages/auth/Friends"
 
+//REMOTEGAME
+import { RemoteGame } from "../../shared/remote_game/RemoteGame"
 
 const MainSectionsPage = () => {
 	const navigate = useNavigate()
@@ -154,6 +156,10 @@ const routes: RouteObject[] = [
 			{
 				path: 'terms',
 				element: <TermsOfServicePage />,
+			},
+			{
+				path: 'remote-game',
+				element: <RemoteGame/>
 			},
 		]
 	}

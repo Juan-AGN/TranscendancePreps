@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { PlanetBackground } from '../components/BackgroundEffects/PlanetBackground'
 import { Footer } from '../components/layout/Footer'
@@ -29,6 +30,8 @@ export function StartGate({
 	const [isBgZooming, setIsBgZooming] = useState(false)
 	const navTimeoutRef = useRef<number | null>(null)
 	const go3DHandler = onGo3D ?? onStart3D
+
+	const navigate = useNavigate();
 
 	const { t } = useTranslation()
 
@@ -116,6 +119,16 @@ export function StartGate({
 					delay: WHITE_FADE_DELAY_MS / 1000,
 					ease: 'easeInOut',
 				}} />
+
+
+				<div className="absolute bottom-12 left-0 right-0 z-20 flex justify-center">
+	<button
+		onClick={() => navigate('/remote-game')}
+		className="text-black border border-white px-6 py-2 rounded-full"
+	>
+		Online Game
+	</button>
+</div>
 			<div className="absolute bottom-0 left-0 right-0 z-20">
 				<Footer />
 			</div>
