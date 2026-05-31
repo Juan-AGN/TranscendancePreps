@@ -419,6 +419,43 @@ export function ChatWidget() {
 		loadOnline();
 	}, [open]);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const ws = new WebSocket(
+      `${protocol}://${window.location.host}/api/chat/ws?token=${encodeURIComponent(token)}`
+    );
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "message:new") {
+        const msg = data.message;
+
+        if (selectedId === data.conversationId) {
+          setMessages((prev) => {
+            const exists = prev.some((m) => m.id === msg.id);
+            if (exists) return prev;
+            return [...prev, msg];
+          });
+
+          setSeenId(data.conversationId, msg.id);
+        }
+
+        loadConversations();
+      }
+    };
+
+    ws.onerror = () => {
+      console.log("WebSocket error");
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [selectedId]);
 	// Load messages when selecting a conversation
 	useEffect(() => {
 		if (!open || !selectedId) return;
