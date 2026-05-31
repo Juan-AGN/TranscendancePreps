@@ -113,7 +113,7 @@ export function Gamehandler() {
     }, [game]);
 
     if (game!.borderx > 1500 || game!.bordery > 1500)
-        return (<div className="fixed inset-0 flex items-center justify-center pointer-events-none flex-col">
+        return (<div className="fixed inset-0 bg-red-400 flex items-center justify-center pointer-events-none flex-col">
 			<div className="h-5 w-20 bg-radial from-red-100/20 to-red-300/20 rounded-t-2xl cursor-pointer text-center content-center shadow hover:from-red-100 hover:to-red-200 transition delay-150 duration-300 ease-in-out pointer-events-auto ext-sm" onClick={leavelob}>LEAVE</div>
 			<canvas ref={canvasRef} width={2000} height={2000} className=" aspect-square w-[85vw] h-[85vw] landscape:w-[85vh] landscape:h-[85vh] shadow-2xl inset-shadow-purple-50 border-4 border-double rounded-xl"></canvas></div>);
     else if (game!.borderx > 1000 || game!.bordery > 1000)

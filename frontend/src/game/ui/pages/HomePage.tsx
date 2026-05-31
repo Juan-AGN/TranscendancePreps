@@ -54,15 +54,6 @@ export function HomePage() {
               */}
 						TRANSCENDENCE
 					</h2>
-
-					<p className="text-black text-base opacity-90 drop-shadow-md">
-						{/* 
-                text-base: Tamaño de fuente 1rem (16px)
-                opacity-90: 90% de opacidad (ligeramente transparente)
-                drop-shadow-md: Sombra mediana para legibilidad
-              */}
-						Usa las flechas canio ↑ ↓ ← →
-					</p>
 				</div>
 
 				{/* Contenedor del Canvas - Aquí controlas el tamaño del mundo 3D */}

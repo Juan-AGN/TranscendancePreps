@@ -29,6 +29,8 @@ import { GameLoop } from '../../engine/GameLoop';
 import { HubSceneBuilder } from './HubSceneBuilder';
 import { HologramController } from '../../effects/HologramController';
 
+import { SkySetup } from '../../config/SkySetup';
+
 // Clase molde pa crear la escena 3D del Hub {cerebro del juego}
 export class HubScene {
 	private canvas: HTMLCanvasElement;  // canvas HTML donde se dibuja el 3D
@@ -48,6 +50,8 @@ export class HubScene {
 	// Setup (sistemas de configuracion)
 	private lightingSetup!: LightingSetup;           // luces y sombras
 	private environmentSetup!: EnvironmentSetup;     // suelo y HDRI
+
+	private skySetup!: SkySetup; //nuevo cielo
 
 	// Scene Builder (gestor de todas las entidades)
 	private sceneBuilder!: HubSceneBuilder;          // crea y gestiona todos los objetos 3D
@@ -78,7 +82,7 @@ export class HubScene {
 		this.scene = new Scene(this.engine);
 
 		// Fondo gris claro pa reflejos (clearColor es el color del cielo)
-		this.scene.clearColor = new Color3(0.95, 0.95, 0.95).toColor4();
+		this.scene.clearColor = new Color3(1, 0, 0).toColor4();
 
 		// Inicializacion sincrona (setup basico)
 		this.initialize();
@@ -171,6 +175,9 @@ export class HubScene {
 		this.environmentSetup = new EnvironmentSetup(this.scene);  // crea el sist de entorno
 		this.environmentSetup.setupGround();  // crea el suelo
 		this.environmentSetup.setupHDRI();    // carga la imagen HDRI pa reflejos
+
+		this.skySetup = new SkySetup(this.scene);
+		this.skySetup.setupSkybox();
 	}
 
 	// Redirige a una ruta o abre un panel react segun el prefijo
@@ -219,8 +226,13 @@ export class HubScene {
 		if (this.inputHandler) {
 			this.inputHandler.dispose();
 		}
+		if (this.skySetup) {
+			this.skySetup.dispose();
+		}
 		// Dispose hologramas
 		this.hologramManager.dispose();
+
+		
 		// Dispose scene y engine (libera memoria)
 		this.scene.dispose();   // destruye la escena
 		this.engine.dispose();  // destruye el motor
