@@ -31,8 +31,8 @@ export class Trophy extends InteractiveObject {
 			) as Mesh[];
 			const target = realMeshes.length > 0 ? realMeshes[0] : result.meshes[0] as Mesh;
 			target.parent = null;
-			target.position = new Vector3(this.position.x, 0, this.position.z);
-			target.scaling = new Vector3(8, 8, 8);
+			target.position = new Vector3(this.position.x, 2, this.position.z);
+			target.scaling = new Vector3(7, 7, 7);
 			target.isPickable = true;
 
 			this.rootMesh = target;

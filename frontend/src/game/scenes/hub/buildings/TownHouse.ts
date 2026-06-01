@@ -33,7 +33,7 @@ export class TownHouse extends InteractiveObject {
 			const target = realMeshes.length > 0 ? realMeshes[0] : result.meshes[0] as Mesh;
 			target.parent = null;
 			target.position = this.position.clone();
-			target.scaling = new Vector3(15, 15, 15);
+			target.scaling = new Vector3(17, 17, 17);
 			target.addRotation(0, Math.PI / 2, 0);
 			target.isPickable = true;
 

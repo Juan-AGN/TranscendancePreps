@@ -30,6 +30,7 @@ import { HubSceneBuilder } from './HubSceneBuilder';
 import { HologramController } from '../../effects/HologramController';
 
 import { SkySetup } from '../../config/SkySetup';
+import { GroundSetup } from '../../config/GroundSetup';
 
 // Clase molde pa crear la escena 3D del Hub {cerebro del juego}
 export class HubScene {
@@ -52,6 +53,7 @@ export class HubScene {
 	private environmentSetup!: EnvironmentSetup;     // suelo y HDRI
 
 	private skySetup!: SkySetup; //nuevo cielo
+	private groundSetup!: GroundSetup;
 
 	// Scene Builder (gestor de todas las entidades)
 	private sceneBuilder!: HubSceneBuilder;          // crea y gestiona todos los objetos 3D
@@ -173,11 +175,14 @@ export class HubScene {
 
 		// Suelo y HDRI (imagen 360 del entorno)
 		this.environmentSetup = new EnvironmentSetup(this.scene);  // crea el sist de entorno
-		this.environmentSetup.setupGround();  // crea el suelo
+		//this.environmentSetup.setupGround();  // crea el suelo
 		this.environmentSetup.setupHDRI();    // carga la imagen HDRI pa reflejos
 
 		this.skySetup = new SkySetup(this.scene);
 		this.skySetup.setupSkybox();
+
+		this.groundSetup = new GroundSetup(this.scene);
+		this.groundSetup.create();
 	}
 
 	// Redirige a una ruta o abre un panel react segun el prefijo

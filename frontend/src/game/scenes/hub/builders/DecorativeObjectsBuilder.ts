@@ -8,6 +8,8 @@ import { PingPongTable } from '../buildings/PingPongTable';
 import { TorreMonica } from '../buildings/TorreMonica';
 import { LaRosaleda } from '../buildings/LaRosaleda';
 import { Arcade } from '../buildings/Arcade';
+import { Totems } from '../buildings/Totems';
+import { Atrezzo } from '../buildings/Atrezzo';
 import type { LoadingProgress } from '../setup/LoadingProgress';
 
 export interface DecorObjects {
@@ -15,6 +17,14 @@ export interface DecorObjects {
 	pingpong: PingPongTable;
 	torre: TorreMonica;
 	rosaleda: LaRosaleda;
+	totemIsra: Totems;
+	totemCarlos: Totems;
+	totemDani: Totems;
+	totemJuan: Totems;
+	pedestalPc: Atrezzo;
+	pedestalArcade: Atrezzo;
+	pedestalPingpong: Atrezzo;
+	pedestalTrophy: Atrezzo;
 }
 
 export class DecorativeObjectsBuilder {
@@ -42,6 +52,99 @@ export class DecorativeObjectsBuilder {
 		const arcade = new Arcade(scene, SCENE_CONFIG.arcade.pos, SCENE_CONFIG.arcade.scale, shadow, SCENE_CONFIG.arcade.rotation);
 		loadingQueue.add(() => arcade.ready());
 
-		return { arcade, pingpong, torre, rosaleda };
+		const totemIsra = new Totems(
+			scene,
+			SCENE_CONFIG.totemIsra.pos,
+			SCENE_CONFIG.totemIsra.model,
+			SCENE_CONFIG.totemIsra.scale,
+			shadow,
+			SCENE_CONFIG.totemIsra.rotation
+		);
+		loadingQueue.add(() => totemIsra.ready());
+
+		const totemCarlos = new Totems(
+			scene,
+			SCENE_CONFIG.totemCarlos.pos,
+			SCENE_CONFIG.totemCarlos.model,
+			SCENE_CONFIG.totemCarlos.scale,
+			shadow,
+			SCENE_CONFIG.totemCarlos.rotation
+		);
+		loadingQueue.add(() => totemCarlos.ready());
+
+		const totemDani = new Totems(
+			scene,
+			SCENE_CONFIG.totemDani.pos,
+			SCENE_CONFIG.totemDani.model,
+			SCENE_CONFIG.totemDani.scale,
+			shadow,
+			SCENE_CONFIG.totemDani.rotation
+		);
+		loadingQueue.add(() => totemDani.ready());
+
+		const totemJuan = new Totems(
+			scene,
+			SCENE_CONFIG.totemJuan.pos,
+			SCENE_CONFIG.totemJuan.model,
+			SCENE_CONFIG.totemJuan.scale,
+			shadow,
+			SCENE_CONFIG.totemJuan.rotation
+		);
+		loadingQueue.add(() => totemJuan.ready());
+
+		const pedestalPc = new Atrezzo(
+			scene,
+			SCENE_CONFIG.pedestalPc.pos,
+			SCENE_CONFIG.pedestalPc.model,
+			SCENE_CONFIG.pedestalPc.scale,
+			shadow,
+			SCENE_CONFIG.pedestalPc.rotation
+		);
+		loadingQueue.add(() => pedestalPc.ready());
+
+		const pedestalArcade = new Atrezzo(
+			scene,
+			SCENE_CONFIG.pedestalArcade.pos,
+			SCENE_CONFIG.pedestalArcade.model,
+			SCENE_CONFIG.pedestalArcade.scale,
+			shadow,
+			SCENE_CONFIG.pedestalArcade.rotation
+		);
+		loadingQueue.add(() => pedestalArcade.ready());
+
+		const pedestalPingpong = new Atrezzo(
+			scene,
+			SCENE_CONFIG.pedestalPingpong.pos,
+			SCENE_CONFIG.pedestalPingpong.model,
+			SCENE_CONFIG.pedestalPingpong.scale,
+			shadow,
+			SCENE_CONFIG.pedestalPingpong.rotation
+		);
+		loadingQueue.add(() => pedestalPingpong.ready());
+
+		const pedestalTrophy = new Atrezzo(
+			scene,
+			SCENE_CONFIG.pedestalTrophy.pos,
+			SCENE_CONFIG.pedestalTrophy.model,
+			SCENE_CONFIG.pedestalTrophy.scale,
+			shadow,
+			SCENE_CONFIG.pedestalTrophy.rotation
+		);
+		loadingQueue.add(() => pedestalTrophy.ready());
+
+		return {
+			arcade,
+			pingpong,
+			torre,
+			rosaleda,
+			totemIsra,
+			totemCarlos,
+			totemDani,
+			totemJuan,
+			pedestalPc,
+			pedestalArcade,
+			pedestalPingpong,
+			pedestalTrophy,
+		};
 	}
 }
