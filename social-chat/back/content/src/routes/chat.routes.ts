@@ -11,6 +11,7 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../prisma";
 import { getUserId } from "../utils/getUserId";
+import { sendToUser } from "../wsHub";
 
 export const chatRouter = Router();
 
@@ -385,25 +386,37 @@ chatRouter.post("/conversations/:id/messages", async (req: Request, res: Respons
       return res.status(403).json({ error: "You are not a member of this conversation" });
     }
 
-    const msg = await prisma.$transaction(async (tx) => {
-      const created = await tx.message.create({
-        data: { conversationId, senderId: me, content },
-        select: { id: true, conversationId: true, senderId: true, content: true, createdAt: true },
-      });
-
-      // Touch conversation to update updatedAt (useful for sorting on sidebar)
-      await tx.conversation.update({
-        where: { id: conversationId },
-        data: { updatedAt: new Date() },
-        select: { id: true },
-      });
-
-      return created;
+    const msg = await prisma.message.create({
+      data: {
+        conversationId,
+        senderId: me,
+        content,
+      },
+      select: {
+        id: true,
+        conversationId: true,
+        senderId: true,
+        content: true,
+        createdAt: true,
+      },
     });
+
+    const members = await prisma.conversationMember.findMany({
+      where: { conversationId },
+      select: { userId: true },
+    });
+
+    for (const member of members) {
+      sendToUser(member.userId, {
+        type: "message:new",
+        conversationId,
+        message: msg,
+      });
+    }
 
     return res.status(201).json(msg);
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || "Unknown error" });
+                return res.status(500).json({ error: err?.message || "Unknown error" });
   }
 });
 
