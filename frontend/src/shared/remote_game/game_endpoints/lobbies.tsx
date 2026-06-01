@@ -845,7 +845,7 @@ function Lobcreator() {
     const { addLobby } = useLobby();
 
     function creator() {
-        if (lobname === "" || lobname.trim().length === 0)
+        if (lobname === "" || lobname.trim().length === 0 || lobname.length > 20)
         {
             addNotification("Bad lobby name input.");
             return ;

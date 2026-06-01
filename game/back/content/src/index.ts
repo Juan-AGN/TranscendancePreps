@@ -96,7 +96,7 @@ app.post("/lobbies/create", authmiddleware, (req: Request, res: Response) => {
 	const { lobbyId } = req.body;
 	const hostId = req.user!.id;
 
-	if (lobbyId === "" || lobbyId.trim().length === 0)
+	if (lobbyId === "" || lobbyId.trim().length === 0 || lobbyId.length > 20)
 		return (res.status(422).json({ message: "Bad lobby name." }));
 
 	const error = lobbyManager.add(lobbyId, hostId);
