@@ -25,6 +25,9 @@ export interface DecorObjects {
 	pedestalArcade: Atrezzo;
 	pedestalPingpong: Atrezzo;
 	pedestalTrophy: Atrezzo;
+	streetLamps: Atrezzo[];
+	palms: Atrezzo[];
+	torches: Atrezzo[];
 	columns: Atrezzo[];
 }
 
@@ -133,6 +136,48 @@ export class DecorativeObjectsBuilder {
 		);
 		loadingQueue.add(() => pedestalTrophy.ready());
 
+		const streetLamps: Atrezzo[] = SCENE_CONFIG.streetLamps.items.map((item) => {
+			const streetLamp = new Atrezzo(
+				scene,
+				item.pos,
+				SCENE_CONFIG.streetLamps.model,
+				SCENE_CONFIG.streetLamps.scale,
+				shadow,
+				item.rotation
+			);
+
+			loadingQueue.add(() => streetLamp.ready());
+			return streetLamp;
+		});
+
+		const palms: Atrezzo[] = SCENE_CONFIG.palms.items.map((item) => {
+			const palm = new Atrezzo(
+				scene,
+				item.pos,
+				item.model,
+				item.scale,
+				shadow,
+				item.rotation
+			);
+
+			loadingQueue.add(() => palm.ready());
+			return palm;
+		});
+
+		const torches: Atrezzo[] = SCENE_CONFIG.torches.items.map((item) => {
+			const torch = new Atrezzo(
+				scene,
+				item.pos,
+				SCENE_CONFIG.torches.model,
+				SCENE_CONFIG.torches.scale,
+				shadow,
+				item.rotation
+			);
+
+			loadingQueue.add(() => torch.ready());
+			return torch;
+		});
+
 		const columns: Atrezzo[] = SCENE_CONFIG.columns.items.map((item) => {
 			const column = new Atrezzo(
 				scene,
@@ -159,6 +204,9 @@ export class DecorativeObjectsBuilder {
 			pedestalArcade,
 			pedestalPingpong,
 			pedestalTrophy,
+			streetLamps,
+			palms,
+			torches,
 			columns,
 		};
 	}

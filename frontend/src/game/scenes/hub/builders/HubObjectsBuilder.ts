@@ -41,7 +41,8 @@ export class HubObjectsBuilder {
 			loadingQueue.add(async () => {
 				await obj.ready();
 				const mesh = obj.getRootMesh();
-				if (mesh) menuInteraction.registerClickableObject(route, mesh, obj);
+				if (mesh)
+					menuInteraction.registerClickableObject(route, mesh, obj);
 			});
 		});
 

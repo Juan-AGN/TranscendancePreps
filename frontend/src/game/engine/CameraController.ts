@@ -130,9 +130,9 @@ export class CameraController {
 		}
 
 		const zoomSmoothnessAZD = zoom.zoomSmoothness;
-		const oldDistance = this.camera.radius;
+		//const oldDistance = this.camera.radius;
 		this.camera.radius += (targetDistance - this.camera.radius) * zoomSmoothnessAZD;
-		console.log('📹 Camera radius:', oldDistance.toFixed(1), '→', this.camera.radius.toFixed(1), 'target:', targetDistance);
+		//console.log('📹 Camera radius:', oldDistance.toFixed(1), '→', this.camera.radius.toFixed(1), 'target:', targetDistance);
 	}
 
 	// EVENTOS DEL NAVEGADOR (INTERRUPCIONES)
