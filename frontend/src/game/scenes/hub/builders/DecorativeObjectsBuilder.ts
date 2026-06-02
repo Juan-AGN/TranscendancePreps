@@ -25,6 +25,7 @@ export interface DecorObjects {
 	pedestalArcade: Atrezzo;
 	pedestalPingpong: Atrezzo;
 	pedestalTrophy: Atrezzo;
+	columns: Atrezzo[];
 }
 
 export class DecorativeObjectsBuilder {
@@ -132,6 +133,19 @@ export class DecorativeObjectsBuilder {
 		);
 		loadingQueue.add(() => pedestalTrophy.ready());
 
+		const columns: Atrezzo[] = SCENE_CONFIG.columns.items.map((item) => {
+			const column = new Atrezzo(
+				scene,
+				item.pos,
+				SCENE_CONFIG.columns.model,
+				SCENE_CONFIG.columns.scale,
+				shadow,
+				item.rotation
+			);
+
+			loadingQueue.add(() => column.ready());
+			return column;
+		});
 		return {
 			arcade,
 			pingpong,
@@ -145,6 +159,7 @@ export class DecorativeObjectsBuilder {
 			pedestalArcade,
 			pedestalPingpong,
 			pedestalTrophy,
+			columns,
 		};
 	}
 }

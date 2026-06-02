@@ -111,6 +111,53 @@ export const SCENE_CONFIG = {
         model: '/models/PedestalOlimpo.glb'
     },
 
+    columns: {
+        model: '/models/columna.glb',
+        scale: 5,
+        items: [
+            {
+                // Totem Isra - left column
+                pos: new Vector3(50, 5, -58),
+                rotation: 0
+            },
+            {
+                // Totem Isra - right column
+                pos: new Vector3(58, 5, -50),
+                rotation: 0
+            },
+            {
+                // Totem Carlos - left column
+                pos: new Vector3(-50, 5, 58),
+                rotation: 0
+            },
+            {
+                // Totem Carlos - right column
+                pos: new Vector3(-58, 5, 50),
+                rotation: 0
+            },
+            {
+                // Totem Dani - left column
+                pos: new Vector3(-50, 5, -58),
+                rotation: 0
+            },
+            {
+                // Totem Dani - right column
+                pos: new Vector3(-58, 5, -50),
+                rotation: 0
+            },
+            {
+                // Totem Juan - left column
+                pos: new Vector3(58, 5, 50),
+                rotation: 0
+            },
+            {
+                // Totem Juan - right column
+                pos: new Vector3(50, 5, 58),
+                rotation: 0
+            },
+        ]
+    },
+
 } as const;
 
 
