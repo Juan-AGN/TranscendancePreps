@@ -40,7 +40,7 @@ export const SCENE_CONFIG = {
 		pos: new Vector3(70, 9.5, 0), // derecha y elevada (farola alta)
 		scale: 10, // tamaño grande
 		rotation: 0, // sin rotacion (mirando default)
-		route: '/settings' // abre ajustes
+		route: 'panel:chat' // abre el chat global
 	},
 
 	rosaleda: {
@@ -52,7 +52,8 @@ export const SCENE_CONFIG = {
 	arcade: {
 		pos: new Vector3(30, 5.5, -30), // derecha atras
 		scale: 4, // mas pequeño (maquina arcade)
-		rotation: -Math.PI / 4 // girado 90º a la izquierda
+		rotation: -Math.PI / 4, // girado 90º a la izquierda
+		route: '/game' // abre la pantalla del juego arcade 2D
 	},
 
 	totemIsra: {

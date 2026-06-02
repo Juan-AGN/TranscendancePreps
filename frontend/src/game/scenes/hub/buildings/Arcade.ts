@@ -24,7 +24,7 @@ export class Arcade extends InteractiveObject {
 	protected async load(): Promise<void> {
 		try {
 			const result = await SceneLoader.ImportMeshAsync('', '/models/arcade.glb', '', this.scene);
-			if (result.meshes.length === 0) { console.warn('Arcade: no se cargaron meshes');
+			if (result.meshes.length === 0) {
 				return; }
 			this.rootMesh = result.meshes[0] as Mesh;
 			this.rootMesh.position = this.position.clone();
@@ -37,7 +37,7 @@ export class Arcade extends InteractiveObject {
 			this.setupShadows(result.meshes);
 			this.createColliderFromModelMesh(this.rootMesh, 'arcade_collider');
 		} catch (error) {
-			console.error('Arcade error:', error);
+			void error;
 		}
 	}
 }

@@ -81,6 +81,16 @@ export class HubSceneBuilder {
 		this.pedestalArcade = decor.pedestalArcade;
 		this.pedestalPingpong = decor.pedestalPingpong;
 		this.pedestalTrophy = decor.pedestalTrophy;
+
+		// El arcade tambien debe comportarse como objeto navegable al hacer click.
+		this.loadingQueue.add(async () => {
+			await decor.arcade.ready();
+			const mesh = decor.arcade.getRootMesh();
+			const route = SCENE_CONFIG.arcade.route;
+			if (mesh && route) {
+				this.menuInteraction.registerClickableObject(route, mesh, decor.arcade);
+			}
+		});
 	}
 
 	// añade sombras dinamicas a los edificios principales al terminar la carga

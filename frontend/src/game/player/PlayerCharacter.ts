@@ -31,8 +31,6 @@ export class PlayerCharacter {
 
 	private async load(): Promise<void> {
 		try {
-			console.log('🔄 Cargando stickman desde Sketchfab...');
-
 			// ImportMeshAsync -> carga un archivo GLB de forma asincrona
 			// parametros: nombre del mesh ('' pa cargar todos), ruta del archivo, nombre del archivo, escena
 			// await -> esperamos a q termine de cargar antes de continuar
@@ -56,19 +54,12 @@ export class PlayerCharacter {
 				// Guardamos todas las animaciones q trae el modelo
 				this.animationGroups = result.animationGroups;
 				if (this.animationGroups.length > 0) {
-					// Mostramos en consola cuantas animaciones tiene y sus nombres
-					console.log(`🎬 ${this.animationGroups.length} animaciones: ${this.animationGroups.map(a => a.name).join(', ')}`);
-					// map() -> transforma cada animacion en su nombre
-					// join(', ') -> une todos los nombres con comas
-
 					// Reproducimos la primera animacion en bucle (true = loop infinito)
 					this.animationGroups[0].play(true);
 				}
-
-				console.log('✅ Stickman cargado con color original');
 			}
 		} catch (error) {
-			console.error('❌ Error cargando stickman:', error);
+			void error;
 		}
 	}
 
@@ -77,7 +68,8 @@ export class PlayerCharacter {
 	}
 
 	public getAllMeshes(): Mesh[] {
-		if (!this.rootMesh) return [];  // si no hay root, devolvemos array vacio
+		if (!this.rootMesh)
+			return [];  // si no hay root, devolvemos array vacio
 
 		// Obtenemos TODOS los meshes descendientes del root
 		const allMeshes: Mesh[] = [];
@@ -132,6 +124,12 @@ export class PlayerCharacter {
 				mesh.rotation.y = finalRotation;
 			}
 		});
+	}
+
+	public setScale(scale: number): void {
+		if (this.rootMesh) {
+			this.rootMesh.scaling = new Vector3(scale, scale, scale);
+		}
 	}
 
 	public startWalking(): void {

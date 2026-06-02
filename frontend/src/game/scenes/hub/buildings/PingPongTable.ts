@@ -22,7 +22,6 @@ export class PingPongTable extends InteractiveObject {
 		try {
 			const result = await SceneLoader.ImportMeshAsync('', '/models/table1.glb', '', this.scene);
 			if (result.meshes.length === 0) {
-				console.warn('PingPongTable: no se cargaron meshes');
 				return;
 			}
 			this.rootMesh = result.meshes[0] as Mesh;
@@ -41,7 +40,7 @@ export class PingPongTable extends InteractiveObject {
 					this.rootMesh.addRotation(0, speed, 0);
 			});
 		} catch (error) {
-			console.error('PingPongTable error:', error);
+			void error;
 		}
 	}
 }

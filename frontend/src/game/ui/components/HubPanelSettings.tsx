@@ -1,89 +1,74 @@
-//Hubseetingspanel.tsx
+// HubPanelSettings — panel de opciones del hub 3D
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useGameSettingsStore, type SpeedPreset, type SensitivityPreset, type SizePreset } from "../../../shared/store/gameSettingsStore";
 
-function SettingOption({
-	title,
-	children
-} : {
-	title : string;
-	children: ReactNode;
-}) {
+function SettingOption({ title, children }: { title: string; children: ReactNode }) {
 	return (
-		<div className="flex items-center justify-between p-3">
-			<span>{title}</span>
+		<div className="flex items-center justify-between p-3 border-b border-gray-100 last:border-0">
+			<span className="text-sm font-medium text-gray-700">{title}</span>
 			<div>{children}</div>
 		</div>
+	);
+}
 
+function OptionButtons({
+	options,
+	value,
+	onChange,
+}: {
+	options: readonly string[];
+	value: string;
+	onChange: (v: string) => void;
+}) {
+	return (
+		<div className="flex gap-1">
+			{options.map((opt) => (
+				<button
+					key={opt}
+					onClick={() => onChange(opt)}
+					className={opt === value
+						? 'rounded border border-gray-400 px-2 py-1 text-xs font-bold bg-gray-100'
+						: 'rounded px-2 py-1 text-xs hover:bg-gray-50 text-gray-500'}
+				>
+					{opt}
+				</button>
+			))}
+		</div>
 	);
 }
 
 export function HubPanelSettings() {
+	const {
+		moveSpeed, setMoveSpeed,
+		cameraSensitivity, setCameraSensitivity,
+		playerSize, setPlayerSize,
+	} = useGameSettingsStore();
 
-	const [audioEnabled,setAudioEnabled] = useState("ON");
-	const [playerSpeed, setPlayerSpeed] = useState("MEDIUM");
-	const [displayLevel, setDisplayLevel] = useState("MEDIUM");
-	const audiopts = ["ON", "OFF"];
-	const speeds =  ["SLOW", "MEDIUM", "FAST"];
-	const qualitys = ["LOW", "MEDIUM", "HIGH"];
-
-	return(
-		<div className="p-2">
-			<SettingOption title="AUDIO">
-				<div className="flex gap-2">
-					{audiopts.map((audiopts) => (
-						<button
-							key={audiopts}
-							onClick={() =>setAudioEnabled(audiopts)}
-							className={audiopts === audioEnabled ?
-								'rounded border px-2 py-1 font-bold bg-gray-100'
-								: 'rounded px-2 py-1 hover:bg-gray-50'
-							}
-						>
-							{audiopts}
-						</button>
-					))}
-				</div>
-					
-			</SettingOption>
-
-			<SettingOption title="DISPLAY">
-				<div className="flex gap-2">
-					{qualitys.map((qualitys) => (
-						<button
-							key={qualitys}
-							onClick={() =>setDisplayLevel(qualitys)}
-							className={qualitys === displayLevel ?
-								'rounded border px-2 py-1 font-bold bg-gray-100'
-								: 'rounded px-2 py-1 hover:bg-gray-50'}
-						>
-							{qualitys}
-						</button>
-					))}
-				</div>
-			</SettingOption>
-
-			<SettingOption title="CONTROLS">
-				<span>notyet</span>
-			</SettingOption>
-
+	return (
+		<div className="p-1">
 			<SettingOption title="PLAYER SPEED">
-				<div className="flex gap-2">
-					{speeds.map((speed) => (
-						<button
-							key={speed}
-							onClick={() => setPlayerSpeed(speed)}
-							className={speed === playerSpeed ?
-								'rounded border px-2 py-1 font-bold bg-gray-100'
-								: 'rounded px-2 py-1 hover:bg-gray-50'
-							}
-						>
-							{speed}
-						</button>
-					)	)}
-				</div>
+				<OptionButtons
+					options={["SLOW", "MEDIUM", "FAST"]}
+					value={moveSpeed}
+					onChange={(v) => setMoveSpeed(v as SpeedPreset)}
+				/>
 			</SettingOption>
 
+			<SettingOption title="CAMERA SENSITIVITY">
+				<OptionButtons
+					options={["LOW", "MEDIUM", "HIGH"]}
+					value={cameraSensitivity}
+					onChange={(v) => setCameraSensitivity(v as SensitivityPreset)}
+				/>
+			</SettingOption>
+
+			<SettingOption title="PLAYER SIZE">
+				<OptionButtons
+					options={["SMALL", "NORMAL", "BIG"]}
+					value={playerSize}
+					onChange={(v) => setPlayerSize(v as SizePreset)}
+				/>
+			</SettingOption>
 		</div>
-	)
+	);
 }

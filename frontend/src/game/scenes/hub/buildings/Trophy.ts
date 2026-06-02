@@ -22,7 +22,6 @@ export class Trophy extends InteractiveObject {
 		try {
 			const result = await SceneLoader.ImportMeshAsync('', '/models/trphy.glb', '', this.scene);
 			if (result.meshes.length === 0) {
-				console.warn('Trophy: no se cargaron meshes');
 				return;
 			}
 			// Desparentamos el mesh real igual que la version original
@@ -39,9 +38,8 @@ export class Trophy extends InteractiveObject {
 			this.storeModelMeshes(result.meshes);           // glbMeshes -> glow
 			this.setupShadows(result.meshes);
 			this.createColliderFromModelMesh(target, 'trophy_collider');
-			console.log('Trophy cargado - meshes:', result.meshes.length);
 		} catch (error) {
-			console.error('Error cargando Trophy:', error);
+			void error;
 		}
 	}
 

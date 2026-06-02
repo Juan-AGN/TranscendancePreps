@@ -26,8 +26,8 @@ export function HubPanelLogin() {				//comp princpipal de login
 	const [password, setPassword] = useState("");
 
 	function testHandleLogin() {
-		console.log("username", username);
-		console.log("password", password);
+		void username;
+		void password;
 	}
 	
 	return (

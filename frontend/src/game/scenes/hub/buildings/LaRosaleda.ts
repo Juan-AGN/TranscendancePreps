@@ -25,7 +25,7 @@ export class LaRosaleda extends InteractiveObject {
 	protected async load(): Promise<void> {
 		try {
 			const result = await SceneLoader.ImportMeshAsync('', '/models/larosaleda.glb', '', this.scene);
-			if (result.meshes.length === 0) { console.warn('LaRosaleda: no se cargaron meshes'); return; }
+			if (result.meshes.length === 0) { return; }
 			this.rootMesh = result.meshes[0] as Mesh;
 			this.rootMesh.position = this.position.clone();
 			this.rootMesh.scaling = this.targetScale.clone();
@@ -38,7 +38,7 @@ export class LaRosaleda extends InteractiveObject {
 			this.setupShadows(result.meshes);
 			this.createColliderFromModelMesh(this.rootMesh, 'larosaleda_collider');
 		} catch (error) {
-			console.error('LaRosaleda error:', error);
+			void error;
 		}
 	}
 }

@@ -23,7 +23,13 @@ export function HomePage() {
 		onComplete: () => {
 			complete() //Carga Completa
 		},
-		onPanelOpen: (panelId) => setActivePanel(panelId)
+		onPanelOpen: (panelId) => {
+			if (panelId === 'chat') {
+				window.dispatchEvent(new CustomEvent('chat:open'));
+				return;
+			}
+			setActivePanel(panelId);
+		}
 	})
 
 	return (

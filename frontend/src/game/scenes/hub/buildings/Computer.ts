@@ -25,7 +25,6 @@ export class Computer extends InteractiveObject {
 			const result = await SceneLoader.ImportMeshAsync('', '/models/', 'pc.glb', this.scene);
 			const root = result.meshes[0];
 			if (!root) {
-				console.error('Computer: no se encontro mesh root');
 				return;
 			}
 			this.rootMesh = root as Mesh;
@@ -58,7 +57,7 @@ export class Computer extends InteractiveObject {
 				}
 			});
 		} catch (error) {
-			console.error('Computer error:', error);
+			void error;
 		}
 	}
 }

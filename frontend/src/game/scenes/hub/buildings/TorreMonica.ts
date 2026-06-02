@@ -22,7 +22,6 @@ export class TorreMonica extends InteractiveObject {
 		try {
 			const result = await SceneLoader.ImportMeshAsync('', '/models/TorreMonica.glb', '', this.scene);
 			if (result.meshes.length === 0) {
-				console.warn('TorreMonica: no se cargaron meshes');
 				return;
 			}
 			this.rootMesh = result.meshes[0] as Mesh;
@@ -34,7 +33,7 @@ export class TorreMonica extends InteractiveObject {
 			this.setupShadows(result.meshes);
 			this.createColliderFromModelMesh(this.rootMesh, 'torre_monica_collider');
 		} catch (error) {
-			console.error('TorreMonica error:', error);
+			void error;
 		}
 	}
 }

@@ -9,6 +9,7 @@ import type { PlayerMovement } from '../player/PlayerMovement';
 import type { HubSceneBuilder } from '../scenes/hub/HubSceneBuilder';
 import type { ProximitySystem } from '../physics/ProximitySystem';
 import { CHARACTER_CONFIG } from '../config/PlayerConfig';
+import { useGameSettingsStore, SPEED_MAP, SENSITIVITY_MAP, PLAYER_SIZE_MAP } from '../../shared/store/gameSettingsStore';
 
 export class GameLoop {
 	private scene: Scene;								// escena donde se registra el bucle
@@ -17,6 +18,7 @@ export class GameLoop {
 	private entityManager: HubSceneBuilder;			// acceso al personaje y objetos de la escena
 	private proximitySystem: ProximitySystem;			// activa/desactiva highlights por proximidad
 	private characterMovement: PlayerMovement | null = null;	// se asigna cuando el personaje termina de cargar
+	private lastAppliedSize: string = '';						// tamaño del personaje aplicado en el ultimo frame
 
 	constructor(
 		scene: Scene,
@@ -49,20 +51,33 @@ export class GameLoop {
 		if (!character || !this.characterMovement)
 			return;	// esperamos a q el personaje cargue
 
-		// rotar camara con A/D
-		if (this.inputHandler.isKeyPressed('a'))
-			this.cameraController.rotateHorizontal('left');
-		if (this.inputHandler.isKeyPressed('d'))
-			this.cameraController.rotateHorizontal('right');
+		// settings del juego (leidos del store cada frame)
+		const { controlsPreset, cameraSensitivity, invertCameraY, moveSpeed: speedPreset, playerSize: sizePreset } = useGameSettingsStore.getState();
+		const sensitivity = SENSITIVITY_MAP[cameraSensitivity];
 
-		// inclinar camara con W/S
-		if (this.inputHandler.isKeyPressed('w'))
-			this.cameraController.rotateVertical('down');
-		if (this.inputHandler.isKeyPressed('s'))
-			this.cameraController.rotateVertical('up');
+		// tamaño del personaje: solo aplica cuando cambia (evita escalar cada frame)
+		if (sizePreset !== this.lastAppliedSize) {
+			character.setScale(PLAYER_SIZE_MAP[sizePreset]);
+			this.lastAppliedSize = sizePreset;
+		}
+
+		// teclas de camara (swap con teclas de movimiento segun preset)
+		const camLeft  = controlsPreset === 'WASD' ? 'ArrowLeft'  : 'a';
+		const camRight = controlsPreset === 'WASD' ? 'ArrowRight' : 'd';
+		const camUp    = controlsPreset === 'WASD' ? 'ArrowUp'    : 'w';
+		const camDown  = controlsPreset === 'WASD' ? 'ArrowDown'  : 's';
+
+		if (this.inputHandler.isKeyPressed(camLeft))
+			this.cameraController.rotateHorizontal('left', sensitivity);
+		if (this.inputHandler.isKeyPressed(camRight))
+			this.cameraController.rotateHorizontal('right', sensitivity);
+		if (this.inputHandler.isKeyPressed(camUp))
+			this.cameraController.rotateVertical(invertCameraY ? 'up' : 'down', sensitivity);
+		if (this.inputHandler.isKeyPressed(camDown))
+			this.cameraController.rotateVertical(invertCameraY ? 'down' : 'up', sensitivity);
 
 		// movimiento del personaje
-		this.characterMovement.update(CHARACTER_CONFIG.moveSpeed);
+		this.characterMovement.update(SPEED_MAP[speedPreset]);
 
 		// camara sigue al personaje
 		const characterPosition = character.getPosition();

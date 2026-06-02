@@ -28,7 +28,6 @@ export class Atrezzo extends InteractiveObject {
 		try {
 			const result = await SceneLoader.ImportMeshAsync('', this.modelPath, '', this.scene);
 			if (result.meshes.length === 0) {
-				console.warn('Atrezzo: no se cargaron meshes');
 				return;
 			}
 
@@ -48,7 +47,7 @@ export class Atrezzo extends InteractiveObject {
 				`atrezzo_collider_${Math.round(this.position.x)}_${Math.round(this.position.z)}`
 			);
 		} catch (error) {
-			console.error('Atrezzo error:', error);
+			void error;
 		}
 	}
 }
