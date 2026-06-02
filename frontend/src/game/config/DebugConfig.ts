@@ -3,7 +3,7 @@
 
 export const DEBUG_CONFIG = {
 
-	showColliders: false, // muestra colliders invisibles en escena (wireframe rojo), pa ver collisions y ajustar sizes/positions, solo visual no afecta game logic
+	showColliders: true, // muestra colliders invisibles en escena (wireframe rojo), pa ver collisions y ajustar sizes/positions, solo visual no afecta game logic
 
 } as const;
 

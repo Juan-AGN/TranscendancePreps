@@ -19,6 +19,7 @@ import { TorreMonica } from './buildings/TorreMonica';
 import { LaRosaleda } from './buildings/LaRosaleda';
 import { Computer } from './buildings/Computer';
 import { HubObjectClickHandler } from '../../engine/HubObjectClickHandler';
+import { Atrezzo } from './buildings/Atrezzo';
 
 export class HubSceneBuilder {
 	private scene: Scene;							// escena de babylon
@@ -35,6 +36,10 @@ export class HubSceneBuilder {
 	public torre: TorreMonica | null = null;	// expuesto pa ProximitySystem
 	public rosaleda: LaRosaleda | null = null;	// expuesto pa ProximitySystem
 	public computer: Computer | null = null;	// expuesto pa ProximitySystem
+	public pedestalPc: Atrezzo | null = null;	// referencia de proximidad para computer
+	public pedestalArcade: Atrezzo | null = null;	// referencia de proximidad para arcade
+	public pedestalPingpong: Atrezzo | null = null;	// referencia de proximidad para pingpong
+	public pedestalTrophy: Atrezzo | null = null;	// referencia de proximidad para trophy
 
 	constructor(scene: Scene, shadowGenerator: ShadowGenerator | null, menuInteraction: HubObjectClickHandler) {
 		this.scene = scene;
@@ -72,6 +77,10 @@ export class HubSceneBuilder {
 		this.pingpong  = decor.pingpong;
 		this.torre     = decor.torre;
 		this.rosaleda  = decor.rosaleda;
+		this.pedestalPc = decor.pedestalPc;
+		this.pedestalArcade = decor.pedestalArcade;
+		this.pedestalPingpong = decor.pedestalPingpong;
+		this.pedestalTrophy = decor.pedestalTrophy;
 	}
 
 	// añade sombras dinamicas a los edificios principales al terminar la carga

@@ -12,6 +12,7 @@ import type { GlowEffectConfig } from '../config/HighlightConfig';
 // datos de cada objeto que vigilo en proximidad
 export interface ProximityTarget {
 	interactiveObject: InteractiveObject; // objeto 3D real que estoy vigilando
+	distanceReferenceObject?: InteractiveObject; // objeto opcional para medir distancia (ej: pedestal)
 	activationDistance: number; // distancia a la que activo el glow
 	glowConfig: GlowEffectConfig; // color + velocidad + tamaño del pulso
 	isHighlighted: boolean; // estado actual (asi no activo/desactivo cada frame como un loco)
@@ -37,9 +38,11 @@ export class ProximitySystem {
 		glowConfig: GlowEffectConfig = DEFAULT_HIGHLIGHT,
 		onEnterRange?: () => void,
 		onExitRange?: () => void,
+		distanceReferenceObject?: InteractiveObject,
 	): void {
 		this.proximityTargets.push({
 			interactiveObject,
+			distanceReferenceObject,
 			activationDistance,
 			glowConfig,
 			isHighlighted: false,
@@ -52,9 +55,10 @@ export class ProximitySystem {
 	// esto lo llamo cada frame desde el game loop le paso la posicion del jugador y reviso todos los objetos
 	public update(playerPosition: Vector3): void {
 		for (const target of this.proximityTargets) {
+			const referencePosition = target.distanceReferenceObject?.position ?? target.interactiveObject.position;
 			const distanceToObject = Vector3.Distance(
 				playerPosition,
-				target.interactiveObject.position
+				referencePosition
 			);
 			// calculo la distancia real player -> objeto
 			const shouldActivateGlow = distanceToObject < target.activationDistance;// si estoy mas cerca que el limite -> deberia estar encendido

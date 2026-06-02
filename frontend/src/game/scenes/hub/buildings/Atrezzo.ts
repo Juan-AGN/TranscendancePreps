@@ -43,6 +43,10 @@ export class Atrezzo extends InteractiveObject {
 
 			this.storeModelMeshes(result.meshes);
 			this.setupShadows(result.meshes);
+			this.createColliderFromModelMesh(
+				this.rootMesh,
+				`atrezzo_collider_${Math.round(this.position.x)}_${Math.round(this.position.z)}`
+			);
 		} catch (error) {
 			console.error('Atrezzo error:', error);
 		}
