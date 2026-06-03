@@ -9,12 +9,16 @@ import '@babylonjs/loaders';
 import { InteractiveObject } from './InteractiveObject';
 
 export class Trophy extends InteractiveObject {
+	private readonly targetScale: number;
+
 	constructor(
 		scene: Scene,
 		position: Vector3,
+		scale = 7,
 		shadowGenerator: ShadowGenerator | null = null
 	) {
 		super(scene, position, shadowGenerator);
+		this.targetScale = scale;
 		this.loadPromise = this.load();
 	}
 
@@ -30,8 +34,8 @@ export class Trophy extends InteractiveObject {
 			) as Mesh[];
 			const target = realMeshes.length > 0 ? realMeshes[0] : result.meshes[0] as Mesh;
 			target.parent = null;
-			target.position = new Vector3(this.position.x, 2, this.position.z);
-			target.scaling = new Vector3(7, 7, 7);
+			target.position = this.position.clone();
+			target.scaling = new Vector3(this.targetScale, this.targetScale, this.targetScale);
 			target.isPickable = true;
 
 			this.rootMesh = target;

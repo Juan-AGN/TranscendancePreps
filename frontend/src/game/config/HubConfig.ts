@@ -12,27 +12,34 @@ export const SCENE_CONFIG = {
 
 	pingpong: {
 		pos: new Vector3(30, 3.5, 30), // mesa colocada a la derecha y un pelin elevada
-		scale: 6 // tamaño de la mesa (bastante grande)
+		scale: 6, // tamaño de la mesa (bastante grande)
+		rotation: Math.PI / 4 // diagonal hacia el centro
 	},
 
 	torre: {
 		pos: new Vector3(-70, 12, 0), // torre a la izquierda y alta en Y
-		scale: 13 // escala grande (monumento)
+		scale: 13, // escala grande (monumento)
+		rotation: 0
 	},
 
 	townhouse: {
-		pos: new Vector3(0, 0, 70), // al fondo del mapa
+		pos: new Vector3(0, 7, 70), // al fondo del mapa
+		scale: 12,
+		rotation: Math.PI / 2,
 		route: 'panel:settings' // al interactuar → abre panel settings en el hub 3D
 	},
 
 	trophy: {
-		pos: new Vector3(-30, 1, -30), // zona izquierda atras
+		pos: new Vector3(-30, 2, -30), // zona izquierda atras
+		scale: 7,
+		rotation: 0,
 		route: '/tournament' // abre torneos
 	},
 
 	computer: {
-		pos: new Vector3(-30, 2, 30), // izquierda delante
-		scale: 10, // tamaño grande pa que se vea bien
+		pos: new Vector3(-30, 4.5, 30), // izquierda delante
+		scale: 5, // tamaño grande pa que se vea bien
+		rotation: -Math.PI / 3,
 		route: 'panel:login'
 	},
 

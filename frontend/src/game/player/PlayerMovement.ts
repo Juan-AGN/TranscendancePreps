@@ -8,7 +8,7 @@ import { CameraController } from '../engine/CameraController';
 import { KeyboardInput } from '../engine/InputHandler';
 import { CollisionSystem } from '../physics/CollisionSystem';
 import { CHARACTER_CONFIG } from '../config/PlayerConfig';
-import { useGameSettingsStore } from '../../shared/store/gameSettingsStore';
+import { useGameSettingsStore } from '../config/gameSettingsStore';
 
 // Clase molde pa gestionar el movimiento del personaje
 export class PlayerMovement {

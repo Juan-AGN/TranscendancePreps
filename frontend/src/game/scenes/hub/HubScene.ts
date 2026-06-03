@@ -32,6 +32,8 @@ import { HologramController } from '../../effects/HologramController';
 import { SkySetup } from '../../config/SkySetup';
 import { GroundSetup } from '../../config/GroundSetup';
 
+const ENABLE_HDRI = true; // false para la consola de firefox
+
 // Clase molde pa crear la escena 3D del Hub {cerebro del juego}
 export class HubScene {
 	private canvas: HTMLCanvasElement;  // canvas HTML donde se dibuja el 3D
@@ -176,7 +178,9 @@ export class HubScene {
 		// Suelo y HDRI (imagen 360 del entorno)
 		this.environmentSetup = new EnvironmentSetup(this.scene);  // crea el sist de entorno
 		//this.environmentSetup.setupGround();  // crea el suelo
-		this.environmentSetup.setupHDRI();    // carga la imagen HDRI pa reflejos
+		if (ENABLE_HDRI) {
+			this.environmentSetup.setupHDRI();    // carga la imagen HDRI pa reflejos
+		}
 
 		this.skySetup = new SkySetup(this.scene);
 		this.skySetup.setupSkybox();

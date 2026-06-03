@@ -8,21 +8,24 @@ import { InteractiveObject } from './InteractiveObject';
 
 export class Computer extends InteractiveObject {
 	private readonly targetScale: Vector3;
+	private readonly targetRotation: number;
 
 	constructor(
 		scene: Scene,
 		position: Vector3,
-		scale = 2,
+		scale = 1,
+		rotation = 0,
 		shadowGenerator: ShadowGenerator | null = null
 	) {
 		super(scene, position, shadowGenerator);
 		this.targetScale = new Vector3(scale, scale, scale);
+		this.targetRotation = rotation;
 		this.loadPromise = this.load();
 	}
 
 	protected async load(): Promise<void> {
 		try {
-			const result = await SceneLoader.ImportMeshAsync('', '/models/', 'pc.glb', this.scene);
+			const result = await SceneLoader.ImportMeshAsync('', '/models/', 'NewComputer.glb', this.scene);
 			const root = result.meshes[0];
 			if (!root) {
 				return;
@@ -31,7 +34,7 @@ export class Computer extends InteractiveObject {
 			this.rootMesh.position = this.position.clone();
 			// -X invierte horizontalmente pa corregir orientacion del modelo
 			this.rootMesh.scaling = new Vector3(-this.targetScale.x, this.targetScale.y, this.targetScale.z);
-			this.rootMesh.addRotation(0, Math.PI / 3.2, 0);
+			this.rootMesh.addRotation(0, this.targetRotation, 0);
 			this.rootMesh.computeWorldMatrix(true);
 			this.storeModelMeshes(result.meshes);
 			this.setupShadows(result.meshes);

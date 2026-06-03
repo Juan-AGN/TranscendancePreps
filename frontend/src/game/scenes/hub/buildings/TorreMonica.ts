@@ -6,15 +6,18 @@ import { InteractiveObject } from './InteractiveObject';
 
 export class TorreMonica extends InteractiveObject {
 	private readonly targetScale: Vector3;
+	private readonly targetRotation: number;
 
 	constructor(
 		scene: Scene,
 		position: Vector3,
 		scale = 1,
+		rotation = 0,
 		shadowGenerator: ShadowGenerator | null = null
 	) {
 		super(scene, position, shadowGenerator);
 		this.targetScale = new Vector3(scale, scale, scale);
+		this.targetRotation = rotation;
 		this.loadPromise = this.load();
 	}
 
@@ -27,6 +30,8 @@ export class TorreMonica extends InteractiveObject {
 			this.rootMesh = result.meshes[0] as Mesh;
 			this.rootMesh.position = this.position.clone();
 			this.rootMesh.scaling = this.targetScale.clone();
+			this.rootMesh.rotationQuaternion = null;
+			this.rootMesh.rotation.y = this.targetRotation;
 			this.rootMesh.isVisible = true;
 			this.rootMesh.computeWorldMatrix(true);
 			this.storeModelMeshes(result.meshes);

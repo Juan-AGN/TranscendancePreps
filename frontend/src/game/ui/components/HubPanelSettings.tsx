@@ -1,6 +1,6 @@
 // HubPanelSettings — panel de opciones del hub 3D
 import type { ReactNode } from "react";
-import { useGameSettingsStore, type SpeedPreset, type SensitivityPreset, type SizePreset } from "../../../shared/store/gameSettingsStore";
+import { useGameSettingsStore, type SpeedPreset, type SensitivityPreset, type SizePreset } from "../../config/gameSettingsStore";
 
 function SettingOption({ title, children }: { title: string; children: ReactNode }) {
 	return (

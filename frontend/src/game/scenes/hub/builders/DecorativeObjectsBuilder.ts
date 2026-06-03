@@ -41,11 +41,11 @@ export class DecorativeObjectsBuilder {
 		loadingQueue: LoadingProgress
 	): DecorObjects {
 		// mesa de ping pong
-		const pingpong = new PingPongTable(scene, SCENE_CONFIG.pingpong.pos, SCENE_CONFIG.pingpong.scale, shadow);
+		const pingpong = new PingPongTable(scene, SCENE_CONFIG.pingpong.pos, SCENE_CONFIG.pingpong.scale, SCENE_CONFIG.pingpong.rotation, shadow);
 		loadingQueue.add(() => pingpong.ready());
 
 		// torre monica
-		const torre = new TorreMonica(scene, SCENE_CONFIG.torre.pos, SCENE_CONFIG.torre.scale, shadow);
+		const torre = new TorreMonica(scene, SCENE_CONFIG.torre.pos, SCENE_CONFIG.torre.scale, SCENE_CONFIG.torre.rotation, shadow);
 		loadingQueue.add(() => torre.ready());
 
 		// estadio la rosaleda

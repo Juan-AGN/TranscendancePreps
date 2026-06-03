@@ -9,7 +9,7 @@ import type { PlayerMovement } from '../player/PlayerMovement';
 import type { HubSceneBuilder } from '../scenes/hub/HubSceneBuilder';
 import type { ProximitySystem } from '../physics/ProximitySystem';
 import { CHARACTER_CONFIG } from '../config/PlayerConfig';
-import { useGameSettingsStore, SPEED_MAP, SENSITIVITY_MAP, PLAYER_SIZE_MAP } from '../../shared/store/gameSettingsStore';
+import { useGameSettingsStore, SPEED_MAP, SENSITIVITY_MAP, PLAYER_SIZE_MAP } from '../config/gameSettingsStore';
 
 export class GameLoop {
 	private scene: Scene;								// escena donde se registra el bucle
