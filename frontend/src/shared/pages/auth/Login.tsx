@@ -119,6 +119,11 @@ function Login() {
             return;
         }
 
+        if (registerName.length < 3 || registerName.length > 20) {
+            setRegisterAlert({ message: 'Username must be between 3 and 20 characters', tipo: 'error' });
+            return;
+        }
+
         // Validate that the email has the correct format (something@something.something)
         const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registerEmail);
         if (!validEmail) {
@@ -126,8 +131,14 @@ function Login() {
             return;
         }
 
-        if (registerPassword.length < 6) {
-            setRegisterAlert({ message: 'The password must be at least 6 characters long', tipo: 'error' });
+        if (registerPassword.length < 8 || registerPassword.length > 64) {
+            setRegisterAlert({ message: 'The password must be between 8 and 64 characters', tipo: 'error' });
+            return;
+        }
+
+        const validPassword = /^(?=.*[A-Z])(?=.*[0-9.!@#$%^&*])/.test(registerPassword);
+        if (!validPassword) {
+            setRegisterAlert({ message: 'Password must contain at least one uppercase letter and one number or special character', tipo: 'error' });
             return;
         }
 
