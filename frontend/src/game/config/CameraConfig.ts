@@ -53,6 +53,8 @@ export const CAMERA_DYNAMICS = {
 
 		zoomSpeed: 2,            // cuanto cambia la distancia por scroll
 		wheelSensitivity: 0.01,  // sensibilidad del scroll (deltaY → zoom)
+		autoResumeDelayMs: 2500, // tiempo de espera antes de devolver control al zoom automatico
+		autoReturnSmoothness: 0.02, // que tan suave vuelve tras usar la rueda
 
 		minDistance: 15,         // limite minimo (no atravesar al personaje)
 		maxDistance: 80,         // limite maximo (dont go a Marte)
