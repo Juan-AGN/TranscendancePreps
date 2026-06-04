@@ -63,16 +63,30 @@ export async function authRoutes(server: FastifyInstance) {
                 })
             });
 
-            const tokenData = await fortyTwoResponse.json() as { access_token: string };
+            if (!fortyTwoResponse.ok) {
+                console.error('42 token exchange failed:', fortyTwoResponse.status, await fortyTwoResponse.text());
+                const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+                return reply.redirect(`${frontendUrl}/?error=oauth_token_failed`);
+            }
+
+            const tokenData = await fortyTwoResponse.json() as { access_token: string; error?: string };
 
             if (!tokenData.access_token) {
-                return reply.status(401).send({ error: 'Could not obtain 42 token' });
+                console.error('42 token exchange: no access_token in response', tokenData);
+                const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+                return reply.redirect(`${frontendUrl}/?error=oauth_token_missing`);
             }
 
             // STEP 3: Use the access_token to get the 42 user data
             const fortyTwoUserResponse = await fetch('https://api.intra.42.fr/v2/me', {
                 headers: { Authorization: `Bearer ${tokenData.access_token}` }
             });
+
+            if (!fortyTwoUserResponse.ok) {
+                console.error('42 user fetch failed:', fortyTwoUserResponse.status, await fortyTwoUserResponse.text());
+                const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+                return reply.redirect(`${frontendUrl}/?error=oauth_user_failed`);
+            }
 
             const fortyTwoUserData = await fortyTwoUserResponse.json() as {
                 id:         number;
@@ -126,7 +140,7 @@ export async function authRoutes(server: FastifyInstance) {
             const token = jwt.sign(
                 { id: user.id, email: user.email },
                 process.env.JWT_SECRET || 'super-secure-secret',
-                { expiresIn: '24h' }
+                { expiresIn: '7d' }
             );
 
             // STEP 7: Redirect to the frontend with the token in the URL
@@ -151,5 +165,44 @@ export async function authRoutes(server: FastifyInstance) {
     // This endpoint verifies if the Bearer token is valid and returns user info
     server.get('/auth/me', { preHandler: authenticate }, async (request, reply) => {
         return reply.send({ ok: true, user: request.user });
+    });
+
+    // ========================================================================
+    // ROUTE 4: REFRESH TOKEN
+    // ========================================================================
+    // HTTP Method: POST
+    // URL: http://localhost:3000/auth/refresh
+    // Receives a valid (or recently expired) token and returns a new one
+    server.post('/auth/refresh', async (request, reply) => {
+        try {
+            const authHeader = request.headers.authorization;
+            if (!authHeader) {
+                return reply.status(401).send({ error: 'No token provided' });
+            }
+
+            const token = authHeader.replace('Bearer ', '');
+            const secret = process.env.JWT_SECRET || 'super-secure-secret';
+
+            // Verify the token — if invalid (tampered) we reject it
+            const decoded = jwt.verify(token, secret) as { id: number; email: string };
+
+            // Check user still exists in DB
+            const user = await prismaClient.user.findUnique({ where: { id: decoded.id } });
+            if (!user) {
+                return reply.status(401).send({ error: 'User not found' });
+            }
+
+            // Issue a fresh token
+            const newToken = jwt.sign(
+                { id: user.id, email: user.email },
+                secret,
+                { expiresIn: '7d' }
+            );
+
+            return reply.send({ token: newToken });
+
+        } catch (error) {
+            return reply.status(401).send({ error: 'Invalid or expired token' });
+        }
     });
 }
