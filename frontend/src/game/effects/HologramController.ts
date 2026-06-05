@@ -28,6 +28,7 @@ export class HologramController {
 	): void {
 		for (const def of HUB_OBJECTS) {// recorro la tabla central (HUB_OBJECTS)
 			const obj = (entityManager as any)[def.key];// saco el objeto real usando la key (ej: 'townhouse')
+			const proximityRef = def.proximityKey ? (entityManager as any)[def.proximityKey] : undefined;
 			if (!obj)
 				continue; // si no existe → paso (puede que no haya cargado)
 			// ─── CASO CON HOLOGRAMA
@@ -41,6 +42,7 @@ export class HologramController {
 					def.glowConfig,
 					() => hologram.show(), // cuando entro → aparece texto
 					() => hologram.hide(), // cuando salgo → desaparece
+					proximityRef,
 				);
 				// CLAVE: aqui conecto logica → visual proximity detecta → hologram reacciona
 			}
@@ -50,7 +52,10 @@ export class HologramController {
 				proximitySystem.registerObject(
 					obj,
 					def.activeDistance,
-					def.glowConfig
+					def.glowConfig,
+					undefined,
+					undefined,
+					proximityRef,
 				);
 				// estos objetos solo brillan, no tienen texto
 			}

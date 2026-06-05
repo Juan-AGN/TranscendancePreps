@@ -16,9 +16,9 @@ export const CHARACTER_CONFIG = {
 
     moveSpeed: 0.3,				// velocidad del personaje (cuanto se mueve cada frame)
     positionSmoothness: 0.25, 	// suavizado del movimiento (lerp), lo hago fluido en vez de teletransporte
-    minMapLimit: -55, 			// limite minimo del mapa (no dejo que se salga)
-    maxMapLimit: 55, 			// limite maximo del mapa
-    trophyRotationSpeed: 0.01, // velocidad a la que gira el trofeo (detalle visual)
+    minMapLimit: -90, 			// limite minimo del mapa (no dejo que se salga)
+    maxMapLimit: 90, 			// limite maximo del mapa
+    trophyRotationSpeed: 0.005, // velocidad a la que gira el trofeo (detalle visual)
 
 } as const;
 

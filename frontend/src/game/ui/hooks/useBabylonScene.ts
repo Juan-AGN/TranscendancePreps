@@ -26,6 +26,7 @@ export const useBabylonScene = ({
 	// useRef -> guarda la referencia a la escena 3D sin causar re-renders
 	// al cambiar sceneRef.current, React NO vuelve a renderizar el componente
 	const sceneRef = useRef<HubScene | null>(null);  // referencia persistente a la escena
+	const isInitializingRef = useRef(false);         // evita doble init en paralelo
 
 	// Obtenemos la func del store pa marcar q el Hub esta listo
 	const setHubReady = useGameStore(state => state.setHubReady);
@@ -35,9 +36,15 @@ export const useBabylonScene = ({
 	useEffect(() => {
 		if (!enabled)
 			return;
+
+		// Si ya existe una escena activa o hay una inicializacion en curso, no duplicamos.
+		if (sceneRef.current || isInitializingRef.current) {
+			return;
+		}
 		// Flag pa evitar actualizaciones de estado si el componente se desmonta
 		// esto previene memory leaks y warnings de React
 		let isCancelled = false;
+		isInitializingRef.current = true;
 		//Inicializa la escena 3D de forma asincrona
 		const initScene = async () => {
 			try {
@@ -88,10 +95,12 @@ export const useBabylonScene = ({
 			} catch (error) {
 				// Si algo fallo durante la inicializacion o carga
 				if (!isCancelled) {
-					console.error('Error al inicializar escena Babylon:', error);
+					void error;
 					onProgress?.(100, 'Error de carga');  // reportamos error
 					onComplete?.();  // ejecutamos callback igualmente pa desbloquear UI
 				}
+			} finally {
+				isInitializingRef.current = false;
 			}
 		};
 
@@ -101,6 +110,7 @@ export const useBabylonScene = ({
 		// esto es CRITICO pa evitar memory leaks en aplicaciones React
 		return () => {
 			isCancelled = true;  // marcamos q el componente ya no existe
+			isInitializingRef.current = false;
 			// Si existe una escena activa, la limpiamos
 			if (sceneRef.current) {
 				sceneRef.current.dispose();  // libera memoria (engine, scene, meshes, etc)

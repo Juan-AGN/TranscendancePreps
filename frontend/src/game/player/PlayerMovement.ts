@@ -8,6 +8,7 @@ import { CameraController } from '../engine/CameraController';
 import { KeyboardInput } from '../engine/InputHandler';
 import { CollisionSystem } from '../physics/CollisionSystem';
 import { CHARACTER_CONFIG } from '../config/PlayerConfig';
+import { useGameSettingsStore } from '../config/gameSettingsStore';
 
 // Clase molde pa gestionar el movimiento del personaje
 export class PlayerMovement {
@@ -39,6 +40,13 @@ export class PlayerMovement {
 		const camera = this.cameraController.getCamera();  // obtenemos la camara activa
 		let keyPressed = false;                            // flag pa saber si se presiono alguna tecla
 
+		// teclas de movimiento segun preset de controles
+		const { controlsPreset } = useGameSettingsStore.getState();
+		const kUp    = controlsPreset === 'WASD' ? 'w'         : 'ArrowUp';
+		const kDown  = controlsPreset === 'WASD' ? 's'         : 'ArrowDown';
+		const kLeft  = controlsPreset === 'WASD' ? 'a'         : 'ArrowLeft';
+		const kRight = controlsPreset === 'WASD' ? 'd'         : 'ArrowRight';
+
 		// Mover segun teclas presionadas (relativo a la camara)
 		// el movimiento es relativo a donde mira la camara, no absoluto
 		if (camera) {
@@ -61,23 +69,23 @@ export class PlayerMovement {
 			// primero comprobamos colisión, luego decidimos si mover o no
 			let desiredPosition = this.targetPosition.clone();
 
-			// Flecha arriba -> mover hacia adelante (direccion de la camara)
-			if (this.inputHandler.isKeyPressed('ArrowUp')) {
+			// arriba -> mover hacia adelante (direccion de la camara)
+			if (this.inputHandler.isKeyPressed(kUp)) {
 				desiredPosition.addInPlace(forward.scale(moveSpeed));
 				keyPressed = true;
 			}
-			// Flecha abajo -> mover hacia atras (opuesto a la direccion de camara)
-			if (this.inputHandler.isKeyPressed('ArrowDown')) {
+			// abajo -> mover hacia atras (opuesto a la direccion de camara)
+			if (this.inputHandler.isKeyPressed(kDown)) {
 				desiredPosition.addInPlace(forward.scale(-moveSpeed));
 				keyPressed = true;
 			}
-			// Flecha izquierda -> mover a la izquierda (perpendicular a camara)
-			if (this.inputHandler.isKeyPressed('ArrowLeft')) {
+			// izquierda -> mover a la izquierda (perpendicular a camara)
+			if (this.inputHandler.isKeyPressed(kLeft)) {
 				desiredPosition.addInPlace(right.scale(moveSpeed));
 				keyPressed = true;
 			}
-			// Flecha derecha -> mover a la derecha
-			if (this.inputHandler.isKeyPressed('ArrowRight')) {
+			// derecha -> mover a la derecha
+			if (this.inputHandler.isKeyPressed(kRight)) {
 				desiredPosition.addInPlace(right.scale(-moveSpeed));
 				keyPressed = true;
 			}
@@ -132,13 +140,13 @@ export class PlayerMovement {
 			// Vector pa acumular la direccion de movimiento
 			let moveDir = Vector3.Zero();  // empieza en (0, 0, 0)         
 			// Sumamos las direcciones segun las teclas presionadas
-			if (this.inputHandler.isKeyPressed('ArrowUp'))
+			if (this.inputHandler.isKeyPressed(kUp))
 				moveDir.addInPlace(forward);
-			if (this.inputHandler.isKeyPressed('ArrowDown'))
+			if (this.inputHandler.isKeyPressed(kDown))
 				moveDir.addInPlace(forward.scale(-1));
-			if (this.inputHandler.isKeyPressed('ArrowLeft'))
+			if (this.inputHandler.isKeyPressed(kLeft))
 				moveDir.addInPlace(right);
-			if (this.inputHandler.isKeyPressed('ArrowRight'))
+			if (this.inputHandler.isKeyPressed(kRight))
 				moveDir.addInPlace(right.scale(-1));
 
 			// Si hay direccion de movimiento (no es cero)

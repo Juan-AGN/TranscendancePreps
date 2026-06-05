@@ -14,6 +14,7 @@ import { CAMERA_CONFIG, CAMERA_DYNAMICS } from "../config/CameraConfig";
 export class CameraController {
 	private camera: ArcRotateCamera;
 	private scene: Scene;
+	private lastWheelZoomAt: number = -Infinity;
 	//private.. solo las funciones de aqui {} can modify estas variables. protegemos el motor grafico
 
 	//constructor es el metodo de inicialiazion. se ejecuta auto cada vez que se hace new Clase()...
@@ -117,7 +118,13 @@ export class CameraController {
 	// Si el raycast dice q hay pared cerca (<15), hacemos zoom in automatico.
 	public adjustZoomDistance(minDistanceToObjects: number): void {
 		// Valores de zoom segun proximidad a objetos
-		const { zoom } = CAMERA_DYNAMICS;
+		const { zoom, wheel } = CAMERA_DYNAMICS;
+
+		// Tras usar la rueda, dejamos un tiempo de control manual antes de reactivar el auto-zoom.
+		const msSinceWheel = Date.now() - this.lastWheelZoomAt;
+		if (msSinceWheel < wheel.autoResumeDelayMs)
+			return;
+
 		let targetDistance: number = zoom.defaultDistance;
 
 		if (minDistanceToObjects < zoom.zoomInDistance) {
@@ -129,10 +136,12 @@ export class CameraController {
 			targetDistance = zoom.farDistance;
 		}
 
-		const zoomSmoothnessAZD = zoom.zoomSmoothness;
-		const oldDistance = this.camera.radius;
+		const zoomSmoothnessAZD = this.lastWheelZoomAt === -Infinity
+			? zoom.zoomSmoothness
+			: wheel.autoReturnSmoothness;
+		//const oldDistance = this.camera.radius;
 		this.camera.radius += (targetDistance - this.camera.radius) * zoomSmoothnessAZD;
-		console.log('📹 Camera radius:', oldDistance.toFixed(1), '→', this.camera.radius.toFixed(1), 'target:', targetDistance);
+		//console.log('📹 Camera radius:', oldDistance.toFixed(1), '→', this.camera.radius.toFixed(1), 'target:', targetDistance);
 	}
 
 	// EVENTOS DEL NAVEGADOR (INTERRUPCIONES)
@@ -149,6 +158,7 @@ export class CameraController {
 			event.preventDefault();
 
 			const { wheel } = CAMERA_DYNAMICS;
+			this.lastWheelZoomAt = Date.now();
 			// deltaY: Dato del evento q dice cuanto giro la rueda fisica.
 			this.camera.radius += event.deltaY * wheel.wheelSensitivity * wheel.zoomSpeed;
 

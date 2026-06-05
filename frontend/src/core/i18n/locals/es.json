@@ -34,6 +34,48 @@
         "login42": "42 Login",
         "login": "Iniciar Sesión"
     },
+    "auth": {
+        "login": {
+            "title": "Verificación de Identidad",
+            "tabs": {
+                "signIn": "Iniciar Sesión",
+                "signUp": "Registrarse"
+            },
+            "fields": {
+                "name": "Nombre",
+                "email": "Email",
+                "password": "Contraseña"
+            },
+            "placeholders": {
+                "loginEmail": "tu@email.com",
+                "loginPassword": "Tu contraseña",
+                "registerName": "Tu nombre completo",
+                "registerPassword": "Mínimo 6 caracteres"
+            },
+            "buttons": {
+                "signIn": "Iniciar Sesión",
+                "login42": "Login 42",
+                "createAccount": "Crear Cuenta"
+            },
+            "separatorOr": "- o -",
+            "alerts": {
+                "login": {
+                    "fillCredentials": "Completa email y contraseña",
+                    "successRedirect": "Login correcto. Redirigiendo...",
+                    "invalidCredentials": "Email o contraseña incorrectos",
+                    "serverUnavailable": "No se puede conectar con el servidor"
+                },
+                "register": {
+                    "fillAll": "Completa todos los campos",
+                    "emailInvalid": "El formato de email no es válido",
+                    "passwordMinLength": "La contraseña debe tener al menos 6 caracteres",
+                    "successCreated": "Cuenta creada. Ya puedes iniciar sesión",
+                    "errorCreate": "Error al crear la cuenta",
+                    "serverUnavailable": "No se puede conectar con el servidor"
+                }
+            }
+        }
+    },
     "sections": {
         "3d": {
             "explore": "Explorar"

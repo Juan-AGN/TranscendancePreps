@@ -53,7 +53,7 @@ export class SkyTextHologram { // Define la clase que se encarga de crear, mostr
 			) as Mesh;
 
 			if (!mesh) { // Comprueba si Babylon devolvió null o algo no valid al crear el texto
-				console.warn(`[Hologram3D] CreateText devolvio null para "${this.label}"`); // Muestra aviso en consola para saber q texto fallo
+				//console.warn(`[Hologram3D] CreateText devolvio null para "${this.label}"`); // Muestra aviso en consola para saber q texto fallo
 				return; // Sale del método porque no puede continuar sin mesh
 			} // Cierra el if
 
@@ -95,7 +95,7 @@ export class SkyTextHologram { // Define la clase que se encarga de crear, mostr
 			}
 
 		} catch (err) { // Captura cualquier error ocurrido en fetch, json() o CreateText
-			console.error(`[Hologram3D] Error creando texto "${this.label}":`, err); // Muestra el error completo en consola para depurar
+			//console.error(`[Hologram3D] Error creando texto "${this.label}":`, err); // Muestra el error completo en consola para depurar
 		} // Cierra el catch
 	} // Cierra el metodo de creación
 

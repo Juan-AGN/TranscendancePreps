@@ -21,6 +21,7 @@ export const HOLOGRAM_FRAMES_UP      = 55;    // frames pa bajar
 
 export interface HubObjectConfig {
 	key: string;               // nombre del objeto en escena
+	proximityKey?: string;     // objeto opcional usado para calcular distancia de proximidad
 	activeDistance: number;   // distancia de activacion del aura/proximity
 	glowConfig: GlowEffectConfig; // config del glow
 
@@ -46,6 +47,7 @@ export const HUB_OBJECTS: HubObjectConfig[] = [
 	},
 	{
 		key: 'trophy',
+		proximityKey: 'pedestalTrophy',
 		activeDistance: 12,
 		glowConfig: DEFAULT_HIGHLIGHT,
 		hologram: {
@@ -66,6 +68,7 @@ export const HUB_OBJECTS: HubObjectConfig[] = [
 	},
 	{
 		key: 'arcade',
+		proximityKey: 'pedestalArcade',
 		activeDistance: 10,
 		glowConfig: DEFAULT_HIGHLIGHT,
 		hologram: {
@@ -86,6 +89,7 @@ export const HUB_OBJECTS: HubObjectConfig[] = [
 	},
 	{
 		key: 'computer',
+		proximityKey: 'pedestalPc',
 		activeDistance: 12,
 		glowConfig: DEFAULT_HIGHLIGHT,
 		hologram: {
@@ -98,6 +102,7 @@ export const HUB_OBJECTS: HubObjectConfig[] = [
 	// ===== SOLO PROXIMITY (sin texto) =====
 	{
 		key: 'pingpong',
+		proximityKey: 'pedestalPingpong',
 		activeDistance: 12,
 		glowConfig: DEFAULT_HIGHLIGHT,
 	},

@@ -10,6 +10,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';  // for navigating between pages
+import { useTranslation } from 'react-i18next';
 import { API_URL } from './config';
 import { Footer } from '../../components/layout/Footer';
 import { IntroButtons } from '../../components/Buttons/IntroButtons';
@@ -18,6 +19,7 @@ import { IntroButtons } from '../../components/Buttons/IntroButtons';
 // MAIN COMPONENT: Login
 // ============================================================================
 function Login() {
+    const { t } = useTranslation();
 
     // ========================================================================
     // COMPONENT STATE
@@ -64,7 +66,7 @@ function Login() {
 
         // STEP 1: Validate that fields are not empty
         if (!loginEmail || !loginPassword) {
-            setLoginAlert({ message: 'Please fill in the email and password', tipo: 'error' });
+            setLoginAlert({ message: t('auth.login.alerts.login.fillCredentials'), tipo: 'error' });
             return;
         }
 
@@ -91,7 +93,7 @@ function Login() {
                 localStorage.setItem('userId', data.user.id);
                 localStorage.setItem('userName', data.user.name);
 
-                setLoginAlert({ message: 'Login successful! Redirecting...', tipo: 'success' });
+                setLoginAlert({ message: t('auth.login.alerts.login.successRedirect'), tipo: 'success' });
 
                 // STEP 5: Redirect to the profile after a short delay
                 setTimeout(() => {
@@ -99,12 +101,12 @@ function Login() {
                 }, 800);
 
             } else {
-                setLoginAlert({ message: data.error || 'Incorrect email or password', tipo: 'error' });
+                setLoginAlert({ message: data.error || t('auth.login.alerts.login.invalidCredentials'), tipo: 'error' });
             }
 
         } catch (error) {
             console.error('Network error:', error);
-            setLoginAlert({ message: 'Cannot connect to the server', tipo: 'error' });
+            setLoginAlert({ message: t('auth.login.alerts.login.serverUnavailable'), tipo: 'error' });
         }
     }
 
@@ -115,19 +117,19 @@ function Login() {
 
         // STEP 1: Validate fields
         if (!registerName || !registerEmail || !registerPassword) {
-            setRegisterAlert({ message: 'Please fill in all fields', tipo: 'error' });
+            setRegisterAlert({ message: t('auth.login.alerts.register.fillAll'), tipo: 'error' });
             return;
         }
 
         // Validate that the email has the correct format (something@something.something)
         const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registerEmail);
         if (!validEmail) {
-            setRegisterAlert({ message: 'The email format is not valid', tipo: 'error' });
+            setRegisterAlert({ message: t('auth.login.alerts.register.emailInvalid'), tipo: 'error' });
             return;
         }
 
         if (registerPassword.length < 6) {
-            setRegisterAlert({ message: 'The password must be at least 6 characters long', tipo: 'error' });
+            setRegisterAlert({ message: t('auth.login.alerts.register.passwordMinLength'), tipo: 'error' });
             return;
         }
 
@@ -150,7 +152,7 @@ function Login() {
 
             // STEP 4: If successful
             if (response.ok) {
-                setRegisterAlert({ message: 'Account created! You can now sign in', tipo: 'success' });
+                setRegisterAlert({ message: t('auth.login.alerts.register.successCreated'), tipo: 'success' });
 
                 // Save the email to pre-fill the login form automatically
                 const usedEmail = registerEmail;
@@ -168,12 +170,12 @@ function Login() {
                 }, 1500);
 
             } else {
-                setRegisterAlert({ message: data.error || 'Error creating the account', tipo: 'error' });
+                setRegisterAlert({ message: data.error || t('auth.login.alerts.register.errorCreate'), tipo: 'error' });
             }
 
         } catch (error) {
             console.error('Network error:', error);
-            setRegisterAlert({ message: 'Cannot connect to the server', tipo: 'error' });
+            setRegisterAlert({ message: t('auth.login.alerts.register.serverUnavailable'), tipo: 'error' });
         }
     }
 
@@ -206,7 +208,7 @@ function Login() {
                 <div className="w-[min(90vw,48rem)] max-h-[calc(100dvh-6rem)] overflow-y-auto bg-white/[0.15] backdrop-blur-[5px] border border-yellow-500/50 pt-[clamp(1.5rem,10vh,6rem)]
                             rounded-[clamp(1rem,2vw,1.5rem)] shadow-[0_20px_80px_rgba(90,60,20,0.25),inset_0_1px_0_rgba(255,255,255,0.45)] ">
 
-                    <p className="text-[clamp(0.65rem,1.5vw,0.85rem)] mb-5 tracking-[0.25em] text-center uppercase text-yellow-800/85">Identity Verification</p>
+                    <p className="text-[clamp(0.65rem,1.5vw,0.85rem)] mb-5 tracking-[0.25em] text-center uppercase text-yellow-800/85">{t('auth.login.title')}</p>
 
                     <div className="mx-auto flex w-full max-w-[520px] justify-center gap-[clamp(0.4rem,1.5vw,1rem)] px-3">
                         <button className={`${tabBase} ${activeTab === 'login'
@@ -217,7 +219,7 @@ function Login() {
                                 setLoginAlert(null);
                                 setRegisterAlert(null);
                             }}>
-                            Sign In
+                            {t('auth.login.tabs.signIn')}
                         </button>
                         <button className={`${tabBase} ${activeTab === 'register'
                                 ? tabActive
@@ -227,7 +229,7 @@ function Login() {
                                 setLoginAlert(null);
                                 setRegisterAlert(null);
                             }}>
-                            Sign Up
+                            {t('auth.login.tabs.signUp')}
                         </button>
                     </div>
 
@@ -242,11 +244,11 @@ function Login() {
                                 )}
 
                                 <div className="w-full max-w-sm mx-auto mb-[clamp(0.5rem,2vh,1rem)]">
-                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">Email</label>
+                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.email')}</label>
                                     <input
                                         type="email"
                                         className={inputClass}
-                                        placeholder="your@email.com"
+                                        placeholder={t('auth.login.placeholders.loginEmail')}
                                         value={loginEmail}
                                         onChange={e => setLoginEmail(e.target.value)}
                                         onKeyDown={e => e.key === 'Enter' && doLogin()}
@@ -254,11 +256,11 @@ function Login() {
                                 </div>
 
                                 <div className="w-full max-w-sm mx-auto mb-[clamp(0.5rem,2vh,1rem)]">
-                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">Password</label>
+                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.password')}</label>
                                     <input
                                         type="password"
                                         className={inputClass}
-                                        placeholder="Your password"
+                                        placeholder={t('auth.login.placeholders.loginPassword')}
                                         value={loginPassword}
                                         onChange={e => setLoginPassword(e.target.value)}
                                         onKeyDown={e => e.key === 'Enter' && doLogin()}
@@ -266,10 +268,10 @@ function Login() {
                                 </div>
 
                                 <div className="mt-[clamp(2.6rem,2vh,1.5rem)] flex flex-wrap items-center justify-center gap-[clamp(0.4rem,1.5vw,1rem)]">
-                                    <IntroButtons label="Sign In" onCLick={doLogin} />
-                                    <span className="text-xs text-slate-400">- or -</span>
+                                    <IntroButtons label={t('auth.login.buttons.signIn')} onCLick={doLogin} />
+                                    <span className="text-xs text-slate-400">{t('auth.login.separatorOr')}</span>
                                     <a href={`${API_URL}/auth/42`} className="block no-underline">
-                                        <IntroButtons label="Login 42" />
+                                        <IntroButtons label={t('auth.login.buttons.login42')} />
                                     </a>
                                 </div>
                             </div>
@@ -285,39 +287,39 @@ function Login() {
                                 )}
 
                                 <div className="mx-auto max-w-sm w-full mb-[clamp(0.5rem,2vh,1rem)] ">
-                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">Name</label>
+                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.name')}</label>
                                     <input
                                         type="text"
                                         className={inputClass}
-                                        placeholder="Your full name"
+                                        placeholder={t('auth.login.placeholders.registerName')}
                                         value={registerName}
                                         onChange={e => setRegisterName(e.target.value)}
                                     />
                                 </div>
 
                                 <div className="mx-auto max-w-sm w-full mb-[clamp(0.5rem,2vh,1rem)]">
-                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">Email</label>
+                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.email')}</label>
                                     <input
                                         type="email"
                                         className={inputClass}
-                                        placeholder="your@email.com"
+                                        placeholder={t('auth.login.placeholders.loginEmail')}
                                         value={registerEmail}
                                         onChange={e => setRegisterEmail(e.target.value)}
                                     />
                                 </div>
 
                                 <div className="mx-auto max-w-sm w-full mb-[clamp(0.5rem,2vh,1rem)]">
-                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">Password</label>
+                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.password')}</label>
                                     <input
                                         type="password"
                                         className={inputClass}
-                                        placeholder="Minimum 6 characters"
+                                        placeholder={t('auth.login.placeholders.registerPassword')}
                                         value={registerPassword}
                                         onChange={e => setRegisterPassword(e.target.value)}
                                     />
                                 </div>
                                 <div className="mt-[clamp(1.6rem,2vh,1.5rem)] flex flex-wrap items-center justify-center gap-[clamp(0.4rem,1.5vw,1rem)]">
-                                    <IntroButtons label="Create Account" onCLick={doRegister} />
+                                    <IntroButtons label={t('auth.login.buttons.createAccount')} onCLick={doRegister} />
                                 </div>
                             </div>
                         )}

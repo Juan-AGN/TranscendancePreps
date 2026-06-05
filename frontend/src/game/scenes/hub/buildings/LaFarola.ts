@@ -29,7 +29,6 @@ export class LaFarola extends InteractiveObject {
 		try {
 			const result = await SceneLoader.ImportMeshAsync('', '/models/lafarola.glb', '', this.scene);
 			if (result.meshes.length === 0) {
-				console.warn('LaFarola: no se cargaron meshes');
 				return;
 			}
 			this.rootMesh = result.meshes[0] as Mesh;
@@ -43,9 +42,8 @@ export class LaFarola extends InteractiveObject {
 			this.storeModelMeshes(result.meshes);           // llena glbMeshes -> glow
 			this.setupShadows(result.meshes);               // sombras en todos los meshes
 			this.createColliderFromModelMesh(this.rootMesh, 'lafarola_collider');
-			console.log('LaFarola cargado - meshes:', result.meshes.length);
 		} catch (error) {
-			console.error('LaFarola error:', error);
+			void error;
 		}
 	}
 }

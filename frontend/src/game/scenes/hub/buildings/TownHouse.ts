@@ -9,20 +9,30 @@ import '@babylonjs/loaders/glTF';
 import { InteractiveObject } from './InteractiveObject';
 
 export class TownHouse extends InteractiveObject {
+	private readonly targetScale: number;
+	private readonly targetRotation: number;
+
 	constructor(
 		scene: Scene,
 		position: Vector3,
+		scale = 15,
+		rotation = Math.PI / 2,
 		shadowGenerator: ShadowGenerator | null = null
 	) {
 		super(scene, position, shadowGenerator);
+		this.targetScale = scale;
+		this.targetRotation = rotation;
 		this.loadPromise = this.load();
 	}
 
 	protected async load(): Promise<void> {
 		try {
-			const result = await SceneLoader.ImportMeshAsync('', '/models/polo.glb', '', this.scene);
+			const result = await SceneLoader.ImportMeshAsync(
+				'',
+				'/models/',
+				'NewPolo.glb',
+				 this.scene);
 			if (result.meshes.length === 0) {
-				console.warn('TownHouse: no se cargaron meshes');
 				return;
 			}
 			// Desparentamos el mesh real del __root__ pa eliminar transforms bakeados
@@ -33,17 +43,16 @@ export class TownHouse extends InteractiveObject {
 			const target = realMeshes.length > 0 ? realMeshes[0] : result.meshes[0] as Mesh;
 			target.parent = null;
 			target.position = this.position.clone();
-			target.scaling = new Vector3(15, 15, 15);
-			target.addRotation(0, Math.PI / 2, 0);
+			target.scaling = new Vector3(this.targetScale, this.targetScale, this.targetScale);
+			target.addRotation(0, this.targetRotation, 0);
 			target.isPickable = true;
 
 			this.rootMesh = target;                                // getRootMesh() y collider
 			this.storeModelMeshes(result.meshes);                 // glbMeshes -> glow
 			this.setupShadows(result.meshes);
 			this.createColliderFromModelMesh(target, 'townhouse_collider');
-			console.log('TownHouse cargado - meshes:', result.meshes.length);
 		} catch (error) {
-			console.error('Error cargando TownHouse:', error);
+			void error;
 		}
 	}
 }

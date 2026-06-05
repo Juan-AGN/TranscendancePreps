@@ -24,10 +24,16 @@ export class HubObjectsBuilder {
 		loadingQueue: LoadingProgress,
 		menuInteraction: HubObjectClickHandler
 	): NavigationObjects {
-		const townhouse = new TownHouse(scene, SCENE_CONFIG.townhouse.pos, shadow);
-		const trophy    = new Trophy(scene, SCENE_CONFIG.trophy.pos, shadow);
+		const townhouse = new TownHouse(
+			scene,
+			SCENE_CONFIG.townhouse.pos,
+			SCENE_CONFIG.townhouse.scale,
+			SCENE_CONFIG.townhouse.rotation,
+			shadow
+		);
+		const trophy    = new Trophy(scene, SCENE_CONFIG.trophy.pos, SCENE_CONFIG.trophy.scale, shadow);
 		const lafarola  = new LaFarola(scene, SCENE_CONFIG.lafarola.pos, SCENE_CONFIG.lafarola.scale, shadow, SCENE_CONFIG.lafarola.rotation);
-		const computer  = new Computer(scene, SCENE_CONFIG.computer.pos, SCENE_CONFIG.computer.scale, shadow);
+		const computer  = new Computer(scene, SCENE_CONFIG.computer.pos, SCENE_CONFIG.computer.scale, SCENE_CONFIG.computer.rotation, shadow);
 
 		// para añadir un objeto clickable nuevo: solo añadir 1 entrada aqui
 		const interactives = [
@@ -41,7 +47,8 @@ export class HubObjectsBuilder {
 			loadingQueue.add(async () => {
 				await obj.ready();
 				const mesh = obj.getRootMesh();
-				if (mesh) menuInteraction.registerClickableObject(route, mesh, obj);
+				if (mesh)
+					menuInteraction.registerClickableObject(route, mesh, obj);
 			});
 		});
 

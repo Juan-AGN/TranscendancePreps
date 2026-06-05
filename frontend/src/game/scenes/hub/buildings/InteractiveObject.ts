@@ -97,11 +97,6 @@ export abstract class InteractiveObject {
 
 	// ─── ESTADO DE CARGA 
 	public ready(): Promise<void> {
-
-		console.log(
-			`[ready] ${this.constructor.name} — loadPromise es Promise.resolve base? ${this.loadPromise === undefined}`,
-			this.loadPromise
-		);
 		return this.loadPromise; // otras clases esperan aqui pa saber si ya esta listo
 	}
 
