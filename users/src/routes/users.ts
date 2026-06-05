@@ -55,6 +55,24 @@ export async function usersRoutes(server: FastifyInstance) {
                 error: 'Missing required fields: name, email, password'
             });
         }
+
+        if (bodyData.name.length < 3 || bodyData.name.length > 20) {
+            return reply.status(400).send({ error: 'Username must be between 3 and 20 characters' });
+        }
+
+        const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bodyData.email);
+        if (!validEmail) {
+            return reply.status(400).send({ error: 'The email format is not valid' });
+        }
+
+        if (bodyData.password.length < 8 || bodyData.password.length > 64) {
+            return reply.status(400).send({ error: 'Password must be between 8 and 64 characters' });
+        }
+
+        const validPassword = /^(?=.*[A-Z])(?=.*[0-9.!@#$%^&*])/.test(bodyData.password);
+        if (!validPassword) {
+            return reply.status(400).send({ error: 'Password must contain at least one uppercase letter and one number or special character' });
+        }
         
         // STEP 3: Check if the email is already registered in the database
         const existingUser = await prismaClient.user.findUnique({

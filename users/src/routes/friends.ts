@@ -196,7 +196,8 @@ export async function friendsRoutes(server: FastifyInstance) {
                         id: true,
                         name: true,
                         email: true,
-                        avatar: true
+                        avatar: true,
+                        onlineStatus: true
                     }
                 },
                 receiver: {
@@ -204,7 +205,8 @@ export async function friendsRoutes(server: FastifyInstance) {
                         id: true,
                         name: true,
                         email: true,
-                        avatar: true
+                        avatar: true,
+                        onlineStatus: true
                     }
                 }
             }
