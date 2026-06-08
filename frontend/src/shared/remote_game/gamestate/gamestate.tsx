@@ -6,10 +6,17 @@ import { leavelobby } from "../game_endpoints/lobbies";
 
 
 export function Gamehandler() {
-    const canvasRef = useRef(null);
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const bgImageRef = useRef<HTMLImageElement | null>(null);
     const { game, addGame } = useWs();
 	 const { handleApiError } = useNotification();
     const { names, lobby, addLobby } = useLobby();
+
+    useEffect(() => {
+        const img = new Image();
+        img.src = "/images/BarBall.png";
+        img.onload = () => { bgImageRef.current = img; };
+    }, []);
 
 	function leavelob() {
 		if (lobby)
@@ -25,11 +32,14 @@ export function Gamehandler() {
     }
 
     function paintgame(dimensions : number) {
-        if (!game) return;
+        if (!game)
+			return;
 	    const c = canvasRef.current;
- 		if (!c) return;
+ 		if (!c)
+			return;
     	const ctx = c.getContext("2d");
-    	if (!ctx) return;
+    	if (!ctx)
+			return;
 
         const startx = (dimensions - game.borderx) / 2;
     
@@ -39,10 +49,14 @@ export function Gamehandler() {
 		ctx.fillStyle= "grey";
 		ctx.strockeStyle = "grey";
 
-        ctx.fillStyle = "grey";
-        ctx.beginPath();
-        ctx.rect(0, 0, game.borderx + (startx * 2), game.bordery + (starty * 2));
-        ctx.fill();
+        if (bgImageRef.current) {
+            ctx.drawImage(bgImageRef.current, 0, 0, game.borderx + (startx * 2), game.bordery + (starty * 2));
+        } else {
+            ctx.fillStyle = "#1a1a2e";
+            ctx.beginPath();
+            ctx.rect(0, 0, game.borderx + (startx * 2), game.bordery + (starty * 2));
+            ctx.fill();
+        }
 
         ctx.fillStyle = "black";
         ctx.beginPath();
@@ -112,16 +126,26 @@ export function Gamehandler() {
             paintgame(1000);
     }, [game]);
 
-    if (game!.borderx > 1500 || game!.bordery > 1500)
-        return (<div className="fixed inset-0 bg-red-400 flex items-center justify-center pointer-events-none flex-col">
-			<div className="h-5 w-20 bg-radial from-red-100/20 to-red-300/20 rounded-t-2xl cursor-pointer text-center content-center shadow hover:from-red-100 hover:to-red-200 transition delay-150 duration-300 ease-in-out pointer-events-auto ext-sm" onClick={leavelob}>LEAVE</div>
-			<canvas ref={canvasRef} width={2000} height={2000} className=" aspect-square w-[85vw] h-[85vw] landscape:w-[85vh] landscape:h-[85vh] shadow-2xl inset-shadow-purple-50 border-4 border-double rounded-xl"></canvas></div>);
-    else if (game!.borderx > 1000 || game!.bordery > 1000)
-        return (<div className="fixed inset-0 flex items-center justify-center pointer-events-none flex-col">
-			<div className="h-5 w-20 bg-radial from-red-100/20 to-red-300/20 rounded-t-2xl cursor-pointer text-center content-center shadow hover:from-red-100 hover:to-red-200 transition delay-150 duration-300 ease-in-out pointer-events-auto ext-sm" onClick={leavelob}>LEAVE</div>
-			<canvas ref={canvasRef} width={1500} height={1500} className=" aspect-square w-[85vw] h-[85vw] landscape:w-[85vh] landscape:h-[85vh] shadow-2xl inset-shadow-purple-50 border-4 border-double rounded-xl"></canvas></div>);
-    else
-        return (<div className="fixed inset-0 flex items-center justify-center pointer-events-none flex-col">
-			<div className="h-5 w-20 bg-radial from-red-100/20 to-red-300/20 rounded-t-2xl cursor-pointer text-center content-center shadow hover:from-red-100 hover:to-red-200 transition delay-150 duration-300 ease-in-out pointer-events-auto text-sm" onClick={leavelob}>LEAVE</div>
-			<canvas ref={canvasRef} width={1000} height={1000} className=" aspect-square w-[85vw] h-[85vw] landscape:w-[85vh] landscape:h-[85vh] shadow-2xl inset-shadow-purple-50 border-4 border-double rounded-xl"></canvas></div>);
+    const canvasRes = (game!.borderx > 1500 || game!.bordery > 1500) ? 2000
+        : (game!.borderx > 1000 || game!.bordery > 1000) ? 1500
+        : 1000;
+
+    return (
+        <div className="fixed inset-0 flex items-center justify-center px-4 py-6">
+            <div className="flex flex-col items-center gap-4 rounded-[2rem] border border-yellow-300/50 bg-white/35 backdrop-blur-2xl shadow-[0_30px_90px_rgba(55,78,140,0.25)] p-5">
+                <canvas
+                    ref={canvasRef}
+                    width={canvasRes}
+                    height={canvasRes}
+                    className="aspect-square w-[80vmin] rounded-[1.5rem] border border-yellow-400/40 shadow-[0_8px_30px_rgba(55,78,140,0.20)]"
+                />
+                <button
+                    onClick={leavelob}
+                    className="rounded-full border border-red-300/50 bg-red-50/70 px-10 py-3 text-sm font-bold tracking-[0.18em] text-red-700 transition hover:bg-red-100/80"
+                >
+                    LEAVE GAME
+                </button>
+            </div>
+        </div>
+    );
 }

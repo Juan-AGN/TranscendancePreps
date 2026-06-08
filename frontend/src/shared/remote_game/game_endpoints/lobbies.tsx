@@ -7,860 +7,1092 @@ if (address.includes(":"))
 import { useNotification } from '../notifications';
 import { useEffect, useState } from "react";
 import type { Lobbys, Lobby, Ruleset } from "../types/types"
-import { changeErrors } from "../types/types" 
+import { changeErrors } from "../types/types"
 const apiBase = `https://${noport}:8889/api/game`;
 import { useLobby } from '../lobby';
 import { Doubledivgame, Doubledivvert, TextField } from '../commoncomp/commoncomp';
 import { useWs } from '../wshandler';
-import { createPortal } from "react-dom";
 
 async function listLobbies() {
-    try {
-	    const res = await fetch(`${apiBase}/lobbies`);
-        if (!res.ok)
-            return (null);
-	    const data = await res.json();
-	    return(data);
-    }
-    catch
-    {
-        return (null);
-    }
+	try {
+		const res = await fetch(`${apiBase}/lobbies`);
+		if (!res.ok)
+			return (null);
+		const data = await res.json();
+		return (data);
+	}
+	catch {
+		return (null);
+	}
 }
 
 async function joinlobby(which: string, handleApiError: (msg: any) => void, addLobby: (id: Lobby | null) => void) {
-    const token = localStorage.getItem("token");
+	const token = localStorage.getItem("token");
 
-    try {
-	    const res = await fetch(`${apiBase}/lobbies/join`, {
-            method: "POST",
+	try {
+		const res = await fetch(`${apiBase}/lobbies/join`, {
+			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 				authorization: `Bearer ${token}`,
 			},
-            body: JSON.stringify({"lobbyId": `${which}`}),
-        });
-        const data = await res.json();
-        if (!res.ok)
-        {
-            handleApiError(data.message ?? data.error);
-            return (null);
-        }
-        addLobby(data);
-	    return(data);
-    }
-    catch (err)
-    {
-        handleApiError(err);
-        return ;
-    }
+			body: JSON.stringify({ "lobbyId": `${which}` }),
+		});
+		const data = await res.json();
+		if (!res.ok) {
+			handleApiError(data.message ?? data.error);
+			return (null);
+		}
+		addLobby(data);
+		return (data);
+	}
+	catch (err) {
+		handleApiError(err);
+		return;
+	}
 }
 
 async function startgame(which: string, handleApiError: (msg: any) => void) {
-    const token = localStorage.getItem("token");
+	const token = localStorage.getItem("token");
 
-    try {
-	    const res = await fetch(`${apiBase}/lobbies/start`, {
-            method: "POST",
+	try {
+		const res = await fetch(`${apiBase}/lobbies/start`, {
+			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 				authorization: `Bearer ${token}`,
 			},
-            body: JSON.stringify({"lobbyId": `${which}`}),
-        });
-        const data = await res.json();
-        if (!res.ok)
-            handleApiError(data.message ?? data.error);
+			body: JSON.stringify({ "lobbyId": `${which}` }),
+		});
+		const data = await res.json();
+		if (!res.ok)
+			handleApiError(data.message ?? data.error);
 
-	    return ;
-    }
-    catch (err)
-    {
-        handleApiError(err);
-        return ;
-    }
+		return;
+	}
+	catch (err) {
+		handleApiError(err);
+		return;
+	}
 }
 
 async function fetchrules(which: string, handleApiError: (msg: any) => void, rules: Ruleset) {
-    const token = localStorage.getItem("token");
+	const token = localStorage.getItem("token");
 
-    try {
-	    const res = await fetch(`${apiBase}/lobbies/ruleset`, {
-            method: "POST",
+	try {
+		const res = await fetch(`${apiBase}/lobbies/ruleset`, {
+			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 				authorization: `Bearer ${token}`,
 			},
-            body: JSON.stringify({"lobbyId": `${which}`, "ruleset": rules}),
-        });
-        const data = await res.json();
-        if (!res.ok)
-            handleApiError(data.message ?? data.error);
+			body: JSON.stringify({ "lobbyId": `${which}`, "ruleset": rules }),
+		});
+		const data = await res.json();
+		if (!res.ok)
+			handleApiError(data.message ?? data.error);
 
-        const failedStatus = Object.values(data.status).find(
-            (status) =>
-                status !== changeErrors.SUCCESS &&
-                status !== changeErrors.NOCHANGE
-        );
-        if (failedStatus) {
-            handleApiError(data.message ?? data.error);
-            return;
-        }
-            
-	    return ;
-    }
-    catch (err)
-    {
-        handleApiError(err);
-        return ;
-    }
+		const failedStatus = Object.values(data.status).find(
+			(status) =>
+				status !== changeErrors.SUCCESS &&
+				status !== changeErrors.NOCHANGE
+		);
+		if (failedStatus) {
+			handleApiError(data.message ?? data.error);
+			return;
+		}
+
+		return;
+	}
+	catch (err) {
+		handleApiError(err);
+		return;
+	}
 }
 
 async function createlobby(which: string, handleApiError: (msg: any) => void, addLobby: (id: Lobby | null) => void) {
-    const token = localStorage.getItem("token");
+	const token = localStorage.getItem("token");
 
-    try {
-	    const res = await fetch(`${apiBase}/lobbies/create`, {
-            method: "POST",
+	try {
+		const res = await fetch(`${apiBase}/lobbies/create`, {
+			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 				authorization: `Bearer ${token}`,
 			},
-            body: JSON.stringify({"lobbyId": `${which}`}),
-        });
-        const data = await res.json();
-        if (!res.ok)
-        {
-            handleApiError(data.message ?? data.error);
-            return ;
-        }
+			body: JSON.stringify({ "lobbyId": `${which}` }),
+		});
+		const data = await res.json();
+		if (!res.ok) {
+			handleApiError(data.message ?? data.error);
+			return;
+		}
 
-        addLobby(data);
-	    return(data);
-    }
-    catch (err)
-    {
-        handleApiError(err);
-        return ;
-    }
+		addLobby(data);
+		return (data);
+	}
+	catch (err) {
+		handleApiError(err);
+		return;
+	}
 }
 
 export async function leavelobby(which: string, handleApiError: (msg: any) => void, addLobby: (id: Lobby | null) => void) {
-    const token = localStorage.getItem("token");
+	const token = localStorage.getItem("token");
 
-    try {
-	    const res = await fetch(`${apiBase}/lobbies/leave`, {
-            method: "POST",
+	try {
+		const res = await fetch(`${apiBase}/lobbies/leave`, {
+			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 				authorization: `Bearer ${token}`,
 			},
-            body: JSON.stringify({"lobbyId": `${which}`}),
-        });
-        const data = await res.json();
-        if (!res.ok)
-        {
-            handleApiError(data.message ?? data.error);
-            return ;
-        }
+			body: JSON.stringify({ "lobbyId": `${which}` }),
+		});
+		const data = await res.json();
+		if (!res.ok) {
+			handleApiError(data.message ?? data.error);
+			return;
+		}
 
-        addLobby(null);
-	    return ;
-    }
-    catch (err)
-    {
-        handleApiError(err);
-        return ;
-    }
+		addLobby(null);
+		return;
+	}
+	catch (err) {
+		handleApiError(err);
+		return;
+	}
 }
 
 async function changetopectator(handleApiError: (msg: any) => void, tlobby: Lobby | null) {
-    const token = localStorage.getItem("token");
+	const token = localStorage.getItem("token");
 
-    if (!tlobby)
-        return ;
+	if (!tlobby)
+		return;
 
-    try {
-	    const res = await fetch(`${apiBase}/lobbies/change/player`, {
-            method: "POST",
+	try {
+		const res = await fetch(`${apiBase}/lobbies/change/player`, {
+			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 				authorization: `Bearer ${token}`,
 			},
-            body: JSON.stringify({"lobbyId": `${tlobby.id}`}),
-        });
-        const data = await res.json();
-        if (!res.ok)
-            handleApiError(data.message ?? data.error);
-    
-	    return ;
-    }
-    catch (err)
-    {
-        handleApiError(err);
-        return ;
-    }
+			body: JSON.stringify({ "lobbyId": `${tlobby.id}` }),
+		});
+		const data = await res.json();
+		if (!res.ok)
+			handleApiError(data.message ?? data.error);
+
+		return;
+	}
+	catch (err) {
+		handleApiError(err);
+		return;
+	}
 }
 
 async function changetoplay(handleApiError: (msg: any) => void, tlobby: Lobby | null) {
-    const token = localStorage.getItem("token");
+	const token = localStorage.getItem("token");
 
-    if (!tlobby)
-        return ;
+	if (!tlobby)
+		return;
 
-    try {
-	    const res = await fetch(`${apiBase}/lobbies/change/spectator`, {
-            method: "POST",
+	try {
+		const res = await fetch(`${apiBase}/lobbies/change/spectator`, {
+			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 				authorization: `Bearer ${token}`,
 			},
-            body: JSON.stringify({"lobbyId": `${tlobby.id}`}),
-        });
-        const data = await res.json();
-        if (!res.ok)
-            handleApiError(data.message ?? data.error);
+			body: JSON.stringify({ "lobbyId": `${tlobby.id}` }),
+		});
+		const data = await res.json();
+		if (!res.ok)
+			handleApiError(data.message ?? data.error);
 
-	    return ;
-    }
-    catch (err)
-    {
-        handleApiError(err);
-        return ;
-    }
+		return;
+	}
+	catch (err) {
+		handleApiError(err);
+		return;
+	}
 }
 
 export function MiniLobby({ lobbyItem }: { lobbyItem: Lobby }) {
-    const { names, addLobby } = useLobby();
-    const [name, setName] = useState(`User ${lobbyItem.hostId}`);
-    const { handleApiError } = useNotification();
-    const lobbyx = lobbyItem.id;
+	const { names, addLobby } = useLobby();
+	const [name, setName] = useState(`User ${lobbyItem.hostId}`);
+	const { handleApiError } = useNotification();
+	const lobbyx = lobbyItem.id;
 
-    useEffect(() => {
-        names.checknameupdate(lobbyItem.hostId).then(setName);
-    }, [lobbyItem.hostId]);
+	useEffect(() => {
+		names.checknameupdate(lobbyItem.hostId).then(setName);
+	}, [lobbyItem.hostId, names]);
 
-    const joinlobbyx = () => {
-        joinlobby(lobbyx, handleApiError, addLobby);
-    };
+	const joinlobbyx = () => {
+		joinlobby(lobbyx, handleApiError, addLobby);
+	};
 
-    return (
-	    <div className="content-center justify-center align-middle text-center bg-linear-to-r from-cyan-200 to-blue-300 pointer-events-auto w-30 h-30 aspect-square rounded-2xl overflow-auto text-xs m-5 hover:from-cyan-100 hover:to-cyan-200 transition delay-150 duration-300 ease-in-out cursor-pointer" onClick={joinlobbyx}>
-		    <div><strong>Name:</strong> {lobbyItem.id}</div>
-		    <div><strong>Host:</strong> {name}</div>
-		    <div><strong>Players:</strong> {lobbyItem.players.length}</div>
-		    <div><strong>Spectators:</strong> {lobbyItem.spectators.length}</div>
-		    <div><strong>Status:</strong> {lobbyItem.status}</div>
-		</div>
-    );
-}
-
-export function Lobbies() {
-    const [response, setResponse ] = useState<Lobbys | null>(null);
-
-    useEffect(() => {
-        async function searchforlobbies() {
-            setResponse(await listLobbies());
-        }
-
-        searchforlobbies();
-
-        const interval = setInterval(() => {
-            searchforlobbies();
-        }, 5000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    if (!response)
-		return (<p className="align-middle h-full w-full text-center justify-center items-center content-center">Unable to reach lobbies, try again later!</p>);
-
-    if (!response.all || response.all.length == 0)
-		return (<p className="align-middle h-full w-full text-center justify-center items-center content-center">No lobbies available</p>);
 	return (
-	    <div className="flex justify-center flex-wrap h-full items-start overflow-auto">
-		{response.all.map((lobbyItem: Lobby) => (
-            <MiniLobby lobbyItem={lobbyItem} key={lobbyItem.id} />
-		))}
-	    </div>
+		<button
+			type="button"
+			onClick={joinlobbyx}
+			className="group relative w-full overflow-hidden rounded-xl border border-yellow-500/35 bg-white/60
+			p-5 text-left backdrop-blur-sm transition duration-300
+			hover:-translate-y-1 hover:border-yellow-500/60 hover:bg-white/70 active:scale-[0.98]">
+			<div className="relative z-10 flex items-start gap-4">
+				<div
+					className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-yellow-500/35 bg-white/55
+					text-lg font-black text-yellow-800 transition group-hover:scale-105 ">
+					{lobbyItem.id.slice(0, 2).toUpperCase()}
+				</div>
+
+				<div className="min-w-0 flex-1">
+					<h2 className="truncate text-lg font-black tracking-wide text-yellow-950">
+						Lobby {lobbyItem.id}
+					</h2>
+
+					<p className="mt-1 truncate text-sm font-medium text-yellow-800/75">
+						Host: {name}
+					</p>
+				</div>
+
+				<div className="rounded-full border border-emerald-300/50 bg-emerald-100/80 px-3 py-1 text-[0.65rem] font-black uppercase tracking-[0.2em] text-emerald-700">
+					Open
+				</div>
+			</div>
+
+			<div className="relative z-10 mt-5 grid grid-cols-2 gap-3">
+				<div className="rounded-full border border-yellow-500/25 bg-white/45 px-4 py-2 text-sm font-medium text-yellow-900">
+					<span className="mr-2 text-yellow-700">♟</span>
+					Players: {lobbyItem.players.length}
+				</div>
+
+				<div className="rounded-full border border-yellow-500/25 bg-white/45 px-4 py-2 text-sm font-medium text-yellow-900">
+					<span className="mr-2 text-yellow-700">◉</span>
+					Spectators: {lobbyItem.spectators.length}
+				</div>
+			</div>
+
+			<div className="relative z-10 mt-4 inline-flex items-center rounded-full border border-yellow-500/25 bg-white/45 px-4 py-2 text-sm font-bold text-yellow-900">
+				<span className="mr-2 text-yellow-700">◷</span>
+				{lobbyItem.status}
+			</div>
+		</button>
 	);
+
+}
+export function Lobbies() {
+	const [response, setResponse] = useState<Lobbys | null>(null);
+
+	useEffect(() => {
+		async function searchforlobbies() {
+			setResponse(await listLobbies());
+		}
+
+		searchforlobbies();
+
+		const interval = setInterval(() => {
+			searchforlobbies();
+		}, 5000);
+
+		return () => clearInterval(interval);
+	}, []);
+
+	if (!response) {
+		return (
+			<div className="relative z-10 flex h-full w-full items-center justify-center px-6 text-center">
+				<p className="text-sm text-slate-500">
+					Unable to reach lobbies, try again later!
+				</p>
+			</div>
+		);
+	}
+
+	return (
+		<div className="relative z-10 flex h-full w-full flex-col items-center px-6 py-8 text-yellow-900">
+
+			<div className="mb-8 text-center">
+				<h1
+					className="text-3xl font-black tracking-[0.45em] text-yellow-900 drop-shadow-sm sm:text-4xl">
+					LOBBIES
+				</h1>
+
+				<p className="mt-3 text-sm font-medium text-yellow-800/80 sm:text-base">
+					Choose a room to join or create a new one below.
+				</p>
+			</div>
+
+			{!response.all || response.all.length === 0 ? (
+				<div className="flex flex-1 items-center justify-center text-center">
+					<div
+						className=" rounded-full border border-yellow-500/25 bg-white/50 px-7 py-3 text-sm font-medium text-yellow-900/65 backdrop-blur-sm">
+						No lobbies available
+					</div>
+				</div>
+			) : (
+				<div
+					className="grid w-full max-w-4xl grid-cols-1 gap-5 overflow-y-auto px-2 pb-4 sm:grid-cols-2">
+					{response.all.map((lobbyItem: Lobby) => (
+						<MiniLobby lobbyItem={lobbyItem} key={lobbyItem.id} />
+					))}
+				</div>
+			)}
+		</div>
+	);
+
 }
 
-export function MiniUser({user}: {user: number}) {
-    const { names, lobby } = useLobby();
-    const [ username, setUsername ] = useState(`User ${user}`);
-    const [ img, setImg ] = useState("");
+export function MiniUser({ user }: { user: number }) {
+	const { names, lobby } = useLobby();
+	const [username, setUsername] = useState(`User ${user}`);
+	const [img, setImg] = useState("");
 
-    async function updtusername() {
-        setUsername(await names.checknameupdate(user));
-    }
+	async function updtusername() {
+		setUsername(await names.checknameupdate(user));
+	}
 
-    async function updtimg() {
-        setImg(await names.checkimgupdate(user));
-    }
+	async function updtimg() {
+		setImg(await names.checkimgupdate(user));
+	}
 
-    useEffect(() => {
-        updtusername();
-        updtimg();
-    }, [lobby]);
+	useEffect(() => {
+		updtusername();
+		updtimg();
+	}, [lobby]);
 
-    if (img && img != "")
-        return (<div className='text-center bg-linear-to-r from-cyan-200 to-blue-300 w-[40%] m-2 p-2 rounded-2xl shadow flex overflow-auto h-10 items-center content-center'><img className="rounded-3xl h-[80%] aspect-square mr-2" src={img}></img>{username}</div>);
-    else
-        return (<div className='text-center bg-linear-to-r from-cyan-200 to-blue-300 w-[40%] m-2 p-2 rounded-2xl shadow h-10 justify-center items-center content-center'>{username}</div>);
+	return (
+		<div
+			className="flex w-full items-center gap-3 rounded-full border border-yellow-500/30 bg-white/55
+				px-4 py-3 text-yellow-950 backdrop-blur-sm">
+			{img && img !== "" ? (
+				<img
+					className="h-10 w-10 rounded-full object-cover border border-yellow-500/25"
+					src={img}
+				/>
+			) : (
+				<div className="flex h-10 w-10 items-center justify-center rounded-full border border-yellow-500/25 bg-white/60 text-yellow-700">
+					◉
+				</div>
+			)}
+
+			<div className="min-w-0 flex-1">
+				<p className="truncate text-sm font-bold">{username}</p>
+				<p className="text-xs text-yellow-800/65">Player</p>
+			</div>
+		</div>
+	);
+
 }
 
-export function Minimini({user}: {user: number}) {
-    const { names, lobby } = useLobby();
-    const [ username, setUsername ] = useState(`User ${user}`);
-    const [ img, setImg ] = useState("");
+export function Minimini({ user }: { user: number }) {
+	const { names, lobby } = useLobby();
+	const [username, setUsername] = useState(`User ${user}`);
+	const [img, setImg] = useState("");
 
-    async function updtusername() {
-        setUsername(await names.checknameupdate(user));
-    }
+	async function updtusername() {
+		setUsername(await names.checknameupdate(user));
+	}
 
-    async function updtimg() {
-        setImg(await names.checkimgupdate(user));
-    }
+	async function updtimg() {
+		setImg(await names.checkimgupdate(user));
+	}
 
-    useEffect(() => {
-        updtusername();
-        updtimg();
-    }, [lobby]);
+	useEffect(() => {
+		updtusername();
+		updtimg();
+	}, [lobby]);
 
-    if (img && img != "")
-        return (<div className='text-center bg-linear-to-r from-yellow-200 to-yellow-300 w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap justify-center items-center content-center'><img className="rounded-3xl h-[80%] aspect-square mr-2" src={img}></img> {username}</div>);
-    else
-        return (<div className='text-center bg-linear-to-r from-yellow-200 to-yellow-300 w-fit m-2 p-2 rounded-2xl shadow h-10 flex-nowrap whitespace-nowrap justify-center items-center content-center'>{username}</div>);
+	return (
+		<div
+			className="flex w-fit items-center gap-2 rounded-full border border-yellow-500/25 bg-white/45 px-3 py-2
+				text-yellow-900 backdrop-blur-smwhitespace-nowrap">
+			{img && img !== "" ? (
+				<img
+					className="h-8 w-8 rounded-full object-cover border border-yellow-500/25"
+					src={img}
+				/>
+			) : (
+				<div className="flex h-8 w-8 items-center justify-center rounded-full border border-yellow-500/25 bg-white/60 text-yellow-700 text-xs">
+					◉
+				</div>
+			)}
+			<span className="text-sm font-medium">{username}</span>
+		</div>
+	);
+
 }
 
 type ResProps = {
-    place: number;
-    user : number;
+	place: number;
+	user: number;
 };
 
-export function Placement({place, user} : ResProps)
-{
-    const { result } = useWs();
-    const [ username, setUsername ] = useState(`User ${result?.first}`);
-    const [ img, setImg ] = useState("");
-    const { names } = useLobby();
-    const [ colors, setColors ] = useState("bg-linear-to-r from-amber-200 to-amber-300");
+export function Placement({ place, user }: ResProps) {
+	const { result } = useWs();
+	const [username, setUsername] = useState(`User ${result?.first}`);
+	const [img, setImg] = useState("");
+	const { names } = useLobby();
+	const [colors, setColors] = useState("bg-linear-to-r from-amber-200 to-amber-300");
 
-    async function updtusername() {
-        setUsername(await names.checknameupdate(user));
-    }
+	async function updtusername() {
+		setUsername(await names.checknameupdate(user));
+	}
 
-    async function updtimg() {
-        setImg(await names.checkimgupdate(user));
-    }
+	async function updtimg() {
+		setImg(await names.checkimgupdate(user));
+	}
 
-    useEffect(() => {
-        updtusername();
-        updtimg();
-        if (place === 1)
-            setColors("bg-linear-to-r from-amber-200 to-amber-300");
-        else if (place === 2)
-            setColors("bg-linear-to-r from-mist-200 to-mist-300");
-        else if (place === 3)
-            setColors("bg-linear-to-r from-orange-200 to-orange-300");
-        else if (place === 4)
-            setColors("bg-linear-to-r from-stone-400 to-stone-500");
-    });
+	useEffect(() => {
+		updtusername();
+		updtimg();
+		if (place === 1)
+			setColors("bg-linear-to-r from-amber-200 to-amber-300");
+		else if (place === 2)
+			setColors("bg-linear-to-r from-mist-200 to-mist-300");
+		else if (place === 3)
+			setColors("bg-linear-to-r from-orange-200 to-orange-300");
+		else if (place === 4)
+			setColors("bg-linear-to-r from-stone-400 to-stone-500");
+	});
 
-    if (img && img != "")
-        return (<div className={`text-center bg-linear-to-r ${colors} w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap justify-center items-center content-center`}><p>{place}º </p><img className="rounded-3xl h-[80%] aspect-square m-2" src={img}></img> {username}</div>);
-    else
-        return (<div className={`text-center bg-linear-to-r ${colors} w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap justify-center items-center content-center`}><p className="m-2">{place}º </p>{username}</div>);
+	if (img && img != "")
+		return (<div className={`text-center bg-linear-to-r ${colors} w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap justify-center items-center content-center`}><p>{place}º </p><img className="rounded-3xl h-[80%] aspect-square m-2" src={img}></img> {username}</div>);
+	else
+		return (<div className={`text-center bg-linear-to-r ${colors} w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap justify-center items-center content-center`}><p className="m-2">{place}º </p>{username}</div>);
 }
 
 export function ShowResults() {
-    const { result } = useWs();
+	const { result } = useWs();
 
-    return (<div className="flex align-middle justify-center overflow-x-auto">
-        <Placement place={1} user={result!.first}/>
-        <Placement place={2} user={result!.second}/>
-        {result?.third && result.third !== -1 &&
-            <Placement place={3} user={result!.third}/>
-        }
-        {result?.fourth && result.fourth !== -1 &&
-            <Placement place={4} user={result!.fourth}/>
-        }
-    </div>)
+	return (<div className="flex align-middle justify-center overflow-x-auto">
+		<Placement place={1} user={result!.first} />
+		<Placement place={2} user={result!.second} />
+		{result?.third && result.third !== -1 &&
+			<Placement place={3} user={result!.third} />
+		}
+		{result?.fourth && result.fourth !== -1 &&
+			<Placement place={4} user={result!.fourth} />
+		}
+	</div>)
 }
 
-export function SingLobby() {
-    const { result } = useWs();
-    const { names, lobby } = useLobby();
-    const [ host, setHost ] = useState(`User ${lobby!.hostId}`);
+type RulesStateProps = {
+	rulesm: number;
+	setRulesm: (n: number) => void;
+};
 
-    async function updthost() {
-        setHost(await names.checknameupdate(lobby!.hostId));
-    }
+type ControlBarProps = {
+	setRulesm: (n: number) => void;
+};
 
-    useEffect(() => {
-        if (lobby)
-            updthost();
-    }, [ lobby ]);
+export function SingLobby({ rulesm, setRulesm }: RulesStateProps) {
+	const { result } = useWs();
+	const { names, lobby } = useLobby();
+	const [host, setHost] = useState(`User ${lobby!.hostId}`);
 
-    if (!lobby)
-        return (<p className="align-middle h-full w-full text-center justify-center items-center content-center">Lobby needed</p>)
+	async function updthost() {
+		setHost(await names.checknameupdate(lobby!.hostId));
+	}
 
-    return (<div className="flex justify-center flex-wrap h-full items-start overflow-auto content-center">
-        { result &&
-            <div className="text-center content-center w-full">
-            <p className="text-1.5xl"><b>LAST GAME RESULTS</b></p>
-            <ShowResults/>
-            </div>
-            
-        }
-        <br></br>
-        <div className="w-[20vw] overflow-auto py-8" >
-            <p><b>Lobby:</b> {lobby.id}</p>
-            <p><b>Lobby owner:</b> {host}</p>
-            <p><b>Nº of Players:</b> {lobby.players.length}</p>
-            <p><b>Nº of Spectators:</b> {lobby.spectators.length}</p>
-        </div>
-        <div className="text-center content-center">
-            <p className="text-1.5xl"><b>PLAYERS</b></p>
-            <div className="flex flex-wrap w-[50vw] align-middle justify-center">
-            {lobby.players.map((user: number) => (
-                <MiniUser user={user} key={user} />
-            ))}
-            </div>
-        </div>
-        {lobby.spectators.length > 0 &&
-        <div className="text-center content-center">
-            <p className="text-1.5xl"><b>SPECTATORS</b></p>
-            <div className="flex w-[70vw] align-middle justify-start overflow-x-auto">
-            {lobby.spectators.map((user: number) => (
-                <Minimini user={user} key={user} />
-            ))}
-            </div>
-        </div>
-        }
-    </div>);
+	useEffect(() => {
+		if (lobby)
+			updthost();
+	}, [lobby]);
+
+	if (!lobby) {
+		return (
+			<div className="flex h-full w-full items-center justify-center text-yellow-900">
+				Lobby needed
+			</div>
+		);
+	}
+
+	return (
+		<div className="flex h-full w-full flex-col gap-6 overflow-auto px-8 py-8 text-yellow-950">
+
+			{rulesm === 1 && <SettingsMenu setRulesm={setRulesm} />}
+			{rulesm === 2 && <OnlyRules setRulesm={setRulesm} />}
+
+			{rulesm === 0 && (
+				<>
+
+					{result && (
+						<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-6 py-5">
+							<p className="mb-4 text-sm font-black tracking-[0.25em] text-yellow-800 uppercase">
+								Last Game Results
+							</p>
+							<ShowResults />
+						</div>
+					)}
+
+					<div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+						<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-5 py-4">
+							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">Lobby</p>
+							<p className="mt-2 text-xl font-black">{lobby.id}</p>
+						</div>
+
+						<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-5 py-4">
+							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">Owner</p>
+							<p className="mt-2 text-xl font-bold">{host}</p>
+						</div>
+
+						<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-5 py-4">
+							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">Players</p>
+							<p className="mt-2 text-xl font-black">{lobby.players.length}</p>
+						</div>
+
+						<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-5 py-4">
+							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">Spectators</p>
+							<p className="mt-2 text-xl font-black">{lobby.spectators.length}</p>
+						</div>
+					</div>
+
+					<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-6 py-5">
+						<p className="mb-4 text-sm font-black tracking-[0.25em] text-yellow-800 uppercase">
+							Players
+						</p>
+
+						<div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+							{lobby.players.map((user: number) => (
+								<MiniUser user={user} key={user} />
+							))}
+						</div>
+					</div>
+
+					{lobby.spectators.length > 0 && (
+						<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-6 py-5">
+							<p className="mb-4 text-sm font-black tracking-[0.25em] text-yellow-800 uppercase">
+								Spectators
+							</p>
+
+							<div className="flex flex-wrap gap-3">
+								{lobby.spectators.map((user: number) => (
+									<Minimini user={user} key={user} />
+								))}
+							</div>
+						</div>
+					)}
+
+				</>
+			)}
+		</div>
+	);
+
 }
 
 type SettingsProps = {
-    setRulesm: ( n: number ) => void;
+	setRulesm: (n: number) => void;
 };
 
 const limits = {
-  waitingnewball: { min: 500, max: 100000 },
-  maxx: { min: 600, max: 2000 },
-  maxy: { min: 600, max: 2000 },
-  ballhitbox: { min: 5, max: 200 },
-  playerhitbox: { min: 30, max: 300 },
-  ballspeed: { min: 1, max: 30 },
-  playerspeed: { min: 1, max: 20 },
-  speedrandom: { min: 0, max: 15 },
-  hitboxrandom: { min: 0, max: 100 },
-  maxballs: { min: 0, max: 999 },
+	waitingnewball: { min: 500, max: 100000 },
+	maxx: { min: 600, max: 2000 },
+	maxy: { min: 600, max: 2000 },
+	ballhitbox: { min: 5, max: 200 },
+	playerhitbox: { min: 30, max: 300 },
+	ballspeed: { min: 1, max: 30 },
+	playerspeed: { min: 1, max: 20 },
+	speedrandom: { min: 0, max: 15 },
+	hitboxrandom: { min: 0, max: 100 },
+	maxballs: { min: 0, max: 999 },
 };
 
 export function RulesSetter({
-    rules,
-    setRules,
-    }: {
-    rules: Ruleset;
-    setRules: React.Dispatch<React.SetStateAction<Ruleset>>;
-    }) {
-    const handleChange = (
-        key: keyof Ruleset,
-        value: number
-    ) => {
-        setRules((prev) => ({
-        ...prev,
-        [key]: value,
-        }));
-    };
+	rules,
+	setRules,
+}: {
+	rules: Ruleset;
+	setRules: React.Dispatch<React.SetStateAction<Ruleset>>;
+}) {
+	const handleChange = (
+		key: keyof Ruleset,
+		value: number
+	) => {
+		setRules((prev) => ({
+			...prev,
+			[key]: value,
+		}));
+	};
 
-    const ruleList = [
-        { key: "waitingnewball", label: "Time for new ball" },
-        { key: "ballspeed", label: "Ball speed" },
-        { key: "playerhitbox", label: "Player hitbox" },
-        { key: "playerspeed", label: "Player speed" },
-        { key: "ballhitbox", label: "Ball hitbox" },
-        { key: "hitboxrandom", label: "Ball hitbox modifier" },
-        { key: "speedrandom", label: "Ball speed modifier" },
-        { key: "maxx", label: "Border X" },
-        { key: "maxy", label: "Border Y" },
-        { key: "maxballs", label: "Max nº of balls (0 for infinite)" },
-    ] as const;
+	const ruleList = [
+		{ key: "waitingnewball", label: "Time for new ball" },
+		{ key: "ballspeed", label: "Ball speed" },
+		{ key: "playerhitbox", label: "Player hitbox" },
+		{ key: "playerspeed", label: "Player speed" },
+		{ key: "ballhitbox", label: "Ball hitbox" },
+		{ key: "hitboxrandom", label: "Ball hitbox modifier" },
+		{ key: "speedrandom", label: "Ball speed modifier" },
+		{ key: "maxx", label: "Border X" },
+		{ key: "maxy", label: "Border Y" },
+		{ key: "maxballs", label: "Max nº of balls (0 for infinite)" },
+	] as const;
 
-    return (
-        <div className="flex flex-col items-center justify-center w-full">
-        {ruleList.map((rule) => (
-            <div
-            key={rule.key}
-            className="bg-linear-to-r from-mist-400 to-mist-500 
-            w-[90%] rounded-xl p-2 mb-1 flex flex-col"
-            >
-            <div className="flex justify-between text-xs mb-1">
-                <span>{rule.label}</span>
-                <span>{rules[rule.key]}</span>
-            </div>
+	return (
+		<div className="flex max-h-[44vh] w-full flex-col items-center justify-start overflow-y-auto pr-1">
+			{ruleList.map((rule) => (
+				<div
+					key={rule.key}
+					className="bg-linear-to-r from-mist-400 to-mist-500  w-[90%] rounded-xl p-2 mb-1 flex flex-col"
+				>
+					<div className="flex justify-between text-xs mb-1">
+						<span>{rule.label}</span>
+						<span>{rules[rule.key]}</span>
+					</div>
 
-            <input
-                type="range"
-                min={limits[rule.key].min}
-                max={limits[rule.key].max}
-                value={rules[rule.key]}
-                onChange={(e) =>
-                handleChange(rule.key, Number(e.target.value))
-                }
-                className="w-full"
-            />
-            </div>
-        ))}
-        </div>
-    );
+					<input
+						type="range"
+						min={limits[rule.key].min}
+						max={limits[rule.key].max}
+						value={rules[rule.key]}
+						onChange={(e) =>
+							handleChange(rule.key, Number(e.target.value))
+						}
+						className="w-full"
+					/>
+				</div>
+			))}
+		</div>
+	);
 }
 
 export function Crules() {
-    const { lobby } = useLobby();
-    const [ tcollision, setTcolission ] = useState("Yes");
-    const [ mb, setMb ] = useState("Infinite");
+	const { lobby } = useLobby();
+	if (!lobby)
+		return null;
 
-    useEffect(() => {
-        if (lobby!.rules.collision)
-            setTcolission("Yes");
-        else
-            setTcolission("No");
-        if (lobby!.rules.maxballs === 0)
-            setMb("Infinite");
-        else
-            setMb(`${lobby!.rules.maxballs}`);
+	const rules = lobby.rules;
+	const maxBalls = rules.maxballs === 0 ? "Infinite" : `${rules.maxballs}`;
+	const collision = rules.collision ? "Enabled" : "Disabled";
 
-    }, [lobby]);
+	const rows = [
+		{ label: "Time for new ball", value: `${rules.waitingnewball} ms` },
+		{ label: "Ball speed", value: `${rules.ballspeed}` },
+		{ label: "Player collision", value: collision },
+		{ label: "Player hitbox", value: `${rules.playerhitbox}` },
+		{ label: "Player speed", value: `${rules.playerspeed}` },
+		{ label: "Ball hitbox", value: `${rules.ballhitbox}` },
+		{ label: "Hitbox modifier", value: `${rules.hitboxrandom}` },
+		{ label: "Speed modifier", value: `${rules.speedrandom}` },
+		{ label: "Border X", value: `${rules.maxx}` },
+		{ label: "Border Y", value: `${rules.maxy}` },
+		{ label: "Max balls", value: maxBalls },
+	];
 
+	return (
+		<div className="w-full rounded-[1.2rem] border border-yellow-500/20 bg-white/45 p-4 shadow-[0_10px_35px_rgba(90,60,20,0.12)]">
+			<div className="mb-3 flex items-center justify-between">
+				<p className="text-xs font-black uppercase tracking-[0.2em] text-yellow-800/70">
+					Current Rules
+				</p>
+				<span className="rounded-full border border-yellow-500/25 bg-white/70 px-3 py-1 text-[0.62rem] font-black uppercase tracking-[0.18em] text-yellow-800">
+					Live
+				</span>
+			</div>
 
-    return (<div className=' justify-center content-center flex flex-col items-center'>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Time for new ball: {lobby!.rules.waitingnewball}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball speed: {lobby!.rules.ballspeed}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Player collision: {tcollision}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Player hitbox: {lobby!.rules.playerhitbox}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Player speed: {lobby!.rules.playerspeed}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball hitbox: {lobby!.rules.ballhitbox}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball hitbox modifier: {lobby!.rules.hitboxrandom}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball speed: {lobby!.rules.ballspeed}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball speed modifier: {lobby!.rules.speedrandom}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Border x: {lobby!.rules.maxx}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Border y: {lobby!.rules.maxy}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Max nº of balls: {mb}</p></div>
-    </div>)
+			<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+				{rows.map((row) => (
+					<div key={row.label} className="rounded-xl border border-yellow-500/18 bg-gradient-to-r from-white/80 to-yellow-50/55 px-3 py-2 text-left">
+						<p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-yellow-800/70">{row.label}</p>
+						<p className="mt-1 text-sm font-black text-yellow-950">{row.value}</p>
+					</div>
+				))}
+			</div>
+		</div>
+	)
 }
 
 export function Prerules({ srules }: { srules: Ruleset }) {
-    const [ tcollision, setTcolission ] = useState("Yes");
-    const [ mb, setMb ] = useState("Infinite");
+	const maxBalls = srules.maxballs === 0 ? "Infinite" : `${srules.maxballs}`;
+	const collision = srules.collision ? "Enabled" : "Disabled";
 
-    useEffect(() => {
-        if (srules.collision)
-            setTcolission("Yes");
-        else
-            setTcolission("No");
-        if (srules.maxballs === 0)
-            setMb("Infinite");
-        else
-            setMb(`${srules.maxballs}`);
+	const rows = [
+		{ label: "Time for new ball", value: `${srules.waitingnewball} ms` },
+		{ label: "Ball speed", value: `${srules.ballspeed}` },
+		{ label: "Player collision", value: collision },
+		{ label: "Player hitbox", value: `${srules.playerhitbox}` },
+		{ label: "Player speed", value: `${srules.playerspeed}` },
+		{ label: "Ball hitbox", value: `${srules.ballhitbox}` },
+		{ label: "Hitbox modifier", value: `${srules.hitboxrandom}` },
+		{ label: "Speed modifier", value: `${srules.speedrandom}` },
+		{ label: "Border X", value: `${srules.maxx}` },
+		{ label: "Border Y", value: `${srules.maxy}` },
+		{ label: "Max balls", value: maxBalls },
+	];
 
-    }, [srules]);
+	return (
+		<div className="w-full rounded-[1.2rem] border border-cyan-400/25 bg-cyan-50/35 p-4 shadow-[0_10px_35px_rgba(35,87,111,0.10)]">
+			<div className="mb-3 flex items-center justify-between">
+				<p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-900/75">
+					Preview Rules
+				</p>
+				<span className="rounded-full border border-cyan-500/25 bg-white/70 px-3 py-1 text-[0.62rem] font-black uppercase tracking-[0.18em] text-cyan-800">
+					Template
+				</span>
+			</div>
 
-
-    return (<div className=' justify-center content-center flex flex-col items-center w-[40vw]'>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Time for new ball: {srules.waitingnewball}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball speed: {srules.ballspeed}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Player collision: {tcollision}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Player hitbox: {srules.playerhitbox}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Player speed: {srules.playerspeed}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball hitbox: {srules.ballhitbox}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball hitbox modifier: {srules.hitboxrandom}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball speed: {srules.ballspeed}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Ball speed modifier: {srules.speedrandom}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Border x: {srules.maxx}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Border y: {srules.maxy}</p></div>
-        <div className='bg-linear-to-r from-mist-400 to-mist-500 h-8 text-ms w-[90%] rounded-full overflow-x-auto whitespace-nowrap flex items-center mb-0.5'><p className='content-center ml-1 mr-1 w-full'>Max nº of balls: {mb}</p></div>
-    </div>)
+			<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+				{rows.map((row) => (
+					<div key={row.label} className="rounded-xl border border-cyan-500/18 bg-gradient-to-r from-white/80 to-cyan-50/50 px-3 py-2 text-left">
+						<p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-cyan-900/65">{row.label}</p>
+						<p className="mt-1 text-sm font-black text-cyan-950">{row.value}</p>
+					</div>
+				))}
+			</div>
+		</div>
+	)
 }
 
-const defaultrules : Ruleset = {
-    waitingnewball: 5000,
-    maxx: 1000,
-    maxy: 750,
-    ballhitbox: 50,
-    playerhitbox: 90,
-    ballspeed: 10,
-    playerspeed: 10,
-    speedrandom: 10,
-    hitboxrandom: 0,
-    maxballs: 0,
-    collision: true,
+const defaultrules: Ruleset = {
+	waitingnewball: 5000,
+	maxx: 1000,
+	maxy: 750,
+	ballhitbox: 50,
+	playerhitbox: 90,
+	ballspeed: 10,
+	playerspeed: 10,
+	speedrandom: 10,
+	hitboxrandom: 0,
+	maxballs: 0,
+	collision: true,
 }
 
-const bullethell : Ruleset = {
-    waitingnewball: 500,
-    maxx: 800,
-    maxy: 800,
-    ballhitbox: 5,
-    playerhitbox: 60,
-    ballspeed: 1,
-    playerspeed: 10,
-    speedrandom: 0,
-    hitboxrandom: 10,
-    maxballs: 0,
-    collision: true,
+const bullethell: Ruleset = {
+	waitingnewball: 500,
+	maxx: 800,
+	maxy: 800,
+	ballhitbox: 5,
+	playerhitbox: 60,
+	ballspeed: 1,
+	playerspeed: 10,
+	speedrandom: 0,
+	hitboxrandom: 10,
+	maxballs: 0,
+	collision: true,
 }
 
-const macrobullethell : Ruleset = {
-    waitingnewball: 500,
-    maxx: 2000,
-    maxy: 2000,
-    ballhitbox: 5,
-    playerhitbox: 90,
-    ballspeed: 1,
-    playerspeed: 10,
-    speedrandom: 0,
-    hitboxrandom: 10,
-    maxballs: 0,
-    collision: true,
+const macrobullethell: Ruleset = {
+	waitingnewball: 500,
+	maxx: 2000,
+	maxy: 2000,
+	ballhitbox: 5,
+	playerhitbox: 90,
+	ballspeed: 1,
+	playerspeed: 10,
+	speedrandom: 0,
+	hitboxrandom: 10,
+	maxballs: 0,
+	collision: true,
 }
 
-const closequarters : Ruleset = {
-    waitingnewball: 5000,
-    maxx: 600,
-    maxy: 600,
-    ballhitbox: 40,
-    playerhitbox: 40,
-    ballspeed: 5,
-    playerspeed: 10,
-    speedrandom: 5,
-    hitboxrandom: 10,
-    maxballs: 0,
-    collision: true,
+const closequarters: Ruleset = {
+	waitingnewball: 5000,
+	maxx: 600,
+	maxy: 600,
+	ballhitbox: 40,
+	playerhitbox: 40,
+	ballspeed: 5,
+	playerspeed: 10,
+	speedrandom: 5,
+	hitboxrandom: 10,
+	maxballs: 0,
+	collision: true,
 }
 
-const lopghall : Ruleset = {
-    waitingnewball: 4000,
-    maxx: 2000,
-    maxy: 600,
-    ballhitbox: 90,
-    playerhitbox: 90,
-    ballspeed: 15,
-    playerspeed: 15,
-    speedrandom: 10,
-    hitboxrandom: 30,
-    maxballs: 0,
-    collision: true,
+const lopghall: Ruleset = {
+	waitingnewball: 4000,
+	maxx: 2000,
+	maxy: 600,
+	ballhitbox: 90,
+	playerhitbox: 90,
+	ballspeed: 15,
+	playerspeed: 15,
+	speedrandom: 10,
+	hitboxrandom: 30,
+	maxballs: 0,
+	collision: true,
 }
 
-const giantball : Ruleset = {
-    waitingnewball: 3000,
-    maxx: 2000,
-    maxy: 1800,
-    ballhitbox: 200,
-    playerhitbox: 100,
-    ballspeed: 3,
-    playerspeed: 10,
-    speedrandom: 10,
-    hitboxrandom: 100,
-    maxballs: 0,
-    collision: true,
+const giantball: Ruleset = {
+	waitingnewball: 3000,
+	maxx: 2000,
+	maxy: 1800,
+	ballhitbox: 200,
+	playerhitbox: 100,
+	ballspeed: 3,
+	playerspeed: 10,
+	speedrandom: 10,
+	hitboxrandom: 100,
+	maxballs: 0,
+	collision: true,
 }
 
-export function SettingsMenu( { setRulesm } : SettingsProps) {
-    const { handleApiError } = useNotification();
-    const { lobby } = useLobby();
+export function SettingsMenu({ setRulesm }: SettingsProps) {
+	const { handleApiError } = useNotification();
+	const { lobby } = useLobby();
 
-    const [nrules, setNrules] = useState(lobby!.rules);
-    const [nshow, setNshow] = useState(0);
+	const [nrules, setNrules] = useState(lobby!.rules);
+	const [nshow, setNshow] = useState(0);
 
-    function closethebox() {
-        setRulesm(0);
-    }
+	function closethebox() {
+		setRulesm(0);
+	}
 
-    function sendrules() {
-        fetchrules(lobby!.id, handleApiError, nrules);
-    }
+	function sendrules() {
+		fetchrules(lobby!.id, handleApiError, nrules);
+	}
 
-    const handleChange = (value: string) => {
-        if (value === "custom")
-        {
-            setNshow(0);
-            return ;
-        }
-        else if (value === "default")
-            setNrules(defaultrules);
-        else if (value === "bullethell")
-            setNrules(bullethell);
-        else if (value === "mbullethell")
-            setNrules(macrobullethell);
-        else if (value === "closequarters")
-            setNrules(closequarters);
-        else if (value === "lopghall")
-            setNrules(lopghall);
-        else if (value === "giantball")
-            setNrules(giantball);
-        setNshow(1);
-    }
+	function applyDefaultRules() {
+		setNrules(defaultrules);
+		setNshow(1);
+	}
 
-    return (createPortal(
-        <div className="fixed inset-0 flex items-center justify-center">
-            <div className="w-[80vw] h-[70vw] landscape:w-[80vw] landscape:h-[70vh] aspect-auto bg-mauve-400/10 backdrop-blur-xs z-100 rounded-2xl m-4 flex shadow flex-wrap overflow-y-auto relative">
-                <div className="w-10 h-10 flexpointer-events-none text-center text-3xl absolute top-2 right-4 bg-radial from-green-100/20 to-green-300/20 shadow hover:from-green-100 hover:to-green-200 cursor-pointer pointer-events-auto transition delay-150 duration-300 ease-in-out rounded-full z-30 trasnspa" onClick={closethebox}>{"X"}</div>
-                <div className="w-[40vw] h-[60vw] landscape:w-[40vw] landscape:h-[60vh] items-center text-center flex absolute left-0 flex-col overflow-y-auto">
-                    <p><b>CHANGE RULES</b></p>
-                    {nshow !== 0 &&
-                        <Prerules srules={nrules}/>
-                    }
-                    {nshow === 0 &&
-                        <RulesSetter rules={nrules} setRules={setNrules}/>
-                    }
-                </div>
-                <div className="w-[40vw] h-[60vw] landscape:w-[40vw] landscape:h-[60vh] items-center justify-center text-center absolute right-0 overflow-y-auto">
-                    <p><b>CURRENT RULES</b></p>
-                    <Crules/>
-                </div>
-                <div className="w-[80vw] h-[10vw] landscape:w-[40vw] landscape:h-[10vh] items-center justify-center text-center flex bottom-0 absolute">
-                    <div className="h-8 w-[20%] bg-radial from-green-100 to-green-300 rounded-ms cursor-pointer text-center content-center shadow hover:from-green-100 hover:to-green-200 transition delay-150 duration-300 ease-in-out mx-1 rounded-2xl text-xs" onClick={sendrules}>SUBMIT RULES</div>
-                    <select onChange={(e) => handleChange(e.currentTarget.value)} className="h-8 w-[40%] bg-radial from-green-100 to-green-300 rounded-ms cursor-pointer text-center content-center shadow hover:from-green-100 hover:to-green-200 transition delay-150 duration-300 ease-in-out mx-1 rounded-2xl text-xs">
-                        <option value="custom">Custom rules</option>
-                        <option value="default" >Default rules</option>
-                        <option value="bullethell">Bullet hell</option>
-                        <option value="mbullethell">Macro bullet hell</option>
-                        <option value="closequarters">Close quarters</option>
-                        <option value="lopghall">Long hall</option>
-                        <option value="giantball">Giant ball</option>
-                    </select>
-                </div>
-            </div>
-        </div>,
-        document.body
-    ));
+	const handleChange = (value: string) => {
+		if (value === "custom") {
+			setNshow(0);
+			return;
+		}
+		else if (value === "default")
+			setNrules(defaultrules);
+		else if (value === "bullethell")
+			setNrules(bullethell);
+		else if (value === "mbullethell")
+			setNrules(macrobullethell);
+		else if (value === "closequarters")
+			setNrules(closequarters);
+		else if (value === "lopghall")
+			setNrules(lopghall);
+		else if (value === "giantball")
+			setNrules(giantball);
+		setNshow(1);
+	}
+
+	return (
+		<div className="mt-3 w-full basis-full">
+			<div className="relative mx-auto flex w-full max-w-6xl flex-col rounded-2xl border border-yellow-500/35 bg-white/60 p-4 shadow-2xl backdrop-blur-xl max-h-[62vh]">
+				<button
+					type="button"
+					className="absolute right-3 top-3 h-9 w-9 rounded-full border border-yellow-500/35 bg-white/70 text-sm font-black text-yellow-900 transition hover:bg-white"
+					onClick={closethebox}
+				>
+					X
+				</button>
+
+				<div className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto pr-1 lg:grid-cols-2">
+					<div className="flex min-h-0 flex-col items-center rounded-2xl border border-yellow-500/20 bg-white/40 p-3 text-center overflow-y-auto">
+						<p><b>CHANGE RULES</b></p>
+						{nshow !== 0 &&
+							<Prerules srules={nrules} />
+						}
+						{nshow === 0 &&
+							<RulesSetter rules={nrules} setRules={setNrules} />
+						}
+					</div>
+
+					<div className="flex min-h-0 flex-col items-center rounded-2xl border border-yellow-500/20 bg-white/40 p-3 text-center overflow-y-auto">
+						<p><b>CURRENT RULES</b></p>
+						<Crules />
+					</div>
+				</div>
+
+				<div className="mt-4 flex shrink-0 flex-wrap items-center justify-center gap-2 rounded-2xl border border-yellow-500/20 bg-white/35 p-3">
+					<button
+						type="button"
+						className="h-10 min-w-[11.5rem] rounded-full border border-yellow-400/60 bg-gradient-to-r from-yellow-200 via-yellow-300 to-amber-400 px-5 text-xs font-black tracking-[0.16em] text-yellow-950 shadow-[0_10px_28px_rgba(171,128,38,0.28)] transition hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0 active:scale-[0.98]"
+						onClick={sendrules}
+					>
+						SUBMIT RULES
+					</button>
+
+					<button
+						type="button"
+						className="h-10 min-w-[11.5rem] rounded-full border border-yellow-500/40 bg-gradient-to-r from-white/95 to-yellow-100 px-5 text-xs font-black tracking-[0.16em] text-yellow-900 shadow-[0_10px_28px_rgba(171,128,38,0.16)] transition hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0 active:scale-[0.98]"
+						onClick={applyDefaultRules}
+					>
+						DEFAULT RULES
+					</button>
+
+					<select onChange={(e) => handleChange(e.currentTarget.value)} className="h-10 min-w-[14rem] rounded-full border border-yellow-500/40 bg-gradient-to-r from-white/95 to-yellow-100 px-4 text-xs font-semibold tracking-[0.06em] text-yellow-900 shadow-[0_8px_22px_rgba(171,128,38,0.16)] transition hover:brightness-105">
+						<option value="custom">Custom sliders</option>
+						<option value="custom">Custom rules</option>
+						<option value="bullethell">Bullet hell</option>
+						<option value="mbullethell">Macro bullet hell</option>
+						<option value="closequarters">Close quarters</option>
+						<option value="lopghall">Long hall</option>
+						<option value="giantball">Giant ball</option>
+					</select>
+				</div>
+			</div>
+		</div>
+	);
 }
 
-export function OnlyRules( { setRulesm } : SettingsProps) {
-    function closethebox() {
-        setRulesm(0);
-    }
+export function OnlyRules({ setRulesm }: SettingsProps) {
+	function closethebox() {
+		setRulesm(0);
+	}
 
-    return (createPortal(
-        <div className="fixed inset-0 flex items-center justify-center">
-            <div className="w-[40vw] h-[70vw] landscape:w-[40vw] landscape:h-[70vh] aspect-auto bg-mauve-400/10 backdrop-blur-xs z-100 rounded-2xl m-4 flex shadow flex-wrap overflow-y-auto relative">
-                <div className="w-10 h-10 flexpointer-events-none text-center text-3xl absolute top-2 right-4 bg-radial from-green-100/20 to-green-300/20 shadow hover:from-green-100 hover:to-green-200 cursor-pointer pointer-events-auto transition delay-150 duration-300 ease-in-out rounded-full z-30 trasnspa" onClick={closethebox}>{"X"}</div>
-                <div className="w-[40vw] h-[70vw] landscape:w-[40vw] landscape:h-[70vh] items-center justify-center text-center absolute right-0 overflow-y-auto">
-                    <p><b>CURRENT RULES</b></p>
-                    <Crules/>
-                </div>
-            </div>
-        </div>,
-        document.body
-    ));
+	return (
+		<div className="mt-3 w-full basis-full">
+			<div className="relative mx-auto w-full max-w-3xl rounded-2xl border border-yellow-500/35 bg-white/60 p-4 shadow-2xl backdrop-blur-xl max-h-[62vh] overflow-y-auto">
+				<button
+					type="button"
+					className="absolute right-3 top-3 h-9 w-9 rounded-full border border-yellow-500/35 bg-white/70 text-sm font-black text-yellow-900 transition hover:bg-white"
+					onClick={closethebox}
+				>
+					X
+				</button>
+
+				<div className="flex flex-col items-center rounded-2xl border border-yellow-500/20 bg-white/40 p-3 text-center">
+					<p><b>CURRENT RULES</b></p>
+					<Crules />
+				</div>
+			</div>
+		</div>
+	);
 }
 
-export function ControlBar() {
-    const { names, lobby, addLobby } = useLobby();
-    const [ pos, setPos ] = useState(-1);
-    const { handleApiError } = useNotification();
-    const [ host, setHost ] = useState(-1);
-    const [ rulesm, setRulesm ] = useState(0);
+export function ControlBar({ setRulesm }: ControlBarProps) {
+	const { names, lobby, addLobby } = useLobby();
+	const [pos, setPos] = useState(-1);
+	const { handleApiError } = useNotification();
+	const [host, setHost] = useState(-1);
 
-    async function openrulesm() {
-        setRulesm(1);
-    }
+	async function openrulesm() {
+		setRulesm(1);
+	}
 
-    async function openrulesmsee() {
-        setRulesm(2);
-    }
+	async function openrulesmsee() {
+		setRulesm(2);
+	}
 
-    async function tospectchange() {
-        changetopectator(handleApiError, lobby);
-    }
+	function tospectchange() {
+		setRulesm(0);
+		changetopectator(handleApiError, lobby);
+	}
 
-    async function toplaychange() {
-        changetoplay(handleApiError, lobby);
-    }
+	function toplaychange() {
+		setRulesm(0);
+		changetoplay(handleApiError, lobby);
+	}
 
-    function leavelob() {
-        leavelobby(lobby!.id, handleApiError, addLobby);
-    }
+	function leavelob() {
+		setRulesm(0);
+		leavelobby(lobby!.id, handleApiError, addLobby);
+	}
 
-    function strtgame() {
-        startgame(lobby!.id, handleApiError);
-    }
+	function strtgame() {
+		setRulesm(0);
+		startgame(lobby!.id, handleApiError);
+	}
 
-    async function updthost() {
-        setHost(await names.getme());
-    }
+	async function updthost() {
+		setHost(await names.getme());
+	}
 
-    async function checkplaystate() {
-        const me = await names.getme();
-        const indexs = lobby?.spectators.indexOf(me);
-        const indexp = lobby?.players.indexOf(me);
+	async function checkplaystate() {
+		const me = await names.getme();
+		const indexs = lobby?.spectators.indexOf(me);
+		const indexp = lobby?.players.indexOf(me);
 
-        if (indexp != undefined && indexp > -1)
-            setPos(1);
-        else if (indexs != undefined && indexs > -1)
-            setPos(2);
-        else
-            setPos(-1);
-    }
+		if (indexp != undefined && indexp > -1)
+			setPos(1);
+		else if (indexs != undefined && indexs > -1)
+			setPos(2);
+		else
+			setPos(-1);
+	}
 
-    useEffect(() => {
-        checkplaystate();
-        if (lobby)
-            updthost();
-    }, [ lobby ]);
+	useEffect(() => {
+		checkplaystate();
+		if (lobby)
+			updthost();
+	}, [lobby]);
 
-    return (<div className="flex justify-center flex-wrap h-full items-start overflow-auto content-center text-xs ">
-        {(host === -1 || host === lobby!.hostId) && 
-            <div className="h-15 w-[80%] bg-radial from-cyan-100 to-blue-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-cyan-100 hover:to-cyan-200 transition delay-150 duration-300 ease-in-out my-1" onClick={strtgame}>START GAME</div>
-        }
-        {(pos === -1 || pos === 1) && 
-            <div className="h-15 w-[80%] bg-radial from-yellow-100 to-yellow-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-yellow-100 hover:to-yellow-200 transition delay-150 duration-300 ease-in-out my-1 overflow-x-auto" onClick={tospectchange}>TO SPECTATOR</div>
-        }
-        {(pos === -1 || pos === 2) && 
-            <div className="h-15 w-[80%] bg-radial from-cyan-100 to-blue-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-cyan-100 hover:to-cyan-200 transition delay-150 duration-300 ease-in-out my-1" onClick={toplaychange}>TO PLAYER</div>
-        }
-        {(host === -1 || host === lobby!.hostId) && 
-            <div className="h-15 w-[80%] bg-radial from-green-100 to-green-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-green-100 hover:to-green-200 transition delay-150 duration-300 ease-in-out my-1" onClick={openrulesm}>CHANGE RULES</div>
-        }
-        {host !== -1 && host !== lobby!.hostId && 
-            <div className="h-15 w-[80%] bg-radial from-green-100 to-green-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-green-100 hover:to-green-200 transition delay-150 duration-300 ease-in-out my-1" onClick={openrulesmsee}>SEE RULES</div>
-        }
-        { rulesm === 1 &&
-            <SettingsMenu setRulesm={setRulesm}/>
-        }
-        { rulesm === 2 &&
-            <OnlyRules setRulesm={setRulesm}/>
-        }
-        <div className="h-15 w-[80%] bg-radial from-red-100 to-red-300 rounded-2xl cursor-pointer text-center content-center shadow hover:from-red-100 hover:to-red-200 transition delay-150 duration-300 ease-in-out my-1" onClick={leavelob}>LEAVE</div>
-    </div>);
+	const btnClass =
+		"w-[11.5rem] flex-none rounded-full border border-yellow-500/30 bg-white/55 px-4 py-3 text-center text-sm font-bold tracking-[0.18em] text-yellow-950 backdrop-blur-sm transition hover:bg-white/70 hover:border-yellow-500/50";
+
+	const btnPrimary =
+		"w-[11.5rem] flex-none rounded-full border border-yellow-400/50 bg-gradient-to-r from-yellow-200 via-yellow-300 to-amber-400 px-4 py-3 text-center text-sm font-black tracking-[0.18em] text-yellow-950 shadow-[0_8px_25px_rgba(217,170,40,0.25)] transition hover:brightness-105";
+
+	const btnRed =
+		"w-[11.5rem] flex-none rounded-full border border-red-300/50 bg-red-50/70 px-4 py-3 text-center text-sm font-bold tracking-[0.18em] text-red-700 transition hover:bg-red-100/80";
+
+	return (
+		<div className="relative flex h-full w-full flex-wrap items-center justify-center gap-3 overflow-visible p-1 text-xs">
+			{(host === -1 || host === lobby!.hostId) && (
+				<button type="button" className={btnPrimary} onClick={strtgame}>
+					START GAME
+				</button>
+			)}
+
+			<button
+				type="button"
+				className={btnClass}
+				onClick={pos === 2 ? toplaychange : tospectchange}
+			>
+				{pos === 2 ? "TO PLAYER" : "TO SPECTATOR"}
+			</button>
+
+			{(host === -1 || host === lobby!.hostId) && (
+				<button type="button" className={btnClass} onClick={openrulesm}>
+					CHANGE RULES
+				</button>
+			)}
+
+			{host !== -1 && host !== lobby!.hostId && (
+				<button type="button" className={btnClass} onClick={openrulesmsee}>
+					SEE RULES
+				</button>
+			)}
+
+			<button type="button" className={btnRed} onClick={leavelob}>
+				LEAVE
+			</button>
+		</div>
+	);
+
 }
 
 function Lobcreator() {
-    const [ lobname, setLobname ] = useState("");
-    const { addNotification, handleApiError } = useNotification();
-    const { addLobby } = useLobby();
+	const [lobname, setLobname] = useState("");
+	const { addNotification, handleApiError } = useNotification();
+	const { addLobby } = useLobby();
 
-    function creator() {
-        if (lobname === "" || lobname.trim().length === 0 || lobname.length > 20)
-        {
-            addNotification("Bad lobby name input.");
-            return ;
-        }
-        createlobby(lobname, handleApiError, addLobby);
-    }
+	function creator() {
+		if (lobname === "" || lobname.trim().length === 0 || lobname.length > 20) {
+			addNotification("Bad lobby name input.");
+			return;
+		}
 
-    return (<div className="content-center w-full h-full flex justify-center align-middle items-center"><TextField value={lobname} onChange={setLobname} text={'CREATE'} submit={creator} tw={90}></TextField></div>);
+		createlobby(lobname, handleApiError, addLobby);
+	}
+
+	return (
+		<div className="flex h-full w-full items-center justify-center">
+			<TextField
+				value={lobname}
+				onChange={setLobname}
+				text="CREATE"
+				submit={creator}
+			/>
+		</div>
+	);
 }
 
 export function Handler() {
-    const { lobby } = useLobby();
+	const { lobby } = useLobby();
+	const [rulesm, setRulesm] = useState(0);
 
-    if (!lobby)
-        return (<Doubledivvert ComponentBig={Lobbies} ComponentSmall={Lobcreator}/>);
-    else      
-        return (<Doubledivgame ComponentBig={SingLobby} ComponentSmall={ControlBar}/>)
+	const BigLobby = () => (
+		<SingLobby rulesm={rulesm} setRulesm={setRulesm} />
+	);
+
+	const TopControls = () => (
+		<ControlBar setRulesm={setRulesm} />
+	);
+
+	if (!lobby)
+		return (<Doubledivvert ComponentBig={Lobbies} ComponentSmall={Lobcreator} />);
+	else
+		return (<Doubledivgame ComponentBig={BigLobby} ComponentSmall={TopControls} />)
 }
