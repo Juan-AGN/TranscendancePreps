@@ -17,6 +17,9 @@ export function Header() {
 	const { t, i18n } = useTranslation()
 	const userName = localStorage.getItem('userName');
 	const isLogged = !!localStorage.getItem('token');
+	const isTouchDevice = typeof window !== 'undefined'
+		? window.matchMedia('(hover: none), (pointer: coarse)').matches
+		: false
 
 	const closeMenu = () => {
 		setMenuOpen(false)
@@ -28,6 +31,10 @@ export function Header() {
 		setMenuOpen(!menuOpen)
 		setOpenSubmenu(null)
 		setLangMenuOpen(false)
+	}
+
+	const toggleSubmenu = (id: Exclude<Submenu, null>) => {
+		setOpenSubmenu((prev) => (prev === id ? null : id))
 	}
 
 	const activeLanguage = i18n.resolvedLanguage ?? i18n.language
@@ -49,7 +56,7 @@ export function Header() {
 		<button
 			type="button"
 			onClick={() => changeLanguage(code)}
-			className={`block h-10 w-14 bg-transparent p-0 transition-all duration-200 hover:scale-105 ${activeLanguage?.startsWith(code)
+			className={`block h-5 w-7 md:h-7 md:w-10 bg-transparent p-0 transition-all duration-200 hover:scale-105 ${activeLanguage?.startsWith(code)
 				? 'drop-shadow-[0_0_10px_rgba(251,191,36,0.9)]'
 				: 'opacity-90 hover:opacity-100'
 				}`}
@@ -63,11 +70,24 @@ export function Header() {
 	}) => (
 		<div
 			className="relative z-30"
-			onMouseEnter={() => setOpenSubmenu(id)}
-			onMouseLeave={() => setOpenSubmenu(null)} >
+			onMouseEnter={() => {
+				if (!isTouchDevice)
+					setOpenSubmenu(id)
+			}}
+			onMouseLeave={() => {
+				if (!isTouchDevice)
+					setOpenSubmenu(null)
+			}} >
 			<button
 				type="button"
-				onFocus={() => setOpenSubmenu(id)}
+				onFocus={() => {
+					if (!isTouchDevice)
+						setOpenSubmenu(id)
+				}}
+				onClick={() => {
+					if (isTouchDevice)
+						toggleSubmenu(id)
+				}}
 				className={`flex items-center gap-1  ${linkClass}`}
 				aria-expanded={openSubmenu === id} >
 				{name}
@@ -93,14 +113,14 @@ export function Header() {
 				? 'bg-black/[0.12] border-b border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.2)] backdrop-blur-2xl'
 				: 'bg-transparent border-b border-transparent'}`}>
 			<div className="relative flex items-center justify-between px-6 py-1 md:px-10 md:py-5">
-				<Link to="/start" onClick={closeMenu}>
+				<Link to="/start" onClick={closeMenu} className="-ml-2 md:-ml-1 lg:ml-0">
 					<img src="/images/InitTranscendenceIcon.png"
 						alt="logo"
-						className="h-16 w-auto object-contain md:h-20" />
+						className="h-12 w-auto object-contain md:h-14 lg:h-20" />
 				</Link>
 
 				<nav
-					className={`absolute left-1/2 top-1/2 z-40 flex -translate-x-1/2 -translate-y-1/2 flex-wrap items-center justify-center gap-3 px-4 md:gap-6 lg:gap-10 transition-all duration-500 ${menuOpen
+					className={`absolute left-1/2 top-[56%] z-40 flex w-[78vw] max-w-[26rem] -translate-x-1/2 -translate-y-1/2 flex-wrap items-center justify-center content-center gap-x-3 gap-y-2 px-2 text-center md:top-1/2 md:w-auto md:max-w-none md:gap-6 md:px-4 lg:gap-10 transition-all duration-500 ${menuOpen
 						? 'pointer-events-auto opacity-100'
 						: 'pointer-events-none -translate-y-7 opacity-0'}`}>
 					<Link to="/start" onClick={closeMenu} className={linkClass}>
@@ -159,7 +179,7 @@ export function Header() {
 
 				</nav>
 
-				<div className="flex items-center gap-2">
+				<div className="relative z-[80] flex items-center gap-1 -mr-1 md:gap-2 md:mr-0">
 					<div
 						className={`relative transition-all duration-300 ${menuOpen
 							? 'pointer-events-auto opacity-100'
@@ -168,22 +188,22 @@ export function Header() {
 						<button
 							type="button"
 							onClick={() => setLangMenuOpen((prev) => !prev)}
-							className="flex h-10 w-10 items-center mr-10 justify-center rounded-full border border-white/30 bg-black/20 text-white transition-all duration-200 hover:border-amber-300 hover:text-amber-200"
+							className="flex h-7 w-7 md:h-9 md:w-9 items-center mr-0 md:mr-3 justify-center rounded-full border border-white/30 bg-black/20 text-white transition-all duration-200 hover:border-amber-300 hover:text-amber-200"
 							aria-label="Cambiar idioma"
 							aria-expanded={langMenuOpen}>
 							<img
 								src="/images/WorldLogo.png"
 								alt="Selector de idioma"
-								className="h-35 w-35 object-contain"
+								className="h-4 w-4 md:h-6 md:w-6 object-contain"
 							/>
 						</button>
 
 						<div
-							className={`absolute right-[calc(100%+0.5rem)] top-1/2  w-30 -translate-y-1/2 rounded-xl p-1 transition-all duration-300   ${langMenuOpen
+							className={`absolute right-0 top-full mt-2 z-[90] w-auto rounded-xl border border-white/20 bg-black/[0.72] p-1 shadow-[0_10px_28px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-all duration-300 md:right-[calc(100%+0.35rem)] md:top-1/2 md:mt-0 md:-translate-y-1/2 ${langMenuOpen
 								? 'pointer-events-auto opacity-100'
 								: 'pointer-events-none opacity-0'
 								}`}>
-							<div className="flex flex-row items-center">
+							<div className="flex flex-col items-center gap-1 md:flex-row md:gap-0">
 								<FlagLanguageButton code="en" src="/images/UkFlag.png" alt="English" />
 								<FlagLanguageButton code="es" src="/images/spainFlag1.png" alt="Spanish" />
 								<FlagLanguageButton code="fr" src="/images/frenchFlag.png" alt="French" />
@@ -193,15 +213,15 @@ export function Header() {
 
 					<button
 						onClick={toggleMenu}
-						className="flex h-10 w-10 cursor-pointer items-center justify-center bg-black/10 border border-amber-300/55 rounded-full"
+						className="flex h-7 w-7 md:h-10 md:w-10 cursor-pointer items-center justify-center bg-black/10 border border-amber-300/55 rounded-full"
 						aria-label={menuOpen ? 'Cerrar menu' : 'Abrir menu'}>
 						{menuOpen ? (
-							<span className=" relative -top-[5px] text-5xl leading-none text-white">×</span>
+							<span className=" relative -top-[2px] md:-top-[5px] text-2xl md:text-5xl leading-none text-white">×</span>
 						) : (
-							<div className="flex flex-col gap-[5px]">
-								<span className="block h-[2px] w-6 bg-white" />
-								<span className="block h-[2px] w-6 bg-white" />
-								<span className="block h-[2px] w-6 bg-white" />
+							<div className="flex flex-col gap-[2px] md:gap-[5px]">
+								<span className="block h-[2px] w-3 md:w-6 bg-white" />
+								<span className="block h-[2px] w-3 md:w-6 bg-white" />
+								<span className="block h-[2px] w-3 md:w-6 bg-white" />
 							</div>
 						)}
 					</button>

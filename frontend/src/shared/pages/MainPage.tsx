@@ -121,14 +121,13 @@ export function StartGate({
 				}} />
 
 
-				<div className="absolute bottom-12 left-0 right-0 z-20 flex justify-center">
-	<button
-		onClick={() => navigate('/remote-game')}
-		className="text-black border border-white px-6 py-2 rounded-full"
-	>
-		Online Game
-	</button>
-</div>
+			<div className="absolute bottom-12 left-0 right-0 z-20 flex justify-center">
+				<button
+					onClick={() => navigate('/remote-game')}
+					className="text-black border border-white px-6 py-2 rounded-full">
+					Online Game
+				</button>
+			</div>
 			<div className="absolute bottom-0 left-0 right-0 z-20">
 				<Footer />
 			</div>

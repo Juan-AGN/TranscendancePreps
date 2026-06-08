@@ -32,7 +32,7 @@ export function Menu2DPage() {
 	return (
 		<ArcadeBgLayout>
 			
-			<h3 className="text-[clamp(1rem,4vw,2.75rem)] text-blue-300 font-bold mb-[0.55rem] font-['Press_Start_2P']">
+			<h3 className="text-[clamp(1.12rem,4.2vw,2.75rem)] text-blue-300 font-bold mb-[0.55rem] font-['Press_Start_2P']">
 				{t('arcade2d.menu.title')}
 			</h3>
 
@@ -62,7 +62,7 @@ export function Menu2DPage() {
 							// Estilos: borde negro 0.25rem, texto grande y mayus (todo en rem)
 							// Colores invertidos si esta highlighted (negro/blanco)
 							className={[
-									"relative py-[clamp(0rem,0.2vw,0.5rem)] text-[clamp(0.35rem,1.45vw,1rem)] font-black uppercase font-['Press_Start_2P']",
+								"relative py-[clamp(0.1rem,0.25vw,0.5rem)] text-[clamp(0.5rem,1.6vw,1rem)] font-black uppercase font-['Press_Start_2P']",
 								option.disabled
 									? 'bg-black text-yellow-400/30 cursor-not-allowed'
 									: isHighlighted

@@ -1,20 +1,6 @@
 import { useEffect, useRef } from 'react'
-import {
-	Engine,
-	Scene,
-	ArcRotateCamera,
-	HemisphericLight,
-	DirectionalLight,
-	Vector3,
-	SceneLoader,
-	DracoCompression,
-	Color3,
-	Color4,
-	GlowLayer,
-	PBRMaterial,
-	StandardMaterial,
-	AbstractMesh
-} from '@babylonjs/core'
+import { Engine, Scene, ArcRotateCamera, HemisphericLight, DirectionalLight, Vector3, SceneLoader, Logger,
+	DracoCompression, Color3, Color4, GlowLayer, PBRMaterial, StandardMaterial, AbstractMesh, } from '@babylonjs/core'
 import '@babylonjs/loaders'
 
 // Ensure Draco is configured for this flow too (MainPage), not only HubScene.
@@ -32,6 +18,7 @@ export function PlanetBackground() {
 			return
 
 		const canvas = canvasRef.current
+		Logger.LogLevels = Logger.WarningLogLevel | Logger.ErrorLogLevel
 		const engine = new Engine(canvas, true, {
 			preserveDrawingBuffer: true,
 			stencil: true

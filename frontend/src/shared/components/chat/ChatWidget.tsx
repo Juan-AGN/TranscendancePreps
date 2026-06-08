@@ -551,14 +551,14 @@ export function ChatWidget() {
 			{/* Floating button (hidden while chat is open) */}
 			{!open && (
 				<button onClick={() => setOpen(true)}
-					className="fixed bottom-4 right-4 z-[9999] flex h-14 w-14 items-center justify-center rounded-full bg-blue-400/60
+					className="fixed bottom-4 right-4 z-[9999] flex h-11 w-11 md:h-14 md:w-14 items-center justify-center rounded-full bg-blue-400/60
 								border border-yellow-400 text-2xl text-white shadow-[0_10px_30px_rgba(0,0,0,0.25)]
 								transition-all duration-500 hover:bg-yellow-400/50 hover:scale-115"
 					aria-label="Open chat"
 					title="Chat">
-					💬
+					<span className="text-lg md:text-2xl">💬</span>
 					{badgeCount > 0 && (
-						<span className="absolute -top-1 -right-1 rounded-full bg-red-600 text-white text-xs font-bold px-2 py-[2px]">
+						<span className="absolute -top-1 -right-1 rounded-full bg-red-600 text-white text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-[1px] md:py-[2px]">
 							{badgeCount > 99 ? "99+" : badgeCount}
 						</span>
 					)}

@@ -115,6 +115,7 @@ export function TextField({ value, onChange, text, submit }: TextFieldProps) {
 				className=" h-full flex-1 bg-transparent text-sm font-medium text-yellow-950 placeholder:text-yellow-900/45 outline-none"
 				placeholder="Enter lobby name..."
 				value={value}
+				maxLength={20}
 				onChange={(e) => onChange(e.target.value)}
 				onKeyDown={(e) => {
 					if (e.key === "Enter")

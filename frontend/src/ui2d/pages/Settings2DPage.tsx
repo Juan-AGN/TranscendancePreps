@@ -23,7 +23,7 @@ export function Settings2DPage() {
 	return (
 		<ArcadeBgLayout>
 		
-			<h1 className="text-[clamp(1rem,4vw,2.75rem)] text-blue-300 font-bold mb-[0.55rem] font-['Press_Start_2P']">
+			<h1 className="text-[clamp(1.12rem,4.2vw,2.75rem)] text-blue-300 font-bold mb-[0.55rem] font-['Press_Start_2P']">
 				{t('arcade2d.settings.title')}
 			</h1>
 			<nav className="flex flex-col gap-[0.5rem] w-full max-w-[24rem]">
@@ -42,7 +42,7 @@ export function Settings2DPage() {
 						onBlur={() => setHovered(null)}
 						onClick={() => navigate(option.path)}
 						className={[
-							"relative py-[clamp(0rem,0.2vw,0.5rem)] text-[clamp(0.35rem,1.45vw,1rem)] font-black uppercase font-['Press_Start_2P']",
+							"relative py-[clamp(0.1rem,0.25vw,0.5rem)] text-[clamp(0.5rem,1.6vw,1rem)] font-black uppercase font-['Press_Start_2P']",
 							isHighlighted
 								? 'bg-black text-white scale-120'
 									: 'bg-black text-yellow-400',
