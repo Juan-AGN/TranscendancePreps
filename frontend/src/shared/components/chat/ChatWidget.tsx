@@ -139,8 +139,10 @@ export function ChatWidget() {
 	);
 
 	const selectedTitle = useMemo(() => {
-		if (!selected) return "Select a conversation";
-		if (selected.type === "GROUP") return selected.title || `Group #${selected.id}`;
+		if (!selected)
+			return "Select a conversation";
+		if (selected.type === "GROUP")
+			return selected.title || `Group #${selected.id}`;
 		const otherId = selected.otherUserIds[0];
 		return userMap[otherId]?.name || `User ${otherId}`;
 	}, [selected, userMap]);
@@ -429,43 +431,43 @@ export function ChatWidget() {
 		loadOnline();
 	}, [open]);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+	useEffect(() => {
+		const token = localStorage.getItem("token");
+		if (!token) return;
 
-    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-    const ws = new WebSocket(
-      `${protocol}://${window.location.host}/api/chat/ws?token=${encodeURIComponent(token)}`
-    );
+		const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+		const ws = new WebSocket(
+			`${protocol}://${window.location.host}/api/chat/ws?token=${encodeURIComponent(token)}`
+		);
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+		ws.onmessage = (event) => {
+			const data = JSON.parse(event.data);
 
-      if (data.type === "message:new") {
-        const msg = data.message;
+			if (data.type === "message:new") {
+				const msg = data.message;
 
-        if (selectedId === data.conversationId) {
-          setMessages((prev) => {
-            const exists = prev.some((m) => m.id === msg.id);
-            if (exists) return prev;
-            return [...prev, msg];
-          });
+				if (selectedId === data.conversationId) {
+					setMessages((prev) => {
+						const exists = prev.some((m) => m.id === msg.id);
+						if (exists) return prev;
+						return [...prev, msg];
+					});
 
-          setSeenId(data.conversationId, msg.id);
-        }
+					setSeenId(data.conversationId, msg.id);
+				}
 
-        loadConversations();
-      }
-    };
+				loadConversations();
+			}
+		};
 
-    ws.onerror = () => {
-      console.log("WebSocket error");
-    };
+		ws.onerror = () => {
+			console.log("WebSocket error");
+		};
 
-    return () => {
-      ws.close();
-    };
-  }, [selectedId]);
+		return () => {
+			ws.close();
+		};
+	}, [selectedId]);
 	// Load messages when selecting a conversation
 	useEffect(() => {
 		if (!open || !selectedId) return;
@@ -568,36 +570,35 @@ export function ChatWidget() {
 			{open && (
 				<div onClick={() => setOpen(false)}
 					className="fixed inset-0 z-[9998] flex items-center justify-end bg-black/10 p-6
-							    backdrop-blur-[2px] transition-all duration-700">
+							    backdrop-blur-[2px] transition-all duration-700 max-sm:justify-center max-sm:p-3">
 					<div onClick={(e) => e.stopPropagation()}
 						className="grid h-[42rem] w-[44rem] max-w-[82vw] max-h-[80vh] grid-rows-[auto_1fr] overflow-hidden rounded-[2rem] border border-white/35
-									bg-white/60 shadow-[0_20px_60px_rgba(0,0,0,0.25)] ring-1 ring-yellow-400/50">
-
-
-						<div className="flex items-center px-4 py-3 border-b border-gray-100 justify-between">
-							<div className="flex items-center gap-2">
+									bg-white/60 shadow-[0_20px_60px_rgba(0,0,0,0.25)] ring-1 ring-yellow-400/50
+									max-sm:h-[calc(100dvh-6rem)] max-sm:w-[calc(100vw-1.5rem)] max-sm:max-w-none max-sm:rounded-[1.5rem]">
+						<div className="flex items-center px-4 py-3 border-b border-gray-100 justify-between max-sm:gap-2 max-sm:px-2 max-sm:py-2">
+							<div className="flex items-center gap-2 max-sm:min-w-0 max-sm:flex-1 max-sm:gap-1 max-sm:overflow-hidden">
 								<OlympusButton
 									onClick={() => setTab("chats")}
-									className={tab !== "chats" ? "opacity-50" : "bg-yellow-400/70 text-black"}
-								>
+									className={`max-sm:!h-8 max-sm:!min-w-0 max-sm:!flex-1 max-sm:!px-1 max-sm:!text-[0.52rem] max-sm:!tracking-[0.03em]
+											${tab !== "chats" ? "opacity-50" : "bg-yellow-400/70 text-black"}`}>
 									Chats
 								</OlympusButton>
 								<OlympusButton
 									onClick={() => setTab("friends")}
-									className={tab !== "friends" ? "opacity-50" : "bg-yellow-400/70 text-black"}
-								>
+									className={`max-sm:!h-8 max-sm:!min-w-0 max-sm:!flex-1 max-sm:!px-1 max-sm:!text-[0.52rem] max-sm:!tracking-[0.03em]
+											${tab !== "friends" ? "opacity-50" : "bg-yellow-400/70 text-black"}`}>
 									Friends
 								</OlympusButton>
 								<OlympusButton
 									onClick={() => setTab("online")}
-									className={tab !== "online" ? "opacity-50" : "bg-yellow-400/70 text-black"}
-								>
+									className={`max-sm:!h-8 max-sm:!min-w-0 max-sm:!flex-1 max-sm:!px-1 max-sm:!text-[0.52rem] max-sm:!tracking-[0.03em]
+											${tab !== "online" ? "opacity-50" : "bg-yellow-400/70 text-black"}`}>
 									Online
 								</OlympusButton>
 								<OlympusButton
 									onClick={() => setTab("offline")}
-									className={tab !== "offline" ? "opacity-50" : "bg-yellow-400/70 text-black"}
-								>
+									className={`max-sm:!h-8 max-sm:!min-w-0 max-sm:!flex-1 max-sm:!px-1 max-sm:!text-[0.52rem] max-sm:!tracking-[0.03em]
+											${tab !== "offline" ? "opacity-50" : "bg-yellow-400/70 text-black"}`}>
 									Offline
 								</OlympusButton>
 							</div>
@@ -605,20 +606,22 @@ export function ChatWidget() {
 							<button
 								onClick={() => setOpen(false)}
 								className="rounded-full p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
-								title="Close"
-							>
+								title="Close">
 								<X className="w-4 h-4" />
 							</button>
 						</div>
 						{/*body*/}
-						<div className="grid min-h-0 grid-cols-[16rem_1fr] p-1">
-							<div className=" flex min-h-0 flex-col border-r border-white/35 bg-white/60">
-								<div className="border-b border-gray-100 px-4 py-3 flex items-center gap-2">
+						<div className="grid min-h-0 grid-cols-[16rem_1fr] p-1 max-sm:grid-cols-1">
+							<div className="flex min-h-0 min-w-0 w-full flex-col border-r border-white/35 bg-white/60
+									max-sm:border-r-0">
+								<div className="border-b border-gray-100 px-4 py-3 flex items-center gap-2
+										max-sm:px-2 max-sm:py-2 max-sm:gap-1.5">
 									<div className="relative flex-1">
 										<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
 										<input
 											placeholder="Search conversations..."
-											className="w-full rounded-full bg-gray-100 pl-8 pr-3 py-1.5 text-xs text-gray-600 outline-none" />
+											className="w-full rounded-full bg-gray-100 pl-7 pr-2 py-1.5 text-xs text-gray-600 outline-none
+												max-sm:text-[0.7rem]" />
 									</div>
 									<button className="text-gray-400 hover:text-gray-600 transition-colors">
 										<SquarePen className="w-4 h-4" />
@@ -628,18 +631,18 @@ export function ChatWidget() {
 
 
 								{/* scroll content */}
-								<div className="flex-1 overflow-auto p-2">
+								<div className="flex-1 overflow-auto p-2 max-sm:p-1.5">
 									{/* New group only on Friends */}
 									{tab === "friends" && (
-										<div className="mb-3 rounded-xl border border-gray-200 bg-white p-3">
-											<div className="mb-2 text-sm font-bold">Create group</div>
+										<div className="mb-3 rounded-xl border border-gray-200 bg-white p-3 max-sm:p-2">
+											<div className="mb-2 text-sm font-bold max-sm:text-[0.85rem]">Create group</div>
 
 											<input
 												value={groupTitle}
 												onChange={(e) => setGroupTitle(e.target.value)}
 												placeholder="Group name"
-												className="mb-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none"
-											/>
+												className="mb-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none
+														max-sm:px-2 max-sm:py-1.5 max-sm:text-[0.8rem]"/>
 
 											<div className="mb-2 max-h-32 overflow-auto rounded-lg border border-gray-100 p-2">
 												{friends.length === 0 && (
@@ -651,13 +654,11 @@ export function ChatWidget() {
 												{friends.map((f) => (
 													<label
 														key={f.id}
-														className="mb-1 flex cursor-pointer items-center gap-2 text-sm"
-													>
+														className="mb-1 flex cursor-pointer items-center gap-2 text-sm max-sm:text-[0.78rem]">
 														<input
 															type="checkbox"
 															checked={selectedGroupIds.includes(String(f.id))}
-															onChange={() => toggleGroupFriend(f.id)}
-														/>
+															onChange={() => toggleGroupFriend(f.id)}/>
 														<span>{f.name}</span>
 														<span className="text-xs text-gray-500">{f.email}</span>
 													</label>
@@ -666,8 +667,7 @@ export function ChatWidget() {
 
 											<button
 												onClick={createGroupFromFriends}
-												className="w-full rounded-lg bg-black px-3 py-2 text-sm font-bold text-white"
-											>
+												className="w-full rounded-lg bg-black px-3 py-2 text-sm font-bold text-white max-sm:px-2 max-sm:py-1.5 max-sm:text-[0.82rem]">
 												+ Create group
 											</button>
 										</div>
@@ -698,12 +698,10 @@ export function ChatWidget() {
 														className={[
 															"mb-2 flex items-center gap-2 rounded-xl border px-3 py-2 transition",
 															active ? "border-black bg-black text-white" : "border-gray-200 bg-white hover:bg-gray-50",
-														].join(" ")}
-													>
+														].join(" ")}>
 														<button
 															onClick={() => setSelectedId(c.id)}
-															className="min-w-0 flex-1 text-left"
-														>
+															className="min-w-0 flex-1 text-left">
 															<div className="text-sm font-bold mb-1 truncate">{title}</div>
 															<div className="text-xs opacity-80 truncate">{preview}</div>
 														</button>
@@ -717,8 +715,7 @@ export function ChatWidget() {
 																"rounded-lg px-2 py-1 text-xs font-bold",
 																active ? "bg-white text-black" : "border border-gray-300 text-gray-700",
 															].join(" ")}
-															title="Remove conversation"
-														>
+															title="Remove conversation">
 															✕
 														</button>
 													</div>
@@ -741,14 +738,12 @@ export function ChatWidget() {
 													<div className="mt-2 flex gap-2">
 														<button
 															onClick={() => acceptRequest(p.requester.id)}
-															className="rounded-lg bg-black px-3 py-1 text-xs font-bold text-white"
-														>
+															className="rounded-lg bg-black px-3 py-1 text-xs font-bold text-white">
 															Accept
 														</button>
 														<button
 															onClick={() => rejectRequest(p.requester.id)}
-															className="rounded-lg border border-gray-300 px-3 py-1 text-xs font-bold"
-														>
+															className="rounded-lg border border-gray-300 px-3 py-1 text-xs font-bold">
 															Reject
 														</button>
 													</div>
@@ -760,15 +755,17 @@ export function ChatWidget() {
 											{!loadingFriends && onlineFriends.length === 0 && <div className="mb-3 p-2 text-gray-600">No friends online</div>}
 
 											{onlineFriends.map((f) => (
-												<div key={f.id} className="mb-2 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2">
-													<div className="min-w-0">
+												<div key={f.id} className="mb-2 flex min-w-0 items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2
+														max-sm:px-2 max-sm:py-2">
+													<div className="min-w-0 flex-1">
 														<div className="flex items-center gap-2">
 															<span className="h-2 w-2 rounded-full bg-green-500" />
 															<div className="text-sm font-bold truncate">{f.name}</div>
 														</div>
 														<div className="text-xs text-gray-600 truncate">{f.email}</div>
 													</div>
-													<button onClick={() => openDmWith(f.id)} className="ml-2 rounded-lg bg-black px-3 py-1 text-sm font-bold text-white">
+													<button onClick={() => openDmWith(f.id)} className="ml-2 shrink-0 rounded-lg bg-black px-3 py-1 text-sm font-bold text-white
+															max-sm:px-2 max-sm:text-[0.72rem]">
 														DM
 													</button>
 												</div>
@@ -778,16 +775,17 @@ export function ChatWidget() {
 											{!loadingFriends && offlineFriends.length === 0 && <div className="p-2 text-gray-600">No friends offline</div>}
 
 											{offlineFriends.map((f) => (
-												<div key={f.id} className="mb-2 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2">
-													<div className="min-w-0">
+												<div key={f.id} className="mb-2 flex min-w-0 items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2
+														max-sm:px-2 max-sm:py-2">
+													<div className="min-w-0 flex-1">
 														<div className="flex items-center gap-2">
 															<span className="h-2 w-2 rounded-full bg-gray-300" />
 															<div className="text-sm font-bold truncate">{f.name}</div>
 														</div>
 														<div className="text-xs text-gray-600 truncate">{f.email}</div>
 													</div>
-													<button onClick={() => openDmWith(f.id)} className="ml-2 rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold">
-														DM
+													<button onClick={() => openDmWith(f.id)} className="ml-2 shrink-0 rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold
+															max-sm:px-2 max-sm:text-[0.72rem]">														DM
 													</button>
 												</div>
 											))}
@@ -803,8 +801,9 @@ export function ChatWidget() {
 											{onlineUsers.map((u) => {
 												const isFriend = friendSet.has(u.id);
 												return (
-													<div key={u.id} className="mb-2 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2">
-														<div className="min-w-0">
+													<div key={u.id} className="mb-2 flex min-w-0 items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2
+																max-sm:px-2 max-sm:py-2">
+														<div className="min-w-0 flex-1">
 															<div className="flex items-center gap-2">
 																<span className="h-2 w-2 rounded-full bg-green-500" />
 																<div className="text-sm font-bold truncate">{u.name}</div>
@@ -813,16 +812,17 @@ export function ChatWidget() {
 														</div>
 
 														{isFriend ? (
-															<button onClick={() => openDmWith(u.id)} className="rounded-lg bg-black px-3 py-1 text-sm font-bold text-white">
+															<button onClick={() => openDmWith(u.id)}
+																className="shrink-0 rounded-lg bg-black px-3 py-1 text-sm font-bold text-white max-sm:px-2 max-sm:text-[0.72rem]">
 																DM
 															</button>
 														) : (
 															<button
 																onClick={() => sendFriendRequest(u.id)}
-																className="rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold"
+																className="shrink-0 rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold max-sm:max-w-[4.6rem] max-sm:overflow-hidden
+																		max-sm:text-ellipsis max-sm:px-2 max-sm:text-[0.68rem]"
 																disabled={!!sentRequests[u.id]}
-																title={sentRequests[u.id] ? "Request sent" : "Send friend request"}
-															>
+																title={sentRequests[u.id] ? "Request sent" : "Send friend request"}>
 																{sentRequests[u.id] ? "Requested" : "Add"}
 															</button>
 														)}
@@ -841,8 +841,8 @@ export function ChatWidget() {
 											{offlineUsers.map((u) => {
 												const isFriend = friendSet.has(u.id);
 												return (
-													<div key={u.id} className="mb-2 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2">
-														<div className="min-w-0">
+													<div key={u.id} className="mb-2 flex min-w-0 items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 max-sm:px-2 max-sm:py-2">
+														<div className="min-w-0 flex-1">
 															<div className="flex items-center gap-2">
 																<span className="h-2 w-2 rounded-full bg-gray-300" />
 																<div className="text-sm font-bold truncate">{u.name}</div>
@@ -851,13 +851,15 @@ export function ChatWidget() {
 														</div>
 
 														{isFriend ? (
-															<button onClick={() => openDmWith(u.id)} className="rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold">
+															<button onClick={() => openDmWith(u.id)}
+															className="shrink-0 rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold
+																	max-sm:max-w-[4.6rem] max-sm:overflow-hidden max-sm:text-ellipsis max-sm:px-2 max-sm:text-[0.68rem]">
 																DM
 															</button>
 														) : (
 															<button
 																onClick={() => sendFriendRequest(u.id)}
-																className="rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold"
+																className="shrink-0 rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold max-sm:px-2 max-sm:text-[0.72rem]"
 																disabled={!!sentRequests[u.id]}
 																title={sentRequests[u.id] ? "Request sent" : "Send friend request"}
 															>
@@ -873,7 +875,7 @@ export function ChatWidget() {
 							</div>
 
 							{/* RIGHT PANEL (messages) */}
-							<div className="flex flex-col min-h-0 bg-white/60">
+							<div className="flex flex-col min-h-0 bg-white/60 max-sm:hidden">
 								<div className=" px-3 py-2 font-bold">{selectedTitle}</div>
 
 								<div className="flex-1 overflow-auto border-1 rounded-[2rem] border-yellow-400/30 p-3">
@@ -886,8 +888,7 @@ export function ChatWidget() {
 											<div key={m.id} className={`mb-3 flex ${mine ? "justify-end" : "justify-start"}`}>
 												<div
 													className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm shadow-sm ${mine ? "bg-black text-white" : "bg-white border border-gray-200 text-gray-900"
-														}`}
-												>
+														}`}>
 													<div className="mb-1 text-[11px] opacity-75">
 														{(userMap[m.senderId]?.name || `User ${m.senderId}`)} · {new Date(m.createdAt).toLocaleString()}
 													</div>
@@ -898,14 +899,16 @@ export function ChatWidget() {
 									})}
 								</div>
 
-								<div className="px-4 py-3 flex items-center gap-2">	
+								<div className="px-4 py-3 flex items-center gap-2">
 									<input
 										value={input}
 										onChange={(e) => setInput(e.target.value)}
 										placeholder="Type a message..."
 										className="flex-1 rounded-full bg-gray-100 px-4 py-2 text-sm outline-none text-gray-700 placeholder-gray-400"
-										onKeyDown={(e) => { if (e.key === "Enter") sendMessage(); }}
-									/>		
+										onKeyDown={(e) => { 
+											if (e.key === "Enter")
+												sendMessage();
+											}}/>
 									<button
 										onClick={sendMessage}
 										className="flex-shrink-0 h-14 w-14 border rounded-full bg-black/80 flex items-center justify-center

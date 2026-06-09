@@ -1,6 +1,7 @@
 services:
   web:
     image: nginx
+    #image: transcendence-nginx-local
     build:
       context: ./nginx
     ports:
