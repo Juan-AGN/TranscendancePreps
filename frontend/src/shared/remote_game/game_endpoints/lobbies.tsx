@@ -237,8 +237,8 @@ export function MiniLobby({ lobbyItem }: { lobbyItem: Lobby }) {
 			type="button"
 			onClick={joinlobbyx}
 			className="group relative w-full overflow-hidden rounded-xl border border-yellow-500/35 bg-white/60
-			p-5 text-left backdrop-blur-sm transition duration-300
-			hover:-translate-y-1 hover:border-yellow-500/60 hover:bg-white/70 active:scale-[0.98]">
+					p-5 text-left backdrop-blur-sm transition duration-300
+					hover:-translate-y-1 hover:border-yellow-500/60 hover:bg-white/70 active:scale-[0.98]">
 			<div className="relative z-10 flex items-start gap-4">
 				<div
 					className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-yellow-500/35 bg-white/55
@@ -405,7 +405,7 @@ export function Minimini({ user }: { user: number }) {
 	return (
 		<div
 			className="flex w-fit items-center gap-2 rounded-full border border-yellow-500/25 bg-white/45 px-3 py-2
-				text-yellow-900 backdrop-blur-smwhitespace-nowrap">
+				text-yellow-900 backdrop-blur-sm whitespace-nowrap">
 			{img && img !== "" ? (
 				<img
 					className="h-8 w-8 rounded-full object-cover border border-yellow-500/25"
@@ -501,23 +501,23 @@ export function SingLobby({ rulesm, setRulesm }: RulesStateProps) {
 
 	if (!lobby) {
 		return (
-			<div className="flex h-full w-full items-center justify-center text-yellow-900">
+			<div className="flex h-full w-full flex-col gap-4 overflow-y-auto overflow-x-hidden px-4 py-4 text-yellow-950
+						sm:gap-5 sm:px-6 sm:py-6 lg:gap-6 lg:px-8 lg:py-8">
 				Lobby needed
 			</div>
 		);
 	}
 
 	return (
-		<div className="flex h-full w-full flex-col gap-6 overflow-auto px-8 py-8 text-yellow-950">
-
+		<div className="flex h-full w-full flex-col gap-6 overflow-auto px-8 py-8 text-yellow-950
+					sm:gap-4 sm:px-5 sm:py-5 lg:gap-6 lg:px-8 lg:py-8">
 			{rulesm === 1 && <SettingsMenu setRulesm={setRulesm} />}
 			{rulesm === 2 && <OnlyRules setRulesm={setRulesm} />}
-
 			{rulesm === 0 && (
 				<>
-
 					{result && (
-						<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-6 py-5">
+						<div className="rounded-[1.25rem] border border-yellow-500/25 bg-white/35 px-4 py-3
+								sm:rounded-[1.5rem] sm:px-5 sm:py-4 lg:px-6 lg:py-5">
 							<p className="mb-4 text-sm font-black tracking-[0.25em] text-yellow-800 uppercase">
 								Last Game Results
 							</p>
@@ -525,29 +525,29 @@ export function SingLobby({ rulesm, setRulesm }: RulesStateProps) {
 						</div>
 					)}
 
-					<div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-						<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-5 py-4">
+					<div className="grid grid-cols-1 gap-4 sm:gap-4 lg:grid-cols-4">
+						<div className="rounded-[1.25rem] border border-yellow-500/25 bg-white/35 px-4 py-3 sm:rounded-[1.5rem] sm:px-5 sm:py-4">
 							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">Lobby</p>
 							<p className="mt-2 text-xl font-black">{lobby.id}</p>
 						</div>
 
-						<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-5 py-4">
+						<div className="rounded-[1.25rem] border border-yellow-500/25 bg-white/35 px-4 py-3 sm:rounded-[1.5rem] sm:px-5 sm:py-4">
 							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">Owner</p>
 							<p className="mt-2 text-xl font-bold">{host}</p>
 						</div>
 
-						<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-5 py-4">
+						<div className="rounded-[1.25rem] border border-yellow-500/25 bg-white/35 px-4 py-3 sm:rounded-[1.5rem] sm:px-5 sm:py-4">
 							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">Players</p>
 							<p className="mt-2 text-xl font-black">{lobby.players.length}</p>
 						</div>
 
-						<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-5 py-4">
+						<div className="rounded-[1.25rem] border border-yellow-500/25 bg-white/35 px-4 py-3 sm:rounded-[1.5rem] sm:px-5 sm:py-4">
 							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">Spectators</p>
 							<p className="mt-2 text-xl font-black">{lobby.spectators.length}</p>
 						</div>
 					</div>
 
-					<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-6 py-5">
+					<div className="rounded-[1.25rem] border border-yellow-500/25 bg-white/35 px-4 py-3 sm:rounded-[1.5rem] sm:px-5 sm:py-4">
 						<p className="mb-4 text-sm font-black tracking-[0.25em] text-yellow-800 uppercase">
 							Players
 						</p>
@@ -560,7 +560,8 @@ export function SingLobby({ rulesm, setRulesm }: RulesStateProps) {
 					</div>
 
 					{lobby.spectators.length > 0 && (
-						<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-6 py-5">
+						<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-4 py-3 
+								sm:rounded-[1.5rem] sm:px-5 sm:py-4 lg:px-6 lg:py-5">
 							<p className="mb-4 text-sm font-black tracking-[0.25em] text-yellow-800 uppercase">
 								Spectators
 							</p>
@@ -867,19 +868,21 @@ export function SettingsMenu({ setRulesm }: SettingsProps) {
 	}
 
 	return (
-		<div className="mt-3 w-full basis-full">
-			<div className="relative mx-auto flex w-full max-w-6xl flex-col rounded-2xl border border-yellow-500/35 bg-white/60 p-4 shadow-2xl backdrop-blur-xl max-h-[62vh]">
-				<button
-					type="button"
-					className="absolute right-3 top-3 h-9 w-9 rounded-full border border-yellow-500/35 bg-white/70 text-sm font-black text-yellow-900 transition hover:bg-white"
-					onClick={closethebox}
-				>
+		<div className="mt-3 w-full basis-full lg:mt-3">
+			<div className="relative mx-auto flex w-full max-w-6xl flex-col rounded-2xl border border-yellow-500/35 bg-white/60 p-3 shadow-2xl backdrop-blur-xl
+						max-h-[70vh] sm:max-h-[72vh] lg:max-h-[62vh] lg:p-4">
+				<button type="button"
+					className="absolute right-2 top-2 h-7 w-7 rounded-full border border-yellow-500/35 bg-white/70 text-xs font-black text-yellow-900 transition hover:bg-white
+							sm:right-3 sm:top-3 sm:h-8 sm:w-8 lg:h-9 lg:w-9 lg:text-sm"
+					onClick={closethebox}>
 					X
 				</button>
 
-				<div className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto pr-1 lg:grid-cols-2">
-					<div className="flex min-h-0 flex-col items-center rounded-2xl border border-yellow-500/20 bg-white/40 p-3 text-center overflow-y-auto">
-						<p><b>CHANGE RULES</b></p>
+				<div className="grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-y-auto pr-1 lg:grid-cols-2 lg:gap-4">
+					<div className="flex min-h-0 flex-col items-center rounded-xl sm:rounded-2xl border border-yellow-500/20 bg-white/40 p-2 sm:p-3 text-center overflow-y-auto">
+						<p className="text-[0.9rem] leading-none sm:text-base lg:text-lg">
+							<b>CHANGE RULES</b>
+						</p>
 						{nshow !== 0 &&
 							<Prerules srules={nrules} />
 						}
@@ -888,30 +891,37 @@ export function SettingsMenu({ setRulesm }: SettingsProps) {
 						}
 					</div>
 
-					<div className="flex min-h-0 flex-col items-center rounded-2xl border border-yellow-500/20 bg-white/40 p-3 text-center overflow-y-auto">
-						<p><b>CURRENT RULES</b></p>
+					<div className="flex min-h-0 flex-col items-center rounded-xl sm:rounded-2xl border border-yellow-500/20 bg-white/40 p-2 text-center overflow-y-auto lg:p-3">
+						<p className="text-[0.9rem] leading-none sm:text-base lg:text-lg">
+							<b>CURRENT RULES</b>
+						</p>
 						<Crules />
 					</div>
 				</div>
 
-				<div className="mt-4 flex shrink-0 flex-wrap items-center justify-center gap-2 rounded-2xl border border-yellow-500/20 bg-white/35 p-3">
+				<div className="mt-1.5 flex shrink-0 flex-wrap items-center justify-center gap-1 rounded-xl border border-yellow-500/20 bg-white/35
+							p-1.5 sm:mt-2 sm:gap-1.5 sm:rounded-2xl sm:p-2 lg:mt-4 lg:gap-2 lg:p-3">
 					<button
 						type="button"
-						className="h-10 min-w-[11.5rem] rounded-full border border-yellow-400/60 bg-gradient-to-r from-yellow-200 via-yellow-300 to-amber-400 px-5 text-xs font-black tracking-[0.16em] text-yellow-950 shadow-[0_10px_28px_rgba(171,128,38,0.28)] transition hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0 active:scale-[0.98]"
-						onClick={sendrules}
-					>
+						className="h-7 min-w-[5.9rem] rounded-full border border-yellow-400/60 bg-gradient-to-r from-yellow-200 via-yellow-300 to-amber-400 px-1.5 text-[0.48rem]
+								font-black tracking-[0.04em] text-yellow-950 shadow-[0_10px_28px_rgba(171,128,38,0.28)] transition hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0 active:scale-[0.98]
+								sm:h-8 sm:min-w-[7.2rem] sm:px-2 sm:text-[0.55rem] md:h-9 md:min-w-[8.5rem] md:text-[0.65rem] lg:h-10 lg:min-w-[11.5rem] lg:px-5 lg:text-xs lg:tracking-[0.16em]"
+						onClick={sendrules}>
 						SUBMIT RULES
 					</button>
 
 					<button
 						type="button"
-						className="h-10 min-w-[11.5rem] rounded-full border border-yellow-500/40 bg-gradient-to-r from-white/95 to-yellow-100 px-5 text-xs font-black tracking-[0.16em] text-yellow-900 shadow-[0_10px_28px_rgba(171,128,38,0.16)] transition hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0 active:scale-[0.98]"
-						onClick={applyDefaultRules}
-					>
+						className="h-7 min-w-[5.9rem] rounded-full border border-yellow-400/60 bg-gradient-to-r from-yellow-200 via-yellow-300 to-amber-400 px-1.5 text-[0.48rem] font-black tracking-[0.04em] text-yellow-950
+								shadow-[0_10px_28px_rgba(171,128,38,0.28)] transition hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0 active:scale-[0.98]
+								sm:h-8 sm:min-w-[7.2rem] sm:px-2 sm:text-[0.55rem] md:h-9 md:min-w-[8.5rem] md:text-[0.65rem] lg:h-10 lg:min-w-[11.5rem] lg:px-5 lg:text-xs lg:tracking-[0.16em]"
+						onClick={applyDefaultRules}>
 						DEFAULT RULES
 					</button>
 
-					<select onChange={(e) => handleChange(e.currentTarget.value)} className="h-10 min-w-[14rem] rounded-full border border-yellow-500/40 bg-gradient-to-r from-white/95 to-yellow-100 px-4 text-xs font-semibold tracking-[0.06em] text-yellow-900 shadow-[0_8px_22px_rgba(171,128,38,0.16)] transition hover:brightness-105">
+					<select onChange={(e) => handleChange(e.currentTarget.value)}
+						className="h-7 min-w-[8rem] rounded-full border border-yellow-500/40 bg-gradient-to-r from-white/95 to-yellow-100 px-2 text-[0.55rem] font-semibold tracking-[0.02em] text-yellow-900
+								shadow-[0_8px_22px_rgba(171,128,38,0.16)] transition hover:brightness-105 sm:h-8 sm:min-w-[9.5rem] sm:px-3 sm:text-[0.62rem] md:h-9 md:min-w-[11rem] lg:h-10 lg:min-w-[14rem] lg:px-4 lg:text-xs lg:tracking-[0.06em]">
 						<option value="custom">Custom sliders</option>
 						<option value="custom">Custom rules</option>
 						<option value="bullethell">Bullet hell</option>
@@ -932,18 +942,24 @@ export function OnlyRules({ setRulesm }: SettingsProps) {
 	}
 
 	return (
-		<div className="mt-3 w-full basis-full">
-			<div className="relative mx-auto w-full max-w-3xl rounded-2xl border border-yellow-500/35 bg-white/60 p-4 shadow-2xl backdrop-blur-xl max-h-[62vh] overflow-y-auto">
+		<div className="mt-2 w-full basis-full lg:mt-3">
+			<div className="relative mx-auto w-full max-w-3xl rounded-2xl border border-yellow-500/35 bg-white/60 p-4 shadow-2xl backdrop-blur-xl
+						max-h-[62vh] overflow-y-auto sm:max-h-[60vh] lg:max-h-[62vh] lg:p-4">
 				<button
 					type="button"
-					className="absolute right-3 top-3 h-9 w-9 rounded-full border border-yellow-500/35 bg-white/70 text-sm font-black text-yellow-900 transition hover:bg-white"
+					className="absolute right-3 top-3 h-9 w-9 rounded-full border border-yellow-500/35
+							bg-white/70 text-sm font-black text-yellow-900 transition hover:bg-white"
 					onClick={closethebox}
 				>
 					X
 				</button>
 
-				<div className="flex flex-col items-center rounded-2xl border border-yellow-500/20 bg-white/40 p-3 text-center">
-					<p><b>CURRENT RULES</b></p>
+				<div className="flex min-h-0 flex-col items-center rounded-xl sm:rounded-2xl border border-yellow-500/20 bg-white/40 p-2 text-center overflow-y-auto lg:p-3
+						max-lg:[&_p]:!text-[0.68rem] max-lg:[&_span]:!text-[0.66rem] max-lg:[&_div]:!text-[0.72rem] max-lg:[&_b]:!text-[0.82rem]
+						sm:max-lg:[&_p]:!text-[0.76rem] sm:max-lg:[&_span]:!text-[0.72rem] sm:max-lg:[&_div]:!text-[0.82rem] sm:max-lg:[&_b]:!text-[0.95rem]">
+					<p className="text-[0.8rem] leading-none sm:text-base lg:text-lg">
+						<b>CURRENT RULES</b>
+					</p>
 					<Crules />
 				</div>
 			</div>
@@ -1008,45 +1024,62 @@ export function ControlBar({ setRulesm }: ControlBarProps) {
 			updthost();
 	}, [lobby]);
 
+
+	const btnBase =
+		"flex-1 min-w-0 h-7 rounded-full px-1 text-center text-[0.42rem] font-black tracking-[0.03em] whitespace-nowrap transition sm:h-8 sm:px-1.5 sm:text-[0.5rem] sm:tracking-[0.04em] md:h-9 md:px-2 md:text-[0.6rem] md:tracking-[0.06em] lg:flex-none lg:w-[11.5rem] lg:h-auto lg:px-4 lg:py-3 lg:text-sm lg:tracking-[0.18em]";
+
 	const btnClass =
-		"w-[11.5rem] flex-none rounded-full border border-yellow-500/30 bg-white/55 px-4 py-3 text-center text-sm font-bold tracking-[0.18em] text-yellow-950 backdrop-blur-sm transition hover:bg-white/70 hover:border-yellow-500/50";
+		`${btnBase} border border-yellow-500/30 bg-white/55 text-yellow-950 backdrop-blur-sm hover:bg-white/70 hover:border-yellow-500/50`;
 
 	const btnPrimary =
-		"w-[11.5rem] flex-none rounded-full border border-yellow-400/50 bg-gradient-to-r from-yellow-200 via-yellow-300 to-amber-400 px-4 py-3 text-center text-sm font-black tracking-[0.18em] text-yellow-950 shadow-[0_8px_25px_rgba(217,170,40,0.25)] transition hover:brightness-105";
+		`${btnBase} border border-yellow-400/50 bg-gradient-to-r from-yellow-200 via-yellow-300 to-amber-400 text-yellow-950 shadow-[0_8px_25px_rgba(217,170,40,0.25)] hover:brightness-105`;
 
 	const btnRed =
-		"w-[11.5rem] flex-none rounded-full border border-red-300/50 bg-red-50/70 px-4 py-3 text-center text-sm font-bold tracking-[0.18em] text-red-700 transition hover:bg-red-100/80";
+		`${btnBase} border border-red-300/50 bg-red-50/70 text-red-700 hover:bg-red-100/80`;
 
 	return (
-		<div className="relative flex h-full w-full flex-wrap items-center justify-center gap-3 overflow-visible p-1 text-xs">
+		<div className="relative flex h-full w-full flex-nowrap items-center justify-center gap-1 overflow-visible p-0.5 text-xs
+					sm:gap-1.5 lg:flex-wrap lg:gap-3 lg:p-1">
 			{(host === -1 || host === lobby!.hostId) && (
 				<button type="button" className={btnPrimary} onClick={strtgame}>
-					START GAME
+					<span className="block truncate lg:hidden">START</span>
+					<span className="hidden truncate lg:block">START GAME</span>
 				</button>
 			)}
 
-			<button
-				type="button"
+			<button type="button"
 				className={btnClass}
-				onClick={pos === 2 ? toplaychange : tospectchange}
-			>
-				{pos === 2 ? "TO PLAYER" : "TO SPECTATOR"}
+				onClick={pos === 2 ? toplaychange : tospectchange}>
+
+				{pos === 2 ? (
+					<>
+						<span className="block truncate lg:hidden">PLAYER</span>
+						<span className="hidden truncate lg:block">TO PLAYER</span>
+					</>
+				) : (
+					<>
+						<span className="block truncate lg:hidden">WATCH</span>
+						<span className="hidden truncate lg:block">TO SPECTATOR</span>
+					</>
+				)}
 			</button>
 
 			{(host === -1 || host === lobby!.hostId) && (
 				<button type="button" className={btnClass} onClick={openrulesm}>
-					CHANGE RULES
+					<span className="block truncate lg:hidden">RULES</span>
+					<span className="hidden truncate lg:block">CHANGE RULES</span>
 				</button>
 			)}
 
 			{host !== -1 && host !== lobby!.hostId && (
 				<button type="button" className={btnClass} onClick={openrulesmsee}>
-					SEE RULES
+					<span className="block truncate lg:hidden">RULES</span>
+					<span className="hidden truncate lg:block">SEE RULES</span>
 				</button>
 			)}
 
 			<button type="button" className={btnRed} onClick={leavelob}>
-				LEAVE
+				<span className="block truncate">LEAVE</span>
 			</button>
 		</div>
 	);

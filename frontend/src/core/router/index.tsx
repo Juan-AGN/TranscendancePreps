@@ -159,7 +159,11 @@ const routes: RouteObject[] = [
 			},
 			{
 				path: 'remote-game',
-				element: <RemoteGame/>
+				element: <RemoteGame />
+			},
+			{
+				path: '*',
+				element: <Navigate to="/start" replace />,
 			},
 		]
 	}

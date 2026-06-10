@@ -123,50 +123,53 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 				</section>
 			)}
 
-			{selectedSection === 'creators' && ( // sección Creators: solo visible si selectedSection === 'creators'
+			{selectedSection === 'creators' && (
 				<section
-					className="relative h-screen flex items-center justify-center py-12 overflow-hidden bg-center bg-[length:100%_100%]"
-					style={{ backgroundImage: "url('/images/bgCreators.png')" }}> {/* fondo creators */}
+					className="relative min-h-[100svh] lg:h-screen flex items-center justify-center overflow-hidden bg-center bg-cover lg:bg-[length:100%_100%]"
+					style={{ backgroundImage: "url('/images/bgCreators.png')" }}>
 					<div className="absolute inset-0 bg-white/20 dark:bg-black/70" />
 
-					<div className="relative z-10 w-[min(82rem,90vw)] h-[88vh] rounded-3xl flex flex-col justify-end items-center pb-4">
-						{/* scroll solo en pantallas extremas donde ni 2 cols caben */}
-						<div className="w-full overflow-visible">
-							<div className="grid grid-cols-4 w-full items-end justify-items-center gap-[clamp(0.1rem,1vw,1rem)]"> {/* siempre 4 columnas */}
-								{CREATORS.map((creator) => ( // itera sobre el array CREATORS
-									<div key={creator.username}
-										className="creator-card group/creator flex flex-col items-center justify-end origin-bottom 
-													scale-[0.42] sm:scale-[0.52] md:scale-[0.62] lg:scale-[0.74] xl:scale-100 transition-all duration-1000">
+					<div className="relative z-10 w-[94vw] lg:w-[min(82rem,96vw)] xl:w-[min(82rem,90vw)] min-h-[calc(100svh-4.5rem)] lg:h-[88vh] rounded-3xl flex flex-col justify-center lg:justify-end items-center">
+						<div className="w-full max-h-[calc(100svh-4.5rem)] overflow-y-auto overflow-x-hidden lg:overflow-visible lg:max-h-none">
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 w-full min-h-full items-center lg:items-end justify-items-center gap-x-2 gap-y-6 lg:gap-[clamp(0.1rem,1vw,1rem)]">
+								{CREATORS.map((creator) => (
+									<div
+										key={creator.username}
+										className="creator-card group/creator flex flex-col items-center justify-center lg:justify-end origin-center lg:origin-bottom
+										scale-[0.78] md:scale-[0.68] lg:scale-[0.82] xl:scale-100
+										transition-all duration-1000">
 										<div className="flex flex-col items-center">
 											<div className="peer group order-2 relative z-10 flex items-center justify-center overflow-visible cursor-pointer
-															transition-all duration-500 ease-out hover:-translate-y-1 hover:scale-[1.04]"> {/* placa con username; order-2 → queda debajo del personaje */}
-												<img src="/images/placa5.png"
+												transition-all duration-500 ease-out hover:-translate-y-1 hover:scale-[1.04]">
+												<img
+													src="/images/placa5.png"
 													alt={`placa ${creator.username}`}
-													className="h-[12rem] w-[17rem] scale-x-[1.0] md:scale-x-[1.2] xl:scale-x-[1.0] object-cover 
-															drop-shadow-[0_10px_14px_rgba(0,0,0,0.45)] transition-all duration-500 ease-out
-															group-hover:drop-shadow-[0_4px_22px_rgba(56,189,248,0.85)]"/>
-												<span className="absolute mt-17 text-[1.5rem] font-bold font-serif uppercase  text-[#7a5a32]
-															transition-all duration-1000 ease-out group-hover:tracking-[0.3rem] ">
+													className="h-[10rem] md:h-[11rem] xl:h-[12rem] w-[17rem] scale-x-[1.0] md:scale-x-[1.1] xl:scale-x-[1.0] object-cover
+													drop-shadow-[0_10px_14px_rgba(0,0,0,0.45)] transition-all duration-500 ease-out
+													group-hover:drop-shadow-[0_4px_22px_rgba(56,189,248,0.85)]"/>
+
+												<span className="absolute mt-17 text-[1.5rem] font-bold font-serif uppercase text-[#7a5a32]
+														transition-all duration-1000 ease-out group-hover:tracking-[0.3rem]">
 													{creator.username}
 												</span>
 											</div>
 
-											{/* contenedor del personaje: sube y escala con hover en la placa (peer); aura dorada */}
-											<div className="creator-god-aura order-1 z-20 relative w-68 h-[27rem] overflow-visible rounded-xl
-															transition-all duration-700 ease-out peer-hover:-translate-y-10 peer-hover:scale-[1.1]
-															peer-hover:drop-shadow-[2px_-30px_40px_rgba(234,179,8,0.35)]">
-												{/* badge de rol: textura mármol blanco + ribete dorado, igual que la placa/pedestal */}
+											<div className="creator-god-aura order-1 z-20 relative w-68 h-[24rem] md:h-[26rem] xl:h-[27rem] overflow-visible rounded-xl
+												transition-all duration-700 ease-out peer-hover:-translate-y-10 peer-hover:scale-[1.1]
+												peer-hover:drop-shadow-[2px_-30px_40px_rgba(234,179,8,0.35)]">
 												<h3 className="absolute top-8 left-1/2 z-30 w-max -translate-x-1/2 rounded-full border-2 border-[#c9a447]
-															bg-gradient-to-br from-white via-[#e8e4de] to-[#cec9c0] px-4 py-1 text-[0.85rem]  
-															leading-none tracking-[0.05rem] text-[#6b4e18] font-black uppercase
-															shadow-[0_2px_0_rgba(255,255,255,0.9)_inset,0_-1px_0_rgba(0,0,0,0.18)_inset,0_4px_14px_rgba(0,0,0,0.45),0_0_10px_rgba(201,164,71,0.35)]">
+													bg-gradient-to-br from-white via-[#e8e4de] to-[#cec9c0] px-4 py-1 text-[0.85rem]
+													leading-none tracking-[0.05rem] text-[#6b4e18] font-black uppercase
+													shadow-[0_2px_0_rgba(255,255,255,0.9)_inset,0_-1px_0_rgba(0,0,0,0.18)_inset,0_4px_14px_rgba(0,0,0,0.45),0_0_10px_rgba(201,164,71,0.35)]">
 													{t(creator.role)}
 												</h3>
-												<div className="relative w-full h-full overflow-visible mt-22">
-													<img alt={creator.username}
+
+												<div className="relative w-full h-full overflow-visible mt-23">
+													<img
+														alt={creator.username}
 														src={creator.image}
 														className="w-full h-full z-10 object-cover object-top
-																drop-shadow-[0_20px_50px_rgba(0,0,0,0.35)]"/>
+														drop-shadow-[0_20px_50px_rgba(0,0,0,0.35)]"/>
 												</div>
 											</div>
 										</div>
@@ -177,6 +180,7 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 					</div>
 				</section>
 			)}
+
 		</motion.div>
 	)
 }

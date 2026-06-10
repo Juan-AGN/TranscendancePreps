@@ -29,7 +29,7 @@ export function ArcadeBgLayout({
 					className="w-full h-full object-fill block pointer-events-none"
 				/>
 				{/* Overlay posicionado relativo a la imagen real, no al contenedor */}
-				<div className="arcade-scroll absolute left-[8%] top-[16%] w-[85%] h-[65%] flex flex-col items-center justify-start overflow-y-auto overflow-x-hidden pt-[7%]">
+				<div className="arcade-scroll absolute left-[8%] top-[28%] md:top-[30%] lg:top-[21%] w-[88%] md:w-[86%] lg:w-[85%] h-[54%] md:h-[56%] lg:h-[60%] flex flex-col items-center justify-start overflow-y-auto overflow-x-hidden pt-[8%] md:pt-[7.5%] lg:pt-[7%]">
 					{children}
 				</div>
 				{/* Botón back: siempre top-right relativo a la imagen */}

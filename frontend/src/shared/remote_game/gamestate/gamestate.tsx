@@ -47,7 +47,7 @@ export function Gamehandler() {
 
         ctx.clearRect(0, 0, game.borderx, game.bordery);
 		ctx.fillStyle= "grey";
-		ctx.strockeStyle = "grey";
+		ctx.strokeStyle = "grey";
 
         if (bgImageRef.current) {
             ctx.drawImage(bgImageRef.current, 0, 0, game.borderx + (startx * 2), game.bordery + (starty * 2));
@@ -97,7 +97,7 @@ export function Gamehandler() {
 			ctx.stroke();
 		}
 		ctx.fillStyle= "white";
-		ctx.strockeStyle = "grey";
+		ctx.strokeStyle = "grey";
 		for (let player of game.alive)
 		{
 			ctx.font = `${30}px Arial`;
@@ -114,7 +114,7 @@ export function Gamehandler() {
 			}
 		}
 		ctx.fillStyle= "black";
-		ctx.strockeStyle = "black";
+		ctx.strokeStyle = "black";
     }
 
     useEffect(() => {

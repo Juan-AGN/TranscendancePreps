@@ -56,7 +56,7 @@ export function SettingsUiPage() {
 			<div className="hidden dark:block absolute inset-0 bg-black/70 pointer-events-none" />
 			<div className="relative z-10 mx-auto min-h-[65vh] w-full max-w-6xl overflow-hidden rounded-3xl border border-yellow-500/45 bg-white/70 dark:bg-white/[0.07]
 							backdrop-blur-[50px] shadow-[0_20px_80px_rgba(90,60,20,0.25),inset_0_1px_0_rgba(255,255,255,0.45)] transition-colors duration-300">
-				<div className="mt-8 text-center text-6xl font-medium text-[#a67c42] font-['Cormorant_Garamond'] uppercase tracking-[0.32em] md:text-6xl">
+				<div className="mt-8 px-3 text-center text-5xl font-medium text-[#a67c42] font-['Cormorant_Garamond'] uppercase tracking-[0.2em] md:text-6xl md:tracking-[0.32em]">
 					{t('settingsPage.title')}
 				</div>
 				<div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -91,7 +91,7 @@ export function SettingsUiPage() {
 						<SettingRow
 							title={t('settingsPage.general.theme.title')}
 							description={t('settingsPage.general.theme.desc')}>
-							<div className="flex rounded-full border border-yellow-500/30 bg-white/20 p-1">
+							<div className="flex w-full flex-wrap gap-1 rounded-2xl border border-yellow-500/30 bg-white/20 p-1 sm:w-auto sm:flex-nowrap sm:rounded-full">
 							<OptionButton active={themeMode === 'light'} onClick={() => handleThemeChange('light')}>
 								{t('settingsPage.general.theme.light')}
 							</OptionButton>
@@ -104,7 +104,7 @@ export function SettingsUiPage() {
 						<SettingRow
 							title={t('settingsPage.general.textSize.title')}
 							description={t('settingsPage.general.textSize.desc')}>
-							<div className="flex rounded-full border border-yellow-500/30 bg-white/20 p-1">
+							<div className="flex w-full flex-wrap gap-1 rounded-2xl border border-yellow-500/30 bg-white/20 p-1 sm:w-auto sm:flex-nowrap sm:rounded-full">
 								<OptionButton active={textSize === 'small'} onClick={() => handleTextSize('small')}>
 									{t('settingsPage.general.textSize.small')}
 								</OptionButton>
@@ -120,7 +120,7 @@ export function SettingsUiPage() {
 						<SettingRow
 							title={t('settingsPage.general.language.title')}
 							description={t('settingsPage.general.language.desc')}>
-							<div className="flex flex-wrap items-center gap-2 rounded-2xl border border-yellow-500/30 bg-white/20 p-2">
+							<div className="flex w-full flex-wrap items-center gap-2 rounded-2xl border border-yellow-500/30 bg-white/20 p-2 sm:w-auto">
 								<FlagOptionButton
 									active={language === 'english'}
 									onClick={() => handleLanguage('english')}
@@ -166,7 +166,7 @@ export function SettingsUiPage() {
 						<SettingRow
 							title={t('settingsPage.social.visibility.title')}
 							description={t('settingsPage.social.visibility.desc')}>
-							<div className="flex rounded-full border border-yellow-500/30 bg-white/20 p-1">
+							<div className="flex w-full flex-wrap gap-1 rounded-2xl border border-yellow-500/30 bg-white/20 p-1 sm:w-auto sm:flex-nowrap sm:rounded-full">
 								<OptionButton active={profileVisibility === 'public'} onClick={() => setProfileVisibility('public')}>
 									{t('settingsPage.social.visibility.public')}
 								</OptionButton>
@@ -251,7 +251,7 @@ function SettingRow({
 }) {
 	return (
 		<div className="rounded-2xl border border-yellow-500/25 bg-white/80 dark:bg-white/10 p-5 backdrop-blur-md transition-colors duration-300">
-			<div className="flex items-center justify-between gap-6">
+			<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
 				<div>
 					<h3 className="text-sm font-bold uppercase tracking-[0.18em] text-yellow-700/70">
 						{title}
@@ -261,7 +261,9 @@ function SettingRow({
 					</p>
 				</div>
 
-				{children}
+				<div className="w-full md:w-auto">
+					{children}
+				</div>
 			</div>
 		</div>
 	);
