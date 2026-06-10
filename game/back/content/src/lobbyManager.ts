@@ -134,13 +134,13 @@ class LobbyManager {
 
         if (lob.spectators.includes(player))
         {
-            this.broadcastlobby(id, player, LobbyAction.LEAVESPECTATOR);
             let torem = lob.spectators.indexOf(player);
             if (torem != -1)
                 lob.spectators.splice(torem, 1);
             this.clientlobby.delete(player);
             if (lob.hostId == player)
                 this.leavehost(lob, player);
+            this.broadcastlobby(id, player, LobbyAction.LEAVESPECTATOR);
             return (generalErrors.WORKED);
         }
 
@@ -155,9 +155,6 @@ class LobbyManager {
             if (index != -1)
                 gameManager.killplayer(index, game);
         }
-    
-        if (lob.players.length != 0)
-            this.broadcastlobby(id, player, LobbyAction.LEAVE);
 
         let torem = lob.players.indexOf(player);
         if (torem != -1)
@@ -166,6 +163,7 @@ class LobbyManager {
         if (lob.hostId == player)
             this.leavehost(lob, player);
 
+        this.broadcastlobby(id, player, LobbyAction.LEAVE);
         this.clientlobby.delete(player);
         return (generalErrors.WORKED);
     }
@@ -263,6 +261,8 @@ class LobbyManager {
         for (const uniplayer of lob.players)
         {
             const wsarr = this.userrelmap.get(uniplayer);
+            if (uniplayer === player)
+                continue ;
             if (wsarr)
             {
                 for (const ws of wsarr)
@@ -276,6 +276,8 @@ class LobbyManager {
         for (const unispecter of lob.spectators)
         {
             const wsarr = this.userrelmap.get(unispecter);
+            if (unispecter === player)
+                continue ;
             if (wsarr)
             {
                 for (const ws of wsarr)
@@ -283,6 +285,16 @@ class LobbyManager {
                     if (ws && ws.readyState === WebSocket.OPEN) 
                         ws.send(JSON.stringify( {type: WsAction.LOBBYUPDATE, lobby: id, user: player, action: action, lobbystate: this.get(id)} ));
                 }
+            }
+        }
+
+        const wswho = this.userrelmap.get(player);
+        if (wswho)
+        {
+            for (const ws of wswho)
+            {
+                if (ws && ws.readyState === WebSocket.OPEN) 
+                    ws.send(JSON.stringify( {type: WsAction.LOBBYUPDATE, lobby: id, user: player, action: action, lobbystate: this.get(id)} ));
             }
         }
     }
