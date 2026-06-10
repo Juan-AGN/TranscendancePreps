@@ -8,14 +8,18 @@ import { leavelobby } from "../game_endpoints/lobbies";
 export function Gamehandler() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const bgImageRef = useRef<HTMLImageElement | null>(null);
+	const bgImageRef2 = useRef<HTMLImageElement | null>(null);
     const { game, addGame } = useWs();
 	 const { handleApiError } = useNotification();
     const { names, lobby, addLobby } = useLobby();
 
     useEffect(() => {
         const img = new Image();
-        img.src = "/images/BarBall.png";
+        img.src = "/images/groundfloor.png";
         img.onload = () => { bgImageRef.current = img; };
+        const img2 = new Image();
+        img2.src = "/images/groundfloorgame.png";
+        img2.onload = () => { bgImageRef2.current = img2; };
     }, []);
 
 	function leavelob() {
@@ -35,6 +39,8 @@ export function Gamehandler() {
         if (!game)
 			return;
 	    const c = canvasRef.current;
+		let pattern = null;
+		let pattern2 = null;
  		if (!c)
 			return;
     	const ctx = c.getContext("2d");
@@ -49,8 +55,15 @@ export function Gamehandler() {
 		ctx.fillStyle= "grey";
 		ctx.strokeStyle = "grey";
 
-        if (bgImageRef.current) {
-            ctx.drawImage(bgImageRef.current, 0, 0, game.borderx + (startx * 2), game.bordery + (starty * 2));
+		if (bgImageRef.current)
+			pattern = ctx.createPattern(bgImageRef.current, 'repeat');
+
+		if (bgImageRef2.current)
+			pattern2 = ctx.createPattern(bgImageRef2.current, 'repeat');
+
+        if (pattern) {
+			ctx.fillStyle = pattern;
+            ctx.fillRect(0, 0, game.borderx + (startx * 2), game.bordery + (starty * 2));
         } else {
             ctx.fillStyle = "#1a1a2e";
             ctx.beginPath();
@@ -58,10 +71,18 @@ export function Gamehandler() {
             ctx.fill();
         }
 
-        ctx.fillStyle = "black";
+		ctx.fillStyle = "black";
         ctx.beginPath();
-        ctx.rect(startx, starty, game.borderx, game.bordery);
-        ctx.fill();
+
+	    if (pattern2) {
+			ctx.fillStyle = pattern2;
+            ctx.fillRect(startx, starty, game.borderx, game.bordery);
+        } else {
+			ctx.rect(startx, starty, game.borderx, game.bordery);
+			ctx.fill();
+        }
+
+
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
 
