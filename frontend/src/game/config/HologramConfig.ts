@@ -4,7 +4,7 @@
 
 import { Color3, Vector3 } from '@babylonjs/core';
 import type { GlowEffectConfig } from './HighlightConfig';
-import { DEFAULT_HIGHLIGHT, GOLD_HIGHLIGHT, GREEN_HIGHLIGHT } from './HighlightConfig';
+import { DEFAULT_HIGHLIGHT } from './HighlightConfig';
 
 // ===== CONSTANTES TEXTO 3D =====
 export const HOLOGRAM_FONT_URL         = 'https://assets.babylonjs.com/fonts/Droid%20Sans_Bold.json';

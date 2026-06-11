@@ -34,7 +34,7 @@ export function HomePage() {
 
 	return (
 		<>
-			<div className="relative w-full h-full via-slate-800 to-slate-900 flex flex-col items-center justify-center p-8">
+			<div className="relative w-full h-full via-slate-800 to-slate-900 flex flex-col items-center justify-center px-3 py-6 sm:p-8">
 				{/* 
             relative: Posicionamiento relativo para que los hijos absolutos se posicionen respecto a este contenedor
             w-full: Ancho 100%
@@ -50,7 +50,7 @@ export function HomePage() {
 				<div className="text-center mb-10">
 					{/* mb-6: Margen inferior de 1.5rem (24px) para separar del canvas */}
 
-					<h2 className="text-5xl font-bold text-black mb-2 drop-shadow-lg">
+					<h2 className="text-[1.65rem] sm:text-5xl font-bold text-black mb-2 drop-shadow-lg tracking-tight whitespace-nowrap">
 						{/* 
                 text-5xl: Tamaño de fuente 3rem (48px)
                 font-bold: Peso de fuente en negrita

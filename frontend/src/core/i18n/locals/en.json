@@ -10,7 +10,12 @@
 		"creators": "Creators",
 		"settings": "Settings",
 		"login": "Login",
-		"profile": "Profile"
+		"profile": "Profile",
+		"logout": "Logout",
+		"languageSwitch": "Change language",
+		"languageChangeTo": "Change language to {{language}}",
+		"openMenu": "Open menu",
+		"closeMenu": "Close menu"
 	},
 	"footer": {
 		"brand": "TRANSCENDENCE",
@@ -199,6 +204,221 @@
 			"computer": "COMPUTER",
 			"spectator1": "SPECTATOR 1",
 			"spectator2": "SPECTATOR 2"
+		}
+	},
+	"hubPanelLogin": {
+		"username": "USERNAME",
+		"enterUsername": "Enter username",
+		"password": "PASSWORD",
+		"enterPassword": "Enter password",
+		"logIn": "LOG IN"
+	},
+	"hubPanelSettings": {
+		"playerSpeed": "PLAYER SPEED",
+		"cameraSensitivity": "CAMERA SENSITIVITY",
+		"playerSize": "PLAYER SIZE",
+		"slow": "SLOW",
+		"medium": "MEDIUM",
+		"fast": "FAST",
+		"low": "LOW",
+		"high": "HIGH",
+		"small": "SMALL",
+		"normal": "NORMAL",
+		"big": "BIG"
+	},
+	"remoteGame": {
+		"accountRequired": "This feature requires a user account. Please log in and try again.",
+		"enterLobbyName": "Enter lobby name..."
+	},
+	"friendsPage": {
+		"title": "Friends Management",
+		"avatarAlt": "Avatar",
+		"tabs": {
+			"friends": "Friends",
+			"pendingRequests": "Pending Requests",
+			"searchUsers": "Search Users"
+		},
+		"status": {
+			"online": "🟢 Online",
+			"offline": "⚫ Offline"
+		},
+		"actions": {
+			"remove": "Remove",
+			"accept": "Accept",
+			"reject": "Reject",
+			"addFriend": "Add friend"
+		},
+		"search": {
+			"placeholder": "Search by name or email...",
+			"button": "Search"
+		},
+		"empty": {
+			"noFriends": "You have no friends yet",
+			"searchUsersToAdd": "Search for users to add",
+			"noPendingRequests": "You have no pending requests",
+			"pendingNotified": "You will be notified when you receive one",
+			"noUsersFound": "No users found",
+			"tryDifferentTerm": "Try a different search term"
+		},
+		"alerts": {
+			"typeMin2": "Type at least 2 characters to search",
+			"requestSent": "Request sent successfully",
+			"errorSendingRequest": "Error sending request",
+			"requestAccepted": "Request accepted. You are now friends",
+			"errorAcceptingRequest": "Error accepting request",
+			"requestRejected": "Request rejected",
+			"errorRejectingRequest": "Error rejecting request",
+			"friendRemoved": "Friend removed successfully",
+			"errorRemovingFriend": "Error removing friend"
+		},
+		"confirms": {
+			"rejectRequest": "Are you sure you want to reject this request?",
+			"removeFriend": "Are you sure you want to remove this friend?"
+		}
+	},
+	"profilePage": {
+		"loadingProfile": "Loading profile...",
+		"avatarAlt": "Avatar",
+		"status": {
+			"online": "🟢 Online",
+			"offline": "🔴 Offline"
+		},
+		"actions": {
+			"editProfile": "Edit Profile",
+			"changeAvatar": "Change Avatar",
+			"myFriends": "My Friends",
+			"disconnect": "Disconnect",
+			"connect": "Connect",
+			"logOut": "Log Out"
+		},
+		"overview": {
+			"title": "Profile Overview",
+			"status": "Status",
+			"availableToFriends": "You are available to your friends",
+			"lastConnection": "Last Connection",
+			"memberSince": "Member Since",
+			"olympusCitizen": "Olympus Citizen",
+			"totalFriends": "Total Friends",
+			"buildNetwork": "Build your network"
+		},
+		"friends": {
+			"title": "My Friends",
+			"empty": "You have no friends yet"
+		},
+		"edit": {
+			"title": "Edit Profile",
+			"name": "Name",
+			"email": "Email",
+			"newPasswordOptional": "New Password (optional)",
+			"leaveBlank": "Leave blank to keep unchanged",
+			"cancel": "Cancel",
+			"saveChanges": "Save Changes"
+		},
+		"alerts": {
+			"errorLoadingProfile": "Error loading profile",
+			"onlineNow": "You are now online",
+			"offlineNow": "You are now offline",
+			"errorChangingStatus": "Error changing status",
+			"profileUpdated": "Profile updated successfully",
+			"errorUpdatingProfile": "Error updating profile",
+			"avatarUpdated": "Avatar updated successfully",
+			"errorUploadingAvatar": "Error uploading avatar"
+		}
+	},
+	"chat": {
+		"title": "Chat",
+		"openChat": "Open chat",
+		"close": "Close",
+		"tabs": {
+			"chats": "Chats",
+			"friends": "Friends",
+			"online": "Online",
+			"offline": "Offline"
+		},
+		"selectConversation": "Select a conversation",
+		"searchConversations": "Search conversations...",
+		"createGroup": "Create group",
+		"groupName": "Group name",
+		"createGroupButton": "+ Create group",
+		"noFriendsAvailable": "No friends available",
+		"loading": "Loading...",
+		"noConversationsYet": "No conversations yet",
+		"noMessagesPreview": "(no messages)",
+		"removeConversation": "Remove conversation",
+		"pendingRequests": "Pending requests",
+		"loadingPending": "Loading pending...",
+		"noPendingRequests": "No pending requests",
+		"accept": "Accept",
+		"reject": "Reject",
+		"friendsOnline": "Friends Online",
+		"loadingFriends": "Loading friends...",
+		"noFriendsOnline": "No friends online",
+		"friendsOffline": "Friends Offline",
+		"noFriendsOffline": "No friends offline",
+		"loadingOnlineUsers": "Loading online users...",
+		"noOneOnline": "No one online",
+		"requestSent": "Request sent",
+		"sendFriendRequest": "Send friend request",
+		"requested": "Requested",
+		"add": "Add",
+		"loadingOfflineUsers": "Loading offline users...",
+		"noOfflineUsers": "No offline users",
+		"loadingMessages": "Loading messages...",
+		"noMessagesYet": "No messages yet",
+		"typeMessage": "Type a message..."
+	},
+	"lobbies": {
+		"player": "Player",
+		"lobbyNeeded": "Lobby needed",
+		"lastGameResults": "Last Game Results",
+		"lobby": "Lobby",
+		"owner": "Owner",
+		"players": "Players",
+		"spectators": "Spectators",
+		"currentRules": "Current Rules",
+		"previewRules": "Preview Rules",
+		"changeRules": "Change Rules",
+		"submitRules": "Submit Rules",
+		"defaultRules": "Default Rules",
+		"live": "Live",
+		"template": "Template",
+		"start": "START",
+		"startGame": "START GAME",
+		"toPlayer": "TO PLAYER",
+		"watch": "WATCH",
+		"toSpectator": "TO SPECTATOR",
+		"rulesShort": "RULES",
+		"seeRules": "SEE RULES",
+		"leave": "LEAVE",
+		"create": "CREATE",
+		"badLobbyName": "Bad lobby name input.",
+		"presets": {
+			"customSliders": "Custom sliders",
+			"customRules": "Custom rules",
+			"bulletHell": "Bullet hell",
+			"macroBulletHell": "Macro bullet hell",
+			"closeQuarters": "Close quarters",
+			"longHall": "Long hall",
+			"giantBall": "Giant ball"
+		},
+		"rules": {
+			"timeNewBall": "Time for new ball",
+			"ballSpeed": "Ball speed",
+			"playerCollision": "Player collision",
+			"playerHitbox": "Player hitbox",
+			"playerSpeed": "Player speed",
+			"ballHitbox": "Ball hitbox",
+			"ballHitboxModifier": "Ball hitbox modifier",
+			"ballSpeedModifier": "Ball speed modifier",
+			"hitboxModifier": "Hitbox modifier",
+			"speedModifier": "Speed modifier",
+			"borderX": "Border X",
+			"borderY": "Border Y",
+			"maxBalls": "Max balls",
+			"maxBallsInfinite": "Max n of balls (0 for infinite)",
+			"infinite": "Infinite",
+			"enabled": "Enabled",
+			"disabled": "Disabled"
 		}
 	},
 	"settingsPage": {

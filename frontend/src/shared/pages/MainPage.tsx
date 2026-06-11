@@ -74,9 +74,13 @@ export function StartGate({
 								bg-gradient-to-b from-white/20 via-white/4 to-white/30" />
 				<div className="hidden dark:block absolute inset-0 z-[3] pointer-events-none bg-black/70" />
 				<div className="relative z-10 h-screen w-full flex items-center justify-center overflow-hidden
-								px-[clamp(0.5rem,2vw,2.5rem)]">
+								px-[clamp(0.5rem,2vw,2.5rem)]
+								max-sm:items-center max-sm:justify-start max-sm:overflow-hidden max-sm:px-0">
 					<div className="w-[min(77rem,94vw)]  grid grid-cols-4 gap-[clamp(0.4rem,1.4vw,1.5rem)] items-center
-									translate-y-[clamp(1rem,7vh,4.5rem)]">
+									translate-y-[clamp(1rem,7vh,4.5rem)] max-sm:flex max-sm:w-full max-sm:grid-cols-none
+									max-sm:gap-10 max-sm:translate-y-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden
+									max-sm:snap-x max-sm:snap-mandatory max-sm:scroll-smooth max-sm:px-[9vw]
+									[scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 
 						<GenreCard
 							title="tech"
@@ -84,7 +88,7 @@ export function StartGate({
 							label={t('startGate.tech')}
 							onClick={onGoTech}
 							delay={500} initialTilt={8}
-							imageClassName="scale-[0.70] translate-x-[1rem] translate-y-[clamp(1rem,5vh,3.5rem)]"
+							imageClassName="scale-[0.70] translate-x-[1rem] translate-y-[clamp(1rem,5vh,3.5rem)] max-sm:scale-[0.50]"
 						/>
 						<GenreCard
 							title="3d"
@@ -92,20 +96,20 @@ export function StartGate({
 							label={t('startGate.enter3d')}
 							onClick={handleGo3D}
 							delay={300} initialTilt={2}
-							imageClassName=" scale-[0.9] translate-x-[0.8rem] translate-y-[clamp(1rem,6vh,3rem)]" />
+							imageClassName=" scale-[0.9] translate-x-[0.8rem] translate-y-[clamp(1rem,6vh,3rem)] max-sm:scale-[0.65] " />
 						<GenreCard
 							title="arcade"
 							image="/images/Ac3.png"
 							label={t('startGate.arcade')}
 							onClick={onGoArcade}
 							delay={100} initialTilt={-2}
-							imageClassName="scale-[0.58] translate-y-[clamp(1rem,6vh,3.5rem)]" />
+							imageClassName="scale-[0.58] translate-y-[clamp(1rem,6vh,3.5rem)] max-sm:scale-[0.50]" />
 						<GenreCard
 							title="creators" image="/images/3dcard4.png"
 							label={t('startGate.creators')}
 							onClick={onGoCreators}
 							delay={700} initialTilt={-8}
-							imageClassName="translate-x-[-0.6rem] translate-y-[clamp(1rem,6vh,3.5rem)]" />
+							imageClassName="translate-x-[-0.6rem] translate-y-[clamp(1rem,6vh,3.5rem)] max-sm:scale-[0.55]" />
 					</div>
 				</div>
 			</motion.div>

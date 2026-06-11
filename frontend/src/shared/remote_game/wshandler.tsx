@@ -5,6 +5,7 @@ import {  useLobby } from './lobby';
 import { LobbyAction } from './types/types';
 import { Singledivgame } from './commoncomp/commoncomp';
 import { Gamehandler } from "./gamestate/gamestate";
+import { useTranslation } from 'react-i18next';
 
 let address = window.location.host;
 
@@ -53,8 +54,9 @@ export const useHeldKey = () => {
     return (heldKey);
 };
 
-export function nologgederror() {
-    return (<p className="align-middle h-full w-full text-center justify-center items-center content-center">This user requires an user account, please log in and try again!</p>)
+export function NoLoggedError() {
+    const { t } = useTranslation();
+    return (<p className="align-middle h-full w-full text-center justify-center items-center content-center">{t('remoteGame.accountRequired')}</p>)
 }
 
 export const WsProvider = ({
@@ -162,7 +164,7 @@ export const WsProvider = ({
     }, [token]);
 
     if (!token)
-        return (<WsContext.Provider value={{ game, addGame, result }}><Singledivgame Component={nologgederror}></Singledivgame></WsContext.Provider>);
+        return (<WsContext.Provider value={{ game, addGame, result }}><Singledivgame Component={NoLoggedError}></Singledivgame></WsContext.Provider>);
     else if (!game)
         return (<WsContext.Provider value={{ game, addGame, result }}>{children}</WsContext.Provider>);
     else

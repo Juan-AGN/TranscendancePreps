@@ -1,4 +1,5 @@
 import type { ComponentType, ReactNode } from "react";
+import { useTranslation } from 'react-i18next';
 
 type Props = {
 	ComponentBig: ComponentType;
@@ -86,6 +87,7 @@ export function Singledivgame({ Component }: { Component: ComponentType }) {
 
 
 export function TextField({ value, onChange, text, submit }: TextFieldProps) {
+	const { t } = useTranslation();
 	function dothing() {
 		submit(value);
 	}
@@ -103,7 +105,7 @@ export function TextField({ value, onChange, text, submit }: TextFieldProps) {
 
 			<input className="h-full min-w-0 flex-1 bg-transparent text-[0.72rem] font-medium text-yellow-950 placeholder:text-yellow-900/45
 					outline-none lg:text-sm"
-				placeholder="Enter lobby name..."
+				placeholder={t('remoteGame.enterLobbyName')}
 				value={value}
 				maxLength={20}
 				onChange={(e) => onChange(e.target.value)}

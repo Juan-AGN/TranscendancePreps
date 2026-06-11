@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Paperclip, Smile, Send, Search, SquarePen, MoreVertical, X, MessageCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Send, Search, SquarePen, X } from 'lucide-react';
 import { OlympusButton } from '../Buttons/ProfileButton';
 
 type ConversationItem = {
@@ -67,17 +68,20 @@ async function chatApi<T>(path: string, init?: RequestInit): Promise<T> {
 
 async function usersApi<T>(path: string, init?: RequestInit): Promise<T> {
 	const token = getToken();
-	if (!token) throw new Error("Missing token. Please login first.");
+	if (!token)
+		throw new Error("Missing token. Please login first.");
 
 	const headers = new Headers(init?.headers || {});
 	headers.set("Authorization", `Bearer ${token}`);
 
 	const res = await fetch(`${AUTH_API}${path}`, { ...init, headers });
-	if (!res.ok) throw new Error((await res.text().catch(() => "")) || `Users failed (${res.status})`);
+	if (!res.ok)
+		throw new Error((await res.text().catch(() => "")) || `Users failed (${res.status})`);
 	return (await res.json()) as T;
 }
 
 export function ChatWidget() {
+	const { t } = useTranslation();
 	const [open, setOpen] = useState(false);
 	const [tab, setTab] = useState<"chats" | "friends" | "online" | "offline">("chats");
 	const [badgeCount, setBadgeCount] = useState(0);
@@ -140,12 +144,12 @@ export function ChatWidget() {
 
 	const selectedTitle = useMemo(() => {
 		if (!selected)
-			return "Select a conversation";
+			return t('chat.selectConversation');
 		if (selected.type === "GROUP")
 			return selected.title || `Group #${selected.id}`;
 		const otherId = selected.otherUserIds[0];
 		return userMap[otherId]?.name || `User ${otherId}`;
-	}, [selected, userMap]);
+	}, [selected, userMap, t]);
 
 	const onlineFriends = useMemo(() => friends.filter((f) => onlineSet.has(f.id)), [friends, onlineSet]);
 	const offlineFriends = useMemo(() => friends.filter((f) => !onlineSet.has(f.id)), [friends, onlineSet]);
@@ -159,7 +163,8 @@ export function ChatWidget() {
 
 	async function resolveUsers(ids: string[]) {
 		const unique = Array.from(new Set(ids.map((x) => String(x).trim()).filter(Boolean))).slice(0, 50);
-		if (unique.length === 0) return;
+		if (unique.length === 0)
+			return;
 
 		const qs = unique.join(",");
 		const data = await chatApi<{ users: ResolvedUser[] }>(`/users/resolve?ids=${encodeURIComponent(qs)}`);
@@ -556,8 +561,8 @@ export function ChatWidget() {
 					className="fixed bottom-4 right-4 z-[9999] flex h-11 w-11 md:h-14 md:w-14 items-center justify-center rounded-full bg-blue-400/60
 								border border-yellow-400 text-2xl text-white shadow-[0_10px_30px_rgba(0,0,0,0.25)]
 								transition-all duration-500 hover:bg-yellow-400/50 hover:scale-115"
-					aria-label="Open chat"
-					title="Chat">
+					aria-label={t('chat.openChat')}
+					title={t('chat.title')}>
 					<span className="text-lg md:text-2xl">💬</span>
 					{badgeCount > 0 && (
 						<span className="absolute -top-1 -right-1 rounded-full bg-red-600 text-white text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-[1px] md:py-[2px]">
@@ -581,32 +586,32 @@ export function ChatWidget() {
 									onClick={() => setTab("chats")}
 									className={`max-sm:!h-8 max-sm:!min-w-0 max-sm:!flex-1 max-sm:!px-1 max-sm:!text-[0.52rem] max-sm:!tracking-[0.03em]
 											${tab !== "chats" ? "opacity-50" : "bg-yellow-400/70 text-black"}`}>
-									Chats
+									{t('chat.tabs.chats')}
 								</OlympusButton>
 								<OlympusButton
 									onClick={() => setTab("friends")}
 									className={`max-sm:!h-8 max-sm:!min-w-0 max-sm:!flex-1 max-sm:!px-1 max-sm:!text-[0.52rem] max-sm:!tracking-[0.03em]
 											${tab !== "friends" ? "opacity-50" : "bg-yellow-400/70 text-black"}`}>
-									Friends
+									{t('chat.tabs.friends')}
 								</OlympusButton>
 								<OlympusButton
 									onClick={() => setTab("online")}
 									className={`max-sm:!h-8 max-sm:!min-w-0 max-sm:!flex-1 max-sm:!px-1 max-sm:!text-[0.52rem] max-sm:!tracking-[0.03em]
 											${tab !== "online" ? "opacity-50" : "bg-yellow-400/70 text-black"}`}>
-									Online
+									{t('chat.tabs.online')}
 								</OlympusButton>
 								<OlympusButton
 									onClick={() => setTab("offline")}
 									className={`max-sm:!h-8 max-sm:!min-w-0 max-sm:!flex-1 max-sm:!px-1 max-sm:!text-[0.52rem] max-sm:!tracking-[0.03em]
 											${tab !== "offline" ? "opacity-50" : "bg-yellow-400/70 text-black"}`}>
-									Offline
+									{t('chat.tabs.offline')}
 								</OlympusButton>
 							</div>
 
 							<button
 								onClick={() => setOpen(false)}
 								className="rounded-full p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
-								title="Close">
+								title={t('chat.close')}>
 								<X className="w-4 h-4" />
 							</button>
 						</div>
@@ -619,7 +624,7 @@ export function ChatWidget() {
 									<div className="relative flex-1">
 										<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
 										<input
-											placeholder="Search conversations..."
+											placeholder={t('chat.searchConversations')}
 											className="w-full rounded-full bg-gray-100 pl-7 pr-2 py-1.5 text-xs text-gray-600 outline-none
 												max-sm:text-[0.7rem]" />
 									</div>
@@ -635,19 +640,19 @@ export function ChatWidget() {
 									{/* New group only on Friends */}
 									{tab === "friends" && (
 										<div className="mb-3 rounded-xl border border-gray-200 bg-white p-3 max-sm:p-2">
-											<div className="mb-2 text-sm font-bold max-sm:text-[0.85rem]">Create group</div>
+											<div className="mb-2 text-sm font-bold max-sm:text-[0.85rem]">{t('chat.createGroup')}</div>
 
 											<input
 												value={groupTitle}
 												onChange={(e) => setGroupTitle(e.target.value)}
-												placeholder="Group name"
+												placeholder={t('chat.groupName')}
 												className="mb-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none
 														max-sm:px-2 max-sm:py-1.5 max-sm:text-[0.8rem]"/>
 
 											<div className="mb-2 max-h-32 overflow-auto rounded-lg border border-gray-100 p-2">
 												{friends.length === 0 && (
 													<div className="text-xs text-gray-500">
-														No friends available
+														{t('chat.noFriendsAvailable')}
 													</div>
 												)}
 
@@ -668,7 +673,7 @@ export function ChatWidget() {
 											<button
 												onClick={createGroupFromFriends}
 												className="w-full rounded-lg bg-black px-3 py-2 text-sm font-bold text-white max-sm:px-2 max-sm:py-1.5 max-sm:text-[0.82rem]">
-												+ Create group
+												{t('chat.createGroupButton')}
 											</button>
 										</div>
 									)}
@@ -676,8 +681,8 @@ export function ChatWidget() {
 									{/* CHATS */}
 									{tab === "chats" && (
 										<>
-											{loadingConvs && <div className="p-2 text-gray-600">Loading…</div>}
-											{!loadingConvs && conversations.length === 0 && <div className="p-2 text-gray-600">No conversations yet</div>}
+											{loadingConvs && <div className="p-2 text-gray-600">{t('chat.loading')}</div>}
+											{!loadingConvs && conversations.length === 0 && <div className="p-2 text-gray-600">{t('chat.noConversationsYet')}</div>}
 
 											{conversations.map((c) => {
 												const active = c.id === selectedId;
@@ -690,7 +695,7 @@ export function ChatWidget() {
 													title = userMap[otherId]?.name || `User ${otherId}`;
 												}
 
-												const preview = c.lastMessage ? c.lastMessage.content : "(no messages)";
+												const preview = c.lastMessage ? c.lastMessage.content : t('chat.noMessagesPreview');
 
 												return (
 													<div
@@ -715,7 +720,7 @@ export function ChatWidget() {
 																"rounded-lg px-2 py-1 text-xs font-bold",
 																active ? "bg-white text-black" : "border border-gray-300 text-gray-700",
 															].join(" ")}
-															title="Remove conversation">
+															title={t('chat.removeConversation')}>
 															✕
 														</button>
 													</div>
@@ -727,9 +732,9 @@ export function ChatWidget() {
 									{/* FRIENDS */}
 									{tab === "friends" && (
 										<>
-											<div className="mb-2 text-xs font-bold text-gray-700">Pending requests</div>
-											{loadingPending && <div className="p-2 text-gray-600">Loading pending…</div>}
-											{!loadingPending && pending.length === 0 && <div className="mb-3 p-2 text-gray-600">No pending requests</div>}
+											<div className="mb-2 text-xs font-bold text-gray-700">{t('chat.pendingRequests')}</div>
+											{loadingPending && <div className="p-2 text-gray-600">{t('chat.loadingPending')}</div>}
+											{!loadingPending && pending.length === 0 && <div className="mb-3 p-2 text-gray-600">{t('chat.noPendingRequests')}</div>}
 
 											{pending.map((p) => (
 												<div key={p.id} className="mb-2 rounded-xl border border-gray-200 bg-white p-2">
@@ -739,20 +744,20 @@ export function ChatWidget() {
 														<button
 															onClick={() => acceptRequest(p.requester.id)}
 															className="rounded-lg bg-black px-3 py-1 text-xs font-bold text-white">
-															Accept
+															{t('chat.accept')}
 														</button>
 														<button
 															onClick={() => rejectRequest(p.requester.id)}
 															className="rounded-lg border border-gray-300 px-3 py-1 text-xs font-bold">
-															Reject
+															{t('chat.reject')}
 														</button>
 													</div>
 												</div>
 											))}
 
-											<div className="mt-4 mb-2 text-xs font-bold text-gray-700">Friends Online</div>
-											{loadingFriends && <div className="p-2 text-gray-600">Loading friends…</div>}
-											{!loadingFriends && onlineFriends.length === 0 && <div className="mb-3 p-2 text-gray-600">No friends online</div>}
+											<div className="mt-4 mb-2 text-xs font-bold text-gray-700">{t('chat.friendsOnline')}</div>
+											{loadingFriends && <div className="p-2 text-gray-600">{t('chat.loadingFriends')}</div>}
+											{!loadingFriends && onlineFriends.length === 0 && <div className="mb-3 p-2 text-gray-600">{t('chat.noFriendsOnline')}</div>}
 
 											{onlineFriends.map((f) => (
 												<div key={f.id} className="mb-2 flex min-w-0 items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2
@@ -771,8 +776,8 @@ export function ChatWidget() {
 												</div>
 											))}
 
-											<div className="mt-4 mb-2 text-xs font-bold text-gray-700">Friends Offline</div>
-											{!loadingFriends && offlineFriends.length === 0 && <div className="p-2 text-gray-600">No friends offline</div>}
+											<div className="mt-4 mb-2 text-xs font-bold text-gray-700">{t('chat.friendsOffline')}</div>
+											{!loadingFriends && offlineFriends.length === 0 && <div className="p-2 text-gray-600">{t('chat.noFriendsOffline')}</div>}
 
 											{offlineFriends.map((f) => (
 												<div key={f.id} className="mb-2 flex min-w-0 items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2
@@ -795,8 +800,8 @@ export function ChatWidget() {
 									{/* ONLINE USERS */}
 									{tab === "online" && (
 										<>
-											{loadingOnline && <div className="p-2 text-gray-600">Loading online users…</div>}
-											{!loadingOnline && onlineUsers.length === 0 && <div className="p-2 text-gray-600">No one online</div>}
+											{loadingOnline && <div className="p-2 text-gray-600">{t('chat.loadingOnlineUsers')}</div>}
+											{!loadingOnline && onlineUsers.length === 0 && <div className="p-2 text-gray-600">{t('chat.noOneOnline')}</div>}
 
 											{onlineUsers.map((u) => {
 												const isFriend = friendSet.has(u.id);
@@ -822,8 +827,8 @@ export function ChatWidget() {
 																className="shrink-0 rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold max-sm:max-w-[4.6rem] max-sm:overflow-hidden
 																		max-sm:text-ellipsis max-sm:px-2 max-sm:text-[0.68rem]"
 																disabled={!!sentRequests[u.id]}
-																title={sentRequests[u.id] ? "Request sent" : "Send friend request"}>
-																{sentRequests[u.id] ? "Requested" : "Add"}
+																title={sentRequests[u.id] ? t('chat.requestSent') : t('chat.sendFriendRequest')}>
+																{sentRequests[u.id] ? t('chat.requested') : t('chat.add')}
 															</button>
 														)}
 													</div>
@@ -835,8 +840,8 @@ export function ChatWidget() {
 									{/* OFFLINE USERS */}
 									{tab === "offline" && (
 										<>
-											{loadingAll && <div className="p-2 text-gray-600">Loading offline users…</div>}
-											{!loadingAll && offlineUsers.length === 0 && <div className="p-2 text-gray-600">No offline users</div>}
+											{loadingAll && <div className="p-2 text-gray-600">{t('chat.loadingOfflineUsers')}</div>}
+											{!loadingAll && offlineUsers.length === 0 && <div className="p-2 text-gray-600">{t('chat.noOfflineUsers')}</div>}
 
 											{offlineUsers.map((u) => {
 												const isFriend = friendSet.has(u.id);
@@ -861,9 +866,9 @@ export function ChatWidget() {
 																onClick={() => sendFriendRequest(u.id)}
 																className="shrink-0 rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold max-sm:px-2 max-sm:text-[0.72rem]"
 																disabled={!!sentRequests[u.id]}
-																title={sentRequests[u.id] ? "Request sent" : "Send friend request"}
+																title={sentRequests[u.id] ? t('chat.requestSent') : t('chat.sendFriendRequest')}
 															>
-																{sentRequests[u.id] ? "Requested" : "Add"}
+																{sentRequests[u.id] ? t('chat.requested') : t('chat.add')}
 															</button>
 														)}
 													</div>
@@ -879,8 +884,8 @@ export function ChatWidget() {
 								<div className=" px-3 py-2 font-bold">{selectedTitle}</div>
 
 								<div className="flex-1 overflow-auto border-1 rounded-[2rem] border-yellow-400/30 p-3">
-									{loadingMsgs && <div className="text-gray-600">Loading messages…</div>}
-									{!loadingMsgs && selectedId && messages.length === 0 && <div className="text-gray-600">No messages yet</div>}
+									{loadingMsgs && <div className="text-gray-600">{t('chat.loadingMessages')}</div>}
+									{!loadingMsgs && selectedId && messages.length === 0 && <div className="text-gray-600">{t('chat.noMessagesYet')}</div>}
 
 									{messages.map((m) => {
 										const mine = myUserId ? m.senderId === String(myUserId) : false;
@@ -903,7 +908,7 @@ export function ChatWidget() {
 									<input
 										value={input}
 										onChange={(e) => setInput(e.target.value)}
-										placeholder="Type a message..."
+										placeholder={t('chat.typeMessage')}
 										className="flex-1 rounded-full bg-gray-100 px-4 py-2 text-sm outline-none text-gray-700 placeholder-gray-400"
 										onKeyDown={(e) => { 
 											if (e.key === "Enter")

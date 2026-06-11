@@ -78,7 +78,8 @@ export function GenreCard({
 			onMouseMove={handleMove}
 			onMouseLeave={handleLeave}
 			className="relative w-full h-[clamp(10rem,24vw,22rem)] opacity-0
-						animate-[cardIn_500ms_cubic-bezier(0.25,0.25,0.75,0.75)_forwards]"
+						animate-[cardIn_500ms_cubic-bezier(0.25,0.25,0.75,0.75)_forwards]
+						max-sm:min-w-[82vw] max-sm:w-[82vw] max-sm:h-[26rem] max-sm:snap-center max-sm:shrink-0"
 			style={{ animationDelay: `${delay}ms` }}>
 
 			<button type="button"

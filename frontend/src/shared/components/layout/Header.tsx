@@ -63,7 +63,7 @@ export function Header() {
 				? 'drop-shadow-[0_0_10px_rgba(251,191,36,0.9)]'
 				: 'opacity-90 hover:opacity-100'
 				}`}
-			aria-label={`Cambiar idioma a ${alt}`}>
+			aria-label={t('header.languageChangeTo', { language: alt })}>
 			<img src={src} alt={alt} className="h-full w-full object-contain" />
 		</button>
 	)
@@ -172,12 +172,12 @@ export function Header() {
 										window.location.href = '/start';
 									}}
 									className={menuLinkClass}>
-									Logout
+									{t('header.logout')}
 								</button>
 							</SubmenuButton>
 						</>
 					) : (
-						<Link to="/login" onClick={closeMenu} className={linkClass}>Login</Link>
+							<Link to="/login" onClick={closeMenu} className={linkClass}>{t('header.login')}</Link>
 					)}
 				</nav>
 
@@ -200,7 +200,7 @@ export function Header() {
 						</Link>
 
 						<Link to="/sections/tech" onClick={closeMenu} className={mobileLinkClass}>
-							Tech
+							{t('header.info')}
 						</Link>
 
 						<Link to="/settingsUiPage" onClick={closeMenu} className={mobileLinkClass}>
@@ -217,7 +217,7 @@ export function Header() {
 							</Link>
 						) : (
 							<Link to="/login" onClick={closeMenu} className={mobileLinkClass}>
-								Login
+								{t('header.login')}
 							</Link>
 						)}
 
@@ -232,7 +232,7 @@ export function Header() {
 									window.location.href = '/start'
 								}}
 								className={mobileLinkClass}>
-								Logout
+								{t('header.logout')}
 							</button>
 						) : (
 							<span className="hidden" />
@@ -250,7 +250,7 @@ export function Header() {
 							onClick={() => setLangMenuOpen((prev) => !prev)}
 							className="flex h-7 w-7 md:h-9 md:w-9 items-center mr-0 md:mr-3 justify-center rounded-full border border-white/30 bg-black/20 text-white transition-all duration-200
 								hover:border-amber-300 hover:text-amber-200"
-							aria-label="Cambiar idioma"
+							aria-label={t('header.languageSwitch')}
 							aria-expanded={langMenuOpen}>
 							<img
 								src="/images/WorldLogo.png"
@@ -275,7 +275,7 @@ export function Header() {
 					<button
 						onClick={toggleMenu}
 						className="flex h-7 w-7 md:h-10 md:w-10 cursor-pointer items-center justify-center bg-black/10 border border-amber-300/55 rounded-full"
-						aria-label={menuOpen ? 'Cerrar menu' : 'Abrir menu'}>
+						aria-label={menuOpen ? t('header.closeMenu') : t('header.openMenu')}>
 						{menuOpen ? (
 							<span className=" relative -top-[2px] md:-top-[5px] text-2xl md:text-5xl leading-none text-white">×</span>
 						) : (

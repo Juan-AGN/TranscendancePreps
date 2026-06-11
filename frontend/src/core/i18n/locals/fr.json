@@ -10,7 +10,12 @@
         "creators": "Créateurs",
         "settings": "Paramètres",
         "login": "Connexion",
-        "profile": "Profil"
+        "profile": "Profil",
+        "logout": "Deconnexion",
+        "languageSwitch": "Changer de langue",
+        "languageChangeTo": "Changer la langue vers {{language}}",
+        "openMenu": "Ouvrir le menu",
+        "closeMenu": "Fermer le menu"
     },
     "footer": {
         "brand": "TRANSCENDENCE",
@@ -199,6 +204,221 @@
             "computer": "ORDINATEUR",
             "spectator1": "SPECTATEUR 1",
             "spectator2": "SPECTATEUR 2"
+        }
+    },
+    "hubPanelLogin": {
+        "username": "UTILISATEUR",
+        "enterUsername": "Entrez le nom d'utilisateur",
+        "password": "MOT DE PASSE",
+        "enterPassword": "Entrez le mot de passe",
+        "logIn": "SE CONNECTER"
+    },
+    "hubPanelSettings": {
+        "playerSpeed": "VITESSE DU JOUEUR",
+        "cameraSensitivity": "SENSIBILITE DE LA CAMERA",
+        "playerSize": "TAILLE DU JOUEUR",
+        "slow": "LENT",
+        "medium": "MOYEN",
+        "fast": "RAPIDE",
+        "low": "BASSE",
+        "high": "HAUTE",
+        "small": "PETIT",
+        "normal": "NORMAL",
+        "big": "GRAND"
+    },
+    "remoteGame": {
+        "accountRequired": "Cette fonctionnalite necessite un compte utilisateur. Connectez-vous puis reessayez.",
+        "enterLobbyName": "Entrez le nom du lobby..."
+    },
+    "friendsPage": {
+        "title": "Gestion des amis",
+        "avatarAlt": "Avatar",
+        "tabs": {
+            "friends": "Amis",
+            "pendingRequests": "Demandes en attente",
+            "searchUsers": "Rechercher des utilisateurs"
+        },
+        "status": {
+            "online": "🟢 En ligne",
+            "offline": "⚫ Hors ligne"
+        },
+        "actions": {
+            "remove": "Supprimer",
+            "accept": "Accepter",
+            "reject": "Refuser",
+            "addFriend": "Ajouter ami"
+        },
+        "search": {
+            "placeholder": "Rechercher par nom ou email...",
+            "button": "Rechercher"
+        },
+        "empty": {
+            "noFriends": "Vous n'avez pas encore d'amis",
+            "searchUsersToAdd": "Recherchez des utilisateurs a ajouter",
+            "noPendingRequests": "Vous n'avez pas de demandes en attente",
+            "pendingNotified": "Vous serez notifie quand vous en recevrez une",
+            "noUsersFound": "Aucun utilisateur trouve",
+            "tryDifferentTerm": "Essayez un autre terme"
+        },
+        "alerts": {
+            "typeMin2": "Tapez au moins 2 caracteres pour rechercher",
+            "requestSent": "Demande envoyee avec succes",
+            "errorSendingRequest": "Erreur lors de l'envoi de la demande",
+            "requestAccepted": "Demande acceptee. Vous etes maintenant amis",
+            "errorAcceptingRequest": "Erreur lors de l'acceptation",
+            "requestRejected": "Demande refusee",
+            "errorRejectingRequest": "Erreur lors du refus",
+            "friendRemoved": "Ami supprime avec succes",
+            "errorRemovingFriend": "Erreur lors de la suppression"
+        },
+        "confirms": {
+            "rejectRequest": "Voulez-vous vraiment refuser cette demande ?",
+            "removeFriend": "Voulez-vous vraiment supprimer cet ami ?"
+        }
+    },
+    "profilePage": {
+        "loadingProfile": "Chargement du profil...",
+        "avatarAlt": "Avatar",
+        "status": {
+            "online": "🟢 En ligne",
+            "offline": "🔴 Hors ligne"
+        },
+        "actions": {
+            "editProfile": "Modifier le profil",
+            "changeAvatar": "Changer l'avatar",
+            "myFriends": "Mes amis",
+            "disconnect": "Se deconnecter",
+            "connect": "Se connecter",
+            "logOut": "Deconnexion"
+        },
+        "overview": {
+            "title": "Apercu du profil",
+            "status": "Statut",
+            "availableToFriends": "Vous etes disponible pour vos amis",
+            "lastConnection": "Derniere connexion",
+            "memberSince": "Membre depuis",
+            "olympusCitizen": "Citoyen Olympus",
+            "totalFriends": "Total d'amis",
+            "buildNetwork": "Construisez votre reseau"
+        },
+        "friends": {
+            "title": "Mes amis",
+            "empty": "Vous n'avez pas encore d'amis"
+        },
+        "edit": {
+            "title": "Modifier le profil",
+            "name": "Nom",
+            "email": "Email",
+            "newPasswordOptional": "Nouveau mot de passe (optionnel)",
+            "leaveBlank": "Laissez vide pour conserver l'ancien",
+            "cancel": "Annuler",
+            "saveChanges": "Enregistrer"
+        },
+        "alerts": {
+            "errorLoadingProfile": "Erreur lors du chargement du profil",
+            "onlineNow": "Vous etes maintenant en ligne",
+            "offlineNow": "Vous etes maintenant hors ligne",
+            "errorChangingStatus": "Erreur lors du changement de statut",
+            "profileUpdated": "Profil mis a jour avec succes",
+            "errorUpdatingProfile": "Erreur lors de la mise a jour du profil",
+            "avatarUpdated": "Avatar mis a jour avec succes",
+            "errorUploadingAvatar": "Erreur lors de l'envoi de l'avatar"
+        }
+    },
+    "chat": {
+        "title": "Chat",
+        "openChat": "Ouvrir le chat",
+        "close": "Fermer",
+        "tabs": {
+            "chats": "Chats",
+            "friends": "Amis",
+            "online": "En ligne",
+            "offline": "Hors ligne"
+        },
+        "selectConversation": "Sélectionnez une conversation",
+        "searchConversations": "Rechercher des conversations...",
+        "createGroup": "Creer un groupe",
+        "groupName": "Nom du groupe",
+        "createGroupButton": "+ Creer un groupe",
+        "noFriendsAvailable": "Aucun ami disponible",
+        "loading": "Chargement...",
+        "noConversationsYet": "Pas encore de conversations",
+        "noMessagesPreview": "(pas de messages)",
+        "removeConversation": "Supprimer la conversation",
+        "pendingRequests": "Demandes en attente",
+        "loadingPending": "Chargement des demandes...",
+        "noPendingRequests": "Aucune demande en attente",
+        "accept": "Accepter",
+        "reject": "Refuser",
+        "friendsOnline": "Amis en ligne",
+        "loadingFriends": "Chargement des amis...",
+        "noFriendsOnline": "Aucun ami en ligne",
+        "friendsOffline": "Amis hors ligne",
+        "noFriendsOffline": "Aucun ami hors ligne",
+        "loadingOnlineUsers": "Chargement des utilisateurs en ligne...",
+        "noOneOnline": "Personne en ligne",
+        "requestSent": "Demande envoyee",
+        "sendFriendRequest": "Envoyer une demande d'ami",
+        "requested": "Demande envoyee",
+        "add": "Ajouter",
+        "loadingOfflineUsers": "Chargement des utilisateurs hors ligne...",
+        "noOfflineUsers": "Aucun utilisateur hors ligne",
+        "loadingMessages": "Chargement des messages...",
+        "noMessagesYet": "Pas encore de messages",
+        "typeMessage": "Ecrire un message..."
+    },
+    "lobbies": {
+        "player": "Joueur",
+        "lobbyNeeded": "Lobby requis",
+        "lastGameResults": "Resultats de la derniere partie",
+        "lobby": "Lobby",
+        "owner": "Proprietaire",
+        "players": "Joueurs",
+        "spectators": "Spectateurs",
+        "currentRules": "Regles actuelles",
+        "previewRules": "Apercu des regles",
+        "changeRules": "Modifier les regles",
+        "submitRules": "Envoyer les regles",
+        "defaultRules": "Regles par defaut",
+        "live": "Actif",
+        "template": "Modele",
+        "start": "DEMARRER",
+        "startGame": "DEMARRER LA PARTIE",
+        "toPlayer": "EN JOUEUR",
+        "watch": "REGARDER",
+        "toSpectator": "EN SPECTATEUR",
+        "rulesShort": "REGLES",
+        "seeRules": "VOIR LES REGLES",
+        "leave": "QUITTER",
+        "create": "CREER",
+        "badLobbyName": "Nom de lobby invalide.",
+        "presets": {
+            "customSliders": "Curseurs personnalises",
+            "customRules": "Regles personnalisees",
+            "bulletHell": "Bullet hell",
+            "macroBulletHell": "Macro bullet hell",
+            "closeQuarters": "Combat rapproche",
+            "longHall": "Long couloir",
+            "giantBall": "Balle geante"
+        },
+        "rules": {
+            "timeNewBall": "Temps pour nouvelle balle",
+            "ballSpeed": "Vitesse de la balle",
+            "playerCollision": "Collision joueur",
+            "playerHitbox": "Hitbox joueur",
+            "playerSpeed": "Vitesse joueur",
+            "ballHitbox": "Hitbox balle",
+            "ballHitboxModifier": "Modif. hitbox balle",
+            "ballSpeedModifier": "Modif. vitesse balle",
+            "hitboxModifier": "Modificateur hitbox",
+            "speedModifier": "Modificateur vitesse",
+            "borderX": "Bord X",
+            "borderY": "Bord Y",
+            "maxBalls": "Balles max",
+            "maxBallsInfinite": "Nb max de balles (0 pour infini)",
+            "infinite": "Infini",
+            "enabled": "Active",
+            "disabled": "Desactive"
         }
     },
     "settingsPage": {
