@@ -61,11 +61,12 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 			{selectedSection === 'arcade' && ( // sección Arcade: solo visible si selectedSection === 'arcade'
 				<section className="h-screen flex items-center justify-center py-16 px-5 bg-center bg-no-repeat bg-[length:100%_100%]"
 					style={{ backgroundImage: "url('/images/bgtop2.png')" }}> {/* fondo arcade estirando la imagen al 100% */}
-					<div className="relative w-[min(63vw,75rem)] h-[65vh] rounded-3xl overflow-hidden bg-black/60 backdrop-blur-[2px]
-											border border-amber-300/25 shadow-[0_0_45px_8px_rgba(180,115,45,0.45)] ">
+					<div className="relative w-[63vw] max-w-[75rem] max-lg:w-[82vw] max-sm:w-[63vw] h-[65vh] max-lg:h-[58vh] max-sm:h-[58vh]  rounded-3xl 
+								overflow-hidden bg-black/60 backdrop-blur-[2px] border border-amber-300/25 shadow-[0_0_45px_8px_rgba(180,115,45,0.45)] ">
 						<div className="relative w-full h-full">
-							<h2 className="absolute left-[15%] top-[20%] z-20 max-w-[86%] md:max-w-[46%] text-[clamp(0.95rem,2vw,2rem)]
-												font-light leading-[1.45] font-black/10 text-white tracking-[0.03em]">
+							<h2 className="absolute left-[15%] top-[20%] max-lg:left-[12%] max-lg:top-[22%] max-sm:left-[15%] max-sm:top-[20%] z-20 
+									max-w-[86%] md:max-w-[46%] max-lg:max-w-[38%] max-sm:max-w-[86%] text-[clamp(0.95rem,2vw,2rem)] max-lg:text-[0.85rem]
+									max-sm:text-[0.95rem] font-light leading-[1.45] text-white tracking-[0.03em]">
 								<span className="block">{t('sections.arcade.welcome')}</span>
 								<span className="block">{t('sections.arcade.simple')}</span>
 								<span className="block">{t('sections.arcade.challenge')}</span>
@@ -73,10 +74,11 @@ export function Mainpage2({ selectedSection, onStart3D, onGo2DMenu }: Mainpage2P
 								<span className="block">{t('sections.arcade.noMistakes')}</span>
 								<span className="block">{t('sections.arcade.ready')}</span>
 							</h2>
-							<div className="absolute left-[35%] bottom-[10%] z-20 ">
+							<div className="absolute left-[35%] bottom-[10%] z-20 max-sm:left-1/2 max-sm:bottom-[5%] max-sm:-translate-x-1/2">
 								<MainPageButton label={t('sections.arcade.enterBtn')} onClick={onGo2DMenu} /> {/* botón que navega al menú 2D */}
 							</div>
-							<img src="/images/Ac3.png" alt="Arcade 2D" className="absolute right-[5%]  h-[100%] w-auto object-contain z-10" /> {/* imagen decorativa arcade a la derecha */}
+							<img src="/images/Ac3.png" alt="Arcade 2D" className="absolute right-[5%] h-[100%] max-lg:right-[3%] max-lg:h-[88%]
+								max-lg:bottom-[4%] max-sm:right-[5%] max-sm:h-[100%] max-sm:bottom-0 max-sm:opacity-35 w-auto object-contain z-10" /> {/* imagen decorativa arcade a la derecha */}
 						</div>
 					</div>
 				</section>

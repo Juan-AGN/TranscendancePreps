@@ -1,6 +1,7 @@
 // HubPanelSettings — panel de opciones del hub 3D
 import type { ReactNode } from "react";
 import { useGameSettingsStore, type SpeedPreset, type SensitivityPreset, type SizePreset } from "../../config/gameSettingsStore";
+import { useTranslation } from 'react-i18next';
 
 function SettingOption({ title, children }: { title: string; children: ReactNode }) {
 	return (
@@ -16,7 +17,7 @@ function OptionButtons({
 	value,
 	onChange,
 }: {
-	options: readonly string[];
+	options: readonly { value: string; label: string }[];
 	value: string;
 	onChange: (v: string) => void;
 }) {
@@ -24,13 +25,13 @@ function OptionButtons({
 		<div className="flex gap-1">
 			{options.map((opt) => (
 				<button
-					key={opt}
-					onClick={() => onChange(opt)}
-					className={opt === value
+					key={opt.value}
+					onClick={() => onChange(opt.value)}
+					className={opt.value === value
 						? 'rounded border border-gray-400 px-2 py-1 text-xs font-bold bg-gray-100'
 						: 'rounded px-2 py-1 text-xs hover:bg-gray-50 text-gray-500'}
 				>
-					{opt}
+					{opt.label}
 				</button>
 			))}
 		</div>
@@ -38,6 +39,7 @@ function OptionButtons({
 }
 
 export function HubPanelSettings() {
+	const { t } = useTranslation();
 	const {
 		moveSpeed, setMoveSpeed,
 		cameraSensitivity, setCameraSensitivity,
@@ -46,25 +48,37 @@ export function HubPanelSettings() {
 
 	return (
 		<div className="p-1">
-			<SettingOption title="PLAYER SPEED">
+			<SettingOption title={t('hubPanelSettings.playerSpeed')}>
 				<OptionButtons
-					options={["SLOW", "MEDIUM", "FAST"]}
+					options={[
+						{ value: 'SLOW', label: t('hubPanelSettings.slow') },
+						{ value: 'MEDIUM', label: t('hubPanelSettings.medium') },
+						{ value: 'FAST', label: t('hubPanelSettings.fast') },
+					]}
 					value={moveSpeed}
 					onChange={(v) => setMoveSpeed(v as SpeedPreset)}
 				/>
 			</SettingOption>
 
-			<SettingOption title="CAMERA SENSITIVITY">
+			<SettingOption title={t('hubPanelSettings.cameraSensitivity')}>
 				<OptionButtons
-					options={["LOW", "MEDIUM", "HIGH"]}
+					options={[
+						{ value: 'LOW', label: t('hubPanelSettings.low') },
+						{ value: 'MEDIUM', label: t('hubPanelSettings.medium') },
+						{ value: 'HIGH', label: t('hubPanelSettings.high') },
+					]}
 					value={cameraSensitivity}
 					onChange={(v) => setCameraSensitivity(v as SensitivityPreset)}
 				/>
 			</SettingOption>
 
-			<SettingOption title="PLAYER SIZE">
+			<SettingOption title={t('hubPanelSettings.playerSize')}>
 				<OptionButtons
-					options={["SMALL", "NORMAL", "BIG"]}
+					options={[
+						{ value: 'SMALL', label: t('hubPanelSettings.small') },
+						{ value: 'NORMAL', label: t('hubPanelSettings.normal') },
+						{ value: 'BIG', label: t('hubPanelSettings.big') },
+					]}
 					value={playerSize}
 					onChange={(v) => setPlayerSize(v as SizePreset)}
 				/>

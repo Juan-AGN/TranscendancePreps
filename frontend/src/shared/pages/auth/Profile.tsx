@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { API_URL } from './config';
 import { OlympusButton } from '../../components/Buttons/ProfileButton';
 import { Pencil, ImagePlus, Users, Power, LogOut } from 'lucide-react';
@@ -58,6 +59,7 @@ function Profile() {
 
     // Floating notification state
     const [notification, setNotification] = useState<{ message: string; tipo: 'success' | 'error' } | null>(null);
+    const { t } = useTranslation();
 
     const navigate = useNavigate();
 
@@ -120,7 +122,7 @@ function Profile() {
 
         } catch (error) {
             console.error('Error:', error);
-            showNotification('Error loading the profile', 'error');
+            showNotification(t('profilePage.alerts.errorLoadingProfile'), 'error');
         }
     }
 
@@ -173,13 +175,13 @@ function Profile() {
             setUser(data.user);
 
             showNotification(
-                newStatus ? 'You are now online' : 'You are now offline',
+                newStatus ? t('profilePage.alerts.onlineNow') : t('profilePage.alerts.offlineNow'),
                 'success'
             );
 
         } catch (error) {
             console.error('Error:', error);
-            showNotification('Error changing status', 'error');
+            showNotification(t('profilePage.alerts.errorChangingStatus'), 'error');
         }
     }
 
@@ -222,11 +224,11 @@ function Profile() {
             // Reload profile data after saving
             await loadProfile(user.id, token!);
             setModalOpen(false);
-            showNotification('Profile updated successfully', 'success');
+            showNotification(t('profilePage.alerts.profileUpdated'), 'success');
 
         } catch (error) {
             console.error('Error:', error);
-            showNotification('Error updating profile', 'error');
+            showNotification(t('profilePage.alerts.errorUpdatingProfile'), 'error');
         }
     }
 
@@ -256,11 +258,11 @@ function Profile() {
             const data = await response.json();
             // Update only the avatar in state, without reloading everything
             setUser(prev => prev ? { ...prev, avatar: data.avatarUrl } : prev);
-            showNotification('Avatar updated successfully', 'success');
+            showNotification(t('profilePage.alerts.avatarUpdated'), 'success');
 
         } catch (error) {
             console.error('Error:', error);
-            showNotification('Error uploading avatar', 'error');
+            showNotification(t('profilePage.alerts.errorUploadingAvatar'), 'error');
         }
     }
 
@@ -314,7 +316,7 @@ function Profile() {
                 style={{ backgroundImage: "url('/images/bgLogin.png')" }}
             >
                 <div className="hidden dark:block absolute inset-0 bg-black/70 pointer-events-none" />
-                <span className="relative z-10">Loading profile...</span>
+                <span className="relative z-10">{t('profilePage.loadingProfile')}</span>
             </div>
         );
     }
@@ -350,7 +352,7 @@ function Profile() {
                                 img.onerror = null;
                                 img.src = '/images/NoImage.png';
                             }}
-                            alt="Avatar"
+                            alt={t('profilePage.avatarAlt')}
                         />
                         <div className={`absolute bottom-1 right-1 h-7 w-7 rounded-full border-2 border-white ${user.onlineStatus ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
                     </div>
@@ -364,7 +366,7 @@ function Profile() {
                                 size={15}
                                 strokeWidth={2.2}
                                 className="text-yellow-700" />
-                            <span>Edit Profile</span>
+                            <span>{t('profilePage.actions.editProfile')}</span>
                         </OlympusButton>
 
                         {/* Hidden file input for the avatar */}
@@ -374,7 +376,7 @@ function Profile() {
                                 strokeWidth={2.2}
                                 className="text-yellow-700"
                             />
-                            Change Avatar
+                            {t('profilePage.actions.changeAvatar')}
                         </OlympusButton>
 
                         <input
@@ -392,7 +394,7 @@ function Profile() {
                                 strokeWidth={2.2}
                                 className="text-yellow-700"
                             />
-                            <span>My Friends</span>
+                            <span>{t('profilePage.actions.myFriends')}</span>
                         </OlympusButton>
 
                         <OlympusButton onClick={changeStatus}>
@@ -402,7 +404,7 @@ function Profile() {
                                 className="text-yellow-700"
                             />
                             <span>
-                                {user.onlineStatus ? 'Disconnect' : 'Connect'}
+                                {user.onlineStatus ? t('profilePage.actions.disconnect') : t('profilePage.actions.connect')}
                             </span>
                         </OlympusButton>
 
@@ -412,7 +414,7 @@ function Profile() {
                                 strokeWidth={2.2}
                                 className="text-yellow-700"
                             />
-                            <span>Log Out</span>
+                            <span>{t('profilePage.actions.logOut')}</span>
                         </OlympusButton>
                     </div>
                 </div>
@@ -425,21 +427,21 @@ function Profile() {
                     {/* SECTION: INFORMATION */}
                     <div className="mb-6">
                         <div className="border-1 p-4 rounded-xl border-yellow-400">
-                            <h2 className="mb-2  pb-2 text-2xl text-center font-bold text-yellow-800 uppercase">Profile Overview</h2>
+                            <h2 className="mb-2  pb-2 text-2xl text-center font-bold text-yellow-800 uppercase">{t('profilePage.overview.title')}</h2>
                             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                                 <div className="rounded-xl border border-yellow-500/35 bg-white/60 p-4 backdrop-blur-sm">
-                                    <div className="mb-1 text-xs font-bold uppercase tracking-wide text-yellow-700/80">Status</div>
+                                    <div className="mb-1 text-xs font-bold uppercase tracking-wide text-yellow-700/80">{t('profilePage.overview.status')}</div>
                                     <div className="text-base font-medium text-yellow-900">
                                         <span className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${user.onlineStatus ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
-                                            {user.onlineStatus ? '🟢 Online' : '🔴 Offline'}
+                                            {user.onlineStatus ? t('profilePage.status.online') : t('profilePage.status.offline')}
                                         </span>
                                         <p className="mt-3 text-[11px] leading-snug text-yellow-950/55">
-                                            You are available to your friends
+                                            {t('profilePage.overview.availableToFriends')}
                                         </p>
                                     </div>
                                 </div>
                                 <div className="rounded-xl border border-yellow-500/35 bg-white/60 p-4 backdrop-blur-sm">
-                                    <div className="mb-1 text-xs font-bold uppercase tracking-wide text-yellow-700/80">Last Connection</div>
+                                    <div className="mb-1 text-xs font-bold uppercase tracking-wide text-yellow-700/80">{t('profilePage.overview.lastConnection')}</div>
                                     <div className="text-base font-medium text-yellow-900">
                                         {user.lastConnection
                                             ? new Date(user.lastConnection).toLocaleString()
@@ -448,19 +450,19 @@ function Profile() {
                                     </div>
                                 </div>
                                 <div className="rounded-xl border border-yellow-500/35 bg-white/60 p-4 backdrop-blur-sm">
-                                    <div className="mb-1 text-xs font-bold uppercase tracking-wide text-yellow-700/80">Member Since</div>
+                                    <div className="mb-1 text-xs font-bold uppercase tracking-wide text-yellow-700/80">{t('profilePage.overview.memberSince')}</div>
                                     <div className="text-base font-medium text-yellow-900">
                                         {new Date(user.createdAt).toLocaleDateString()}
                                         <p className="mt-2 text-[11px] text-yellow-950/55">
-                                            Olympus Citizen
+                                            {t('profilePage.overview.olympusCitizen')}
                                         </p>
                                     </div>
                                 </div>
                                 <div className="rounded-xl border border-yellow-500/35 bg-white/60 p-4 backdrop-blur-sm">
-                                    <div className="mb-1 text-xs font-bold uppercase tracking-wide text-yellow-700/80">Total Friends</div>
+                                    <div className="mb-1 text-xs font-bold uppercase tracking-wide text-yellow-700/80">{t('profilePage.overview.totalFriends')}</div>
                                     <div className="text-base font-medium text-yellow-900">{friends.length}</div>
                                     <p className="mt-2 text-[11px] leading-snug text-yellow-950/55">
-                                        Build your network
+                                        {t('profilePage.overview.buildNetwork')}
                                     </p>
                                 </div>
                             </div>
@@ -470,10 +472,10 @@ function Profile() {
                     {/* SECTION: FRIENDS */}
                     <div className="mb-4">
                         <div className="border-1 p-4 rounded-xl border-yellow-400">
-                            <h2 className="mb-2 pb-2 text-2xl font-bold text-center text-yellow-900"> My Friends</h2>
+                            <h2 className="mb-2 pb-2 text-2xl font-bold text-center text-yellow-900">{t('profilePage.friends.title')}</h2>
                             {friends.length === 0 ? (
                                 <p className="text-center text-yellow-800/75">
-                                    You have no friends yet
+                                    {t('profilePage.friends.empty')}
                                 </p>
                             ) : (
                                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -492,7 +494,7 @@ function Profile() {
                                             />
                                             <div className="font-semibold text-yellow-900">{friend.name}</div>
                                             <div className={`text-xs ${friend.onlineStatus ? 'font-semibold text-emerald-600' : 'text-slate-500'}`}>
-                                                {friend.onlineStatus ? '🟢 Online' : '🔴 Offline'}
+                                                {friend.onlineStatus ? t('profilePage.status.online') : t('profilePage.status.offline')}
                                             </div>
                                         </div>
                                     ))}
@@ -511,10 +513,10 @@ function Profile() {
                 // Clicking the dark backdrop closes the modal
                 <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm" onClick={e => e.target === e.currentTarget && setModalOpen(false)}>
                     <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-yellow-500/45 bg-white/90 p-6 shadow-[0_20px_60px_rgba(90,60,20,0.28)] md:p-8">
-                        <h2 className="mb-6 text-2xl font-bold text-yellow-900">✏️ Edit Profile</h2>
+                        <h2 className="mb-6 text-2xl font-bold text-yellow-900">✏️ {t('profilePage.edit.title')}</h2>
 
                         <div className="mb-4">
-                            <label className="mb-2 block text-sm font-semibold text-yellow-900/85">Name</label>
+                            <label className="mb-2 block text-sm font-semibold text-yellow-900/85">{t('profilePage.edit.name')}</label>
                             <input
                                 type="text"
                                 className="w-full rounded-xl border border-yellow-500/35 bg-white/85 px-4 py-3 text-yellow-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
@@ -524,7 +526,7 @@ function Profile() {
                         </div>
 
                         <div className="mb-4">
-                            <label className="mb-2 block text-sm font-semibold text-yellow-900/85">Email</label>
+                            <label className="mb-2 block text-sm font-semibold text-yellow-900/85">{t('profilePage.edit.email')}</label>
                             <input
                                 type="email"
                                 className="w-full rounded-xl border border-yellow-500/35 bg-white/85 px-4 py-3 text-yellow-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
@@ -534,11 +536,11 @@ function Profile() {
                         </div>
 
                         <div className="mb-4">
-                            <label className="mb-2 block text-sm font-semibold text-yellow-900/85">New Password (optional)</label>
+                            <label className="mb-2 block text-sm font-semibold text-yellow-900/85">{t('profilePage.edit.newPasswordOptional')}</label>
                             <input
                                 type="password"
                                 className="w-full rounded-xl border border-yellow-500/35 bg-white/85 px-4 py-3 text-yellow-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-                                placeholder="Leave blank to keep unchanged"
+                                placeholder={t('profilePage.edit.leaveBlank')}
                                 value={editPassword}
                                 onChange={e => setEditPassword(e.target.value)}
                             />
@@ -549,13 +551,13 @@ function Profile() {
                                 className="flex-1 rounded-xl bg-rose-500 px-4 py-3 font-semibold text-white transition hover:bg-rose-600"
                                 onClick={() => setModalOpen(false)}
                             >
-                                Cancel
+                                {t('profilePage.edit.cancel')}
                             </button>
                             <button
                                 className="flex-1 rounded-xl bg-emerald-500 px-4 py-3 font-semibold text-white transition hover:bg-emerald-600"
                                 onClick={saveChanges}
                             >
-                                Save Changes
+                                {t('profilePage.edit.saveChanges')}
                             </button>
                         </div>
                     </div>

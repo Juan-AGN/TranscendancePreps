@@ -6,6 +6,7 @@ if (address.includes(":"))
 
 import { useNotification } from '../notifications';
 import { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import type { Lobbys, Lobby, Ruleset } from "../types/types"
 import { changeErrors } from "../types/types"
 const apiBase = `https://${noport}:8889/api/game`;
@@ -343,6 +344,7 @@ export function Lobbies() {
 }
 
 export function MiniUser({ user }: { user: number }) {
+	const { t } = useTranslation();
 	const { names, lobby } = useLobby();
 	const [username, setUsername] = useState(`User ${user}`);
 	const [img, setImg] = useState("");
@@ -377,7 +379,7 @@ export function MiniUser({ user }: { user: number }) {
 
 			<div className="min-w-0 flex-1">
 				<p className="truncate text-sm font-bold">{username}</p>
-				<p className="text-xs text-yellow-800/65">Player</p>
+				<p className="text-xs text-yellow-800/65">{t('lobbies.player')}</p>
 			</div>
 		</div>
 	);
@@ -486,6 +488,7 @@ type ControlBarProps = {
 };
 
 export function SingLobby({ rulesm, setRulesm }: RulesStateProps) {
+	const { t } = useTranslation();
 	const { result } = useWs();
 	const { names, lobby } = useLobby();
 	const [host, setHost] = useState(`User ${lobby!.hostId}`);
@@ -503,7 +506,7 @@ export function SingLobby({ rulesm, setRulesm }: RulesStateProps) {
 		return (
 			<div className="flex h-full w-full flex-col gap-4 overflow-y-auto overflow-x-hidden px-4 py-4 text-yellow-950
 						sm:gap-5 sm:px-6 sm:py-6 lg:gap-6 lg:px-8 lg:py-8">
-				Lobby needed
+				{t('lobbies.lobbyNeeded')}
 			</div>
 		);
 	}
@@ -519,7 +522,7 @@ export function SingLobby({ rulesm, setRulesm }: RulesStateProps) {
 						<div className="rounded-[1.25rem] border border-yellow-500/25 bg-white/35 px-4 py-3
 								sm:rounded-[1.5rem] sm:px-5 sm:py-4 lg:px-6 lg:py-5">
 							<p className="mb-4 text-sm font-black tracking-[0.25em] text-yellow-800 uppercase">
-								Last Game Results
+								{t('lobbies.lastGameResults')}
 							</p>
 							<ShowResults />
 						</div>
@@ -527,29 +530,29 @@ export function SingLobby({ rulesm, setRulesm }: RulesStateProps) {
 
 					<div className="grid grid-cols-1 gap-4 sm:gap-4 lg:grid-cols-4">
 						<div className="rounded-[1.25rem] border border-yellow-500/25 bg-white/35 px-4 py-3 sm:rounded-[1.5rem] sm:px-5 sm:py-4">
-							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">Lobby</p>
+							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">{t('lobbies.lobby')}</p>
 							<p className="mt-2 text-xl font-black">{lobby.id}</p>
 						</div>
 
 						<div className="rounded-[1.25rem] border border-yellow-500/25 bg-white/35 px-4 py-3 sm:rounded-[1.5rem] sm:px-5 sm:py-4">
-							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">Owner</p>
+							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">{t('lobbies.owner')}</p>
 							<p className="mt-2 text-xl font-bold">{host}</p>
 						</div>
 
 						<div className="rounded-[1.25rem] border border-yellow-500/25 bg-white/35 px-4 py-3 sm:rounded-[1.5rem] sm:px-5 sm:py-4">
-							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">Players</p>
+							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">{t('lobbies.players')}</p>
 							<p className="mt-2 text-xl font-black">{lobby.players.length}</p>
 						</div>
 
 						<div className="rounded-[1.25rem] border border-yellow-500/25 bg-white/35 px-4 py-3 sm:rounded-[1.5rem] sm:px-5 sm:py-4">
-							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">Spectators</p>
+							<p className="text-xs uppercase tracking-[0.22em] text-yellow-700/70">{t('lobbies.spectators')}</p>
 							<p className="mt-2 text-xl font-black">{lobby.spectators.length}</p>
 						</div>
 					</div>
 
 					<div className="rounded-[1.25rem] border border-yellow-500/25 bg-white/35 px-4 py-3 sm:rounded-[1.5rem] sm:px-5 sm:py-4">
 						<p className="mb-4 text-sm font-black tracking-[0.25em] text-yellow-800 uppercase">
-							Players
+							{t('lobbies.players')}
 						</p>
 
 						<div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -563,7 +566,7 @@ export function SingLobby({ rulesm, setRulesm }: RulesStateProps) {
 						<div className="rounded-[1.5rem] border border-yellow-500/25 bg-white/35 px-4 py-3 
 								sm:rounded-[1.5rem] sm:px-5 sm:py-4 lg:px-6 lg:py-5">
 							<p className="mb-4 text-sm font-black tracking-[0.25em] text-yellow-800 uppercase">
-								Spectators
+								{t('lobbies.spectators')}
 							</p>
 
 							<div className="flex flex-wrap gap-3">
@@ -605,6 +608,7 @@ export function RulesSetter({
 	rules: Ruleset;
 	setRules: React.Dispatch<React.SetStateAction<Ruleset>>;
 }) {
+	const { t } = useTranslation();
 	const handleChange = (
 		key: keyof Ruleset,
 		value: number
@@ -616,16 +620,16 @@ export function RulesSetter({
 	};
 
 	const ruleList = [
-		{ key: "waitingnewball", label: "Time for new ball" },
-		{ key: "ballspeed", label: "Ball speed" },
-		{ key: "playerhitbox", label: "Player hitbox" },
-		{ key: "playerspeed", label: "Player speed" },
-		{ key: "ballhitbox", label: "Ball hitbox" },
-		{ key: "hitboxrandom", label: "Ball hitbox modifier" },
-		{ key: "speedrandom", label: "Ball speed modifier" },
-		{ key: "maxx", label: "Border X" },
-		{ key: "maxy", label: "Border Y" },
-		{ key: "maxballs", label: "Max nº of balls (0 for infinite)" },
+		{ key: "waitingnewball", label: t('lobbies.rules.timeNewBall') },
+		{ key: "ballspeed", label: t('lobbies.rules.ballSpeed') },
+		{ key: "playerhitbox", label: t('lobbies.rules.playerHitbox') },
+		{ key: "playerspeed", label: t('lobbies.rules.playerSpeed') },
+		{ key: "ballhitbox", label: t('lobbies.rules.ballHitbox') },
+		{ key: "hitboxrandom", label: t('lobbies.rules.ballHitboxModifier') },
+		{ key: "speedrandom", label: t('lobbies.rules.ballSpeedModifier') },
+		{ key: "maxx", label: t('lobbies.rules.borderX') },
+		{ key: "maxy", label: t('lobbies.rules.borderY') },
+		{ key: "maxballs", label: t('lobbies.rules.maxBallsInfinite') },
 	] as const;
 
 	return (
@@ -657,36 +661,37 @@ export function RulesSetter({
 }
 
 export function Crules() {
+	const { t } = useTranslation();
 	const { lobby } = useLobby();
 	if (!lobby)
 		return null;
 
 	const rules = lobby.rules;
-	const maxBalls = rules.maxballs === 0 ? "Infinite" : `${rules.maxballs}`;
-	const collision = rules.collision ? "Enabled" : "Disabled";
+	const maxBalls = rules.maxballs === 0 ? t('lobbies.rules.infinite') : `${rules.maxballs}`;
+	const collision = rules.collision ? t('lobbies.rules.enabled') : t('lobbies.rules.disabled');
 
 	const rows = [
-		{ label: "Time for new ball", value: `${rules.waitingnewball} ms` },
-		{ label: "Ball speed", value: `${rules.ballspeed}` },
-		{ label: "Player collision", value: collision },
-		{ label: "Player hitbox", value: `${rules.playerhitbox}` },
-		{ label: "Player speed", value: `${rules.playerspeed}` },
-		{ label: "Ball hitbox", value: `${rules.ballhitbox}` },
-		{ label: "Hitbox modifier", value: `${rules.hitboxrandom}` },
-		{ label: "Speed modifier", value: `${rules.speedrandom}` },
-		{ label: "Border X", value: `${rules.maxx}` },
-		{ label: "Border Y", value: `${rules.maxy}` },
-		{ label: "Max balls", value: maxBalls },
+		{ label: t('lobbies.rules.timeNewBall'), value: `${rules.waitingnewball} ms` },
+		{ label: t('lobbies.rules.ballSpeed'), value: `${rules.ballspeed}` },
+		{ label: t('lobbies.rules.playerCollision'), value: collision },
+		{ label: t('lobbies.rules.playerHitbox'), value: `${rules.playerhitbox}` },
+		{ label: t('lobbies.rules.playerSpeed'), value: `${rules.playerspeed}` },
+		{ label: t('lobbies.rules.ballHitbox'), value: `${rules.ballhitbox}` },
+		{ label: t('lobbies.rules.hitboxModifier'), value: `${rules.hitboxrandom}` },
+		{ label: t('lobbies.rules.speedModifier'), value: `${rules.speedrandom}` },
+		{ label: t('lobbies.rules.borderX'), value: `${rules.maxx}` },
+		{ label: t('lobbies.rules.borderY'), value: `${rules.maxy}` },
+		{ label: t('lobbies.rules.maxBalls'), value: maxBalls },
 	];
 
 	return (
 		<div className="w-full rounded-[1.2rem] border border-yellow-500/20 bg-white/45 p-4 shadow-[0_10px_35px_rgba(90,60,20,0.12)]">
 			<div className="mb-3 flex items-center justify-between">
 				<p className="text-xs font-black uppercase tracking-[0.2em] text-yellow-800/70">
-					Current Rules
+					{t('lobbies.currentRules')}
 				</p>
 				<span className="rounded-full border border-yellow-500/25 bg-white/70 px-3 py-1 text-[0.62rem] font-black uppercase tracking-[0.18em] text-yellow-800">
-					Live
+					{t('lobbies.live')}
 				</span>
 			</div>
 
@@ -703,31 +708,32 @@ export function Crules() {
 }
 
 export function Prerules({ srules }: { srules: Ruleset }) {
-	const maxBalls = srules.maxballs === 0 ? "Infinite" : `${srules.maxballs}`;
-	const collision = srules.collision ? "Enabled" : "Disabled";
+	const { t } = useTranslation();
+	const maxBalls = srules.maxballs === 0 ? t('lobbies.rules.infinite') : `${srules.maxballs}`;
+	const collision = srules.collision ? t('lobbies.rules.enabled') : t('lobbies.rules.disabled');
 
 	const rows = [
-		{ label: "Time for new ball", value: `${srules.waitingnewball} ms` },
-		{ label: "Ball speed", value: `${srules.ballspeed}` },
-		{ label: "Player collision", value: collision },
-		{ label: "Player hitbox", value: `${srules.playerhitbox}` },
-		{ label: "Player speed", value: `${srules.playerspeed}` },
-		{ label: "Ball hitbox", value: `${srules.ballhitbox}` },
-		{ label: "Hitbox modifier", value: `${srules.hitboxrandom}` },
-		{ label: "Speed modifier", value: `${srules.speedrandom}` },
-		{ label: "Border X", value: `${srules.maxx}` },
-		{ label: "Border Y", value: `${srules.maxy}` },
-		{ label: "Max balls", value: maxBalls },
+		{ label: t('lobbies.rules.timeNewBall'), value: `${srules.waitingnewball} ms` },
+		{ label: t('lobbies.rules.ballSpeed'), value: `${srules.ballspeed}` },
+		{ label: t('lobbies.rules.playerCollision'), value: collision },
+		{ label: t('lobbies.rules.playerHitbox'), value: `${srules.playerhitbox}` },
+		{ label: t('lobbies.rules.playerSpeed'), value: `${srules.playerspeed}` },
+		{ label: t('lobbies.rules.ballHitbox'), value: `${srules.ballhitbox}` },
+		{ label: t('lobbies.rules.hitboxModifier'), value: `${srules.hitboxrandom}` },
+		{ label: t('lobbies.rules.speedModifier'), value: `${srules.speedrandom}` },
+		{ label: t('lobbies.rules.borderX'), value: `${srules.maxx}` },
+		{ label: t('lobbies.rules.borderY'), value: `${srules.maxy}` },
+		{ label: t('lobbies.rules.maxBalls'), value: maxBalls },
 	];
 
 	return (
 		<div className="w-full rounded-[1.2rem] border border-cyan-400/25 bg-cyan-50/35 p-4 shadow-[0_10px_35px_rgba(35,87,111,0.10)]">
 			<div className="mb-3 flex items-center justify-between">
 				<p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-900/75">
-					Preview Rules
+					{t('lobbies.previewRules')}
 				</p>
 				<span className="rounded-full border border-cyan-500/25 bg-white/70 px-3 py-1 text-[0.62rem] font-black uppercase tracking-[0.18em] text-cyan-800">
-					Template
+					{t('lobbies.template')}
 				</span>
 			</div>
 
@@ -828,6 +834,7 @@ const giantball: Ruleset = {
 }
 
 export function SettingsMenu({ setRulesm }: SettingsProps) {
+	const { t } = useTranslation();
 	const { handleApiError } = useNotification();
 	const { lobby } = useLobby();
 
@@ -881,7 +888,7 @@ export function SettingsMenu({ setRulesm }: SettingsProps) {
 				<div className="grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-y-auto pr-1 lg:grid-cols-2 lg:gap-4">
 					<div className="flex min-h-0 flex-col items-center rounded-xl sm:rounded-2xl border border-yellow-500/20 bg-white/40 p-2 sm:p-3 text-center overflow-y-auto">
 						<p className="text-[0.9rem] leading-none sm:text-base lg:text-lg">
-							<b>CHANGE RULES</b>
+							<b>{t('lobbies.changeRules')}</b>
 						</p>
 						{nshow !== 0 &&
 							<Prerules srules={nrules} />
@@ -893,7 +900,7 @@ export function SettingsMenu({ setRulesm }: SettingsProps) {
 
 					<div className="flex min-h-0 flex-col items-center rounded-xl sm:rounded-2xl border border-yellow-500/20 bg-white/40 p-2 text-center overflow-y-auto lg:p-3">
 						<p className="text-[0.9rem] leading-none sm:text-base lg:text-lg">
-							<b>CURRENT RULES</b>
+							<b>{t('lobbies.currentRules')}</b>
 						</p>
 						<Crules />
 					</div>
@@ -907,7 +914,7 @@ export function SettingsMenu({ setRulesm }: SettingsProps) {
 								font-black tracking-[0.04em] text-yellow-950 shadow-[0_10px_28px_rgba(171,128,38,0.28)] transition hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0 active:scale-[0.98]
 								sm:h-8 sm:min-w-[7.2rem] sm:px-2 sm:text-[0.55rem] md:h-9 md:min-w-[8.5rem] md:text-[0.65rem] lg:h-10 lg:min-w-[11.5rem] lg:px-5 lg:text-xs lg:tracking-[0.16em]"
 						onClick={sendrules}>
-						SUBMIT RULES
+						{t('lobbies.submitRules')}
 					</button>
 
 					<button
@@ -916,19 +923,19 @@ export function SettingsMenu({ setRulesm }: SettingsProps) {
 								shadow-[0_10px_28px_rgba(171,128,38,0.28)] transition hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0 active:scale-[0.98]
 								sm:h-8 sm:min-w-[7.2rem] sm:px-2 sm:text-[0.55rem] md:h-9 md:min-w-[8.5rem] md:text-[0.65rem] lg:h-10 lg:min-w-[11.5rem] lg:px-5 lg:text-xs lg:tracking-[0.16em]"
 						onClick={applyDefaultRules}>
-						DEFAULT RULES
+						{t('lobbies.defaultRules')}
 					</button>
 
 					<select onChange={(e) => handleChange(e.currentTarget.value)}
 						className="h-7 min-w-[8rem] rounded-full border border-yellow-500/40 bg-gradient-to-r from-white/95 to-yellow-100 px-2 text-[0.55rem] font-semibold tracking-[0.02em] text-yellow-900
 								shadow-[0_8px_22px_rgba(171,128,38,0.16)] transition hover:brightness-105 sm:h-8 sm:min-w-[9.5rem] sm:px-3 sm:text-[0.62rem] md:h-9 md:min-w-[11rem] lg:h-10 lg:min-w-[14rem] lg:px-4 lg:text-xs lg:tracking-[0.06em]">
-						<option value="custom">Custom sliders</option>
-						<option value="custom">Custom rules</option>
-						<option value="bullethell">Bullet hell</option>
-						<option value="mbullethell">Macro bullet hell</option>
-						<option value="closequarters">Close quarters</option>
-						<option value="lopghall">Long hall</option>
-						<option value="giantball">Giant ball</option>
+						<option value="custom">{t('lobbies.presets.customSliders')}</option>
+						<option value="custom">{t('lobbies.presets.customRules')}</option>
+						<option value="bullethell">{t('lobbies.presets.bulletHell')}</option>
+						<option value="mbullethell">{t('lobbies.presets.macroBulletHell')}</option>
+						<option value="closequarters">{t('lobbies.presets.closeQuarters')}</option>
+						<option value="lopghall">{t('lobbies.presets.longHall')}</option>
+						<option value="giantball">{t('lobbies.presets.giantBall')}</option>
 					</select>
 				</div>
 			</div>
@@ -937,6 +944,7 @@ export function SettingsMenu({ setRulesm }: SettingsProps) {
 }
 
 export function OnlyRules({ setRulesm }: SettingsProps) {
+	const { t } = useTranslation();
 	function closethebox() {
 		setRulesm(0);
 	}
@@ -958,7 +966,7 @@ export function OnlyRules({ setRulesm }: SettingsProps) {
 						max-lg:[&_p]:!text-[0.68rem] max-lg:[&_span]:!text-[0.66rem] max-lg:[&_div]:!text-[0.72rem] max-lg:[&_b]:!text-[0.82rem]
 						sm:max-lg:[&_p]:!text-[0.76rem] sm:max-lg:[&_span]:!text-[0.72rem] sm:max-lg:[&_div]:!text-[0.82rem] sm:max-lg:[&_b]:!text-[0.95rem]">
 					<p className="text-[0.8rem] leading-none sm:text-base lg:text-lg">
-						<b>CURRENT RULES</b>
+						<b>{t('lobbies.currentRules')}</b>
 					</p>
 					<Crules />
 				</div>
@@ -968,6 +976,7 @@ export function OnlyRules({ setRulesm }: SettingsProps) {
 }
 
 export function ControlBar({ setRulesm }: ControlBarProps) {
+	const { t } = useTranslation();
 	const { names, lobby, addLobby } = useLobby();
 	const [pos, setPos] = useState(-1);
 	const { handleApiError } = useNotification();
@@ -1042,8 +1051,8 @@ export function ControlBar({ setRulesm }: ControlBarProps) {
 					sm:gap-1.5 lg:flex-wrap lg:gap-3 lg:p-1">
 			{(host === -1 || host === lobby!.hostId) && (
 				<button type="button" className={btnPrimary} onClick={strtgame}>
-					<span className="block truncate lg:hidden">START</span>
-					<span className="hidden truncate lg:block">START GAME</span>
+					<span className="block truncate lg:hidden">{t('lobbies.start')}</span>
+					<span className="hidden truncate lg:block">{t('lobbies.startGame')}</span>
 				</button>
 			)}
 
@@ -1053,33 +1062,33 @@ export function ControlBar({ setRulesm }: ControlBarProps) {
 
 				{pos === 2 ? (
 					<>
-						<span className="block truncate lg:hidden">PLAYER</span>
-						<span className="hidden truncate lg:block">TO PLAYER</span>
+						<span className="block truncate lg:hidden">{t('lobbies.player')}</span>
+						<span className="hidden truncate lg:block">{t('lobbies.toPlayer')}</span>
 					</>
 				) : (
 					<>
-						<span className="block truncate lg:hidden">WATCH</span>
-						<span className="hidden truncate lg:block">TO SPECTATOR</span>
+						<span className="block truncate lg:hidden">{t('lobbies.watch')}</span>
+						<span className="hidden truncate lg:block">{t('lobbies.toSpectator')}</span>
 					</>
 				)}
 			</button>
 
 			{(host === -1 || host === lobby!.hostId) && (
 				<button type="button" className={btnClass} onClick={openrulesm}>
-					<span className="block truncate lg:hidden">RULES</span>
-					<span className="hidden truncate lg:block">CHANGE RULES</span>
+					<span className="block truncate lg:hidden">{t('lobbies.rulesShort')}</span>
+					<span className="hidden truncate lg:block">{t('lobbies.changeRules')}</span>
 				</button>
 			)}
 
 			{host !== -1 && host !== lobby!.hostId && (
 				<button type="button" className={btnClass} onClick={openrulesmsee}>
-					<span className="block truncate lg:hidden">RULES</span>
-					<span className="hidden truncate lg:block">SEE RULES</span>
+					<span className="block truncate lg:hidden">{t('lobbies.rulesShort')}</span>
+					<span className="hidden truncate lg:block">{t('lobbies.seeRules')}</span>
 				</button>
 			)}
 
 			<button type="button" className={btnRed} onClick={leavelob}>
-				<span className="block truncate">LEAVE</span>
+				<span className="block truncate">{t('lobbies.leave')}</span>
 			</button>
 		</div>
 	);
@@ -1087,13 +1096,14 @@ export function ControlBar({ setRulesm }: ControlBarProps) {
 }
 
 function Lobcreator() {
+	const { t } = useTranslation();
 	const [lobname, setLobname] = useState("");
 	const { addNotification, handleApiError } = useNotification();
 	const { addLobby } = useLobby();
 
 	function creator() {
 		if (lobname === "" || lobname.trim().length === 0 || lobname.length > 20) {
-			addNotification("Bad lobby name input.");
+			addNotification(t('lobbies.badLobbyName'));
 			return;
 		}
 
@@ -1105,7 +1115,7 @@ function Lobcreator() {
 			<TextField
 				value={lobname}
 				onChange={setLobname}
-				text="CREATE"
+				text={t('lobbies.create')}
 				submit={creator}
 			/>
 		</div>

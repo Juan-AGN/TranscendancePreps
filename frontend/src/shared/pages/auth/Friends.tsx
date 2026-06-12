@@ -7,9 +7,10 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { API_URL } from './config';
 import { OlympusButton } from '../../components/Buttons/ProfileButton';
-import { Search, UserRoundPlus, Users, Frown } from 'lucide-react';
+import { Search, UserRoundPlus, Users } from 'lucide-react';
 
 // ============================================================================
 // TYPES
@@ -42,6 +43,7 @@ function Friends() {
     const [searchResults, setSearchResults] = useState<FriendData[]>([]);
 
     const [searchInput, setSearchInput] = useState('');
+    const { t } = useTranslation();
 
     const navigate = useNavigate();
 
@@ -114,7 +116,7 @@ function Friends() {
     async function searchUsers() {
         // STEP 1: Validate that there are at least 2 characters
         if (searchInput.length < 2) {
-            alert('Type at least 2 characters to search');
+            alert(t('friendsPage.alerts.typeMin2'));
             return;
         }
 
@@ -146,14 +148,14 @@ function Friends() {
             const data = await response.json();
 
             if (response.ok) {
-                alert('✅ Request sent successfully');
+                alert(t('friendsPage.alerts.requestSent'));
             } else {
                 alert(data.error);
             }
 
         } catch (error) {
             console.error('Error:', error);
-            alert('Error sending request');
+            alert(t('friendsPage.alerts.errorSendingRequest'));
         }
     }
 
@@ -169,7 +171,7 @@ function Friends() {
             const data = await response.json();
 
             if (response.ok) {
-                alert('✅ Request accepted! You are now friends');
+                alert(t('friendsPage.alerts.requestAccepted'));
                 // Reload both lists
                 loadRequests();
                 loadFriends();
@@ -179,7 +181,7 @@ function Friends() {
 
         } catch (error) {
             console.error('Error:', error);
-            alert('Error accepting request');
+            alert(t('friendsPage.alerts.errorAcceptingRequest'));
         }
     }
 
@@ -187,7 +189,7 @@ function Friends() {
     // FUNCTION: REJECT REQUEST
     // ========================================================================
     async function rejectRequest(friendId: number) {
-        if (!confirm('Are you sure you want to reject this request?')) return;
+        if (!confirm(t('friendsPage.confirms.rejectRequest'))) return;
 
         try {
             const response = await fetch(`${API_URL}/users/${userId}/reject_request/${friendId}`, {
@@ -196,7 +198,7 @@ function Friends() {
             });
 
             if (response.ok) {
-                alert('✅ Request rejected');
+                alert(t('friendsPage.alerts.requestRejected'));
                 loadRequests();
             } else {
                 const data = await response.json();
@@ -205,7 +207,7 @@ function Friends() {
 
         } catch (error) {
             console.error('Error:', error);
-            alert('Error rejecting request');
+            alert(t('friendsPage.alerts.errorRejectingRequest'));
         }
     }
 
@@ -213,7 +215,7 @@ function Friends() {
     // FUNCTION: REMOVE FRIEND
     // ========================================================================
     async function removeFriend(friendId: number) {
-        if (!confirm('Are you sure you want to remove this friend?')) return;
+        if (!confirm(t('friendsPage.confirms.removeFriend'))) return;
 
         try {
             const response = await fetch(`${API_URL}/users/${userId}/remove_friend/${friendId}`, {
@@ -222,7 +224,7 @@ function Friends() {
             });
 
             if (response.ok) {
-                alert('✅ Friend removed successfully');
+                alert(t('friendsPage.alerts.friendRemoved'));
                 loadFriends();
             } else {
                 const data = await response.json();
@@ -231,7 +233,7 @@ function Friends() {
 
         } catch (error) {
             console.error('Error:', error);
-            alert('Error removing friend');
+            alert(t('friendsPage.alerts.errorRemovingFriend'));
         }
     }
 
@@ -247,7 +249,7 @@ function Friends() {
                             shadow-[0_20px_80px_rgba(90,60,20,0.25),inset_0_1px_0_rgba(255,255,255,0.45)] ">
 
 
-                <h1 className="mt-8 mb-7 text-center text-2xl font-bold text-yellow-700/80 uppercase">👥 Friends Management</h1>
+                <h1 className="mt-8 mb-7 text-center text-2xl font-bold text-yellow-700/80 uppercase">👥 {t('friendsPage.title')}</h1>
 
                 {/* ============================================================ */}
                 {/* TABS */}
@@ -258,14 +260,14 @@ function Friends() {
                             size={15}
                             strokeWidth={2.2}
                             className="text-yellow-700" />
-                        <span>Friends</span>
+                        <span>{t('friendsPage.tabs.friends')}</span>
                     </OlympusButton>
                     <OlympusButton onClick={() => changeTab('requests')}>
                         <UserRoundPlus
                             size={15}
                             strokeWidth={2.2}
                             className="text-yellow-700" />
-                        <span>Pendind Requests</span>
+                        <span>{t('friendsPage.tabs.pendingRequests')}</span>
                         <span>({requestsList.length})</span>
 
                     </OlympusButton>
@@ -274,7 +276,7 @@ function Friends() {
                             size={15}
                             strokeWidth={2.2}
                             className="text-yellow-700" />
-                        <span>Search Users</span>
+                        <span>{t('friendsPage.tabs.searchUsers')}</span>
 
                     </OlympusButton>
                 </div>
@@ -286,9 +288,9 @@ function Friends() {
                     <div>
                         {friendsList.length === 0 ? (
                             <div className="py-12 text-center text-slate-500">
-                                <div className="mb-2 text-6xl">😔</div>                     
-                                <div className="text-lg">You have no friends yet</div>
-                                <div className="text-sm text-slate-400">Search for users to add!</div>
+                                <div className="mb-2 text-6xl">😔</div>
+                                <div className="text-lg">{t('friendsPage.empty.noFriends')}</div>
+                                <div className="text-sm text-slate-400">{t('friendsPage.empty.searchUsersToAdd')}</div>
                             </div>
                         ) : (
                             // .map() in React is like a forEach to display lists
@@ -296,20 +298,20 @@ function Friends() {
                                 <div key={friend.id} className="mb-3 flex flex-col items-center gap-4 rounded-2xl border border-transparent bg-slate-50 p-4 transition hover:border-indigo-200 hover:bg-white hover:shadow-md md:flex-row">
                                     <img
                                         src={friend.avatar ? `${API_URL}${friend.avatar}` : `${API_URL}/avatars/default-avatar.svg`}
-                                        alt="Avatar"
+                                        alt={t('friendsPage.avatarAlt')}
                                         className="h-16 w-16 rounded-full border-2 border-indigo-400 object-cover"
                                     />
                                     <div className="flex-1 text-center md:text-left">
                                         <div className="font-semibold text-slate-800">
                                             {friend.name}
                                             <span className={`ml-2 inline-block rounded-full px-2 py-1 text-xs font-semibold ${friend.onlineStatus ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
-                                                {friend.onlineStatus ? '🟢 Online' : '⚫ Offline'}
+                                                {friend.onlineStatus ? t('friendsPage.status.online') : t('friendsPage.status.offline')}
                                             </span>
                                         </div>
                                         <div className="text-sm text-slate-500">{friend.email}</div>
                                     </div>
                                     <button className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-600" onClick={() => removeFriend(friend.id)}>
-                                        🗑️ Remove
+                                        {t('friendsPage.actions.remove')}
                                     </button>
                                 </div>
                             ))
@@ -325,15 +327,15 @@ function Friends() {
                         {requestsList.length === 0 ? (
                             <div className="py-12 text-center text-slate-500">
                                 <div className="mb-2 text-6xl">📭</div>
-                                <div className="text-lg">You have no pending requests</div>
-                                <div className="text-sm text-slate-400">You will be notified when you receive one</div>
+                                <div className="text-lg">{t('friendsPage.empty.noPendingRequests')}</div>
+                                <div className="text-sm text-slate-400">{t('friendsPage.empty.pendingNotified')}</div>
                             </div>
                         ) : (
                             requestsList.map(req => (
                                 <div key={req.id} className="mb-3 flex flex-col items-center gap-4 rounded-2xl border border-transparent bg-slate-50 p-4 transition hover:border-indigo-200 hover:bg-white hover:shadow-md md:flex-row">
                                     <img
                                         src={req.requester.avatar ? `${API_URL}${req.requester.avatar}` : `${API_URL}/avatars/default-avatar.svg`}
-                                        alt="Avatar"
+                                        alt={t('friendsPage.avatarAlt')}
                                         className="h-16 w-16 rounded-full border-2 border-indigo-400 object-cover"
                                     />
                                     <div className="flex-1 text-center md:text-left">
@@ -341,10 +343,10 @@ function Friends() {
                                         <div className="text-sm text-slate-500">{req.requester.email}</div>
                                     </div>
                                     <button className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-600" onClick={() => acceptRequest(req.requester.id)}>
-                                        ✅ Accept
+                                        {t('friendsPage.actions.accept')}
                                     </button>
                                     <button className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-600" onClick={() => rejectRequest(req.requester.id)}>
-                                        ❌ Reject
+                                        {t('friendsPage.actions.reject')}
                                     </button>
                                 </div>
                             ))
@@ -360,20 +362,20 @@ function Friends() {
                         <div className="mb-6 flex flex-col gap-3 md:flex-row">
                             <input
                                 type="text"
-                                placeholder="Search by name or email..."
+                                placeholder={t('friendsPage.search.placeholder')}
                                 value={searchInput}
                                 onChange={e => setSearchInput(e.target.value)}
                                 onKeyDown={e => e.key === 'Enter' && searchUsers()}
                                 className="min-w-0 flex-1 rounded-xl border-2 border-slate-200 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
                             />
-                            <button className="rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-600" onClick={searchUsers}>🔍 Search</button>
+                            <button className="rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-600" onClick={searchUsers}>{t('friendsPage.search.button')}</button>
                         </div>
 
                         {searchResults.length === 0 && searchInput.length >= 2 && (
                             <div className="py-12 text-center text-slate-500">
                                 <div className="mb-2 text-6xl">🔍</div>
-                                <div className="text-lg">No users found</div>
-                                <div className="text-sm text-slate-400">Try a different search term</div>
+                                <div className="text-lg">{t('friendsPage.empty.noUsersFound')}</div>
+                                <div className="text-sm text-slate-400">{t('friendsPage.empty.tryDifferentTerm')}</div>
                             </div>
                         )}
 
@@ -381,20 +383,20 @@ function Friends() {
                             <div key={result.id} className="mb-3 flex flex-col items-center gap-4 rounded-2xl border border-transparent bg-slate-50 p-4 transition hover:border-indigo-200 hover:bg-white hover:shadow-md md:flex-row">
                                 <img
                                     src={result.avatar ? `${API_URL}${result.avatar}` : `${API_URL}/avatars/default-avatar.svg`}
-                                    alt="Avatar"
+                                    alt={t('friendsPage.avatarAlt')}
                                     className="h-16 w-16 rounded-full border-2 border-indigo-400 object-cover"
                                 />
                                 <div className="flex-1 text-center md:text-left">
                                     <div className="font-semibold text-slate-800">
                                         {result.name}
                                         <span className={`ml-2 inline-block rounded-full px-2 py-1 text-xs font-semibold ${result.onlineStatus ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
-                                            {result.onlineStatus ? '🟢 Online' : '⚫ Offline'}
+                                            {result.onlineStatus ? t('friendsPage.status.online') : t('friendsPage.status.offline')}
                                         </span>
                                     </div>
                                     <div className="text-sm text-slate-500">{result.email}</div>
                                 </div>
                                 <button className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600" onClick={() => sendRequest(result.id)}>
-                                    ➕ Add friend
+                                    {t('friendsPage.actions.addFriend')}
                                 </button>
                             </div>
                         ))}
