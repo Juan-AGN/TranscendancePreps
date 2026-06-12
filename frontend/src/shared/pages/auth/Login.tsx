@@ -52,8 +52,23 @@ function Login() {
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
-            // Session already exists -> go directly to the profile
-            navigate('/profile');
+            fetch(`${API_URL}/auth/me`, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            .then(res => {
+                if (res.ok) {
+                    navigate('/profile');
+                } else {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userId');
+                    localStorage.removeItem('userName');
+                }
+            })
+            .catch(() => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('userName');
+            });
         }
     }, []); // The empty [] means "run only once when the component mounts"
 
