@@ -273,6 +273,7 @@ function Login() {
                                         type="email"
                                         className={inputClass}
                                         placeholder="your@email.com"
+                                        maxLength={254}
                                         value={loginEmail}
                                         onChange={e => setLoginEmail(e.target.value)}
                                         onKeyDown={e => e.key === 'Enter' && doLogin()}
@@ -285,6 +286,7 @@ function Login() {
                                         type="password"
                                         className={inputClass}
                                         placeholder="Your password"
+                                        maxLength={64}
                                         value={loginPassword}
                                         onChange={e => setLoginPassword(e.target.value)}
                                         onKeyDown={e => e.key === 'Enter' && doLogin()}
@@ -316,6 +318,7 @@ function Login() {
                                         type="text"
                                         className={inputClass}
                                         placeholder="Your full name"
+                                        maxLength={20}
                                         value={registerName}
                                         onChange={e => setRegisterName(e.target.value)}
                                     />
@@ -327,6 +330,7 @@ function Login() {
                                         type="email"
                                         className={inputClass}
                                         placeholder="your@email.com"
+                                        maxLength={254}
                                         value={registerEmail}
                                         onChange={e => setRegisterEmail(e.target.value)}
                                     />
@@ -337,7 +341,8 @@ function Login() {
                                     <input
                                         type="password"
                                         className={inputClass}
-                                        placeholder="Minimum 6 characters"
+                                        placeholder="Minimum 8 characters"
+                                        maxLength={64}
                                         value={registerPassword}
                                         onChange={e => setRegisterPassword(e.target.value)}
                                     />
