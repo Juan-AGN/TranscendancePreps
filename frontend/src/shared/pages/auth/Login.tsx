@@ -54,8 +54,23 @@ function Login() {
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
-            // Session already exists -> go directly to the profile
-            navigate('/profile');
+            fetch(`${API_URL}/auth/me`, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            .then(res => {
+                if (res.ok) {
+                    navigate('/profile');
+                } else {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userId');
+                    localStorage.removeItem('userName');
+                }
+            })
+            .catch(() => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('userName');
+            });
         }
     }, []); // The empty [] means "run only once when the component mounts"
 
@@ -260,6 +275,7 @@ function Login() {
                                         type="email"
                                         className={inputClass}
                                         placeholder={t('auth.login.placeholders.loginEmail')}
+                                        maxLength={254}
                                         value={loginEmail}
                                         onChange={e => setLoginEmail(e.target.value)}
                                         onKeyDown={e => e.key === 'Enter' && doLogin()}
@@ -272,6 +288,7 @@ function Login() {
                                         type="password"
                                         className={inputClass}
                                         placeholder={t('auth.login.placeholders.loginPassword')}
+                                        maxLength={64}
                                         value={loginPassword}
                                         onChange={e => setLoginPassword(e.target.value)}
                                         onKeyDown={e => e.key === 'Enter' && doLogin()}
@@ -303,6 +320,7 @@ function Login() {
                                         type="text"
                                         className={inputClass}
                                         placeholder={t('auth.login.placeholders.registerName')}
+                                        maxLength={20}
                                         value={registerName}
                                         onChange={e => setRegisterName(e.target.value)}
                                     />
@@ -314,6 +332,7 @@ function Login() {
                                         type="email"
                                         className={inputClass}
                                         placeholder={t('auth.login.placeholders.loginEmail')}
+                                        maxLength={254}
                                         value={registerEmail}
                                         onChange={e => setRegisterEmail(e.target.value)}
                                     />
@@ -325,6 +344,7 @@ function Login() {
                                         type="password"
                                         className={inputClass}
                                         placeholder={t('auth.login.placeholders.registerPassword')}
+                                        maxLength={64}
                                         value={registerPassword}
                                         onChange={e => setRegisterPassword(e.target.value)}
                                     />
