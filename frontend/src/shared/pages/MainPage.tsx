@@ -76,8 +76,8 @@ export function StartGate({
 				<div className="relative z-10 h-screen w-full flex items-center justify-center overflow-hidden
 								px-[clamp(0.5rem,2vw,2.5rem)]
 								max-sm:items-center max-sm:justify-start max-sm:overflow-hidden max-sm:px-0">
-					<div className="w-[min(77rem,94vw)]  grid grid-cols-4 gap-[clamp(0.4rem,1.4vw,1.5rem)] items-center
-									translate-y-[clamp(1rem,7vh,4.5rem)] max-sm:flex max-sm:w-full max-sm:grid-cols-none
+					<div className="w-[min(77rem,94vw)]  grid grid-cols-4 gap-[clamp(0.3rem,1.3vw,1.4rem)] items-center
+									translate-y-[clamp(2rem,4vh,2rem)] max-sm:flex max-sm:w-full max-sm:grid-cols-none
 									max-sm:gap-10 max-sm:translate-y-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden
 									max-sm:snap-x max-sm:snap-mandatory max-sm:scroll-smooth max-sm:px-[9vw]
 									[scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -110,6 +110,18 @@ export function StartGate({
 							onClick={onGoCreators}
 							delay={700} initialTilt={-8}
 							imageClassName="translate-x-[-0.6rem] translate-y-[clamp(1rem,6vh,3.5rem)] max-sm:scale-[0.55]" />
+
+						<div className="hidden max-sm:block max-sm:min-w-[72vw] max-sm:snap-center">
+							<GenreCard
+								title="arcade"
+								image="/images/BallGameImage2.png"
+								label="Online Game"
+								onClick={() => navigate('/remote-game')}
+								delay={900}
+								initialTilt={-4}
+								imageClassName="scale-[0.75] translate-y-[clamp(1rem,6vh,3.5rem)] max-sm:scale-[0.60]"/>
+						</div>
+
 					</div>
 				</div>
 			</motion.div>
@@ -125,11 +137,31 @@ export function StartGate({
 				}} />
 
 
-			<div className="absolute bottom-12 left-0 right-0 z-20 flex justify-center">
+			<div className="absolute bottom-[clamp(2rem,5vh,3rem)] left-0 right-0 z-20 hidden justify-center sm:flex">
 				<button
 					onClick={() => navigate('/remote-game')}
-					className="text-black border border-white px-6 py-2 rounded-full">
-					Online Game
+					className="group relative inline-flex items-center justify-center gap-3 rounded-full bg-transparent px-5 py-2 transition-transform duration-1500 hover:scale-120">
+
+					<span className="pointer-events-none absolute right-full -mr-4 whitespace-nowrap rounded-full px-4 py-1
+							font-semibold text-[clamp(0.15rem,0.65vw,0.5rem)] font-['Orbitron'] uppercase tracking-[0.2rem]
+							bg-blue-400/20 border border-blue-300/80 text-blue-400 backdrop-blur-md
+							shadow-[0_0px_22px_rgba(96,165,250,0.55)] opacity-0 transition-all duration-1500
+							group-hover:opacity-100">
+						Online
+					</span>
+
+					<img
+						src="/images/BallGameImage2.png"
+						alt="Online Game"
+						className="h-22 w-22 shrink-0 object-contain transition-transform duration-1300 ease-out group-hover:scale-110 group-hover:-translate-y-2" />
+
+					<span className="pointer-events-none absolute left-full -ml-4 whitespace-nowrap rounded-full px-4 py-1
+							font-semibold text-[clamp(0.15rem,0.65vw,0.5rem)] font-['Orbitron'] uppercase tracking-[0.2rem]
+							bg-blue-400/20 border border-blue-300/80 text-blue-400 backdrop-blur-md
+							shadow-[0_0px_22px_rgba(96,165,250,0.55)] opacity-0 transition-all duration-1500
+							group-hover:opacity-100">
+						Game
+					</span>
 				</button>
 			</div>
 			<div className="absolute bottom-0 left-0 right-0 z-20">

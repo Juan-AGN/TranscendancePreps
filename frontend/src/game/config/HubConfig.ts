@@ -53,7 +53,8 @@ export const SCENE_CONFIG = {
 	rosaleda: {
 		pos: new Vector3(0, 2.7, -70), // atras del todo
 		scale: 12, // estadio grande
-		rotation: Math.PI * 2 // rotacion completa (realmente igual a 0 pero por si acaso)
+		rotation: Math.PI * 2, // rotacion completa (realmente igual a 0 pero por si acaso)
+		route: '/remote-game'
 	},
 
 	arcade: {

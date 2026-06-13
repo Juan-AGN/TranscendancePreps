@@ -91,6 +91,16 @@ export class HubSceneBuilder {
 				this.menuInteraction.registerClickableObject(route, mesh, decor.arcade);
 			}
 		});
+
+		// La Rosaleda tambien debe navegar al hacer click.
+		this.loadingQueue.add(async () => {
+			await decor.rosaleda.ready();
+			const mesh = decor.rosaleda.getRootMesh();
+			const route = SCENE_CONFIG.rosaleda.route;
+			if (mesh && route) {
+				this.menuInteraction.registerClickableObject(route, mesh, decor.rosaleda);
+			}
+		});
 	}
 
 	// añade sombras dinamicas a los edificios principales al terminar la carga
