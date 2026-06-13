@@ -328,10 +328,17 @@ export async function usersRoutes(server: FastifyInstance) {
                 });
             }
             
-            // STEP 4: Validate size (max 5MB)
+            // STEP 4: Validate size (min 1KB, max 5MB)
+            const minSize = 1 * 1024;        // 1KB
             const maxSize = 5 * 1024 * 1024; // 5MB
             const buffer = await data.toBuffer(); // converts the image to bytes to measure it
-            
+
+            if (buffer.length < minSize) {
+                return reply.status(400).send({
+                    error: 'The image must be at least 1KB'
+                });
+            }
+
             if (buffer.length > maxSize) {
                 return reply.status(400).send({
                     error: 'The image cannot exceed 5MB'
