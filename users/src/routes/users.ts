@@ -338,7 +338,25 @@ export async function usersRoutes(server: FastifyInstance) {
                 });
             }
             
-            // STEP 5: Generate a unique file name (to avoid overwriting if more than one is uploaded)
+            // STEP 5: Validate real file content using magic bytes
+            // Checks the actual first bytes of the file, not just the extension or mimetype
+            const magicBytes: Record<string, number[][]> = {
+                'image/jpeg': [[0xFF, 0xD8, 0xFF]],
+                'image/png':  [[0x89, 0x50, 0x4E, 0x47]],
+                'image/gif':  [[0x47, 0x49, 0x46, 0x38]],
+                'image/webp': [[0x52, 0x49, 0x46, 0x46]],
+            };
+
+            const fileSignature = [...buffer.slice(0, 4)];
+            const isValidImage = Object.values(magicBytes).some(signatures =>
+                signatures.some(sig => sig.every((byte, i) => fileSignature[i] === byte))
+            );
+
+            if (!isValidImage) {
+                return reply.status(400).send({ error: 'File content does not match a valid image' });
+            }
+
+            // STEP 6: Generate a unique file name (to avoid overwriting if more than one is uploaded)
             const extension = data.filename.split('.').pop(); // gets the type (.jpg)
             const fileName = `avatar-${userId}-${randomUUID()}.${extension}`;
                                     // E.g.: "avatar-5-a3f5b2c8-1d4e-4f7a-9b2c-8e3f1a5d6c7b.png"
