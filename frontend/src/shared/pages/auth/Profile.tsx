@@ -380,6 +380,8 @@ function Profile() {
                         </OlympusButton>
 
                         <input
+                            id="avatar-file-input"
+                            name="avatarFile"
                             ref={fileInputRef}
                             type="file"
                             accept="image/*"
@@ -516,8 +518,10 @@ function Profile() {
                         <h2 className="mb-6 text-2xl font-bold text-yellow-900">✏️ {t('profilePage.edit.title')}</h2>
 
                         <div className="mb-4">
-                            <label className="mb-2 block text-sm font-semibold text-yellow-900/85">{t('profilePage.edit.name')}</label>
+                            <label htmlFor="profile-edit-name" className="mb-2 block text-sm font-semibold text-yellow-900/85">{t('profilePage.edit.name')}</label>
                             <input
+                                id="profile-edit-name"
+                                name="editName"
                                 type="text"
                                 className="w-full rounded-xl border border-yellow-500/35 bg-white/85 px-4 py-3 text-yellow-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
                                 value={editName}
@@ -526,8 +530,10 @@ function Profile() {
                         </div>
 
                         <div className="mb-4">
-                            <label className="mb-2 block text-sm font-semibold text-yellow-900/85">{t('profilePage.edit.email')}</label>
+                            <label htmlFor="profile-edit-email" className="mb-2 block text-sm font-semibold text-yellow-900/85">{t('profilePage.edit.email')}</label>
                             <input
+                                id="profile-edit-email"
+                                name="editEmail"
                                 type="email"
                                 className="w-full rounded-xl border border-yellow-500/35 bg-white/85 px-4 py-3 text-yellow-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
                                 value={editEmail}
@@ -536,8 +542,10 @@ function Profile() {
                         </div>
 
                         <div className="mb-4">
-                            <label className="mb-2 block text-sm font-semibold text-yellow-900/85">{t('profilePage.edit.newPasswordOptional')}</label>
+                            <label htmlFor="profile-edit-password" className="mb-2 block text-sm font-semibold text-yellow-900/85">{t('profilePage.edit.newPasswordOptional')}</label>
                             <input
+                                id="profile-edit-password"
+                                name="editPassword"
                                 type="password"
                                 className="w-full rounded-xl border border-yellow-500/35 bg-white/85 px-4 py-3 text-yellow-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
                                 placeholder={t('profilePage.edit.leaveBlank')}

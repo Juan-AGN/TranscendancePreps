@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-type Submenu = 'arcade' | 'about' | 'profile' | 'user' | null
+type Submenu = 'user' | null
 
 const linkClass =
 	'text-xs md:text-sm lg:text-base font-semibold tracking-wide text-white transition-all duration-200 hover:scale-105 hover:text-amber-300 hover:drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]'
@@ -113,10 +113,10 @@ export function Header() {
 	return (
 		<header
 			className={`absolute left-0 top-0 z-[70] isolate w-full overflow-visible transition-all duration-500 ${menuOpen
-				? 'bg-black/[0.12]  border-b border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.2)] backdrop-blur-2xl'
-				: 'bg-transparent border-b border-transparent'}`}>
-			<div className="relative flex items-center justify-between px-6 py-1 md:px-10 md:py-5">
-				<Link to="/start" onClick={closeMenu} className="-ml-2 md:-ml-1 lg:ml-0">
+				? 'pointer-events-auto bg-black/[0.12]  border-b border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.2)] backdrop-blur-2xl'
+				: 'pointer-events-none bg-transparent border-b border-transparent'}`}>
+			<div className="relative flex pointer-events-none items-center justify-between px-6 py-1 md:px-10 md:py-5">
+				<Link to="/start" onClick={closeMenu} className="-ml-2 pointer-events-auto md:-ml-1 lg:ml-0">
 					<img src="/images/InitTranscendenceIcon.png"
 						alt="logo"
 						className="h-12 w-auto object-contain md:h-14 lg:h-20" />
@@ -127,31 +127,23 @@ export function Header() {
 							 gap-x-3 gap-y-2 px-2 text-center sm:flex sm:w-auto sm:max-w-none sm:gap-5 sm:px-4 lg:gap-10 transition-all duration-500 ${menuOpen
 							? 'pointer-events-auto opacity-100'
 							: 'pointer-events-none -translate-y-7 opacity-0'}`}>
-					<Link to="/start" onClick={closeMenu} className={linkClass}>
-						{t('header.home')}
-					</Link>
 
 					<Link to="/home" onClick={closeMenu} className={linkClass}>
 						{t('header.world3d')}
 					</Link>
 
-					<SubmenuButton name={t('header.arcade')} id="arcade">
-						<Link to="/game" onClick={closeMenu} className={menuLinkClass}>
-							{t('header.game')}
-						</Link>
-						<Link to="/play1vsgame" onClick={closeMenu} className={menuLinkClass}>
-							{t('header.quickPlay')}
-						</Link>
-					</SubmenuButton>
+					<Link to="/game" onClick={closeMenu} className={linkClass}>
+						{t('header.game')}
+					</Link>
 
-					<SubmenuButton name={t('header.about')} id="about">
-						<Link to="/sections/tech" onClick={closeMenu} className={menuLinkClass}>
-							{t('header.info')}
-						</Link>
-						<Link to="/sections/creators" onClick={closeMenu} className={menuLinkClass}>
-							{t('header.creators')}
-						</Link>
-					</SubmenuButton>
+					<Link to="/sections/tech" onClick={closeMenu} className={linkClass}>
+						{t('header.info')}
+					</Link>
+
+					<Link to="/sections/creators" onClick={closeMenu} className={linkClass}>
+						{t('header.creators')}
+					</Link>
+
 
 					<Link to="/settingsUiPage" onClick={closeMenu} className={linkClass}>
 						{t('header.settings')}
@@ -177,7 +169,7 @@ export function Header() {
 							</SubmenuButton>
 						</>
 					) : (
-							<Link to="/login" onClick={closeMenu} className={linkClass}>{t('header.login')}</Link>
+						<Link to="/login" onClick={closeMenu} className={linkClass}>{t('header.login')}</Link>
 					)}
 				</nav>
 
@@ -186,10 +178,7 @@ export function Header() {
 							px-1 py-1 shadow-[0_10px_28px_rgba(0,0,0,0.35)] backdrop-blur-sm transition-all duration-300 sm:hidden ${menuOpen
 							? 'pointer-events-auto translate-y-0 opacity-100'
 							: 'pointer-events-none -translate-y-2 opacity-0'}`}>
-					<div className="grid grid-cols-4 items-center">
-						<Link to="/start" onClick={closeMenu} className={mobileLinkClass}>
-							{t('header.home')}
-						</Link>
+					<div className="grid grid-cols-4 items-center">				
 
 						<Link to="/home" onClick={closeMenu} className={mobileLinkClass}>
 							3D
@@ -240,7 +229,7 @@ export function Header() {
 					</div>
 				</nav>
 
-				<div className="relative z-[80] flex items-center gap-1 -mr-1 md:gap-2 md:mr-0">
+				<div className="relative z-[80] flex pointer-events-auto items-center gap-1 -mr-1 md:gap-2 md:mr-0">
 					<div
 						className={`relative transition-all duration-300 ${menuOpen
 							? 'pointer-events-auto opacity-100'
@@ -273,9 +262,11 @@ export function Header() {
 					</div>
 
 					<button
+						type="button"
 						onClick={toggleMenu}
 						className="flex h-7 w-7 md:h-10 md:w-10 cursor-pointer items-center justify-center bg-black/10 border border-amber-300/55 rounded-full"
-						aria-label={menuOpen ? t('header.closeMenu') : t('header.openMenu')}>
+						aria-label={menuOpen ? t('header.closeMenu') : t('header.openMenu')}
+						aria-expanded={menuOpen}>
 						{menuOpen ? (
 							<span className=" relative -top-[2px] md:-top-[5px] text-2xl md:text-5xl leading-none text-white">×</span>
 						) : (

@@ -36,6 +36,8 @@ export function HubPanelLogin() {				//comp princpipal de login
 		<div className="p-2">
 			<LoginOpts title={t('hubPanelLogin.username')}>
 				<input
+					id="hub-login-username"
+					name="hubLoginUsername"
 					type="text"
 					value={username}
 					onChange={(e) => setUsername(e.target.value)}
@@ -47,6 +49,8 @@ export function HubPanelLogin() {				//comp princpipal de login
 
 			<LoginOpts title={t('hubPanelLogin.password')}>
 				<input
+					id="hub-login-password"
+					name="hubLoginPassword"
 					type="text"
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}

@@ -255,8 +255,10 @@ function Login() {
                                 )}
 
                                 <div className="w-full max-w-sm mx-auto mb-[clamp(0.5rem,2vh,1rem)]">
-                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.email')}</label>
+                                    <label htmlFor="login-email" className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.email')}</label>
                                     <input
+                                        id="login-email"
+                                        name="loginEmail"
                                         type="email"
                                         className={inputClass}
                                         placeholder={t('auth.login.placeholders.loginEmail')}
@@ -267,8 +269,10 @@ function Login() {
                                 </div>
 
                                 <div className="w-full max-w-sm mx-auto mb-[clamp(0.5rem,2vh,1rem)]">
-                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.password')}</label>
+                                    <label htmlFor="login-password" className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.password')}</label>
                                     <input
+                                        id="login-password"
+                                        name="loginPassword"
                                         type="password"
                                         className={inputClass}
                                         placeholder={t('auth.login.placeholders.loginPassword')}
@@ -298,8 +302,10 @@ function Login() {
                                 )}
 
                                 <div className="mx-auto max-w-sm w-full mb-[clamp(0.5rem,2vh,1rem)] ">
-                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.name')}</label>
+                                    <label htmlFor="register-name" className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.name')}</label>
                                     <input
+                                        id="register-name"
+                                        name="registerName"
                                         type="text"
                                         className={inputClass}
                                         placeholder={t('auth.login.placeholders.registerName')}
@@ -309,8 +315,10 @@ function Login() {
                                 </div>
 
                                 <div className="mx-auto max-w-sm w-full mb-[clamp(0.5rem,2vh,1rem)]">
-                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.email')}</label>
+                                    <label htmlFor="register-email" className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.email')}</label>
                                     <input
+                                        id="register-email"
+                                        name="registerEmail"
                                         type="email"
                                         className={inputClass}
                                         placeholder={t('auth.login.placeholders.loginEmail')}
@@ -320,8 +328,10 @@ function Login() {
                                 </div>
 
                                 <div className="mx-auto max-w-sm w-full mb-[clamp(0.5rem,2vh,1rem)]">
-                                    <label className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.password')}</label>
+                                    <label htmlFor="register-password" className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.password')}</label>
                                     <input
+                                        id="register-password"
+                                        name="registerPassword"
                                         type="password"
                                         className={inputClass}
                                         placeholder={t('auth.login.placeholders.registerPassword')}
