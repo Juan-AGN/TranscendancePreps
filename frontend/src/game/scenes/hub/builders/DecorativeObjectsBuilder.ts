@@ -42,19 +42,18 @@ export class DecorativeObjectsBuilder {
 	): DecorObjects {
 		// mesa de ping pong
 		const pingpong = new PingPongTable(scene, SCENE_CONFIG.pingpong.pos, SCENE_CONFIG.pingpong.scale, SCENE_CONFIG.pingpong.rotation, shadow);
-		loadingQueue.add(() => pingpong.ready());
+		loadingQueue.add('Loading ping pong table', () => pingpong.ready());
 
 		// torre monica
 		const torre = new TorreMonica(scene, SCENE_CONFIG.torre.pos, SCENE_CONFIG.torre.scale, SCENE_CONFIG.torre.rotation, shadow);
-		loadingQueue.add(() => torre.ready());
-
+		loadingQueue.add('Loading Torre Monica', () => torre.ready());
 		// estadio la rosaleda
 		const rosaleda = new LaRosaleda(scene, SCENE_CONFIG.rosaleda.pos, SCENE_CONFIG.rosaleda.scale, shadow, SCENE_CONFIG.rosaleda.rotation);
-		loadingQueue.add(() => rosaleda.ready());
+		loadingQueue.add('Loading Stadium', () => rosaleda.ready());
 
 		// arcade
 		const arcade = new Arcade(scene, SCENE_CONFIG.arcade.pos, SCENE_CONFIG.arcade.scale, shadow, SCENE_CONFIG.arcade.rotation);
-		loadingQueue.add(() => arcade.ready());
+		loadingQueue.add('Loading Arcade 3D', () => arcade.ready());
 
 		const totemIsra = new Totems(
 			scene,
@@ -64,7 +63,7 @@ export class DecorativeObjectsBuilder {
 			shadow,
 			SCENE_CONFIG.totemIsra.rotation
 		);
-		loadingQueue.add(() => totemIsra.ready());
+		loadingQueue.add('Loading TotemIsra',() => totemIsra.ready());
 
 		const totemCarlos = new Totems(
 			scene,
@@ -74,7 +73,7 @@ export class DecorativeObjectsBuilder {
 			shadow,
 			SCENE_CONFIG.totemCarlos.rotation
 		);
-		loadingQueue.add(() => totemCarlos.ready());
+		loadingQueue.add('Loading TotemCarlos',() => totemCarlos.ready());
 
 		const totemDani = new Totems(
 			scene,
@@ -84,7 +83,7 @@ export class DecorativeObjectsBuilder {
 			shadow,
 			SCENE_CONFIG.totemDani.rotation
 		);
-		loadingQueue.add(() => totemDani.ready());
+		loadingQueue.add('Loading TotemDani',() => totemDani.ready());
 
 		const totemJuan = new Totems(
 			scene,
@@ -94,7 +93,7 @@ export class DecorativeObjectsBuilder {
 			shadow,
 			SCENE_CONFIG.totemJuan.rotation
 		);
-		loadingQueue.add(() => totemJuan.ready());
+		loadingQueue.add('Loading TotemJuan',() => totemJuan.ready());
 
 		const pedestalPc = new Atrezzo(
 			scene,
@@ -104,7 +103,7 @@ export class DecorativeObjectsBuilder {
 			shadow,
 			SCENE_CONFIG.pedestalPc.rotation
 		);
-		loadingQueue.add(() => pedestalPc.ready());
+		loadingQueue.add('Loading Computer Login',() => pedestalPc.ready());
 
 		const pedestalArcade = new Atrezzo(
 			scene,
@@ -114,7 +113,7 @@ export class DecorativeObjectsBuilder {
 			shadow,
 			SCENE_CONFIG.pedestalArcade.rotation
 		);
-		loadingQueue.add(() => pedestalArcade.ready());
+		loadingQueue.add('Loading Pedestal',() => pedestalArcade.ready());
 
 		const pedestalPingpong = new Atrezzo(
 			scene,
@@ -124,7 +123,7 @@ export class DecorativeObjectsBuilder {
 			shadow,
 			SCENE_CONFIG.pedestalPingpong.rotation
 		);
-		loadingQueue.add(() => pedestalPingpong.ready());
+		loadingQueue.add('Loading Pedestal',() => pedestalPingpong.ready());
 
 		const pedestalTrophy = new Atrezzo(
 			scene,
@@ -134,7 +133,7 @@ export class DecorativeObjectsBuilder {
 			shadow,
 			SCENE_CONFIG.pedestalTrophy.rotation
 		);
-		loadingQueue.add(() => pedestalTrophy.ready());
+		loadingQueue.add('Loading Pedestal',() => pedestalTrophy.ready());
 
 		const streetLamps: Atrezzo[] = SCENE_CONFIG.streetLamps.items.map((item) => {
 			const streetLamp = new Atrezzo(
@@ -146,7 +145,7 @@ export class DecorativeObjectsBuilder {
 				item.rotation
 			);
 
-			loadingQueue.add(() => streetLamp.ready());
+			loadingQueue.add('Loading Street Lamps',() => streetLamp.ready());
 			return streetLamp;
 		});
 
@@ -160,7 +159,7 @@ export class DecorativeObjectsBuilder {
 				item.rotation
 			);
 
-			loadingQueue.add(() => palm.ready());
+			loadingQueue.add('Loading Palms',() => palm.ready());
 			return palm;
 		});
 
@@ -174,7 +173,7 @@ export class DecorativeObjectsBuilder {
 				item.rotation
 			);
 
-			loadingQueue.add(() => torch.ready());
+			loadingQueue.add('Loading Torchs',() => torch.ready());
 			return torch;
 		});
 
@@ -188,7 +187,7 @@ export class DecorativeObjectsBuilder {
 				item.rotation
 			);
 
-			loadingQueue.add(() => column.ready());
+			loadingQueue.add('Loading Columns',() => column.ready());
 			return column;
 		});
 		return {

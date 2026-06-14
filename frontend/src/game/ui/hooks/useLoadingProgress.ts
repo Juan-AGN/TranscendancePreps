@@ -9,12 +9,10 @@ export function useLoadingProgress() {
 	const [label, setLabel] = useState('Initializing Transcende')// texto que enseño al usuario (rollo "cargando cosas...")
 	const [isComplete, setIsComplete] = useState(false)// flag pa saber si ya he terminado (y cambiar pantalla)
 	const updateProgress = useCallback(
-		(loaded: number, total: number, newLabel?: string) => {
-			// calculo el porcentaje- IMPORTANTE:- evito division por 0 (si total = 0)
-			const percentage = total > 0 ? (loaded / total) * 100 : 0
-			setProgress(percentage) // actualizo barra
+		(percentage: number, newLabel?: string) => {
+			setProgress(Math.max(0, Math.min(100, percentage)))
 			if (newLabel) {
-				setLabel(newLabel)// si me pasan texto nuevo → lo cambio
+				setLabel(newLabel)
 			}
 		},
 		[]

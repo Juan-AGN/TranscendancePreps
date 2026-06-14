@@ -31,20 +31,20 @@ export class HubObjectsBuilder {
 			SCENE_CONFIG.townhouse.rotation,
 			shadow
 		);
-		const trophy    = new Trophy(scene, SCENE_CONFIG.trophy.pos, SCENE_CONFIG.trophy.scale, shadow);
-		const lafarola  = new LaFarola(scene, SCENE_CONFIG.lafarola.pos, SCENE_CONFIG.lafarola.scale, shadow, SCENE_CONFIG.lafarola.rotation);
-		const computer  = new Computer(scene, SCENE_CONFIG.computer.pos, SCENE_CONFIG.computer.scale, SCENE_CONFIG.computer.rotation, shadow);
+		const trophy = new Trophy(scene, SCENE_CONFIG.trophy.pos, SCENE_CONFIG.trophy.scale, shadow);
+		const lafarola = new LaFarola(scene, SCENE_CONFIG.lafarola.pos, SCENE_CONFIG.lafarola.scale, shadow, SCENE_CONFIG.lafarola.rotation);
+		const computer = new Computer(scene, SCENE_CONFIG.computer.pos, SCENE_CONFIG.computer.scale, SCENE_CONFIG.computer.rotation, shadow);
 
 		// para añadir un objeto clickable nuevo: solo añadir 1 entrada aqui
 		const interactives = [
 			{ obj: townhouse, route: SCENE_CONFIG.townhouse.route },
-			{ obj: trophy,    route: SCENE_CONFIG.trophy.route },
-			{ obj: lafarola,  route: SCENE_CONFIG.lafarola.route },
-			{ obj: computer,  route: SCENE_CONFIG.computer.route },
+			{ obj: trophy, route: SCENE_CONFIG.trophy.route },
+			{ obj: lafarola, route: SCENE_CONFIG.lafarola.route },
+			{ obj: computer, route: SCENE_CONFIG.computer.route },
 		];
 
 		interactives.forEach(({ obj, route }) => {
-			loadingQueue.add(async () => {
+			loadingQueue.add(`Loading ${route}`, async () => {
 				await obj.ready();
 				const mesh = obj.getRootMesh();
 				if (mesh)

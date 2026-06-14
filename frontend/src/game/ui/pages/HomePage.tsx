@@ -1,16 +1,16 @@
-import { useState } from 'react'
-import { useLoadingProgress } from '../hooks/useLoadingProgress'
-import { useBabylonScene } from '../hooks/useBabylonScene'
-import { HubPanel } from '../components/HubPanel'
-import { HubPanelSettings } from '../components/HubPanelSettings'
-import { HubPanelLogin } from '../components/HubLoginPanel'
+import { useState } from 'react';
+import { useLoadingProgress } from '../hooks/useLoadingProgress';
+import { useBabylonScene } from '../hooks/useBabylonScene';
+import { HubPanel } from '../components/HubPanel';
+import { HubPanelSettings } from '../components/HubPanelSettings';
+import { HubPanelLogin } from '../components/HubLoginPanel';
 
 export function HomePage() {
 	// Hook que gestiona la lógica matemática de la barra de progreso
-	const { updateProgress, complete } = useLoadingProgress()
+	const { progress, label, isComplete, updateProgress, complete } = useLoadingProgress();
 
 	// Estado del panel activo (null = ninguno abierto)
-	const [activePanel, setActivePanel] = useState<string | null>(null)
+	const [activePanel, setActivePanel] = useState<string | null>(null);
 
 	// Inicializamos el motor 3D
 	useBabylonScene({
@@ -18,7 +18,7 @@ export function HomePage() {
 		enabled: true,
 		// Conectamos los eventos de carga del motor con nuestra UI
 		onProgress: (percentage, newLabel) => {
-			updateProgress(percentage, 100, newLabel)
+			updateProgress(percentage, newLabel)
 		},
 		onComplete: () => {
 			complete() //Carga Completa
@@ -80,6 +80,25 @@ export function HomePage() {
 						className="w-full h-full outline-none"
 						style={{ touchAction: 'none' }}
 					/>
+
+					{!isComplete && (
+						<div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/70 px-6 text-center backdrop-blur-sm">
+							<div className="mb-4 text-xl font-bold tracking-[0.25em] text-yellow-200">
+								LOADING 3D WORLD
+							</div>
+
+							<div className="w-full max-w-md overflow-hidden rounded-full border border-yellow-400/50 bg-black/50 p-1">
+								<div
+									className="h-3 rounded-full bg-yellow-300 transition-all duration-300"
+									style={{ width: `${progress}%` }}
+								/>
+							</div>
+
+							<div className="mt-3 text-sm font-medium text-yellow-100/80">
+								{label} · {Math.round(progress)}%
+							</div>
+						</div>
+					)}
 
 					{activePanel === 'settings' && (
 						<HubPanel title="⚙ Settings" onClose={() => setActivePanel(null)}>
