@@ -220,8 +220,9 @@ async function changetoplay(handleApiError: (msg: any) => void, tlobby: Lobby | 
 }
 
 export function MiniLobby({ lobbyItem }: { lobbyItem: Lobby }) {
+	const { t } = useTranslation();
 	const { names, addLobby } = useLobby();
-	const [name, setName] = useState(`User ${lobbyItem.hostId}`);
+	const [name, setName] = useState(`${t('lobbies.user')} ${lobbyItem.hostId}`);
 	const { handleApiError } = useNotification();
 	const lobbyx = lobbyItem.id;
 
@@ -249,28 +250,28 @@ export function MiniLobby({ lobbyItem }: { lobbyItem: Lobby }) {
 
 				<div className="min-w-0 flex-1">
 					<h2 className="truncate text-lg font-black tracking-wide text-yellow-950">
-						Lobby {lobbyItem.id}
+						{t('lobbies.lobby')} {lobbyItem.id}
 					</h2>
 
 					<p className="mt-1 truncate text-sm font-medium text-yellow-800/75">
-						Host: {name}
+						{t('lobbies.host')}: {name}
 					</p>
 				</div>
 
 				<div className="rounded-full border border-emerald-300/50 bg-emerald-100/80 px-3 py-1 text-[0.65rem] font-black uppercase tracking-[0.2em] text-emerald-700">
-					Open
+					{t('lobbies.open')}
 				</div>
 			</div>
 
 			<div className="relative z-10 mt-5 grid grid-cols-2 gap-3">
 				<div className="rounded-full border border-yellow-500/25 bg-white/45 px-4 py-2 text-sm font-medium text-yellow-900">
 					<span className="mr-2 text-yellow-700">♟</span>
-					Players: {lobbyItem.players.length}
+					{t('lobbies.players')}: {lobbyItem.players.length}
 				</div>
 
 				<div className="rounded-full border border-yellow-500/25 bg-white/45 px-4 py-2 text-sm font-medium text-yellow-900">
 					<span className="mr-2 text-yellow-700">◉</span>
-					Spectators: {lobbyItem.spectators.length}
+					{t('lobbies.spectators')}: {lobbyItem.spectators.length}
 				</div>
 			</div>
 
@@ -283,6 +284,7 @@ export function MiniLobby({ lobbyItem }: { lobbyItem: Lobby }) {
 
 }
 export function Lobbies() {
+	const { t } = useTranslation();
 	const [response, setResponse] = useState<Lobbys | null>(null);
 
 	useEffect(() => {
@@ -303,7 +305,7 @@ export function Lobbies() {
 		return (
 			<div className="relative z-10 flex h-full w-full items-center justify-center px-6 text-center">
 				<p className="text-sm text-slate-500">
-					Unable to reach lobbies, try again later!
+					{t('lobbies.unableToReach')}
 				</p>
 			</div>
 		);
@@ -315,11 +317,11 @@ export function Lobbies() {
 			<div className="mb-8 text-center">
 				<h1
 					className="text-3xl font-black tracking-[0.45em] text-yellow-900 drop-shadow-sm sm:text-4xl">
-					LOBBIES
+					{t('lobbies.title')}
 				</h1>
 
 				<p className="mt-3 text-sm font-medium text-yellow-800/80 sm:text-base">
-					Choose a room to join or create a new one below.
+					{t('lobbies.subtitle')}
 				</p>
 			</div>
 
@@ -327,7 +329,7 @@ export function Lobbies() {
 				<div className="flex flex-1 items-center justify-center text-center">
 					<div
 						className=" rounded-full border border-yellow-500/25 bg-white/50 px-7 py-3 text-sm font-medium text-yellow-900/65 backdrop-blur-sm">
-						No lobbies available
+						{t('lobbies.noLobbiesAvailable')}
 					</div>
 				</div>
 			) : (
@@ -346,7 +348,7 @@ export function Lobbies() {
 export function MiniUser({ user }: { user: number }) {
 	const { t } = useTranslation();
 	const { names, lobby } = useLobby();
-	const [username, setUsername] = useState(`User ${user}`);
+	const [username, setUsername] = useState(`${t('lobbies.user')} ${user}`);
 	const [img, setImg] = useState("");
 
 	async function updtusername() {
@@ -369,8 +371,13 @@ export function MiniUser({ user }: { user: number }) {
 			{img && img !== "" ? (
 				<img
 					className="h-10 w-10 rounded-full object-cover border border-yellow-500/25"
-					src={img}
-				/>
+					src={img || '/images/NoImage.png'}
+					onError={(e) => {
+						const image = e.target as HTMLImageElement;
+						image.onerror = null;
+						image.src = '/images/NoImage.png';
+					}}
+					alt={t('lobbies.avatarAlt')} />
 			) : (
 				<div className="flex h-10 w-10 items-center justify-center rounded-full border border-yellow-500/25 bg-white/60 text-yellow-700">
 					◉
@@ -387,8 +394,9 @@ export function MiniUser({ user }: { user: number }) {
 }
 
 export function Minimini({ user }: { user: number }) {
+	const { t } = useTranslation();
 	const { names, lobby } = useLobby();
-	const [username, setUsername] = useState(`User ${user}`);
+	const [username, setUsername] = useState(`${t('lobbies.user')} ${user}`);
 	const [img, setImg] = useState("");
 
 	async function updtusername() {
@@ -410,8 +418,14 @@ export function Minimini({ user }: { user: number }) {
 				text-yellow-900 backdrop-blur-sm whitespace-nowrap">
 			{img && img !== "" ? (
 				<img
-					className="h-8 w-8 rounded-full object-cover border border-yellow-500/25"
-					src={img}
+					className="h-10 w-10 rounded-full object-cover border border-yellow-500/25"
+					src={img || '/images/NoImage.png'}
+					onError={(e) => {
+						const image = e.target as HTMLImageElement;
+						image.onerror = null;
+						image.src = '/images/NoImage.png';
+					}}
+					alt={t('lobbies.avatarAlt')}
 				/>
 			) : (
 				<div className="flex h-8 w-8 items-center justify-center rounded-full border border-yellow-500/25 bg-white/60 text-yellow-700 text-xs">
@@ -430,8 +444,9 @@ type ResProps = {
 };
 
 export function Placement({ place, user }: ResProps) {
-	const { result } = useWs();
-	const [username, setUsername] = useState(`User ${result?.first}`);
+	const { t } = useTranslation();
+	//const { result } = useWs();
+	const [username, setUsername] = useState(`${t('lobbies.user')} ${user}`);
 	const [img, setImg] = useState("");
 	const { names } = useLobby();
 	const [colors, setColors] = useState("bg-linear-to-r from-amber-200 to-amber-300");
@@ -458,9 +473,28 @@ export function Placement({ place, user }: ResProps) {
 	});
 
 	if (img && img != "")
-		return (<div className={`text-center bg-linear-to-r ${colors} w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap justify-center items-center content-center`}><p>{place}º </p><img className="rounded-3xl h-[80%] aspect-square m-2" src={img}></img> {username}</div>);
+		return (
+			<div className={`text-center bg-linear-to-r ${colors} w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap justify-center items-center content-center`}>
+				<p>{place}º </p>
+				<img
+					className="rounded-3xl h-[80%] aspect-square m-2"
+					src={img || '/images/NoImage.png'}
+					onError={(e) => {
+						const image = e.target as HTMLImageElement;
+						image.onerror = null;
+						image.src = '/images/NoImage.png';
+					}}
+					alt={t('lobbies.avatarAlt')}/>
+				{username}
+			</div>
+		);
 	else
-		return (<div className={`text-center bg-linear-to-r ${colors} w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap justify-center items-center content-center`}><p className="m-2">{place}º </p>{username}</div>);
+		return (
+			<div className={`text-center bg-linear-to-r ${colors} w-fit m-2 p-2 rounded-2xl shadow flex h-10 flex-nowrap whitespace-nowrap justify-center items-center content-center`}>
+				<p className="m-2">{place}º </p>
+				{username}
+			</div>
+		);
 }
 
 export function ShowResults() {
@@ -491,7 +525,7 @@ export function SingLobby({ rulesm, setRulesm }: RulesStateProps) {
 	const { t } = useTranslation();
 	const { result } = useWs();
 	const { names, lobby } = useLobby();
-	const [host, setHost] = useState(`User ${lobby!.hostId}`);
+	const [host, setHost] = useState(`${t('lobbies.user')} ${lobby!.hostId}`);
 
 	async function updthost() {
 		setHost(await names.checknameupdate(lobby!.hostId));

@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { API_URL } from './config';
 import { OlympusButton } from '../../components/Buttons/ProfileButton';
 import { Pencil, ImagePlus, Users, Power, LogOut } from 'lucide-react';
+import { validateSession, clearSession } from './session';
 
 // ============================================================================
 // TYPES (TypeScript)
@@ -75,32 +76,29 @@ function Profile() {
     // EFFECT: Load data when the page opens (after the 'return' renders on screen)
     // ========================================================================
     useEffect(() => {
-        // Read token from URL if coming from 42 login
-        const params = new URLSearchParams(window.location.search);
-        const tokenFromURL = params.get('token');
-        const userIdFromURL = params.get('userId');
+	async function checkSessionAndLoadProfile() {
+		const token = localStorage.getItem('token');
+		const userId = localStorage.getItem('userId');
 
-        if (tokenFromURL && userIdFromURL) {
-            localStorage.setItem('token', tokenFromURL);
-            localStorage.setItem('userId', userIdFromURL);
-            // Clean the URL so the token is not visible
-            window.history.replaceState({}, '', '/profile');
-        }
+		if (!token || !userId) {
+			clearSession();
+			navigate('/login');
+			return;
+		}
 
-        // STEP 1: Get the token from localStorage
-        const token = localStorage.getItem('token');
-        const userId = localStorage.getItem('userId');
+		const isValid = await validateSession();
 
-        // STEP 2: If there is no session, redirect to login
-        if (!token || !userId) {
-            navigate('/login');
-            return;
-        }
+		if (!isValid) {
+			navigate('/login');
+			return;
+		}
 
-        // STEP 3: Load the profile and friends
-        loadProfile(parseInt(userId), token);
-        loadFriends(parseInt(userId), token);
-    }, []); // [] = run only on mount
+		loadProfile(parseInt(userId), token);
+		loadFriends(parseInt(userId), token);
+	}
+
+	checkSessionAndLoadProfile();
+}, []);
 
     // ========================================================================
     // FUNCTION: Load profile data

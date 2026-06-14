@@ -56,7 +56,8 @@ export function SettingsUiPage() {
 			<div className="hidden dark:block absolute inset-0 bg-black/70 pointer-events-none" />
 			<div className="relative z-10 mx-auto min-h-[65vh] w-full max-w-6xl overflow-hidden rounded-3xl border border-yellow-500/45 bg-white/70 dark:bg-white/[0.07]
 							backdrop-blur-[50px] shadow-[0_20px_80px_rgba(90,60,20,0.25),inset_0_1px_0_rgba(255,255,255,0.45)] transition-colors duration-300">
-				<div className="mt-8 px-3 text-center text-5xl font-medium text-[#a67c42] font-['Cormorant_Garamond'] uppercase tracking-[0.2em] md:text-6xl md:tracking-[0.32em]">
+				<div className="mt-6 w-full overflow-hidden px-2 text-center font-['Cormorant_Garamond'] text-[2.15rem] font-medium uppercase leading-none tracking-[0.10em] text-[#a67c42]
+							sm:text-5xl sm:tracking-[0.18em] md:mt-8 md:text-6xl md:tracking-[0.32em]">
 					{t('settingsPage.title')}
 				</div>
 				<div className="mt-8 flex flex-wrap justify-center gap-3">
