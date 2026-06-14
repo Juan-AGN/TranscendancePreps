@@ -15,10 +15,8 @@ import { Mainpage2 } from '../../shared/pages/SectionsPage'
 
 import { Menu2DPage } from '../../ui2d/pages/Menu2DPage'
 import { Game2DPage } from "../../ui2d/pages/Game2DPage"
-import { Tournament2DPage } from "../../ui2d/pages/Tournament2DPage"
 import { Settings2DPage } from "../../ui2d/pages/Settings2DPage"
 import { GameSettings2DPage } from '../../ui2d/pages/settings/GameSettings2DPage'
-import { AudioSettings2DPage } from '../../ui2d/pages/settings/AudioSettings2DPage'
 import { DisplaySettings2DPage } from '../../ui2d/pages/settings/DisplaySettings2DPage'
 
 // Páginas de juego 2D
@@ -101,10 +99,10 @@ const routes: RouteObject[] = [
 				path: 'game',
 				element: <Game2DPage />,
 			},
-			{
+			/*{
 				path: 'tournament',
 				element: <Tournament2DPage />,
-			},
+			},*/
 			{
 				path: 'settings',
 				element: <Settings2DPage />,
@@ -117,10 +115,10 @@ const routes: RouteObject[] = [
 				path: 'gamesettings',
 				element: <GameSettings2DPage />,
 			},
-			{
+			/*{
 				path: 'audio',
 				element: <AudioSettings2DPage />
-			},
+			},*/
 			{
 				path: 'display',
 				element: <DisplaySettings2DPage />
