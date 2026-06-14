@@ -60,6 +60,7 @@ export const useBabylonScene = ({
 					// Creamos el label informativo pa mostrar al usuario
 					const label = `${currentLabel}...  ${loaded}/${total}`;
 
+					
 					// Ejecutamos el callback de progreso si existe
 					// ?. -> optional chaining (solo llama si onProgress no es undefined)
 					onProgress?.(percentage, label);

@@ -30,7 +30,7 @@ export class TownHouse extends InteractiveObject {
 			const result = await SceneLoader.ImportMeshAsync(
 				'',
 				'/models/',
-				'NewPolo.glb',
+				'NewPolo_draco.glb',
 				 this.scene);
 			if (result.meshes.length === 0) {
 				return;

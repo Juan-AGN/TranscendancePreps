@@ -32,7 +32,7 @@ import { HologramController } from '../../effects/HologramController';
 import { SkySetup } from '../../config/SkySetup';
 import { GroundSetup } from '../../config/GroundSetup';
 
-const ENABLE_HDRI = true; // false para la consola de firefox
+const ENABLE_HDRI = false; // false para la consola de firefox
 
 // Clase molde pa crear la escena 3D del Hub {cerebro del juego}
 export class HubScene {

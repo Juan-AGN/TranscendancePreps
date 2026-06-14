@@ -1,62 +1,82 @@
+// ┌────────────────────────────────────────────────────────────┐
+// │                    core/router/index.tsx                   │
+// ├────────────────────────────────────────────────────────────┤
+// │ Main frontend routing configuration.                       │
+// │                                                            │
+// │ Responsibilities:                                          │
+// │ - Define all application routes.                           │
+// │ - Connect React Router with the app layout.                │
+// │ - Validate dynamic route parameters.                       │
+// │ - Redirect unknown routes to a safe page.                  │
+// └────────────────────────────────────────────────────────────┘
 
-//importamos 2 herramientas desde la libreria RRD.
-//createBrowserRouter->para crear el objeto que gestiona la historia y las URLS
-//RouterProvider-> componente de React que conecta el enroutador con la interfaz visual.
-import { createBrowserRouter, RouterProvider, useNavigate, useParams, Navigate } from "react-router-dom"
-// importa un tipo de Typescript, desde local tipes (decimos que propiedades debe tener un objeto de ruta (como path o element))
+//REACT ROUTER
+import { createBrowserRouter, RouterProvider, useNavigate, useParams, Navigate } from "react-router-dom";
 import type { RouteObject } from './types'
-// Layout principal
-import { RootLayout } from '../../shared/components/layout/RootLayout'
-//Paginas a mdedida que las vamos creando poner aqui!
-import { HomePage } from "../../game/ui/pages/HomePage"
-import { SplashScreen } from '../../shared/pages/IntroPage'
-import { StartGate } from '../../shared/pages/MainPage'
-import { Mainpage2 } from '../../shared/pages/SectionsPage'
 
-import { Menu2DPage } from '../../ui2d/pages/Menu2DPage'
-import { Game2DPage } from "../../ui2d/pages/Game2DPage"
-import { Settings2DPage } from "../../ui2d/pages/Settings2DPage"
-import { GameSettings2DPage } from '../../ui2d/pages/settings/GameSettings2DPage'
-import { DisplaySettings2DPage } from '../../ui2d/pages/settings/DisplaySettings2DPage'
+//SHARED LAYOUT
+import { RootLayout } from '../../shared/components/layout/RootLayout';
 
-// Páginas de juego 2D
-import { Player1vsLocal2D } from '../../ui2d/pages/game2D/1PlayerLocal2d'
-import { Player2vsLocal2D } from '../../ui2d/pages/game2D/2PlayerLocal2d'
-import { SpectatorMode2d } from "../../ui2d/pages/game2D/NoPlayerLocal2d"
+//LANDING & SHARED PAGES
+import { SplashScreen } from '../../shared/pages/IntroPage';
+import { StartGate } from '../../shared/pages/MainPage';
+import { Mainpage2 } from '../../shared/pages/SectionsPage';
+import { PrivacyPolicyPage } from '../../shared/pages/PrivacyPolicyPage';
+import { TermsOfServicePage } from '../../shared/pages/TermsOfServicePage';
+import { SettingsUiPage } from '../../shared/pages/SettingsUiPage';
 
-import { PrivacyPolicyPage } from "../../shared/pages/PrivacyPolicyPage"
-import { TermsOfServicePage } from "../../shared/pages/TermsOfServicePage"
-import { SettingsUiPage } from "../../shared/pages/SettingsUiPage"
+//3D HUB PAGES
+import { HomePage } from "../../game/ui/pages/HomePage";
 
-// Paginas de Auth
-import Login from "../../shared/pages/auth/Login"
-import Profile from "../../shared/pages/auth/Profile"
-import Friends from "../../shared/pages/auth/Friends"
+//2D MENU AND GAME PAGES
+import { Menu2DPage } from '../../ui2d/pages/Menu2DPage';
+import { Game2DPage } from '../../ui2d/pages/Game2DPage';
+import { Player1vsLocal2D } from '../../ui2d/pages/game2D/1PlayerLocal2d';
+import { Player2vsLocal2D } from '../../ui2d/pages/game2D/2PlayerLocal2d';
+import { SpectatorMode2d } from '../../ui2d/pages/game2D/NoPlayerLocal2d';
 
-//REMOTEGAME
+//2D SETTINGS PAGE
+import { Settings2DPage } from '../../ui2d/pages/Settings2DPage';
+import { GameSettings2DPage } from '../../ui2d/pages/settings/GameSettings2DPage';
+import { DisplaySettings2DPage } from '../../ui2d/pages/settings/DisplaySettings2DPage';
+
+//AUTHTENTICATION PAGES
+import Login from '../../shared/pages/auth/Login';
+import Profile from '../../shared/pages/auth/Profile';
+import Friends from '../../shared/pages/auth/Friends';
+
+//REMOTEGAME MULTIPLAYER
 import { RemoteGame } from "../../shared/remote_game/RemoteGame"
 
-const MainSectionsPage = () => {
-	const navigate = useNavigate()
-	const { section } = useParams<{ section: 'tech' | '3d' | 'arcade' | 'creators' }>()
 
-	if (section !== 'tech' && section !== '3d' && section !== 'arcade' && section !== 'creators') {
-		return <Navigate to="/start" replace />
-	}
+const MAIN_SECTIONS = ['tech', '3d', 'arcade', 'creators'] as const;
+
+type MainSection = (typeof MAIN_SECTIONS)[number];
+
+// STEP 1==>: Validate section route parameters before rendering section pages.
+function isMainSection(section: string | undefined): section is MainSection {
+	return MAIN_SECTIONS.includes(section as MainSection);
+}
+
+// STEP 2==>: Render the selected main section or redirect invalid values.
+function MainSectionsPage() {
+	const navigate = useNavigate();
+	const { section } = useParams<{ section: string }>();
+
+	if (!isMainSection(section))
+		return <Navigate to="/start" replace />;
 
 	return (
 		<Mainpage2
 			selectedSection={section}
 			onStart3D={() => navigate('/home')}
-			onGo2DMenu={() => navigate('/menu2D')}
-		/>
-	)
+			onGo2DMenu={() => navigate('/menu2D')}/>
+	);
 }
 
-// Página StartGate - usa useNavigate pa navegacion correcta
-const StartPage = () => {
-	const navigate = useNavigate()
-
+// STEP 3==>: Create the start page callbacks used by the main landing menu.
+function StartPage() {
+	const navigate = useNavigate();
 	return (
 		<StartGate
 			onStart3D={() => navigate('/home')}
@@ -64,12 +84,11 @@ const StartPage = () => {
 			onGoTech={() => navigate('/sections/tech')}
 			onGo3D={() => navigate('/sections/3d')}
 			onGoArcade={() => navigate('/sections/arcade')}
-			onGoCreators={() => navigate('/sections/creators')}
-		/>
+			onGoCreators={() => navigate('/sections/creators')}/>
 	)
 }
 
-// definimos rutas (mapa)
+// STEP 4==>: Define the full application route map.
 const routes: RouteObject[] = [
 	{
 		path: '/',
@@ -165,16 +184,26 @@ const routes: RouteObject[] = [
 			},
 		]
 	}
-]
+];
 
-//creamos el router, llamaos a createBrowserROuter y le pasamos el array de router.
+// STEP 5 ==>: Create the browser router instance used by the app.
 const router = createBrowserRouter(routes)
 
-//se exporta para usarlo en main.tsx o app.tsx, 
-// utlizamos RouterProvider... componente de React, que vigila las URL
-// AppRouter es el componente que se encarga de habilitar el sistema de navegacion en la APP.
-// y devuelve ROuterprovider, que es la libreria que que gestiona la URL y le pasa,os por prop las routes
-// creadas antes con el componente CreateBrowserROutes(routes)
+// STEP 6 ==> Provide the router to the React application.
 export function AppRouter() {
 	return <RouterProvider router={router} />
 }
+
+// ─────────────────────────────────────────────────────────────
+// File summary
+// This file centralizes the frontend navigation system. It defines the route map, validates dynamic section URLs,
+// redirects invalid paths, and exposes AppRouter to the app.
+// MD =====>:
+// - RouteObject: Type used to describe each route.
+// - createBrowserRouter: Creates the browser router from the route map.
+// - RouterProvider: Enables React Router in the application.
+// - Navigate: Redirects the user to another route.
+// - useNavigate: Allows navigation from callbacks.
+// - useParams: Reads dynamic URL parameters.
+// - RootLayout: Shared layout used by the main pages.
+// - AppRouter: Component that provides the router to the app.
