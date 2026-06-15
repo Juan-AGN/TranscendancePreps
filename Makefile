@@ -11,8 +11,9 @@ re: down up
 clean: down
 	docker system prune -f
 
-fclean: down
-	docker system prune -af --volumes
+fclean:
+	docker compose down -v
+	docker system prune -af
 
 logs:
 	docker compose logs -f

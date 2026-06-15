@@ -18,7 +18,7 @@ export async function authRoutes(server: FastifyInstance) {
     // ========================================================================
     // User clicks "Login with 42" and we redirect them to the Intra
     // HTTP Method: GET
-    // URL: http://localhost:3000/auth/42
+    // URL: https://localhost:8889/api/auth/42
     server.get('/auth/42', async (request, reply) => {
 
         const clientId      = process.env.FORTY_TWO_CLIENT_ID;
@@ -38,7 +38,7 @@ export async function authRoutes(server: FastifyInstance) {
     // After the user accepts on the Intra, 42 calls this URL
     // with a temporary 'code' that we exchange for an access token
     // HTTP Method: GET
-    // URL: http://localhost:3000/auth/42/callback?code=XXXXXX
+    // URL: https://localhost:8889/api/auth/42/callback?code=XXXXXX
     server.get('/auth/42/callback', async (request, reply) => {
 
         try {
@@ -65,7 +65,7 @@ export async function authRoutes(server: FastifyInstance) {
 
             if (!fortyTwoResponse.ok) {
                 console.error('42 token exchange failed:', fortyTwoResponse.status, await fortyTwoResponse.text());
-                const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+                const frontendUrl = process.env.FRONTEND_URL || 'https://localhost:8889';
                 return reply.redirect(`${frontendUrl}/?error=oauth_token_failed`);
             }
 
@@ -73,7 +73,7 @@ export async function authRoutes(server: FastifyInstance) {
 
             if (!tokenData.access_token) {
                 console.error('42 token exchange: no access_token in response', tokenData);
-                const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+                const frontendUrl = process.env.FRONTEND_URL || 'https://localhost:8889';
                 return reply.redirect(`${frontendUrl}/?error=oauth_token_missing`);
             }
 
@@ -84,7 +84,7 @@ export async function authRoutes(server: FastifyInstance) {
 
             if (!fortyTwoUserResponse.ok) {
                 console.error('42 user fetch failed:', fortyTwoUserResponse.status, await fortyTwoUserResponse.text());
-                const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+                const frontendUrl = process.env.FRONTEND_URL || 'https://localhost:8889';
                 return reply.redirect(`${frontendUrl}/?error=oauth_user_failed`);
             }
 
@@ -145,14 +145,14 @@ export async function authRoutes(server: FastifyInstance) {
 
             // STEP 7: Redirect to the frontend with the token in the URL
             // The frontend will read it and save it in localStorage
-            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+            const frontendUrl = process.env.FRONTEND_URL || 'https://localhost:8889';
             return reply.redirect(
                 `${frontendUrl}/profile?token=${token}&userId=${user.id}`
             );
 
         } catch (error) {
             console.error('Error in OAuth callback:', error);
-            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+            const frontendUrl = process.env.FRONTEND_URL || 'https://localhost:8889';
             return reply.redirect(`${frontendUrl}/?error=oauth_failed`);
         }
     });
@@ -161,7 +161,7 @@ export async function authRoutes(server: FastifyInstance) {
     // ROUTE 3: VERIFY TOKEN
     // ========================================================================
     // HTTP Method: GET
-    // URL: http://localhost:3000/auth/me
+    // URL: https://localhost:8889/api/auth/me
     // This endpoint verifies if the Bearer token is valid and returns user info
     server.get('/auth/me', { preHandler: authenticate }, async (request, reply) => {
         return reply.send({ ok: true, user: request.user });
@@ -171,7 +171,7 @@ export async function authRoutes(server: FastifyInstance) {
     // ROUTE 4: REFRESH TOKEN
     // ========================================================================
     // HTTP Method: POST
-    // URL: http://localhost:3000/auth/refresh
+    // URL: https://localhost:8889/api/auth/refresh
     // Receives a valid (or recently expired) token and returns a new one
     server.post('/auth/refresh', async (request, reply) => {
         try {

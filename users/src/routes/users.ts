@@ -328,17 +328,42 @@ export async function usersRoutes(server: FastifyInstance) {
                 });
             }
             
-            // STEP 4: Validate size (max 5MB)
+            // STEP 4: Validate size (min 1KB, max 5MB)
+            const minSize = 1 * 1024;        // 1KB
             const maxSize = 5 * 1024 * 1024; // 5MB
             const buffer = await data.toBuffer(); // converts the image to bytes to measure it
-            
+
+            if (buffer.length < minSize) {
+                return reply.status(400).send({
+                    error: 'The image must be at least 1KB'
+                });
+            }
+
             if (buffer.length > maxSize) {
                 return reply.status(400).send({
                     error: 'The image cannot exceed 5MB'
                 });
             }
             
-            // STEP 5: Generate a unique file name (to avoid overwriting if more than one is uploaded)
+            // STEP 5: Validate real file content using magic bytes
+            // Checks the actual first bytes of the file, not just the extension or mimetype
+            const magicBytes: Record<string, number[][]> = {
+                'image/jpeg': [[0xFF, 0xD8, 0xFF]],
+                'image/png':  [[0x89, 0x50, 0x4E, 0x47]],
+                'image/gif':  [[0x47, 0x49, 0x46, 0x38]],
+                'image/webp': [[0x52, 0x49, 0x46, 0x46]],
+            };
+
+            const fileSignature = [...buffer.slice(0, 4)];
+            const isValidImage = Object.values(magicBytes).some(signatures =>
+                signatures.some(sig => sig.every((byte, i) => fileSignature[i] === byte))
+            );
+
+            if (!isValidImage) {
+                return reply.status(400).send({ error: 'File content does not match a valid image' });
+            }
+
+            // STEP 6: Generate a unique file name (to avoid overwriting if more than one is uploaded)
             const extension = data.filename.split('.').pop(); // gets the type (.jpg)
             const fileName = `avatar-${userId}-${randomUUID()}.${extension}`;
                                     // E.g.: "avatar-5-a3f5b2c8-1d4e-4f7a-9b2c-8e3f1a5d6c7b.png"

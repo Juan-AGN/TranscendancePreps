@@ -200,6 +200,32 @@ function Profile() {
     async function saveChanges() {
         if (!user) return;
 
+        // Validate name length
+        if (editName.length < 3 || editName.length > 20) {
+            showNotification('Name must be between 3 and 20 characters', 'error');
+            return;
+        }
+
+        // Validate email format and length
+        const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editEmail);
+        if (!validEmail || editEmail.length > 254) {
+            showNotification('Please enter a valid email address', 'error');
+            return;
+        }
+
+        // Validate password only if provided
+        if (editPassword) {
+            if (editPassword.length < 8 || editPassword.length > 64) {
+                showNotification('Password must be between 8 and 64 characters', 'error');
+                return;
+            }
+            const validPassword = /^(?=.*[A-Z])(?=.*[0-9.!@#$%^&*])/.test(editPassword);
+            if (!validPassword) {
+                showNotification('Password must contain at least one uppercase letter and one number or special character', 'error');
+                return;
+            }
+        }
+
         const token = localStorage.getItem('token');
         const dataToSend: any = { name: editName, email: editEmail };
 
@@ -522,6 +548,7 @@ function Profile() {
                                 name="editName"
                                 type="text"
                                 className="w-full rounded-xl border border-yellow-500/35 bg-white/85 px-4 py-3 text-yellow-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                                maxLength={20}
                                 value={editName}
                                 onChange={e => setEditName(e.target.value)}
                             />
@@ -534,6 +561,7 @@ function Profile() {
                                 name="editEmail"
                                 type="email"
                                 className="w-full rounded-xl border border-yellow-500/35 bg-white/85 px-4 py-3 text-yellow-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                                maxLength={254}
                                 value={editEmail}
                                 onChange={e => setEditEmail(e.target.value)}
                             />
@@ -547,6 +575,7 @@ function Profile() {
                                 type="password"
                                 className="w-full rounded-xl border border-yellow-500/35 bg-white/85 px-4 py-3 text-yellow-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
                                 placeholder={t('profilePage.edit.leaveBlank')}
+                                maxLength={64}
                                 value={editPassword}
                                 onChange={e => setEditPassword(e.target.value)}
                             />
