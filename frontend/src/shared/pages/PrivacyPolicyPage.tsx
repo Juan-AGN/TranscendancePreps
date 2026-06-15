@@ -1,7 +1,14 @@
-import { useTranslation } from 'react-i18next'
+// ┌────────────────────────────────────────────────────────────┐
+// │                    PrivacyPolicyPage.tsx                   │
+// ├────────────────────────────────────────────────────────────┤
+// │ Privacy Policy page required by the subject evaluation.    │
+// │ It renders translated legal information about user data,   │
+// │ security, account deletion and project usage.              │
+// └────────────────────────────────────────────────────────────┘
+import { useTranslation } from 'react-i18next';
 
 export function PrivacyPolicyPage() {
-	const { t } = useTranslation()
+	const { t } = useTranslation();
 	return (
 		<div className="min-h-screen bg-stone-100 dark:bg-black py-20 px-6 md:px-12 text-stone-800 dark:text-white/80 transition-colors duration-300">
 			<div className="max-w-3xl mx-auto space-y-8">
