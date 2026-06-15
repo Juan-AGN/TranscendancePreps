@@ -154,7 +154,6 @@
 			"title": "ARCADE",
 			"home": "HOME",
 			"game": "GAME",
-			"tournament": "TOURNAMENT (SOON)",
 			"settings": "SETTINGS",
 			"login": "LOGIN"
 		},
@@ -419,7 +418,15 @@
 			"infinite": "Infinite",
 			"enabled": "Enabled",
 			"disabled": "Disabled"
-		}
+		},
+		"user": "User",
+		"host": "Host",
+		"open": "Open",
+		"title": "LOBBIES",
+		"subtitle": "Choose a room to join or create a new one below.",
+		"unableToReach": "Unable to reach lobbies, try again later!",
+		"noLobbiesAvailable": "No lobbies available",
+		"avatarAlt": "Avatar"
 	},
 	"settingsPage": {
 		"title": "Settings",
@@ -431,25 +438,63 @@
 		},
 		"general": {
 			"subtitle": "General application preferences",
-			"theme": { "title": "Theme Mode", "desc": "Choose between light or dark", "light": "Light", "dark": "Dark" },
-			"textSize": { "title": "Text Size", "desc": "Choose small, medium or large text across the interface.", "small": "Small", "medium": "Medium", "large": "Large" },
-			"language": { "title": "Language", "desc": "Select the language used across Transcendence." }
+			"theme": {
+				"title": "Theme Mode",
+				"desc": "Choose between light or dark",
+				"light": "Light",
+				"dark": "Dark"
+			},
+			"textSize": {
+				"title": "Text Size",
+				"desc": "Choose small, medium or large text across the interface.",
+				"small": "Small",
+				"medium": "Medium",
+				"large": "Large"
+			},
+			"language": {
+				"title": "Language",
+				"desc": "Select the language used across Transcendence."
+			}
 		},
 		"social": {
 			"subtitle": "Manage your social activity and privacy",
-			"friends": { "title": "Friend Requests", "desc": "Receive notifications when someone sends you a friend request." },
-			"match": { "title": "Match Invitations", "desc": "Get notified when another player invites you to play." },
-			"visibility": { "title": "Profile Visibility", "desc": "Choose whether your profile is visible to other players.", "public": "Public", "private": "Private" }
+			"friends": {
+				"title": "Friend Requests",
+				"desc": "Receive notifications when someone sends you a friend request."
+			},
+			"match": {
+				"title": "Match Invitations",
+				"desc": "Get notified when another player invites you to play."
+			},
+			"visibility": {
+				"title": "Profile Visibility",
+				"desc": "Choose whether your profile is visible to other players.",
+				"public": "Public",
+				"private": "Private"
+			}
 		},
 		"environment": {
 			"subtitle": "Adjust the visual and sound behavior of the interface",
-			"volume": { "title": "Master Volume", "desc": "Control overall game and interface sound level." },
-			"effects": { "title": "Effects Sound", "desc": "Enable or disable game effects sounds." }
+			"volume": {
+				"title": "Master Volume",
+				"desc": "Control overall game and interface sound level."
+			},
+			"effects": {
+				"title": "Effects Sound",
+				"desc": "Enable or disable game effects sounds."
+			}
 		},
 		"system": {
 			"subtitle": "Transcendence system information",
-			"version": { "title": "Version", "desc": "Current application version." },
-			"server": { "title": "Server Status", "desc": "Backend connection status.", "connected": "Connected" }
+			"version": {
+				"title": "Version",
+				"desc": "Current application version."
+			},
+			"server": {
+				"title": "Server Status",
+				"desc": "Backend connection status.",
+				"connected": "Connected"
+			}
 		}
 	}
 }

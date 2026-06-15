@@ -32,7 +32,7 @@ import { HologramController } from '../../effects/HologramController';
 import { SkySetup } from '../../config/SkySetup';
 import { GroundSetup } from '../../config/GroundSetup';
 
-const ENABLE_HDRI = true; // false para la consola de firefox
+const ENABLE_HDRI = false; // false para la consola de firefox
 
 // Clase molde pa crear la escena 3D del Hub {cerebro del juego}
 export class HubScene {
@@ -61,14 +61,14 @@ export class HubScene {
 	private sceneBuilder!: HubSceneBuilder;          // crea y gestiona todos los objetos 3D
 
 	// Progress tracking (seguimiento de carga)
-	private onProgress?: (loaded: number, total: number) => void;  // callback pa actualizar barra de carga
+	private onProgress?: (loaded: number, total: number, label: string) => void;  // callback pa actualizar barra de carga
 	private onWindowResize?: () => void;             // callback pa resize de ventana
 	private onPanelOpen?: (panelId: string) => void; // callback pa abrir panel react
 
 
 	private hologramManager: HologramController = new HologramController();
 
-	constructor(canvasId: string, onProgress?: (loaded: number, total: number) => void, onPanelOpen?: (panelId: string) => void) {
+	constructor(canvasId: string, onProgress?: (loaded: number, total: number, label: string) => void, onPanelOpen?: (panelId: string) => void) {
 		this.onProgress = onProgress;   // guardamos el callback de progreso de carga
 		this.onPanelOpen = onPanelOpen; // guardamos el callback pa notificar a React q abra un panel
 		// Buscamos el canvas en el DOM x su id

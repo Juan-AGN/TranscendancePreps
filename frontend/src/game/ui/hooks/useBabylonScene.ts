@@ -50,7 +50,7 @@ export const useBabylonScene = ({
 			try {
 				// Creamos la escena 3D con callback de progreso
 				// le pasamos una func q se ejecuta cada vez q carga un asset
-				const scene = new HubScene(canvasId, (loaded, total) => {
+				const scene = new HubScene(canvasId, (loaded, total, currentLabel) => {
 					// Si el componente ya se desmonto, no hacemos nada
 					if (isCancelled)
 						return;
@@ -58,8 +58,9 @@ export const useBabylonScene = ({
 					// Calculamos el porcentaje de carga (ej: 5/10 = 50%)
 					const percentage = Math.round((loaded / total) * 100);
 					// Creamos el label informativo pa mostrar al usuario
-					const label = `Cargando assets... ${loaded}/${total}`;
+					const label = `${currentLabel}...  ${loaded}/${total}`;
 
+					
 					// Ejecutamos el callback de progreso si existe
 					// ?. -> optional chaining (solo llama si onProgress no es undefined)
 					onProgress?.(percentage, label);

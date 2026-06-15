@@ -15,7 +15,6 @@ const MENU2D_OPTIONS = [
 	{ id: 'home',       path: '/start' },
 	{ id: 'game',       path: '/game' },
 	{ id: 'settings',  path: '/settings' },
-	{ id: 'tournament', path: '', disabled: true },
 	{ id: 'login',     path: '/login' },
 ]
 
@@ -55,17 +54,11 @@ export function Menu2DPage() {
 							onFocus={() => setHovered(option.id)}
 							onBlur={() => setHovered(null)}
 							// Al hacer click, navegamos a la ruta (si no esta disabled)
-							onClick={() => { 
-								if (!option.disabled)
-									navigate(option.path)
-							}}
+							onClick={() => navigate(option.path)}
 							// Estilos: borde negro 0.25rem, texto grande y mayus (todo en rem)
 							// Colores invertidos si esta highlighted (negro/blanco)
-							className={[
-								"relative py-[clamp(0.1rem,0.25vw,0.5rem)] text-[clamp(0.5rem,1.6vw,1rem)] font-black uppercase font-['Press_Start_2P']",
-								option.disabled
-									? 'bg-black text-yellow-400/30 cursor-not-allowed'
-									: isHighlighted
+							className={[ "relative py-[clamp(0.1rem,0.25vw,0.5rem)] text-[clamp(0.5rem,1.6vw,1rem)] font-black uppercase font-['Press_Start_2P']",
+								isHighlighted
 										? 'bg-black text-white scale-120'
 										: 'bg-black text-yellow-400',
 							].join(' ')}

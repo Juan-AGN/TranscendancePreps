@@ -154,7 +154,6 @@
             "title": "ARCADE",
             "home": "ACCUEIL",
             "game": "JEU",
-            "tournament": "TOURNOI (BIENTÔT)",
             "settings": "PARAMÈTRES",
             "login": "LOGIN"
         },
@@ -419,7 +418,15 @@
             "infinite": "Infini",
             "enabled": "Active",
             "disabled": "Desactive"
-        }
+        },
+        "user": "Utilisateur",
+        "host": "Hôte",
+        "open": "Ouvert",
+        "title": "LOBBIES",
+        "subtitle": "Choisissez une salle à rejoindre ou créez-en une nouvelle ci-dessous.",
+        "unableToReach": "Impossible de charger les lobbies. Réessayez plus tard.",
+        "noLobbiesAvailable": "Aucun lobby disponible",
+        "avatarAlt": "Avatar"
     },
     "settingsPage": {
         "title": "Paramètres",
@@ -431,25 +438,63 @@
         },
         "general": {
             "subtitle": "Préférences générales de l'application",
-            "theme": { "title": "Mode de Thème", "desc": "Choisissez entre clair ou sombre", "light": "Clair", "dark": "Sombre" },
-            "textSize": { "title": "Taille du Texte", "desc": "Choisissez une taille de texte petite, moyenne ou grande.", "small": "Petit", "medium": "Moyen", "large": "Grand" },
-            "language": { "title": "Langue", "desc": "Sélectionnez la langue utilisée dans Transcendence." }
+            "theme": {
+                "title": "Mode de Thème",
+                "desc": "Choisissez entre clair ou sombre",
+                "light": "Clair",
+                "dark": "Sombre"
+            },
+            "textSize": {
+                "title": "Taille du Texte",
+                "desc": "Choisissez une taille de texte petite, moyenne ou grande.",
+                "small": "Petit",
+                "medium": "Moyen",
+                "large": "Grand"
+            },
+            "language": {
+                "title": "Langue",
+                "desc": "Sélectionnez la langue utilisée dans Transcendence."
+            }
         },
         "social": {
             "subtitle": "Gérez votre activité sociale et votre confidentialité",
-            "friends": { "title": "Demandes d'Amis", "desc": "Recevez des notifications lorsque quelqu'un vous envoie une demande d'ami." },
-            "match": { "title": "Invitations de Partie", "desc": "Soyez notifié quand un autre joueur vous invite à jouer." },
-            "visibility": { "title": "Visibilité du Profil", "desc": "Choisissez si votre profil est visible pour les autres joueurs.", "public": "Public", "private": "Privé" }
+            "friends": {
+                "title": "Demandes d'Amis",
+                "desc": "Recevez des notifications lorsque quelqu'un vous envoie une demande d'ami."
+            },
+            "match": {
+                "title": "Invitations de Partie",
+                "desc": "Soyez notifié quand un autre joueur vous invite à jouer."
+            },
+            "visibility": {
+                "title": "Visibilité du Profil",
+                "desc": "Choisissez si votre profil est visible pour les autres joueurs.",
+                "public": "Public",
+                "private": "Privé"
+            }
         },
         "environment": {
             "subtitle": "Ajustez le comportement visuel et sonore de l'interface",
-            "volume": { "title": "Volume Principal", "desc": "Contrôlez le niveau sonore global du jeu et de l'interface." },
-            "effects": { "title": "Effets Sonores", "desc": "Activez ou désactivez les effets sonores du jeu." }
+            "volume": {
+                "title": "Volume Principal",
+                "desc": "Contrôlez le niveau sonore global du jeu et de l'interface."
+            },
+            "effects": {
+                "title": "Effets Sonores",
+                "desc": "Activez ou désactivez les effets sonores du jeu."
+            }
         },
         "system": {
             "subtitle": "Informations système de Transcendence",
-            "version": { "title": "Version", "desc": "Version actuelle de l'application." },
-            "server": { "title": "État du Serveur", "desc": "État de la connexion avec le backend.", "connected": "Connecté" }
+            "version": {
+                "title": "Version",
+                "desc": "Version actuelle de l'application."
+            },
+            "server": {
+                "title": "État du Serveur",
+                "desc": "État de la connexion avec le backend.",
+                "connected": "Connecté"
+            }
         }
     }
 }

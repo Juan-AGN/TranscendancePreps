@@ -1,8 +1,9 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { clearSession } from '../../pages/auth/session';
 
-type Submenu = 'user' | null
+type Submenu = 'user' | null;
 
 const linkClass =
 	'text-xs md:text-sm lg:text-base font-semibold tracking-wide text-white transition-all duration-200 hover:scale-105 hover:text-amber-300 hover:drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]'
@@ -157,9 +158,7 @@ export function Header() {
 								<button
 									type="button"
 									onClick={() => {
-										localStorage.removeItem('token');
-										localStorage.removeItem('userId');
-										localStorage.removeItem('userName');
+										clearSession();
 										closeMenu();
 										window.location.href = '/start';
 									}}
@@ -178,7 +177,7 @@ export function Header() {
 							px-1 py-1 shadow-[0_10px_28px_rgba(0,0,0,0.35)] backdrop-blur-sm transition-all duration-300 sm:hidden ${menuOpen
 							? 'pointer-events-auto translate-y-0 opacity-100'
 							: 'pointer-events-none -translate-y-2 opacity-0'}`}>
-					<div className="grid grid-cols-4 items-center">				
+					<div className="grid grid-cols-4 items-center">
 
 						<Link to="/home" onClick={closeMenu} className={mobileLinkClass}>
 							3D
@@ -214,9 +213,7 @@ export function Header() {
 							<button
 								type="button"
 								onClick={() => {
-									localStorage.removeItem('token')
-									localStorage.removeItem('userId')
-									localStorage.removeItem('userName')
+									clearSession()
 									closeMenu()
 									window.location.href = '/start'
 								}}

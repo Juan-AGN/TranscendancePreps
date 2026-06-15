@@ -8,7 +8,6 @@ import { ArcadeBgLayout } from '../components/ArcadeBgLayout';
 // const de un array de options del menu
 const SETTINGS2D_OPTIONS = [
 	{id: 'gameSetting', path: '/gamesettings'},
-	{id: 'audio',       path: '/audio'},
 	{id: 'display',     path: '/display'},
 	{id: 'back',        path: '/menu2D'},
 ]

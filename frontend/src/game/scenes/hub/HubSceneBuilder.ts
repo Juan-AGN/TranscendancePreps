@@ -51,8 +51,7 @@ export class HubSceneBuilder {
 	// onShadowCaster -> callback pa añadir el personaje al sist de sombras cuando cargue
 	public createCharacter(onShadowCaster?: (character: PlayerCharacter) => void): void {
 		this.character = new PlayerCharacter(this.scene, SCENE_CONFIG.character.pos);
-		this.loadingQueue.add(async () => {
-			// esperamos a q el personaje cargue su GLB antes de usarlo
+		this.loadingQueue.add('Loading player character', async () => {
 			await this.character!.ready();
 			if (this.character && onShadowCaster) {
 				onShadowCaster(this.character);
@@ -64,26 +63,26 @@ export class HubSceneBuilder {
 	public createNavigationObjects(): void {
 		const objects = HubObjectsBuilder.build(this.scene, this.shadowGenerator, this.loadingQueue, this.menuInteraction);
 		this.townhouse = objects.townhouse;
-		this.trophy    = objects.trophy;
-		this.lafarola  = objects.lafarola;
-		this.computer  = objects.computer;
+		this.trophy = objects.trophy;
+		this.lafarola = objects.lafarola;
+		this.computer = objects.computer;
 	}
 
-	
+
 	// crea todos los objetos decorativos del escenario y guarda sus referencias
 	public createDecorationObjects(): void {
 		const decor: DecorObjects = DecorativeObjectsBuilder.build(this.scene, this.shadowGenerator, this.loadingQueue);
-		this.arcade    = decor.arcade;
-		this.pingpong  = decor.pingpong;
-		this.torre     = decor.torre;
-		this.rosaleda  = decor.rosaleda;
+		this.arcade = decor.arcade;
+		this.pingpong = decor.pingpong;
+		this.torre = decor.torre;
+		this.rosaleda = decor.rosaleda;
 		this.pedestalPc = decor.pedestalPc;
 		this.pedestalArcade = decor.pedestalArcade;
 		this.pedestalPingpong = decor.pedestalPingpong;
 		this.pedestalTrophy = decor.pedestalTrophy;
 
 		// El arcade tambien debe comportarse como objeto navegable al hacer click.
-		this.loadingQueue.add(async () => {
+		this.loadingQueue.add('Preparing arcade interaction', async () => {
 			await decor.arcade.ready();
 			const mesh = decor.arcade.getRootMesh();
 			const route = SCENE_CONFIG.arcade.route;
@@ -93,7 +92,7 @@ export class HubSceneBuilder {
 		});
 
 		// La Rosaleda tambien debe navegar al hacer click.
-		this.loadingQueue.add(async () => {
+		this.loadingQueue.add('Preparing La Rosaleda interaction', async () => {
 			await decor.rosaleda.ready();
 			const mesh = decor.rosaleda.getRootMesh();
 			const route = SCENE_CONFIG.rosaleda.route;
@@ -113,7 +112,7 @@ export class HubSceneBuilder {
 	}
 
 	// ejecuta todas las tareas de carga en orden y reporta progreso a la UI
-	public async executeLoadTasks(onProgress?: (loaded: number, total: number) => void): Promise<void> {
+	public async executeLoadTasks(onProgress?: (loaded: number, total: number, label: string) => void): Promise<void> {
 		await this.loadingQueue.execute(onProgress);
 		this.addShadowsToBuildings();
 	}

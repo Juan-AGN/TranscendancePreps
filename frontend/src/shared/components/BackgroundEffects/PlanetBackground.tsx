@@ -67,7 +67,7 @@ export function PlanetBackground() {
 		SceneLoader.ImportMesh(
 			'',
 			'/models/',
-			'planetbg3.glb',
+			'planetbg3Draco.glb',
 			scene,
 			(meshes) => {
 				const root = meshes[0]

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 
 interface GenreCardProps {
-	title: 'tech' | '3d' | 'arcade' | 'creators'
+	title: 'tech' | '3d' | 'arcade' | 'online' |'creators'
 	image: string
 	onClick?: () => void
 	delay?: number
