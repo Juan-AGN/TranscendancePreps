@@ -30,7 +30,8 @@
 		"enter3d": "Explore 3D World",
 		"arcade": "Arcade",
 		"tech": "Tech Info",
-		"creators": "Creators"
+		"creators": "Creators",
+		"onlineGame":"Online Game"
 	},
 	"splash": {
 		"tagline": "3D HUB · ARCADE PONG · REALTIME BATTLES · 42 PROJECT",

@@ -1,3 +1,10 @@
+// ┌────────────────────────────────────────────────────────────┐
+// │                        MainPage.tsx                        │
+// ├────────────────────────────────────────────────────────────┤
+// │ Start gate page for the main frontend experience.          │
+// │ It renders the animated background, section cards, 3D      │
+// │ transition effect and footer.                              │
+// └────────────────────────────────────────────────────────────┘
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -6,73 +13,76 @@ import { Footer } from '../components/layout/Footer';
 import { useTranslation } from 'react-i18next';
 import { GenreCard } from '../components/layout/GenreCards';
 
+// STEP 2: Define the navigation callbacks received by the start gate.
 interface StartGateProps {
-	onStart3D: () => void
-	onGo2DMenu?: () => void
-	onGoTech?: () => void
-	onGo3D?: () => void
-	onGoArcade?: () => void
-	onGoCreators?: () => void
+	onStart3D: () => void;
+	onGo2DMenu?: () => void;
+	onGoTech?: () => void;
+	onGo3D?: () => void;
+	onGoArcade?: () => void;
+	onGoCreators?: () => void;
 }
 
-export function StartGate({
-	onStart3D,
-	onGoTech,
-	onGo3D,
-	onGoArcade,
-	onGoCreators,
-}: StartGateProps) {
-	const BG_ZOOM_DURATION_MS = 2200
-	const WHITE_FADE_DELAY_MS = 600
+// ════════ COMPONENT: StartGate: Render the main animated section selector page. ════════
+export function StartGate({ onStart3D, onGoTech, onGo3D, onGoArcade, onGoCreators }: StartGateProps) {
+	// Step 1: Define animation timing and zoom configuration.
+	const BG_ZOOM_DURATION_MS = 2200;
+	const WHITE_FADE_DELAY_MS = 600;
 	const WHITE_FADE_DURATION_MS = 900
-	const NAVIGATION_DELAY_MS = WHITE_FADE_DELAY_MS + WHITE_FADE_DURATION_MS + 20
-	const PLANET_ZOOM_SCALE = 3.6
-	const [isBgZooming, setIsBgZooming] = useState(false)
-	const navTimeoutRef = useRef<number | null>(null)
-	const go3DHandler = onGo3D ?? onStart3D
-
+	const NAVIGATION_DELAY_MS = WHITE_FADE_DELAY_MS + WHITE_FADE_DURATION_MS + 20;
+	const PLANET_ZOOM_SCALE = 3.6;
+	// Step 2: Create local state and refs used by the 3D transition.
+	const [isBgZooming, setIsBgZooming] = useState(false);
+	const navTimeoutRef = useRef<number | null>(null);
+	const go3DHandler = onGo3D ?? onStart3D;
+	// Step 3: Load navigation and translation helpers.
 	const navigate = useNavigate();
-
 	const { t } = useTranslation()
 
+	// ════════ FCT: handleGo3D: Start the zoom transition before entering the 3D world. ════════
 	const handleGo3D = () => {
+		// Step 1: Prevent duplicated clicks while the transition is already running.
 		if (isBgZooming || !go3DHandler)
-			return
-		setIsBgZooming(true)
+			return;
+		setIsBgZooming(true);
+		// Step 2: Start the background zoom and delay the navigation until the fade is ready.
 		navTimeoutRef.current = window.setTimeout(() => {
-			go3DHandler()
-		}, NAVIGATION_DELAY_MS)
+			go3DHandler();
+		}, NAVIGATION_DELAY_MS);
 	}
 
+	// STEP 4: Clear the delayed navigation if the component unmounts before it finishes.
 	useEffect(() => {
 		return () => {
 			if (navTimeoutRef.current !== null)
-				window.clearTimeout(navTimeoutRef.current)
-		}
-	}, [])
+				window.clearTimeout(navTimeoutRef.current);
+		};
+	}, []);
 
 	return (
 		<div className="relative h-screen w-full overflow-hidden">
+			{/* STEP 5: Render the animated background layer. */}
 			<motion.div
 				className="absolute inset-0 bg-center bg-cover"
 				style={{ backgroundImage: "url('/images/bg6.png')", transformOrigin: '50% 34%', }}
 				initial={{ scale: 1, opacity: 1 }}
 				animate={isBgZooming ? { scale: PLANET_ZOOM_SCALE, opacity: 0.88 } : { scale: 1, opacity: 1 }}
 				transition={{ duration: BG_ZOOM_DURATION_MS / 1000, ease: [0.3, 0.05, 0.18, 1] }}>
+					{/* STEP 6: Render the title, glow and planet background effects. */}
 				<div className="absolute inset-0 z-[1] pointer-events-none">
 					<div className="absolute left-1/2 top-[10%] -translate-x-1/2 ">
 						<h1 className="font-['Orbitron'] uppercase text-[clamp(0.7rem,1.55vw,1.65rem)] tracking-[clamp(0.28rem,0.8vw,0.65rem)]
 							font-medium leading-none text-white/55 bg-clip-text bg-gradient-to-b from-white via-slate-200 to-blue-500
 							select-none drop-shadow-[0_4px_2px_rgba(0,0,0,0.35)]">
 							Transcendence</h1>
-
 					</div>
 					<div className="absolute left-1/2 top-[34%] h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/20 blur-[150px]" />
 					<PlanetBackground />
 				</div>
-				<div className="absolute inset-0 z-[2] pointer-events-none
-								bg-gradient-to-b from-white/20 via-white/4 to-white/30" />
+				{/* STEP 7: Render light and dark overlay layers above the background. */}
+				<div className="absolute inset-0 z-[2] pointer-events-none bg-gradient-to-b from-white/20 via-white/4 to-white/30" />
 				<div className="hidden dark:block absolute inset-0 z-[3] pointer-events-none bg-black/70" />
+				{/* STEP 8: Render the main section card selector. */}
 				<div className="relative z-10 h-screen w-full flex items-center justify-center overflow-hidden
 								px-[clamp(0.5rem,2vw,2.5rem)]
 								max-sm:items-center max-sm:justify-start max-sm:overflow-hidden max-sm:px-0">
@@ -105,7 +115,7 @@ export function StartGate({
 						<GenreCard
 							title="online"
 							image="/images/BallGameImage2.png"
-							label="Online Game"
+							label={t("startGate.onlineGame")}
 							onClick={() => navigate('/remote-game')}
 							delay={900}
 							initialTilt={-4}
@@ -120,7 +130,7 @@ export function StartGate({
 					</div>
 				</div>
 			</motion.div>
-
+			{/* STEP 9: Render the white fade overlay used during the 3D transition. */}
 			<motion.div
 				className="absolute inset-0 pointer-events-none z-[90] bg-white"
 				initial={{ opacity: 0 }}
@@ -130,7 +140,7 @@ export function StartGate({
 					delay: WHITE_FADE_DELAY_MS / 1000,
 					ease: 'easeInOut',
 				}} />
-
+			{/* STEP 10: Render the footer above the bottom edge of the page. */}
 			<div className="absolute bottom-0 left-0 right-0 z-20">
 				<Footer />
 			</div>

@@ -1,61 +1,79 @@
+// ┌────────────────────────────────────────────────────────────┐
+// │                         Header.tsx                         │
+// ├────────────────────────────────────────────────────────────┤
+// │ Global navigation header for the frontend application.     │
+// │ It manages the responsive menu, language selector, user    │
+// │ submenu, session links and logout action.                  │
+// └────────────────────────────────────────────────────────────┘
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { clearSession } from '../../pages/auth/session';
 
+// STEP 2: Define the submenu type used by the desktop user menu.
 type Submenu = 'user' | null;
 
+// STEP 3: Define shared Tailwind classes used by desktop, submenu and mobile links.
 const linkClass =
-	'text-xs md:text-sm lg:text-base font-semibold tracking-wide text-white transition-all duration-200 hover:scale-105 hover:text-amber-300 hover:drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]'
+	'text-xs md:text-sm lg:text-base font-semibold tracking-wide text-white transition-all duration-200 hover:scale-105 hover:text-amber-300 hover:drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]';
 
 const menuLinkClass =
-	'block rounded-lg px-3 py-2 text-sm font-medium text-white/95 transition-all duration-200 hover:scale-105 hover:bg-amber-400/15 hover:text-amber-200'
+	'block rounded-lg px-3 py-2 text-sm font-medium text-white/95 transition-all duration-200 hover:scale-105 hover:bg-amber-400/15 hover:text-amber-200';
 
 const mobileLinkClass =
-	'rounded-md px-2 py-[0.38rem] text-center text-[0.62rem] font-semibold tracking-[0.05rem] text-white/95 transition-all duration-200 hover:bg-amber-400/15 hover:text-amber-200'
+	'rounded-md px-2 py-[0.38rem] text-center text-[0.62rem] font-semibold tracking-[0.05rem] text-white/95 transition-all duration-200 hover:bg-amber-400/15 hover:text-amber-200';
 
+// ════════ COMPONENT: Header: Render the global responsive navigation header. ════════
 export function Header() {
+	// Step 1: Create the local UI states used by the header menus.
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [openSubmenu, setOpenSubmenu] = useState<Submenu>(null)
 	const [langMenuOpen, setLangMenuOpen] = useState(false)
+
+	// Step 2: Load translation helpers and read the current stored session.
 	const { t, i18n } = useTranslation()
 	const userName = localStorage.getItem('userName');
 	const isLogged = !!localStorage.getItem('token');
+
+	// Step 3: Detect touch devices to avoid hover-only submenu behavior.
 	const isTouchDevice = typeof window !== 'undefined'
 		? window.matchMedia('(hover: none), (pointer: coarse)').matches
-		: false
+		: false;
 
+	// ════════ FCT: closeMenu: Close all header menus. ════════
 	const closeMenu = () => {
-		setMenuOpen(false)
-		setOpenSubmenu(null)
-		setLangMenuOpen(false)
+		setMenuOpen(false);
+		setOpenSubmenu(null);
+		setLangMenuOpen(false);
 	}
 
+	// ════════ FCT: toggleMenu: Open or close the main navigation menu. ════════
 	const toggleMenu = () => {
-		setMenuOpen(!menuOpen)
-		setOpenSubmenu(null)
-		setLangMenuOpen(false)
+		setMenuOpen(!menuOpen);
+		setOpenSubmenu(null);
+		setLangMenuOpen(false);
 	}
 
+	// ════════ FCT: toggleSubmenu: Open or close a submenu on touch devices. ════════
 	const toggleSubmenu = (id: Exclude<Submenu, null>) => {
-		setOpenSubmenu((prev) => (prev === id ? null : id))
+		setOpenSubmenu((prev) => (prev === id ? null : id));
 	}
 
-	const activeLanguage = i18n.resolvedLanguage ?? i18n.language
+	// Step 4: Resolve the currently active language.
+	const activeLanguage = i18n.resolvedLanguage ?? i18n.language;
 
+	// ════════ FCT: changeLanguage: Change the active i18n language. ════════
 	const changeLanguage = (code: 'es' | 'en' | 'fr') => {
-		i18n.changeLanguage(code)
-		setLangMenuOpen(false)
+		i18n.changeLanguage(code);
+		setLangMenuOpen(false);
 	}
 
-	const FlagLanguageButton = ({
-		code,
-		src,
-		alt,
-	}: {
-		code: 'es' | 'en' | 'fr'
-		src: string
-		alt: string
+	// ════════ COMPONENT: FlagLanguageButton: Render one flag button for language switching. ════════
+	const FlagLanguageButton = ({ code, src, alt, }: {
+		code: 'es' | 'en' | 'fr';
+		src: string;
+		alt: string;
 	}) => (
 		<button
 			type="button"
@@ -69,8 +87,9 @@ export function Header() {
 		</button>
 	)
 
+	// ════════ COMPONENT: SubmenuButton: Render a desktop submenu controlled by hover or touch. ════════
 	const SubmenuButton = ({ name, id, children, }: {
-		name: string, id: Exclude<Submenu, null>, children: React.ReactNode
+		name: string, id: Exclude<Submenu, null>, children: ReactNode
 	}) => (
 		<div
 			className="relative z-30"
