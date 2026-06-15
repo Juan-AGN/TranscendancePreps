@@ -1,4 +1,11 @@
-import { OlympusButton } from "../components/Buttons/ProfileButton"
+// ┌────────────────────────────────────────────────────────────┐
+// │                    SettingsUiPage.tsx                      │
+// ├────────────────────────────────────────────────────────────┤
+// │ User interface settings page for visual, social and system │
+// │ preferences.                                               │
+// └────────────────────────────────────────────────────────────┘
+import type { ReactNode } from "react";
+import { OlympusButton } from "../components/Buttons/ProfileButton";
 import { Palette, Bell, Monitor, Info } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { OptionButton, FlagOptionButton, ToggleButton } from "../components/Buttons/SettingsUiButtons";
@@ -7,47 +14,68 @@ import { useAudioStore } from "../store/audioStore";
 
 
 type ActiveTab = 'general' | 'social' | 'environment' | 'system';
+type ThemeMode = "light" | "dark";
+type TextSize = "small" | "medium" | "large";
+type Language = "english" | "spanish" | "french";
+type ProfileVisibility = "public" | "private";
 
+// ════════ COMPONENT: SettingsUiPage: Render the UI settings screen. ════════
 export function SettingsUiPage() {
 	const { t, i18n } = useTranslation();
 	const [activeTab, setActiveTab] = useState<ActiveTab>('general');
-	const [themeMode, setThemeMode] = useState<'light' | 'dark'>(
-		() => (localStorage.getItem('theme') as 'light' | 'dark') ?? 'light'
+	const [themeMode, setThemeMode] = useState<ThemeMode>(
+		() => (localStorage.getItem("theme") as ThemeMode) ?? "light"
 	);
-	const [textSize, setTextSize] = useState<'small' | 'medium' | 'large'>(
-		() => (localStorage.getItem('textSize') as 'small' | 'medium' | 'large') ?? 'medium'
+	const [textSize, setTextSize] = useState<TextSize>(
+		() => (localStorage.getItem("textSize") as TextSize) ?? "medium"
 	);
-	const [language, setLanguage] = useState<'english' | 'spanish' | 'french'>(() => {
-		const map: Record<string, 'english' | 'spanish' | 'french'> = { en: 'english', es: 'spanish', fr: 'french' };
-		return map[i18n.resolvedLanguage ?? 'en'] ?? 'english';
+	const [language, setLanguage] = useState<Language>(() => {
+		const map: Record<string, Language> = {
+			en: "english",
+			es: "spanish",
+			fr: "french",
+		};
+
+		return map[i18n.resolvedLanguage ?? "en"] ?? "english";
 	});
+
 	const [friendNotifications, setFriendNotifications] = useState(true);
 	const [matchNotifications, setMatchNotifications] = useState(true);
-	const [profileVisibility, setProfileVisibility] = useState<'public' | 'private'>('public');
+	const [profileVisibility, setProfileVisibility] = useState<ProfileVisibility>("public");
 	const { masterVolume, effectsSound, setMasterVolume, setEffectsSound } = useAudioStore();
 
+	// STEP 1: Restore the saved text size when the page is mounted.
 	useEffect(() => {
-		const saved = localStorage.getItem('textSize') ?? 'medium';
-		document.documentElement.dataset.fontSize = saved;
+		const savedTextSize = localStorage.getItem("textSize") ?? "medium";
+
+		document.documentElement.dataset.fontSize = savedTextSize;
 	}, []);
 
-	const handleThemeChange = (mode: 'light' | 'dark') => {
+	// STEP 2: Update and persist the selected theme mode.
+	const handleThemeChange = (mode: ThemeMode) => {
 		setThemeMode(mode);
 		document.documentElement.dataset.theme = mode;
-		localStorage.setItem('theme', mode);
+		localStorage.setItem("theme", mode);
 	};
 
-	const handleTextSize = (size: 'small' | 'medium' | 'large') => {
+	// STEP 3: Update and persist the selected text size.
+	const handleTextSize = (size: TextSize) => {
 		setTextSize(size);
 		document.documentElement.dataset.fontSize = size;
-		localStorage.setItem('textSize', size);
-	}
+		localStorage.setItem("textSize", size);
+	};
 
-	const handleLanguage = (language: 'english' | 'spanish' | 'french') => {
-		setLanguage(language);
-		const map = {english: 'en', spanish: 'es', french: 'fr'} as const;
-		i18n.changeLanguage(map[language]);
-	}
+	// STEP 4: Update the visible language through i18n.
+	const handleLanguage = (selectedLanguage: Language) => {
+		const map = {
+			english: "en",
+			spanish: "es",
+			french: "fr",
+		} as const;
+
+		setLanguage(selectedLanguage);
+		i18n.changeLanguage(map[selectedLanguage]);
+	};
 
 	return (
 		<div
@@ -82,7 +110,7 @@ export function SettingsUiPage() {
 					</OlympusButton>
 				</div>
 
-				{/* GENERAL */}
+				{/* ════════ SECTION: General settings. ════════ */}
 				{activeTab === 'general' && (
 					<section className="mx-auto mt-8 w-full max-w-4xl space-y-4 px-6 pb-10">
 						<p className="text-center text-sm text-black/60">
@@ -93,10 +121,10 @@ export function SettingsUiPage() {
 							title={t('settingsPage.general.theme.title')}
 							description={t('settingsPage.general.theme.desc')}>
 							<div className="flex w-full flex-wrap gap-1 rounded-2xl border border-yellow-500/30 bg-white/20 p-1 sm:w-auto sm:flex-nowrap sm:rounded-full">
-							<OptionButton active={themeMode === 'light'} onClick={() => handleThemeChange('light')}>
-								{t('settingsPage.general.theme.light')}
-							</OptionButton>
-							<OptionButton active={themeMode === 'dark'} onClick={() => handleThemeChange('dark')}>
+								<OptionButton active={themeMode === 'light'} onClick={() => handleThemeChange('light')}>
+									{t('settingsPage.general.theme.light')}
+								</OptionButton>
+								<OptionButton active={themeMode === 'dark'} onClick={() => handleThemeChange('dark')}>
 									{t('settingsPage.general.theme.dark')}
 								</OptionButton>
 							</div>
@@ -127,25 +155,25 @@ export function SettingsUiPage() {
 									onClick={() => handleLanguage('english')}
 									label="English"
 									src="/images/UkFlag.png"
-									alt="English"/>
+									alt="English" />
 								<FlagOptionButton
 									active={language === 'spanish'}
 									onClick={() => handleLanguage('spanish')}
 									label="Spanish"
 									src="/images/spainFlag1.png"
-									alt="Spanish"/>
+									alt="Spanish" />
 								<FlagOptionButton
 									active={language === 'french'}
 									onClick={() => handleLanguage('french')}
 									label="French"
 									src="/images/frenchFlag.png"
-									alt="French"/>
+									alt="French" />
 							</div>
 						</SettingRow>
 					</section>
 				)}
 
-				{/* SOCIAL */}
+				{/* ════════ SECTION: Social settings. ════════ */}
 				{activeTab === 'social' && (
 					<section className="mx-auto mt-8 w-full max-w-4xl space-y-4 px-6 pb-10">
 						<p className="text-center text-sm text-black/60">
@@ -179,7 +207,7 @@ export function SettingsUiPage() {
 					</section>
 				)}
 
-				{/* ENVIRONMENT */}
+				{/* ════════ SECTION: Environment settings. ════════ */}
 				{activeTab === 'environment' && (
 					<section className="mx-auto mt-8 w-full max-w-4xl space-y-4 px-6 pb-10">
 						<p className="text-center text-sm text-black/60">
@@ -200,7 +228,7 @@ export function SettingsUiPage() {
 									step={1}
 									value={masterVolume}
 									onChange={(event) => setMasterVolume(Number(event.target.value))}
-									className="h-2 w-full cursor-pointer appearance-none rounded-full bg-yellow-200/45"/>
+									className="h-2 w-full cursor-pointer appearance-none rounded-full bg-yellow-200/45" />
 							</div>
 						</SettingRow>
 
@@ -212,7 +240,7 @@ export function SettingsUiPage() {
 					</section>
 				)}
 
-				{/* SYSTEM */}
+				{/* ════════ SECTION: System settings. ════════ */}
 				{activeTab === 'system' && (
 					<section className="mx-auto mt-8 w-full max-w-4xl space-y-4 px-6 pb-10">
 						<p className="text-center text-sm text-black/60">
@@ -241,14 +269,11 @@ export function SettingsUiPage() {
 	);
 }
 
-function SettingRow({
-	title,
-	description,
-	children,
-}: {
+// ════════ COMPONENT: SettingRow: Render one reusable settings row. ════════
+function SettingRow({ title, description, children, }: {
 	title: string;
 	description: string;
-	children: React.ReactNode;
+	children: ReactNode;
 }) {
 	return (
 		<div className="rounded-2xl border border-yellow-500/25 bg-white/80 dark:bg-white/10 p-5 backdrop-blur-md transition-colors duration-300">

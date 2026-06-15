@@ -36,9 +36,8 @@ export function MainPageButton({
 				transition-all duration-700 ease-out select-none group overflow-visible
 				hover:bg-black hover:shadow-[2px_2px_50px_2px_#3b82f6,0px_0px_20px_2px_#eab308] hover:text-yellow-300`}>
 			{/* Step 1: Render the button label with configurable tracking and text size. */}
-			<span
-				className={`whitespace-nowrap ${tracking} ${hoverTracking} ${textSize}
-				transition-all duration-1000 ease-out inline-block origin-center`}>
+			<span className={`whitespace-nowrap ${tracking} ${hoverTracking} ${textSize}
+					transition-all duration-1000 ease-out inline-block origin-center`}>
 				{label}
 			</span>
 		</button>
