@@ -1,33 +1,37 @@
-//game2d configuracion // este archivo tiene la configuracion de las constantes globlaes del juego2d
-//podemos ajustad difficultad sin tocar la logica.
+// ┌────────────────────────────────────────────────────────────┐
+// │                     2dGameConfig.ts                        │
+// ├────────────────────────────────────────────────────────────┤
+// │ Global configuration constants for the 2D Pong game engine.│
+// └────────────────────────────────────────────────────────────┘
+// STEP 1: Define the internal canvas coordinate system.
+// Physics, collisions and rendering are calculated using this fixed size.
+export const CANVAS_WIDTH = 500;
+export const CANVAS_HEIGHT = 380;
 
-//sys de coordenadas internas, todas las colisiones se calculan sobre 800x600 de momento 4:3 clasico arcade
-export const CANVAS_WIDTH = 500
-export const CANVAS_HEIGHT = 380
+// STEP 2: Define paddle size and movement speed.
+export const PADDLE_WIDTH = 10;
+export const PADDLE_HEIGHT = 100;
+export const PADDLE_SPEED = 5;
 
-//palas
-export const PADDLE_WIDTH = 10				//ancho horizontal de la pala..afecta area de colision y apariencia visual
-export const PADDLE_HEIGHT = 100			//altura d ela pala
-export const PADDLE_SPEED = 5				// velocidad de la pala
+// STEP 3: Define ball size, initial speed and acceleration per bounce
+export const BALL_RADIUS = 9;
+export const BALL_INITIAL_SPEED = 5;
+export const BALL_SPEED_INCREMENT = 0.5;
 
-//pelota
-export const BALL_RADIUS = 9			//dibjar circulo, calcular colisiones y rebotes contra paredes
-export const BALL_INITIAL_SPEED = 5		//velocidad inicial de la peltoa
-export const BALL_SPEED_INCREMENT = 0.5		//Inc velocidad de la pelota tras cada rebote
+// STEP 4: Define game rules and serve delays.
+// Delays are expressed in frames.
+export const MAX_SCORE = 5;
+export const SERVE_DELAY_START = 60;
+export const SERVE_DELAY_SCORE = 40;
 
-//game reglas
-export const MAX_SCORE = 5					//puntuacino
-export const SERVE_DELAY_START = 60			//frames de espera al iniciar partida (90 = ~1.5 seg)
-export const SERVE_DELAY_SCORE = 40			//frames de espera tras marcar punto  (30 = ~0.5 seg)
+// STEP 5: Define render loop timing.
+export const FPS = 60;
+export const FRAME_DURATION = 1000 / FPS;
 
-//render loop config
-export const FPS = 60						//frames x seg
-export const FRAME_DURATION = 1000 / FPS	//duracion de cada frame 1000 = 1seg. 100/60 = 16.66 ms
-
-//Visual Tema(colores)
+// STEP 6: Define the visual color palette used by the 2D renderer.
 export const COLORS = {
-	background: '#020000',					//color del canvas
-	foreground: '#70ee31',					//color palas and ball
-	net: '#5aa932',						//color red
-	text: '#fffcfc',						//color tesxto				
-} as const;									//as const-> valores inmutables. tipos son literales exactos(no simplemente strings)
+	background: '#020000',
+	foreground: '#70ee31',
+	net: '#5aa932',
+	text: '#fffcfc',	
+} as const;

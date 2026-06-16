@@ -1,208 +1,209 @@
-//Este file es el mini motor del Pong2D, director de orquesta*un custom hook que monta y mantiene vivo el bucle(loop(conecta input-fisca-render))
-// evistamos usar React State para posiciones(freidura viva) (haria re-render(aporta rendiminto y fluidez))
-// ARQUITECTURA DEL MOTOR 2D // Este hook separa 
-		// 1) Mundo React (UI, estados, props, callbacks)
-		// 2) Mundo Motor (loop imperativo, física, render manual)
-// React solo gestiona: - gameState - props - callbacks
-// El motor gestiona:
-// - loop continuo (requestAnimationFrame) - física (GamePhysics) - render (Game2dRenderer) - input (GameInput)
-// Ambos mundos se sincronizan mediante:
-// - refs (estado interno mutable)
-// - useEffect con dependencias
+// ┌────────────────────────────────────────────────────────────┐
+// │                       2dUseGameLoop.ts                     │
+// ├────────────────────────────────────────────────────────────┤
+// │ Main hook that connects React with the 2D Pong engine.     │
+// └────────────────────────────────────────────────────────────┘
+// We avoid using React state for positions (would cause re-renders at 60fps, hurting performance and smoothness).
+// 2D ENGINE ARCHITECTURE — This hook separates two worlds:
+// 1) React world  (UI, state, props, callbacks)
+// 2) Engine world (imperative loop, physics, manual render)
+// React manages:  - gameState  - props  - callbacks
+// Engine manages: - continuous loop (requestAnimationFrame)  - physics (GamePhysics)  - rendering (Game2dRenderer)  - input (GameInput)
+// Both worlds are kept in sync via:
+// - refs (mutable internal state)
+// - useEffect with dependencies
 
 import { useEffect, useRef } from "react";
-//aqui Effec->	React Funct.. q ejecuta el codigo cuando el componente se motna(aparece en pantalla),cuando cambia(gameState) o desmonta(listeners)
-				// para arrancar el loop, registrar eventos y limpiar
-//aqui Ref->	Tool React para guardar valores q cambia sin provocar rerender
-				//creamos una cajito q save un valor mutable, xonst x = UseRef(0)-> x.current es el valor real( asi no rerendizamos)
-				//guardameos la id del animation frame/tiempo anterior(deltatime)/instancias(inputs,renderer/estado act del game)
+// useEffect -> React function that runs code when the component mounts (appears on screen), when dependencies change, or when it unmounts.
+//              Used here to: start the loop, register keyboard events, and clean up.
+// useRef    -> React tool to store values that change without triggering a re-render.
+//              Creates a persistent box holding a mutable value: const x = useRef(0) → x.current is the real value.
+//              Used to store: animation frame id, previous timestamp (deltaTime), and class instances (input, renderer, game state).
 import type { MutableRefObject, RefObject } from "react";
-// Mutable..->	Referencia q apunta al elemento real del DOM
-				//nos permite acceder al canvas real del navegador par apoder dibujar usando el contecto 2d
-				//sin esto no podriamos obtner el context 2d no podriamos renderizar el juego manualmente
-//RefOb..->		Un ref es una cja persistente q vive entre renderers y no provoca rerenderes cuando cambia /mutacion silenciosa->React no monitoriza cambios en .current
-				// al usar Useref en vez de Usestate cambia .current y react no re-renderiza
-				// RefObject<T>  delvuelve:(es un obj con forma {current : T})
-//dif-> RefObject se usa para DOM-timers-id,instancia clases,persis values,gamemotor/modifica:react/puede ser null -- 
-		//MUtable->estado interno mutable/modificable por mi mismo/ normalmente no es null.
+import type { TFunction } from 'i18next';
+// MutableRefObject -> A ref whose .current we mutate ourselves (e.g. paddle positions, score at 60fps). Normally not null.
+// RefObject        -> A persistent box that survives re-renders without causing them (silent mutation — React does not watch .current).
+//                    Used with useRef instead of useState: changing .current does not trigger a re-render.
+//                    RefObject<T> returns an object shaped { current: T }.
+//                    Use for: DOM elements, timers, ids, class instances, persistent values, game engine state. Can be null.
 import { GamePhysics } from "./2dGamePhysics";
 import { Game2dRenderer } from "./2dGameRender";
 import { GameInput } from "./2dGameInput";
 import { FRAME_DURATION, SERVE_DELAY_START, SERVE_DELAY_SCORE } from "./2dGameConfig";
 import type { Paddle, Ball, Keys, Game2dState, Game2DMode } from "./2dGameState";
 
-//definimos el contrato que debe tener el hook..
+// Defines the contract that the hook must satisfy.
 interface Use2dGameLoopProps {
-	canvasRef: RefObject<HTMLCanvasElement | null>;	//Ref al canvas.React renderiza el canvas->asig el elemento a canvasRef.current
-													//react no da acceso directo al DOM, el canvas se crea despues del render/el hook no puede acc al DOM x si solo
-	player1Ref: MutableRefObject<Paddle>;			//Ref al state del player1/Mutable pq .current lo modifico yo constantenmente/<Paddle> interface de la pala
-	player2Ref: MutableRefObject<Paddle>;			//ref igual/ vamos a mutar posiciones,socre a 60fps
-	ballRef: MutableRefObject<Ball>;				//ref igual/ inputs de teclas mutables
-	keysRef: MutableRefObject<Keys>;
-	gameState: Game2dState;							//NoRef->game2dstate viene de React(states,Zustand,useSate)/ es el estado del flujo del juego(cambia pocas veces)
-													//y cuando cambia we want q se actulize el motor
-	gameMode: Game2DMode;							//igual cambia segun el string q tenemos.
+	canvasRef: RefObject<HTMLCanvasElement | null>;	// Ref to the canvas. React renders the canvas and assigns the element to canvasRef.current.
+	// React does not give direct DOM access; the canvas is created after the render, so the hook cannot access the DOM on its own.
+	player1Ref: MutableRefObject<Paddle>;			// Ref to player 1 state. Mutable because .current is constantly updated by the engine. <Paddle> is the paddle interface.
+	player2Ref: MutableRefObject<Paddle>;			// Same as above — positions and score are mutated at 60fps.
+	ballRef: MutableRefObject<Ball>;				// Ref to the ball state.
+	keysRef: MutableRefObject<Keys>;				// Ref to the current keyboard input state — mutated on every keydown/keyup event.
+	gameState: Game2dState;							// Not a ref — comes from React (useState/Zustand). Represents game flow state (changes rarely).
+	// When it changes, we want the engine to update accordingly.
+	gameMode: Game2DMode;							// Changes based on the selected mode string.
 	maxScore: number;
-	onScore: (player: 1 | 2) => void;				//funcioncallback(cuando se detect gol, call esta func.) (1 o 2 players),no devuelve nada-- cambia el estado del juego
-	onStateChange: (newState: Partial<Game2dState>) => void;//estado(pause,winner,isplaying.etc..)/partial(helper type-> obj q solo puede tener alguna propiedades de Gane2dState
-	onRestart: () => void;							//Ccallback para reiniciar(r key o winner)
+	onScore: (player: 1 | 2) => void;				// Callback fired when a goal is detected. Accepts player 1 or 2, returns nothing. Updates game state.
+	onStateChange: (newState: Partial<Game2dState>) => void; // Handles state changes (pause/winner/isPlaying etc.).
+	// Partial<T>: helper type — object that may only contain some properties of Game2dState.
+	onRestart: () => void;							// Callback to restart the game (R key or after winner).
+	t: TFunction;
 }
 
-//hook//desestrucutamos=> const canvasRef= props.canvasRef;
+// Hook — destructured from props: const canvasRef = props.canvasRef;
 export function use2dGameLoop({
 	canvasRef, player1Ref, player2Ref, ballRef, keysRef,
-	gameState,gameMode, onScore, onStateChange, onRestart }: Use2dGameLoopProps) { //:Use2dGameLoopProps (tiene q cumplir el tipado(debe tenerlos si o si))
-		//definimos el mundoReact(ui,estados,props,callback) y mundo motor(loops,fisica,render,input)
-		//las ref const seran siempre el mismo ref. pero ...ref.current cambia al crear la instancia
-		const animationFrameRef = useRef<number | undefined>(undefined);//controla loop//guardamos el id//crea con useRef la cja persistente(current)//id para poden cancel//
-																		//.current puede ser numero o undefined(no hay Animationframe aun)
-		const lastTimeRef = useRef<number>(0);					//controla timing//guardamos el tiempo del frame anterior//useRef sera numero//inicial a 0
-		const rendererRef = useRef<Game2dRenderer | null>(null);//controla render//guard.. 1 instancia de la clase game2drenderer// esta clase se encarga de
-																//limpiar canvas, dibujar palasm bola, y texto// .current puede ser null al principio
-		const inputHandlerRef = useRef<GameInput | null>(null);
-		const gameStateRef = useRef<Game2dState>(gameState);
-		const serveCountdownRef = useRef<number>(0); // frames de espera antes de mover la bola (saque)
+	gameState, gameMode, maxScore: _maxScore, t, onScore, onStateChange, onRestart }: Use2dGameLoopProps) { // :Use2dGameLoopProps — all listed properties are required.
+	// The const refs always point to the same ref object, but ref.current changes when the instance is created.
+	const animationFrameRef = useRef<number | undefined>(undefined); // Controls the loop. Stores the frame id so it can be cancelled. .current is a number or undefined (no frame scheduled yet).
+	const lastTimeRef = useRef<number>(0);							 // Controls timing. Stores the timestamp of the last processed frame. Initialized to 0.
+	const rendererRef = useRef<Game2dRenderer | null>(null);		 // Controls rendering. Holds one instance of Game2dRenderer (clears canvas, draws paddles, ball and text). .current is null until initialized.
+	const inputHandlerRef = useRef<GameInput | null>(null);
+	const gameStateRef = useRef<Game2dState>(gameState);
+	const tRef = useRef<TFunction>(t);
+	const serveCountdownRef = useRef<number>(0); // Frames to wait before the ball moves after a serve.
 
-		//hook q ejecuta el codigo cuando el componente ya esta montado en el DOM/cuando cambien dependencias o se desmonta.// end con []->una vez
-		useEffect(() => {
-			const canvas = canvasRef.current;	//sacamos el elemento real del DOM del ref.//canvasRef.current = <HTMLCanvasElement>
-			if (!canvas)
-				return;
+	useEffect(() => {
+		const canvas = canvasRef.current;	// Extract the real DOM element from the ref. canvasRef.current = <HTMLCanvasElement>.
+		if (!canvas)
+			return;
 
-			const ctx = canvas.getContext("2d"); //getContext es 1 metodo propio de HTMLCanvaElement("2d" tipo 2d clasico)
-			if (!ctx)				//este devuelve un objeto tipo CanvasrenderingContext2d(API navegador q tiene metodos como fillRec,arc,fill etc..)
-				return;				//reserva un buffer interno de pixel->asocia system coordenandas->crear obj(CanvasRenderingContext2d)->lo devuelve cada vez que llamos ctx.fillRec().
+		const ctx = canvas.getContext("2d"); // getContext is a native HTMLCanvasElement method ("2d" = classic 2D mode).
+		if (!ctx)							 // Returns a CanvasRenderingContext2D object (browser API: fillRect, arc, fill, etc.).
+			return;							 // Allocates a pixel buffer → sets up coordinate system → creates the context object.
 
-			rendererRef.current = new Game2dRenderer(ctx);	//creamos un new object pasandole el contexto de 2d canvas guardado dentro de un ref
-															//reserva memoria--ejecuta el constructor-asigan this.ctx=ctx// el hook tiene el ctx
-			inputHandlerRef.current = new GameInput(keysRef.current, gameState, onStateChange); //creamos un new object a partir de Gameinput
-															//lo conectamos con react y el motor/Da acceso= 1.teclas.2.estadodeljuego.3.permiso pra cambiar estado.y la save en un ref
-			const handleRestartKey = (event: KeyboardEvent) => {								//creamos la variable para el restart.
-				if ((event.key === "r" || event.key === "R") && gameStateRef.current.winner) {		//creamos(event) como parametro(objeto evento)
-					onRestart();
+		rendererRef.current = new Game2dRenderer(ctx);	// Creates a new renderer, passing the 2D context. Runs constructor, assigns this.ctx = ctx.
+		inputHandlerRef.current = new GameInput(keysRef.current, gameState, onStateChange); // Creates a new GameInput instance.
+														// Connects it to React and the engine: 1) keys, 2) game state, 3) permission to change state.
+		const handleRestartKey = (event: KeyboardEvent) => {	// Keyboard listener for the restart key.
+			if ((event.key === "r" || event.key === "R") && gameStateRef.current.winner) {	// event = KeyboardEvent object.
+				onRestart();
+			}
+		};
+
+		// Heart of the engine — function that receives currentTime (a timestamp number provided by the browser).
+		// Internal frame flow: 1) Time control (deltaTime + FRAME_DURATION)
+		//                      2) Update (only if isPlaying && !isPaused)
+		//                      3) Render (always)
+		// INPUT → UPDATE → RENDER  (classic game engine pattern)
+
+		// IMPORTANT: We use refs instead of useState because:
+		// - useState would trigger a re-render 60 times per second.
+		// - Refs allow silent mutation (.current) without causing a component re-render.
+		const gameLoop = (currentTime: number) => {
+			animationFrameRef.current = requestAnimationFrame(gameLoop); // requestAnimationFrame is a browser API.
+			// Stores the frame id in the ref so it can be cancelled.
+			// When the frame finishes, gameLoop is called again with the next timestamp.
+
+			// currentTime    -> sent automatically by the browser on each gameLoop call.
+			//                    Represents the current time in milliseconds since the page started.
+			// lastTimeRef.current -> timestamp of the last frame we actually processed.
+			//                        Stored so we can compare against the current time.
+			// deltaTime      -> difference between now and the last valid frame.
+			//                    Tells us how much REAL time has passed.
+			const deltaTime = currentTime - lastTimeRef.current;
+
+			// FRAME_DURATION -> the ideal duration of a single frame.
+			// Example: for 60fps → 1000ms / 60 ≈ 16.67ms.
+			// If not enough time has elapsed for a full frame, skip physics and rendering.
+			// This prevents the game from running faster on 120hz or 144hz monitors.
+			if (deltaTime < FRAME_DURATION)
+				return; // Skip this frame (the next one is already scheduled).
+
+			lastTimeRef.current = currentTime - (deltaTime % FRAME_DURATION);
+			// Update the time base for the next calculation.
+			// deltaTime % FRAME_DURATION -> leftover milliseconds that didn't fill a complete frame.
+			// Example: deltaTime = 18ms, FRAME_DURATION = 16ms → 2ms leftover.
+			// Without subtracting the remainder, those milliseconds would be lost and the game would drift over time.
+
+			const currentGameState = gameStateRef.current; // Read the CURRENT game state from the ref.
+			// gameStateRef.current always holds the most recent state.
+			// Stored in a local variable to avoid writing .current everywhere.
+
+			// Only update physics if: the game is playing AND is not paused.
+			if (currentGameState.isPlaying && !currentGameState.isPaused) {
+
+				// Update paddles.
+				// player1Ref.current -> Paddle object for player 1 (position, velocity, score).
+				// player2Ref.current -> Paddle object for player 2.
+				// keysRef.current    -> Current keyboard state (which keys are pressed).
+				// ballRef.current    -> Ball object (passed in because it can influence AI).
+				// gameMode          -> Defines whether it is 1v1, 1vAI or spectator (physics differ per mode).
+				GamePhysics.updatePaddles(player1Ref.current, player2Ref.current, keysRef.current,
+					ballRef.current, gameMode);
+
+				// Same for the ball — only if the serve countdown has finished.
+				if (serveCountdownRef.current > 0) {
+					serveCountdownRef.current--;
+				} else {
+					GamePhysics.updateBall(ballRef.current, player1Ref.current, player2Ref.current,
+						(player) => { serveCountdownRef.current = SERVE_DELAY_SCORE; onScore(player); });
 				}
-			};
-			
-			//heart del motor //funcion (recibe como parametro currenttime(lo crea el navegador el timestamp(numero)))
-			// Flujo interno de cada frame: // 1) Control del tiempo (deltaTime + FRAME_DURATION)
-											// 2) Update (solo si isPlaying && !isPaused)
-											// 3) Render (siempre)
-											// // INPUT → UPDATE → RENDER (classic patron d cualquier motor de videojuego.
-
-			// IMPORTANTE: Usamos refs en vez de useState porque:
-			// - useState provocaría re-render 60 veces por segundo
-			// // Las refs permiten 1 mutasion silenciosa (.current) sin provocar re-render del componente.			
-			const gameLoop = (currentTime: number) => {
-				animationFrameRef.current = requestAnimationFrame(gameLoop); //requestAni... forma parte del navegador(API)
-														//guardamos el id en el ref animation current//
-														//cada vez que termina un frame se vuelve a llmar(gameloop(timestamp))
-				
-				// currentTime -> lo manda el navegador automatic cada vez que ejecuta gameLoop
-				// representa el tiempo actual (en milisegundos) desde que la ppage empezo
-				// lastTimeRef.current -> es el tiempo del last frame que SI procesamos
-				// lo guardamos para poder comparar con el tiempo actual
-				// deltaTime -> diferencia entre ahora y el ultimo frame valido
-				// esto nos dice cuanto tiempo REAL ha pasado
-				const deltaTime = currentTime - lastTimeRef.current;
-				
-				// FRAME_DURATION -> es el tiempo ideal que queremos que dure cada frame
-				// ejemplo: si queremos 60fps → 1000ms / 60 ≈ 16.67ms
-				// si aun no ha pasado suficiente tiempo para un frame completo,no actualizamos física ni renderizamos
-				// esto evita que el juego vaya más rápido en monitores de 120hz o 144hz
-				if (deltaTime < FRAME_DURATION)
-					return; // salimos de este frame (pero el siguiente ya esta programado)
-				
-				
-				lastTimeRef.current = currentTime - (deltaTime % FRAME_DURATION);
-				// aqui se actualiz el tiempo base para el siguiente calculo
-				// deltaTime % FRAME_DURATION -> resto de milisegundos que sobran
-				// ejemplo: si deltaTime = 18ms y FRAME_DURATION = 16ms → sobra 2ms
-				// si no restaramos el sobrante, perderíamos esos milisegundos y el juego se desincronizaria con el time
-				// por eso ajustamos el ultimo tiempo procesado restando el sobrante
-				
-				const currentGameState = gameStateRef.current; // obtenemos el estado ACTUAL del juego desde el ref
-													// gameStateRef.current -> siempre contiene la versión más reciente del estado
-													// lo guardamos en una variable local para no escribir .current todo el tiempo
-				
-				// solo actualizamos la logica(physics) si: el juego esta en modo playing y NO esta pausado							
-				if (currentGameState.isPlaying && !currentGameState.isPaused) {
-
-					// actualizamos las palas
-					// player1Ref.current-> obj Paddle del jugador 1 (pos, veloci, score)
-					// player2Ref.current-> obj Paddle del jugador 2
-					// keysRef.current ->estado actual del teclado (q teclas estn pulsadas)
-					// ballRef.current ->obj bola (se pasa porque puede influir en IA)
-					// gameMode -> define si es 1v1, 1vIA, spectator (la phisic cambia segun modo)
-					GamePhysics.updatePaddles(player1Ref.current, player2Ref.current, keysRef.current,
-						ballRef.current, gameMode);
-					
-					//lomismo con la bola: solo si el countdown de saque ha terminado
-					if (serveCountdownRef.current > 0) {
-						serveCountdownRef.current--;
-					} else {
-						GamePhysics.updateBall(ballRef.current, player1Ref.current, player2Ref.current,
-							(player) => { serveCountdownRef.current = SERVE_DELAY_SCORE; onScore(player); });
-					}
-				}
-				
-				// siempre renderizamos el frame act.. aunq el juego este pause o haya winner
-				// porque necesitamos dibujar el estado visual (marcador, winner, pausa, etc.)
-				if (rendererRef.current) {
-					// render(...) -> dibuja TODO en el canvas,recibe: 
-					// - player1-player2-ball- currentGameState(pra saber si mostrar winner o pausa)r
-					// - gameMode (puede afectar UI)
-					rendererRef.current.render(player1Ref.current, player2Ref.current,
-						ballRef.current, currentGameState);
-				}
-			};
-			
-			//arrancamos el bucle princiapl del juego
-			//requestAnimationFrame-> l dice al nave. que ejecute gameLoop en el siguiente frame
-			//devuelve un ID(number) q identifica ese frame programado y lo save en animationFrameRef.current pra poder cancelarlo desp.		
-			animationFrameRef.current = requestAnimationFrame(gameLoop);
-			
-			//listeners de teclado..// actualizmos los keysRef.current
-			window.addEventListener("keydown", inputHandlerRef.current.handleKeyDown);
-			window.addEventListener("keyup", inputHandlerRef.current.handleKeyUp);
-			window.addEventListener("keydown", handleRestartKey);
-			
-			// return dentro de useEffect = func de limpieza(cleanup)
-			// React ejecuta esto automatci cuando el componente se desmonta, para apagar el motor correct y evitar memory leaks
-			return () => {
-				if (animationFrameRef.current) { //si existe un frame programado
-					cancelAnimationFrame(animationFrameRef.current);
-					// animationFrameRef.current -> ID del último requestAnimationFrame
-					// cancelAnimationFrame(...) -> detiene el bucle del juego
-					// sin this el loop seguiria ejecutandose en segundo plano
-				}
-
-				if (inputHandlerRef.current) { //si existe el manejador de input(GameInput)//quitamos los listeners de teclado
-					window.removeEventListener("keydown", inputHandlerRef.current.handleKeyDown);
-					window.removeEventListener("keyup", inputHandlerRef.current.handleKeyUp);
-				}
-				// quitamos tb el listener especificc de reinicio (tecla R)
-				// si no lo quitamos, seguiri activo aunque el juego ya no este montado
-				window.removeEventListener("keydown", handleRestartKey);
-			};
-		}, []); // solo se ejec una vez
-		
-		// IMPORTANTE// El gameLoop se crea una sola vez (useEffect con [])
-		// Eso signif. q si usaramos directamente gameState dentro del loop, se quedaria congelado en su valor inicial.
-		// Por eso usamos gameStateRef: // sincronizamos React → Motor cada vez que cambia el estado.
-		// [gameState] -> dependencia: si el estado cambia, React ejecuta este bloqu		
-		useEffect(() => {
-			const wasPlaying = gameStateRef.current.isPlaying;
-			gameStateRef.current = gameState;//actualiz el ref interno con el estado + reciente
-
-			// al arrancar la partida (SPACE por primera vez) → countdown de saque
-			if (!wasPlaying && gameState.isPlaying) {
-				serveCountdownRef.current = SERVE_DELAY_START;
 			}
 
-			// si ya existe el manejador de input (GameInput) le pasamos el nuevo estado del juego
-			// esto permite que el input se adapte a cambios como:- pausa- start- winner
-			if (inputHandlerRef.current) {
-				inputHandlerRef.current.updateState(gameState);
+			// Always render the current frame, even when paused or when there is a winner,
+			// because we still need to draw the visual state (scoreboard, winner screen, pause overlay, etc.).
+			if (rendererRef.current) {
+				// render() draws everything on the canvas. Receives:
+				// - player1, player2, ball
+				// - currentGameState (to know whether to show the winner screen or pause overlay)
+				rendererRef.current.render(player1Ref.current, player2Ref.current, ballRef.current,
+					currentGameState, tRef.current);
 			}
-		}, [gameState]); // ejecuatamos este effec cada vez q cambie el gamestate(array d dependencias)
+		};
+
+		// Start the main game loop.
+		// requestAnimationFrame tells the browser to call gameLoop on the next frame.
+		// Returns a numeric ID that identifies the scheduled frame, stored so it can be cancelled later.
+		animationFrameRef.current = requestAnimationFrame(gameLoop);
+
+		// Register keyboard listeners. They update keysRef.current on every keydown/keyup.
+		window.addEventListener("keydown", inputHandlerRef.current.handleKeyDown);
+		window.addEventListener("keyup", inputHandlerRef.current.handleKeyUp);
+		window.addEventListener("keydown", handleRestartKey);
+
+		// Returning a function from useEffect registers it as a cleanup.
+		// React runs this automatically when the component unmounts, to shut down the engine cleanly and prevent memory leaks.
+		return () => {
+			if (animationFrameRef.current) { // If a frame is currently scheduled:
+				cancelAnimationFrame(animationFrameRef.current);
+				// animationFrameRef.current -> ID of the last requestAnimationFrame.
+				// cancelAnimationFrame()    -> stops the game loop.
+				// Without this the loop would keep running in the background.
+			}
+
+			if (inputHandlerRef.current) { // If the input handler (GameInput) exists, remove keyboard listeners.
+				window.removeEventListener("keydown", inputHandlerRef.current.handleKeyDown);
+				window.removeEventListener("keyup", inputHandlerRef.current.handleKeyUp);
+			}
+			// Also remove the restart key listener (R key).
+			// Without this it would remain active even after the game unmounts.
+			window.removeEventListener("keydown", handleRestartKey);
+		};
+	}, []); // Runs only once — on mount.
+
+	// IMPORTANT: The gameLoop is created only once (useEffect with []).
+	// That means if we used gameState directly inside the loop, it would be frozen at its initial value (stale closure).
+	// That is why we use gameStateRef: we sync React → Engine every time the state changes.
+	// [gameState] dependency: React runs this block whenever gameState changes.
+	useEffect(() => {
+		const wasPlaying = gameStateRef.current.isPlaying;
+		gameStateRef.current = gameState; // Update the internal ref with the latest state.
+
+		// When the match starts for the first time (SPACE) → start the serve countdown.
+		if (!wasPlaying && gameState.isPlaying) {
+			serveCountdownRef.current = SERVE_DELAY_START;
+		}
+
+		// If the input handler (GameInput) already exists, pass it the new game state.
+		// This lets the input layer adapt to changes such as: pause, start, winner.
+		if (inputHandlerRef.current) {
+			inputHandlerRef.current.updateState(gameState);
+		}
+	}, [gameState]); // Re-runs every time gameState changes (dependency array).
+
+	useEffect(() => {
+		tRef.current = t;
+	}, [t]);
 }

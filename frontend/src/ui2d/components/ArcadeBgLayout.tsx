@@ -78,5 +78,4 @@ export function ArcadeBgLayout({
 			</div>
 		</div>
 	)
-
 }

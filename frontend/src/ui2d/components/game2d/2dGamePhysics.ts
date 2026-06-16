@@ -1,134 +1,110 @@
-// GAME PHYSICS & LOGIC
-//file pa centralizar la fisica y la logica del pong 2d
-//aqui NO dibujamos nada (eso es renderer), aqui solo movemos y calculamos colisiones, rebotes y puntos
-//la idea es pasar el estado (ball + paddles + keys + mode) y esto lo actualiza (mutando los objetos) //importamos solo los tipos(TS) del estado del juego
+// ┌────────────────────────────────────────────────────────────┐
+// │                       2dGamePhysics.ts                     │
+// ├────────────────────────────────────────────────────────────┤
+// │ Updates the 2D game physics and gameplay logic.            │
+// │ It moves paddles and ball, detects collisions, bounces     │
+// │ and score events. Rendering is handled by another layer.   │
+// └────────────────────────────────────────────────────────────┘
 import type { Ball, Paddle, Keys, Game2DMode } from './2dGameState';
-//importamos constantes del config del juego2d (tamaños, velocidades, etc.)
 import { CANVAS_WIDTH, CANVAS_HEIGHT, BALL_SPEED_INCREMENT } from './2dGameConfig';
-// use2dGameSettingsStore -> leemos la velocidad de bola elegida fuera de React con .getState()
-// BALL_SPEED_MAP         -> convierte 'slow' | 'normal' | 'fast' en un numero real
 import { use2dGameSettingsStore, BALL_SPEED_MAP } from '../../../shared/store/game2dSettingsStore';
 import { useDisplay2dStore, BALL_SIZE_MAP } from '../../../shared/store/display2dSettingsStore';
-//BALL_SIZE_MAP -> convierte 'small' | 'normal' | 'large' en radio de pixeles
-//exportamos la clase GamePhysics
-//static pq esta clase no necesita memoria interna, no guarda nada, solo hace calculos sobre objetos q le pasas
+
+// Centralizes the physics and logic of the 2D Pong game.
+// It only moves entities, checks collisions, handles rebounds and detects points.
+// The game loop passes ball, paddles, keys and mode, and this class mutates them.
+
+// ════════ FCT CLASS: GamePhysics: Calculate movement, collisions and scoring. ════════
 export class GamePhysics {
-	//resetea la pelota al centro y le da una direccion inicial
-	// //direction: 1 o -1 (1 -> hacia la derecha, -1 -> hacia la izquierda) //por defecto = 1, asi cuando empiezas normalmente sale a la derecha
+	// STEP 1: Reset the ball to the center and apply the selected speed/settings.
 	static resetBall(ball: Ball, direction: 1 | -1 = 1): void {
-		//la ponemos en el centro del canvas
+		// Place the ball in the center of the canvas.
 		ball.x = CANVAS_WIDTH / 2;
 		ball.y = CANVAS_HEIGHT / 2;
-		//reseteamos la speed al valor del ajuste elegido por el jugador (no una constante hardcodeada)
-		//se ejecuta cada vez q alguien anota, asi la velocidad siempre es la correcta durante la partida
+		// Reset the speed using the current player setting.
 		const { ballSpeed } = use2dGameSettingsStore.getState();
 		ball.speed = BALL_SPEED_MAP[ballSpeed as keyof typeof BALL_SPEED_MAP];
-		//actualizamos el radio por si el jugador cambio ballSize en display settings
+		// Update the radius in case the player changed the ball size setting.
 		const { ballSize } = useDisplay2dStore.getState();
 		ball.radius = BALL_SIZE_MAP[ballSize];
-
-		//le damos un angulo random pequeño pa q no sea siempre recta y aburrida
-		// //Math.random() -> [0..1) //(Math.random() - 0.5) -> [-0.5..0.5) //* (Math.PI / 4) -> rango final [-PI/8 .. PI/8] (pequeña inclinación)
+		// Add a small random angle so the ball does not always move straight.
+		// Math.random() gives [0..1), so this creates a range around 0.
 		const randomAngle = (Math.random() - 0.5) * Math.PI / 4;
-		ball.velocityX = direction * ball.speed * Math.cos(randomAngle);	//velocityX y velocityY son los “pasos” por frame (o por tick) que va a sumar la pelota
-		ball.velocityY = ball.speed * Math.sin(randomAngle);				//cos controla X, sin controla Y, y direction decide si sale a derecha o izquierda
+		// velocityX and velocityY are the movement steps applied every frame.
+		// cos controls X, sin controls Y, and direction chooses left or right.
+		ball.velocityX = direction * ball.speed * Math.cos(randomAngle);
+		ball.velocityY = ball.speed * Math.sin(randomAngle);
 	}
-
-	// COLLISION CHECK //check si el circulo(ball) se solapa con el rectang(paddle)//esto es un AABB simple:si el bounding box de la ball toca el de la pala=>colision
+	// STEP 2: Check if the circular ball overlaps a rectangular paddle.
 	static checkCollision(ball: Ball, paddle: Paddle): boolean {
 		return (
-			ball.x - ball.radius < paddle.x + paddle.width &&		//lado izq de la pelota < lado der de la pala
-			ball.x + ball.radius > paddle.x &&						//lado der de la pelota > lado izq de la pala
-			ball.y - ball.radius < paddle.y + paddle.height &&		//arriba de la pelota < abajo de la pala
-			ball.y + ball.radius > paddle.y							//abajo de la pelota > arriba de la pala
+			ball.x - ball.radius < paddle.x + paddle.width &&		
+			ball.x + ball.radius > paddle.x &&						
+			ball.y - ball.radius < paddle.y + paddle.height &&		
+			ball.y + ball.radius > paddle.y							
 		);
 	}
-
-	// BALL UPDATE (MOVE + BOUNCE + SCORE)
-	//actualiza la pelota: se mueve, rebota en paredes, rebota en palas y detecta puntos
+	// STEP 3: Move the ball, resolve wall/paddle collisions and detect scoring.
 	static updateBall(ball: Ball, player1: Paddle, player2: Paddle, onScore: (player: 1 | 2) => void): void {
-		//onScore: callback que llama cuando la pelota sale por un lado (marca un jugador)
-
-		//1) mover la pelota (sumamos las velocidades a la posicion) //esto es el “motor” basico de movimiento del juego
+		// Move the ball by adding its velocity to its position.
 		ball.x += ball.velocityX;
 		ball.y += ball.velocityY;
-
-		//2) colision con paredes arriba/abajo — separados y con clamp de posicion
-		//si solo invertimos velocidad sin clampear, la bola puede quedar fuera del canvas
-		//y en el siguiente frame volver a invertir -> queda oscilando en la pared
+		// Top wall collision.
+		// Clamp the position to avoid the ball getting stuck inside the wall.
 		if (ball.y - ball.radius <= 0) {
-			ball.y = ball.radius;						//clamp: sacamos la bola de la pared
-			ball.velocityY = Math.abs(ball.velocityY);	//forzamos q vaya hacia abajo
+			ball.y = ball.radius;						
+			ball.velocityY = Math.abs(ball.velocityY);
 		}
+		// Bottom wall collision.
 		if (ball.y + ball.radius >= CANVAS_HEIGHT) {
-			ball.y = CANVAS_HEIGHT - ball.radius;		//clamp: sacamos la bola de la pared
-			ball.velocityY = -Math.abs(ball.velocityY);	//forzamos q vaya hacia arriba
+			ball.y = CANVAS_HEIGHT - ball.radius;	
+			ball.velocityY = -Math.abs(ball.velocityY);
 		}
 
-		//3) colision con pala jugador 1 (izquierda)
+		// Player 1 paddle collision.
 		if (this.checkCollision(ball, player1)) {
-
-			//collidePoint: cuanto de lejos del centro de la pala golpea la pelota
-			//si pega arriba -> negativo, si pega abajo -> positivo
+			// Distance between the hit point and the paddle center.
 			const collidePoint = ball.y - (player1.y + player1.height / 2);
-
-			//normalizamos a rango [-1..1]
-			//dividimos entre la mitad de la pala
+			// Normalize the hit point into the range [-1..1].
 			const normalizedCollidePoint = collidePoint / (player1.height / 2);
-
-			//bounceAngle maximo = PI/4 (45º) para que nunca salga disparada vertical 100%
-			//si normalized = -1 => -45º, si 0 => 0º (sale recta), si 1 => 45º
+			// Maximum bounce angle is 45 degrees.
 			const bounceAngle = normalizedCollidePoint * (Math.PI / 4);
-
-			//actualizamos velocidades en base al angulo y a la speed actual
-			//para el player1, X debe salir positiva (hacia la derecha)
+			// Player 1 is on the left, so the ball must go to the right.
 			ball.velocityX = ball.speed * Math.cos(bounceAngle);
 			ball.velocityY = ball.speed * Math.sin(bounceAngle);
-
-			//aumentamos un pelin la speed en cada golpe (+ tensión, + arcade)
+			// Slightly increase speed after each paddle hit.
 			ball.speed += BALL_SPEED_INCREMENT;
-
-			//empujamos la pelota fuera de la pala para evitar “doble colision” en el mismo frame
+			// Push the ball outside the paddle to avoid double collision.
 			ball.x = player1.x + player1.width + ball.radius;
 		}
-
-		//4) colision con pala jugador 2 (derecha)
+		// Player 2 paddle collision.
 		if (this.checkCollision(ball, player2)) {
 
-			//mismo calculo, pro ahora el rebote debe ir hacia la izquierda (X negativa)
 			const collidePoint = ball.y - (player2.y + player2.height / 2);
 			const normalizedCollidePoint = collidePoint / (player2.height / 2);
 			const bounceAngle = normalizedCollidePoint * (Math.PI / 4);
 
-			//X negativa pa que vuelva hacia player1
 			ball.velocityX = -ball.speed * Math.cos(bounceAngle);
 			ball.velocityY = ball.speed * Math.sin(bounceAngle);
-
 			ball.speed += BALL_SPEED_INCREMENT;
-
-			//sacamos la pelota fuera de la pala derecha
 			ball.x = player2.x - ball.radius;
 		}
 
-		//5) detectar punto
-		//si la pelota se va por la izquierda => punto player2
+		// Score detection: left side means point for player 2.
 		if (ball.x - ball.radius <= 0) {
 			onScore(2);
 		}
-
-		//si la pelota se va por la derecha => punto player1
+		// Score detection: right side means point for player 1.
 		if (ball.x + ball.radius >= CANVAS_WIDTH) {
 			onScore(1);
 		}
 	}
 
-	// PADDLES UPDATE (INPUT / IA)
-	//actualiza palas: player1 siempre con W/S
-	//player2 depende del modo: 1vIA -> sigue la pelota, 1v1 -> ArrowUp/ArrowDown
+	// STEP 4: Move paddles according to keyboard input, AI or spectator mode.
 	static updatePaddles(player1: Paddle, player2: Paddle, keys: Keys, ball: Ball, gameMode: Game2DMode): void {
-		// --- PLAYER 1 ---
+		// PLAYER 1
 		if (gameMode === 'spectator') {
-			// Modo espectador: Player 1 también es IA
+			// Spectator mode: player 1 is also controlled by AI/pc
 			const paddleCenter = player1.y + player1.height / 2;
 			const ballCenter = ball.y;
 
@@ -137,14 +113,14 @@ export class GamePhysics {
 			} else if (paddleCenter > ballCenter + 35) {
 				player1.y -= player1.speed * 0.65;
 			}
-
+			// Keep player 1 inside the canvas.
 			if (player1.y < 0)
 				player1.y = 0;
 			if (player1.y > CANVAS_HEIGHT - player1.height) {
 				player1.y = CANVAS_HEIGHT - player1.height;
 			}
 		} else {
-			// Modos normales: Player 1 con W/S
+			// Normal modes: player 1 uses W/S.
 			if (keys.w && player1.y > 0) {
 				player1.y -= player1.speed;
 			}
@@ -153,22 +129,19 @@ export class GamePhysics {
 			}
 		}
 
-		// --- PLAYER 2 o IA ---
+		// PLAYER 2 / AIPC
 		if (gameMode === '1vIA' || gameMode === 'spectator') {
-			//IA simple: intenta poner el centro de la pala donde esta la pelota
-			const paddleCenter = player2.y + player2.height / 2;		//paddleCenter: centro de la pala (y + altura/2)
-			const ballCenter = ball.y;									//ballCenter: y de la pelota (ya es su “centro”)
-
-			//zona muerta (deadzone) +/- 35
-			//asi no vibra todo el rato por un pixel arriba/abajo
+			// Simple AIPC: tries to align the paddle center with the ball.
+			const paddleCenter = player2.y + player2.height / 2;
+			const ballCenter = ball.y;					
+			// Deadzone prevents the AIPC from vibrating for tiny differences.
 			if (paddleCenter < ballCenter - 35) {
-				//0.7 para que sea un poco mas lenta y humana (y se le pueda ganar)
 				player2.y += player2.speed * 0.7;
 			} else if (paddleCenter > ballCenter + 35) {
 				player2.y -= player2.speed * 0.7;
 			}
 
-			//limites de la IA (muy importante)
+			// Keep player 2 inside the canvas.
 			if (player2.y < 0)
 				player2.y = 0;
 			if (player2.y > CANVAS_HEIGHT - player2.height) {
@@ -176,7 +149,7 @@ export class GamePhysics {
 			}
 
 		} else {
-			//modo 1v1: player2 con flechas
+			// 1v1 mode: player 2 uses arrow keys.
 			if (keys.ArrowUp && player2.y > 0) {
 				player2.y -= player2.speed;
 			}

@@ -1,79 +1,77 @@
-//file para centralizar la creacion del estado inical del juego2d //creamos los objetos cuando start de partida
-
-//importamos las constantes de config del juego2d
-import {
-	CANVAS_WIDTH,
-	CANVAS_HEIGHT,
-	PADDLE_WIDTH,
-	PADDLE_SPEED,
-} from './2dGameConfig';
-
-// use2dGameSettingsStore  -> store de Zustand con los ajustes del jugador (guardados en sessionStorage)
-// PADDLE_SIZE_MAP         -> convierte 'small' | 'medium' | 'large' en pixeles reales de altura
-// BALL_SPEED_MAP          -> convierte 'slow' | 'normal' | 'fast' en un numero de velocidad real
-// .getState() -> forma de leer un store Zustand FUERA de un componente React (sin hook)
+// ┌────────────────────────────────────────────────────────────┐
+// │                    2dGameInitState.ts                      │
+// ├────────────────────────────────────────────────────────────┤
+// │ Factory class that creates the initial 2D game entities.   │
+// └────────────────────────────────────────────────────────────┘
+import { CANVAS_WIDTH, CANVAS_HEIGHT, PADDLE_WIDTH, PADDLE_SPEED } from './2dGameConfig';
 import { use2dGameSettingsStore, PADDLE_SIZE_MAP, BALL_SPEED_MAP } from '../../../shared/store/game2dSettingsStore';
+// use2dGameSettingsStore -> Zustand store with the player's settings (saved in sessionStorage)
+// PADDLE_SIZE_MAP        -> converts 'small' | 'medium' | 'large' into real paddle height pixels
+// BALL_SPEED_MAP         -> converts 'slow' | 'normal' | 'fast' into a real speed number
+// .getState()            -> way to read a Zustand store OUTSIDE a React component (without a hook)
 import { useDisplay2dStore, BALL_SIZE_MAP } from '../../../shared/store/display2dSettingsStore';
-//BALL_SIZE_MAP -> convierte 'small' | 'normal' | 'large' en radio de pixeles
-
-//importamos solo los tipos(TS) desde gamestate //import type : eso no se convierte JS en runtime, solo dirve pa q TS check que el objeto q devolvemos tiene al forma correcta
 import type { Paddle, Ball, Keys } from './2dGameState';
 
-//exportamos la calse 2dGAMEINITSTATE
-//statics porque estas clases no necesitasn memoria interna, no guarda nada/no se construyen, solo delvulve los objetos
-// return con {} en JS devuelve objeto.... no ejecuta algo()
+// ════════ FCT CLASS: Game2dInitState: Create fresh game entities from current settings. ════════
+// Export the Game2dInitState class.
+// Static methods are used because this class does not need internal memory.
+// It does not store anything and does not need to be instantiated.
+// It only returns ready-to-use objects.
+// In JavaScript, return with {} returns an object.
+
 export class Game2dInitState {
+	// STEP 1: Create the left paddle using the selected paddle size.
+
 	static createPlayer1(): Paddle {
-		//leemos el tamaño de pala elegido en ajustes justo cuando empieza la partida
-		//'as keyof typeof PADDLE_SIZE_MAP' le dice a TS q el string es una clave valida del mapa
 		const { paddleSize } = use2dGameSettingsStore.getState();
 		const height = PADDLE_SIZE_MAP[paddleSize as keyof typeof PADDLE_SIZE_MAP];
+		// 'as keyof typeof PADDLE_SIZE_MAP' tells TypeScript that the string is a valid key of the map.
 		return {
 			x: 20,
 			y: CANVAS_HEIGHT / 2 - height / 2,
 			width: PADDLE_WIDTH,
-			height,          //dinamico -> depende del ajuste del jugador
+			height,								// Dynamic -> depends on the player's setting.
 			speed: PADDLE_SPEED,
 			score: 0,
 		};
 	}
-	static createPlayer2() : Paddle {
-		//igual q player1 -> los dos usan el mismo ajuste de tamaño de pala
+	// STEP 2: Create the right paddle using the selected paddle size.
+	static createPlayer2(): Paddle {
 		const { paddleSize } = use2dGameSettingsStore.getState();
 		const height = PADDLE_SIZE_MAP[paddleSize as keyof typeof PADDLE_SIZE_MAP];
 		return {
 			x: CANVAS_WIDTH - 20 - PADDLE_WIDTH,
 			y: CANVAS_HEIGHT / 2 - height / 2,
 			width: PADDLE_WIDTH,
-			height,          //dinamico -> depende del ajuste del jugador
+			height,
 			speed: PADDLE_SPEED,
 			score: 0,
 		};
 	}
+	// STEP 3: Create the ball using the selected speed and visual size.
 	static createBall(): Ball {
-		//leemos la velocidad de pelota elegida en ajustes justo cuando empieza la partida
 		const { ballSpeed } = use2dGameSettingsStore.getState();
 		const speed = BALL_SPEED_MAP[ballSpeed as keyof typeof BALL_SPEED_MAP];
-		//leemos el tamaño de bola del store de display
 		const { ballSize } = useDisplay2dStore.getState();
 		const radius = BALL_SIZE_MAP[ballSize];
 		return {
 			x: CANVAS_WIDTH / 2,
 			y: CANVAS_HEIGHT / 2,
-			radius,             //dinamico -> depende del ajuste visual del jugador
-			velocityX: speed,  //dinamico -> depende del ajuste del jugador
+			radius,
+			velocityX: speed,
 			velocityY: speed,
 			speed,
 		};
 	}
+	// STEP 4: Create the initial keyboard state with no active key.
 	static createKeys(): Keys {
 		return {
+			// false means that no key is being pressed when the game starts.
 			w: false,
 			s: false,
 			ArrowUp: false,
 			ArrowDown: false,
 		};
-		//false al empezar no estamos pulsando niguna tecla
 	}
 }
 

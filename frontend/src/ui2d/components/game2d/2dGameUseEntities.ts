@@ -1,52 +1,44 @@
-// CUSTOM HOOK: GAME ENTITIES
-// //custom hook de react para centralizar las entidades del juego 2d
-// //aqui guardamos player1, player2, ball y keys en useRef
-// //useRef pq NO queremos que cada frame dispare un re-render
-// //estas refs se usan dentro del game loop (requestAnimationFrame)
+// ┌────────────────────────────────────────────────────────────┐
+// │                    2dGameUseEntities.ts                    │
+// ├────────────────────────────────────────────────────────────┤
+// │ Custom hook that stores the mutable 2D game entities.      │
+// └────────────────────────────────────────────────────────────┘
+
+// Custom React hook used to centralize the 2D game entities.
+// Here we store player1, player2, ball and keys inside useRef.
+// We use useRef because we do NOT want every frame to trigger a re-render.
+// These refs are used inside the game loop (requestAnimationFrame).
+
 import { useRef } from 'react';
-//importamos la factory que crea el estado inicial (jugadores, bola, teclas)
-import { Game2dInitState } from './2dGameInitState';
-//importamos solo los tipos TS
+import { Game2dInitState } from './2dGameInitState';	// Import the factory that creates the initial state (players, ball, keys).
 import type { Paddle, Ball, Keys } from './2dGameState';
-//exportamos el custom hook
-//esto es una funcion normal, pero empieza por "use" => regla de hooks
+
+// ════════ HOOK: useGameEntities: Store mutable game entities without re-rendering. ════════
 export function useGameEntities() {
-	// REFS (ESTADO MUTABLE SIN RE-RENDER)
-	//player1Ref.current contiene el objeto Paddle del jugador1
-	//GameFactory.createPlayer1() se ejecuta UNA sola vez al montar el componente
+	// STEP 1: Create mutable references for both paddles, the ball and the keyboard state.
+	// REFS: MUTABLE STATE WITHOUT RE-RENDERING
+	// Game2dInitState.createPlayer1() runs once when the component is mounted.
 	const player1Ref = useRef<Paddle>(Game2dInitState.createPlayer1());
-
-	//player2 igual
 	const player2Ref = useRef<Paddle>(Game2dInitState.createPlayer2());
-
-	//ballRef guarda la pelota
 	const ballRef = useRef<Ball>(Game2dInitState.createBall());
-
-	//keysRef guarda las flags de teclado (w, s, ArrowUp, ArrowDown)
 	const keysRef = useRef<Keys>(Game2dInitState.createKeys());
-
-	// RESET GAME
-	//funcion para reiniciar partida completa (marcador + posiciones + bola)
+	// STEP 2: Reset the match score and restore the entities to their initial state.
 	const resetGame = () => {
-
-		//reseteamos marcador
+		// Reset the score.
 		player1Ref.current.score = 0;
 		player2Ref.current.score = 0;
-
-		//reseteamos posicion Y de las palas
-		//volvemos a usar la factory para obtener la posicion inicial
+		// Reset the paddles' Y positions.
+		// We use the factory again to get the initial position.
 		player1Ref.current.y = Game2dInitState.createPlayer1().y;
 		player2Ref.current.y = Game2dInitState.createPlayer2().y;
-
-		//reseteamos la bola completamente
-		//aqui SI reasignamos el objeto entero
-		//ballRef.current apunta ahora a un nuevo objeto Ball
+		// Fully reset the ball.
+		// Here we DO replace the whole object.
+		// ballRef.current now points to a new Ball object.
 		ballRef.current = Game2dInitState.createBall();
 	};
-
-	// RETURN DEL HOOK
-	//devolvemos las refs para que el GameCanvas pueda usarlas
-	//ej: player1Ref.current.x, ballRef.current.velocityX, etc.
+	// STEP 3: Expose the refs used by the canvas, input system and game loop.
+	// Return the refs so GameCanvas can use them.
+	// Example: player1Ref.current.x, ballRef.current.velocityX, etc.
 	return {
 		player1Ref,
 		player2Ref,
