@@ -1,8 +1,18 @@
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { useTranslation } from "react-i18next"
-import { IntroButtons } from "../components/Buttons/IntroButtons"
+// ┌────────────────────────────────────────────────────────────┐
+// │                       IntroPage.tsx                        │
+// ├────────────────────────────────────────────────────────────┤
+// │ Initial splash screen shown before entering the application│
+// └────────────────────────────────────────────────────────────┘
+//////////////////////////////////// CHECK ROUTE 42LOGIN IF EXISTS/////////////////
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { IntroButtons } from "../components/Buttons/IntroButtons";
 
+// STEP 1: Define splash animation timings.
+const LOGO_DELAY_MS = 200;
+const TITLE_DELAY_MS = 1100;
+const BUTTONS_DELAY_MS = 1500;
 
 export function SplashScreen() {
 	const navigate = useNavigate()
@@ -11,17 +21,22 @@ export function SplashScreen() {
 	const [showTitle, setShowTitle] = useState(false)
 	const [showButtons, setShowButtons] = useState(false)
 
+	// STEP 2: Trigger intro animations in sequence and clean timers on unmount.
 	useEffect(() => {
-		const t1 = setTimeout(() => setShowLogo(true), 200)
-		const t2 = setTimeout(() => setShowTitle(true), 1100)
-		const t3 = setTimeout(() => setShowButtons(true), 1500)
-		return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
-	}, [])
+		const logoTimer = setTimeout(() => setShowLogo(true), LOGO_DELAY_MS);
+		const titleTimer = setTimeout(() => setShowTitle(true), TITLE_DELAY_MS);
+		const buttonsTimer = setTimeout(() => setShowButtons(true), BUTTONS_DELAY_MS);
+
+		return () => {
+			clearTimeout(logoTimer);
+			clearTimeout(titleTimer);
+			clearTimeout(buttonsTimer);
+		};
+	}, []);
 
 	return (
 		<div
-			className="fixed inset-0 bg-black flex flex-col items-center justify-start overflow-hidden
-					bg-center bg-no-repeat bg-cover"
+			className="fixed inset-0 bg-black flex flex-col items-center justify-start overflow-hidden bg-center bg-no-repeat bg-cover"
 			style={{ backgroundImage: "url('/images/bg7.png')" }}>
 			<div className="hidden dark:block absolute inset-0 bg-black/70 pointer-events-none" />
 			<div className="relative z-10 w-full max-w-[1400px] min-h-full flex flex-col items-center justify-between px-4 pt-[clamp(2rem,8vh,6.25rem)] pb-[clamp(1rem,4vh,2.5rem)]">
@@ -42,10 +57,10 @@ export function SplashScreen() {
 					</p>
 				</div>
 				<div className={`w-full flex flex-wrap items-center justify-center py-[clamp(1rem,3.6vh,2.5rem)] gap-[clamp(0.6rem,1.8vw,2rem)] transition-all duration-2700 ease-out
-				${showButtons ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
-				<IntroButtons label={t('splash.guest')} onCLick={() => navigate("start")} />
-				<IntroButtons label={t('splash.login42')} onCLick={() => navigate("Login42")} />
-				<IntroButtons label={t('splash.login')} onCLick={() => navigate("login")} />
+						${showButtons ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+							<IntroButtons label={t('splash.guest')} onClick={() => navigate("start")} />
+							<IntroButtons label={t('splash.login42')} onClick={() => navigate("Login42")} />
+							<IntroButtons label={t('splash.login')} onClick={() => navigate("login")} />
 				</div>
 				<p className={`text-center text-yellow-600 text-[clamp(0.62rem,1.05vw,1rem)] py-[clamp(0.4rem,2vh,1.8rem)] tracking-[0.14em] uppercase font-light px-3
 						transition-opacity duration-1100 ease-out

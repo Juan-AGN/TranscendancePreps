@@ -1,13 +1,22 @@
+// ┌────────────────────────────────────────────────────────────┐
+// │                    MainPageButton.tsx                      │
+// ├────────────────────────────────────────────────────────────┤
+// │ Reusable animated circular button used in main sections.   │
+// │ It renders a styled action button with configurable text,  │
+// │ size, color, tracking and hover effects.                   │
+// └────────────────────────────────────────────────────────────┘
+// STEP 1: Define the props used to customize the main page button.
 interface MainPageButtonProps {
-	label: string
-	onClick?: () => void
-	tracking?: string
-	textColor?: string
-	size?: string
-	hoverTracking?: string
-	textSize?: string
+	label: string;
+	onClick?: () => void;
+	tracking?: string;
+	textColor?: string;
+	size?: string;
+	hoverTracking?: string;
+	textSize?: string;
 }
 
+// ════════ COMPONENT: MainPageButton: Render a reusable animated section button. ════════
 export function MainPageButton({
 	label,
 	onClick,
@@ -19,17 +28,16 @@ export function MainPageButton({
 }: MainPageButtonProps) {
 	return (
 		<button
+			type="button"
 			onClick={onClick}
 			className={`${size} flex items-center justify-center ${textColor} cursor-pointer
 				rounded-full border-5 border-white/20 uppercase
 				shadow-[1px_1px_10px_1px_#eab308,-1px_-1px_10px_1px_#eab308]
 				transition-all duration-700 ease-out select-none group overflow-visible
-				hover:bg-black hover:shadow-[2px_2px_50px_2px_#3b82f6,0px_0px_20px_2px_#eab308] hover:text-yellow-300`}
-		>
-			<span
-				className={`whitespace-nowrap ${tracking} ${hoverTracking} ${textSize}
-				transition-all duration-1000 ease-out inline-block origin-center`}
-			>
+				hover:bg-black hover:shadow-[2px_2px_50px_2px_#3b82f6,0px_0px_20px_2px_#eab308] hover:text-yellow-300`}>
+			{/* Step 1: Render the button label with configurable tracking and text size. */}
+			<span className={`whitespace-nowrap ${tracking} ${hoverTracking} ${textSize}
+					transition-all duration-1000 ease-out inline-block origin-center`}>
 				{label}
 			</span>
 		</button>
