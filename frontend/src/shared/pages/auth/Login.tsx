@@ -291,7 +291,7 @@ function Login() {
 								</div>
 
 								<div className="mt-[clamp(2.6rem,2vh,1.5rem)] flex flex-wrap items-center justify-center gap-[clamp(0.4rem,1.5vw,1rem)]">
-									<IntroButtons label={t('auth.login.buttons.signIn')} onCLick={doLogin} />
+									<IntroButtons label={t('auth.login.buttons.signIn')} onClick={doLogin} />
 									<span className="text-xs text-slate-400">{t('auth.login.separatorOr')}</span>
 									<a href={`${API_URL}/auth/42`} className="block no-underline">
 										<IntroButtons label={t('auth.login.buttons.login42')} />
@@ -351,7 +351,7 @@ function Login() {
 									/>
 								</div>
 								<div className="mt-[clamp(1.6rem,2vh,1.5rem)] flex flex-wrap items-center justify-center gap-[clamp(0.4rem,1.5vw,1rem)]">
-									<IntroButtons label={t('auth.login.buttons.createAccount')} onCLick={doRegister} />
+									<IntroButtons label={t('auth.login.buttons.createAccount')} onClick={doRegister} />
 								</div>
 							</div>
 						)}
