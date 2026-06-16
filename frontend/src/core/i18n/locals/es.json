@@ -198,6 +198,9 @@
             "red": "ROJO",
             "cyan": "CYAN"
         },
+        "common": {
+            "back": "← VOLVER"
+        },
         "hud": {
             "player1": "JUGADOR 1",
             "player2": "JUGADOR 2",
