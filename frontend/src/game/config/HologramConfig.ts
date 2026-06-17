@@ -1,40 +1,50 @@
-// HOLOGRAM CONFIG -- tabla central de objetos del hub (proximity + hologram)
-// aqui decides TODO: que objeto existe, a que distancia se activa y si tiene texto 3D
-// es el "panel de control" del hub, sin tocar logica del motor
+// ┌────────────────────────────────────────────────────────────┐
+// │                  HologramConfig.ts                         │
+// ├────────────────────────────────────────────────────────────┤
+// │ Defines interactive Hub objects and hologram text settings.│
+// │ Controls proximity distance, glow config and 3D text data. │
+// │ It does NOT apply highlights or animate holograms directly.│
+// └────────────────────────────────────────────────────────────┘
 
 import { Color3, Vector3 } from '@babylonjs/core';
 import type { GlowEffectConfig } from './HighlightConfig';
 import { DEFAULT_HIGHLIGHT } from './HighlightConfig';
 
-// ===== CONSTANTES TEXTO 3D =====
+// STEP 1: Define 3D hologram text constants.
+// These values control font, animation timing, text size and outline.
 export const HOLOGRAM_FONT_URL         = 'https://assets.babylonjs.com/fonts/Droid%20Sans_Bold.json';
 //export const HOLOGRAM_FONT_URL = 'https://threejs.org/examples/fonts/helvetiker_bold.typeface.json';
 //export const HOLOGRAM_FONT_URL = 'https://threejs.org/examples/fonts/optimer_bold.typeface.json';
-export const HOLOGRAM_ANIM_FPS         = 60;    // fps de animacion
-export const HOLOGRAM_GLYPH_RESOLUTION = 64;    // calidad de curvas de las letras
-export const HOLOGRAM_TEXT_SIZE        = 1.5;   // tamaño de las letras
-export const HOLOGRAM_TEXT_DEPTH       = 0.30;   // grosor del relieve 3D
-export const HOLOGRAM_OUTLINE_WIDTH    = 0.32;  // contorno negro gordo
-export const HOLOGRAM_EMERGE_FROMSKY     = 15.0;   // cuanto bajan bajo el suelo cuando estan ocultas
-export const HOLOGRAM_FRAMES_DOWN    = 60;   // frames pa subir (~1.8s) — empieza lento
-export const HOLOGRAM_FRAMES_UP      = 55;    // frames pa bajar
-
+export const HOLOGRAM_ANIM_FPS         = 60;    		
+export const HOLOGRAM_GLYPH_RESOLUTION = 64;
+export const HOLOGRAM_TEXT_SIZE        = 1.5;  
+export const HOLOGRAM_TEXT_DEPTH       = 0.30; 
+export const HOLOGRAM_OUTLINE_WIDTH    = 0.32;  
+export const HOLOGRAM_EMERGE_FROMSKY     = 15.0;	
+export const HOLOGRAM_FRAMES_DOWN    = 60;  
+export const HOLOGRAM_FRAMES_UP      = 55;
+// ════════ TYPE: HubObjectConfig: Interactive Hub object configuration. ════════
+// Each object can have proximity detection, glow configuration and optional 3D text.
 export interface HubObjectConfig {
-	key: string;               // nombre del objeto en escena
-	proximityKey?: string;     // objeto opcional usado para calcular distancia de proximidad
-	activeDistance: number;   // distancia de activacion del aura/proximity
-	glowConfig: GlowEffectConfig; // config del glow
+	key: string;             
+	proximityKey?: string;    
+	activeDistance: number; 
+	glowConfig: GlowEffectConfig; 
 
 	hologram?: {
-		label: string;      // texto del holograma
-		color: Color3;      // color neon del texto
-		position: Vector3;  // posicion exacta en el mundo (X, Y=0 suelo, Z)
+		label: string;   
+		color: Color3;    
+		position: Vector3; 
 	};
 }
-
+// STEP 2: Define all interactive Hub objects.
+// key: main object identifier used by the Hub systems.
+// proximityKey: optional helper object used for distance checks.
+// activeDistance: distance where proximity/highlight behavior becomes active.
+// glowConfig: visual glow preset used by the object.
+// hologram: optional floating 3D text shown near the object.
 export const HUB_OBJECTS: HubObjectConfig[] = [
-// ===== CON HOLOGRAMA =====
-// Ajusta position: new Vector3(X, 0, Z) para colocar cada texto donde quieras
+	// STEP 3: Objects with hologram text.
 	{
 		key: 'townhouse',
 		activeDistance: 15,
@@ -98,8 +108,7 @@ export const HUB_OBJECTS: HubObjectConfig[] = [
 			position: new Vector3(-30, 8, 29),
 		},
 	},
-
-	// ===== SOLO PROXIMITY (sin texto) =====
+	// STEP 4: Objects with proximity/highlight only, without hologram text.
 	{
 		key: 'pingpong',
 		proximityKey: 'pedestalPingpong',
@@ -112,12 +121,10 @@ export const HUB_OBJECTS: HubObjectConfig[] = [
 		glowConfig: DEFAULT_HIGHLIGHT,
 	},
 ];
-
-
-// ===== MINI DICCIONARIO =====
-// hologram -> texto 3D flotante
-// offset -> ajuste manual de posicion
-// bounds -> limites del objeto (caja invisible)
-// dot product -> calculo pa saber hacia donde apunta algo
-// normalize -> convertir vector a longitud 1
-// mesh -> objeto 3D en escena
+// STEP 5: Small terminology notes.
+// hologram: floating 3D text shown near an object.
+// offset: manual position adjustment.
+// bounds: invisible box used to describe object limits.
+// dot product: vector calculation used to compare directions.
+// normalize: converts a vector to length 1 while keeping its direction.
+// mesh: 3D object inside the scene.
