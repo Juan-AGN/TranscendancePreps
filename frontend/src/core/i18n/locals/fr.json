@@ -31,7 +31,7 @@
         "arcade": "Arcade",
         "tech": "Tech Info",
         "creators": "Createurs",
-        "onlineGame":"Jeu en ligne"
+        "onlineGame": "Jeu en ligne"
     },
     "splash": {
         "tagline": "3D HUB · ARCADE PONG · BATAILLES EN TEMPS RÉEL · PROJET 42",
@@ -198,12 +198,22 @@
             "red": "ROUGE",
             "cyan": "CYAN"
         },
+        "common": {
+            "back": "← RETOUR"
+        },
         "hud": {
             "player1": "JOUEUR 1",
             "player2": "JOUEUR 2",
             "computer": "ORDINATEUR",
             "spectator1": "SPECTATEUR 1",
             "spectator2": "SPECTATEUR 2"
+        },
+        "canvas": {
+            "pressSpaceToStart": "APPUYEZ SUR ESPACE POUR COMMENCER",
+            "paused": "PAUSE",
+            "pressSpaceToResume": "Appuyez sur ESPACE pour reprendre",
+            "playerWins": "{{player}} GAGNE !",
+            "pressRToRestart": "Appuyez sur R pour recommencer"
         }
     },
     "hubPanelLogin": {
