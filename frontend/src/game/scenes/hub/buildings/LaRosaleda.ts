@@ -1,5 +1,12 @@
-// LaRosaleda — estadio de futbol malaga del hub
-// invierte Z pa corregir texto espejo del modelo
+// ┌────────────────────────────────────────────────────────────┐
+// │                   LaRosaleda.ts                            │
+// ├────────────────────────────────────────────────────────────┤
+// │ La Rosaleda stadium object for the Hub scene.             │
+// │ Loads model, applies transform and collider/shadow setup. │
+// │ Uses mirrored Z scale to correct source text orientation. │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import stadium dependencies
 
 import { Scene, Mesh, Vector3, SceneLoader, ShadowGenerator } from '@babylonjs/core';
 import '@babylonjs/loaders/glTF';
@@ -9,6 +16,7 @@ export class LaRosaleda extends InteractiveObject {
 	private readonly targetScale: Vector3;
 	private readonly targetRotation: number;
 
+	// STEP 2: Capture transform config and start loading
 	constructor(
 		scene: Scene,
 		position: Vector3,
@@ -22,6 +30,7 @@ export class LaRosaleda extends InteractiveObject {
 		this.loadPromise = this.load();
 	}
 
+	// STEP 3: Load model and complete runtime setup
 	protected async load(): Promise<void> {
 		try {
 			const result = await SceneLoader.ImportMeshAsync('', '/models/NewLaRosaleda_draco.glb', '', this.scene);
@@ -29,7 +38,7 @@ export class LaRosaleda extends InteractiveObject {
 			this.rootMesh = result.meshes[0] as Mesh;
 			this.rootMesh.position = this.position.clone();
 			this.rootMesh.scaling = this.targetScale.clone();
-			this.rootMesh.scaling.z *= -1; // invierte Z pa corregir texto espejo
+			this.rootMesh.scaling.z *= -1; // Mirror Z to fix mirrored text orientation
 			this.rootMesh.rotationQuaternion = null;
 			this.rootMesh.rotation.y = this.targetRotation;
 			this.rootMesh.isVisible = true;
@@ -42,3 +51,7 @@ export class LaRosaleda extends InteractiveObject {
 		}
 	}
 }
+
+// ===== MINI DICTIONARY =====
+// mirrored scale -> negative axis scale to flip geometry orientation
+// hierarchy bounds -> extents used to auto-generate collider volume

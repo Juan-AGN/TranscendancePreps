@@ -1,7 +1,12 @@
-// GameLoop — logica del juego que se ejecuta cada frame (en cada frame haz todo esto)
-// gestiona input de camara, movimiento del personaje, proximidad y zoom dinamico
-// se separa de HomeScene3D pa que el orquestador no tenga logica inline
+// ┌────────────────────────────────────────────────────────────┐
+// │                GameLoop.ts                                 │
+// ├────────────────────────────────────────────────────────────┤
+// │ Main game loop - executes logic every frame.               │
+// │ Manages camera input, character movement, proximity, zoom. │
+// │ Separates from HomeScene3D so orchestrator stays clean.    │
+// └────────────────────────────────────────────────────────────┘
 
+// STEP 1: Import core Babylon.js types and dependencies
 import { Scene, Vector3 } from '@babylonjs/core';
 import type { CameraController } from './CameraController';
 import type { KeyboardInput } from './InputHandler';
@@ -11,15 +16,17 @@ import type { ProximitySystem } from '../physics/ProximitySystem';
 import { CHARACTER_CONFIG } from '../config/PlayerConfig';
 import { useGameSettingsStore, SPEED_MAP, SENSITIVITY_MAP, PLAYER_SIZE_MAP } from '../config/gameSettingsStore';
 
+// STEP 2: Define GameLoop class with all required systems
 export class GameLoop {
-	private scene: Scene;								// escena donde se registra el bucle
-	private inputHandler: KeyboardInput;					// detecta teclas presionadas
-	private cameraController: CameraController;			// controla camara (rotacion, zoom, seguimiento)
-	private entityManager: HubSceneBuilder;			// acceso al personaje y objetos de la escena
-	private proximitySystem: ProximitySystem;			// activa/desactiva highlights por proximidad
-	private characterMovement: PlayerMovement | null = null;	// se asigna cuando el personaje termina de cargar
-	private lastAppliedSize: string = '';						// tamaño del personaje aplicado en el ultimo frame
+	private scene: Scene;                                // Scene where the loop registers
+	private inputHandler: KeyboardInput;                // Detects pressed keys
+	private cameraController: CameraController;        // Controls camera (rotation, zoom, follow)
+	private entityManager: HubSceneBuilder;            // Access to character and scene objects
+	private proximitySystem: ProximitySystem;          // Activates/deactivates highlights by proximity
+	private characterMovement: PlayerMovement | null = null; // Set when character finishes loading
+	private lastAppliedSize: string = '';              // Character size applied in last frame
 
+	// STEP 3: Constructor - initialize with all systems
 	constructor(
 		scene: Scene,
 		inputHandler: KeyboardInput,
@@ -34,39 +41,46 @@ export class GameLoop {
 		this.proximitySystem = proximitySystem;
 	}
 
-	// asigna el movimiento del personaje — llamar desde el callback de createCharacter
-	// hasta q no se llame este metodo, tick() no procesa movimiento (personaje aun cargando)
+	// STEP 4: Set character movement after loading completes
+	// Call from character creation callback
+	// Until this is called, tick() won't process movement (character still loading)
 	public setCharacterMovement(movement: PlayerMovement): void {
 		this.characterMovement = movement;
 	}
 
-	// arranca el bucle — registrar una sola vez despues de crear todo
+	// STEP 5: Start the loop - register once after creating everything
 	public start(): void {
 		this.scene.registerBeforeRender(() => this.updateFrame());
 	}
 
-	// logica q se ejecuta CADA FRAME
+	// ════════════════════════════════════════════════════════════════════════════════════════════════════════
+	// STEP 6: MAIN FRAME UPDATE - executes EVERY FRAME
+	// Frame rate ≈ 60 FPS (1000ms / 60 = ~16.7ms per frame)
+	// ════════════════════════════════════════════════════════════════════════════════════════════════════════
+
 	private updateFrame(): void {
 		const character = this.entityManager?.character;
 		if (!character || !this.characterMovement)
-			return;	// esperamos a q el personaje cargue
+			return; // Wait for character to load
 
-		// settings del juego (leidos del store cada frame)
+		// STEP 7: Read game settings from store (every frame)
 		const { controlsPreset, cameraSensitivity, invertCameraY, moveSpeed: speedPreset, playerSize: sizePreset } = useGameSettingsStore.getState();
 		const sensitivity = SENSITIVITY_MAP[cameraSensitivity];
 
-		// tamaño del personaje: solo aplica cuando cambia (evita escalar cada frame)
+		// STEP 8: Apply character size (only when it changes, not every frame)
 		if (sizePreset !== this.lastAppliedSize) {
 			character.setScale(PLAYER_SIZE_MAP[sizePreset]);
 			this.lastAppliedSize = sizePreset;
 		}
 
-		// teclas de camara (swap con teclas de movimiento segun preset)
+		// STEP 9: Map camera control keys based on control preset
+		// Swap keys depending on WASD or Arrow controls preference
 		const camLeft  = controlsPreset === 'WASD' ? 'ArrowLeft'  : 'a';
 		const camRight = controlsPreset === 'WASD' ? 'ArrowRight' : 'd';
 		const camUp    = controlsPreset === 'WASD' ? 'ArrowUp'    : 'w';
 		const camDown  = controlsPreset === 'WASD' ? 'ArrowDown'  : 's';
 
+		// STEP 10: Handle camera rotation input
 		if (this.inputHandler.isKeyPressed(camLeft))
 			this.cameraController.rotateHorizontal('left', sensitivity);
 		if (this.inputHandler.isKeyPressed(camRight))
@@ -76,17 +90,17 @@ export class GameLoop {
 		if (this.inputHandler.isKeyPressed(camDown))
 			this.cameraController.rotateVertical(invertCameraY ? 'down' : 'up', sensitivity);
 
-		// movimiento del personaje
+		// STEP 11: Update character movement
 		this.characterMovement.update(SPEED_MAP[speedPreset]);
 
-		// camara sigue al personaje
+		// STEP 12: Camera follows character
 		const characterPosition = character.getPosition();
 		this.cameraController.followTarget(characterPosition);
 
-		// proximidad -> activa/desactiva highlights y pulso de todos los objetos registrados
+		// STEP 13: Proximity system - activate/deactivate highlights and pulse
 		this.proximitySystem.update(characterPosition);
 
-		// zoom dinamico segun el mesh mas cercano al personaje
+		// STEP 14: Dynamic zoom based on closest mesh to character
 		let minDistancetoObject = 999;
 		for (const mesh of this.scene.meshes) {
 			if (
@@ -102,9 +116,19 @@ export class GameLoop {
 		}
 		this.cameraController.adjustZoomDistance(minDistancetoObject);
 
-		// trofeo rota continuamente
+		// STEP 15: Continuous rotation of trophy
 		if (this.entityManager?.trophy) {
 			this.entityManager.trophy.rotate(CHARACTER_CONFIG.trophyRotationSpeed);
 		}
 	}
 }
+
+// ===== MINI DICTIONARY =====
+// Frame = single rendered image (~60 per second)
+// FPS = Frames Per Second (60 FPS ≈ 16.7ms per frame)
+// registerBeforeRender = hook that executes before each frame renders
+// Sensitivity = camera rotation speed multiplier
+// Smoothness = interpolation factor for gradual changes
+// Preset = predefined control configuration (WASD vs Arrows)
+// Proximity = closeness/distance detection
+// Raycast = invisible ray for distance checking

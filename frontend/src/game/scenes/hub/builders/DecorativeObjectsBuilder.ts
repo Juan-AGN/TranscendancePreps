@@ -1,6 +1,12 @@
-// DecorObjectsBuilder — crea los objetos decorativos del hub (pingpong, torre, estadio, etc)
-// estos objetos son solo visuales, no tienen interaccion de menu
-// separa la construccion de decorados del SceneEntityManager pa que sea mas corto
+// ┌────────────────────────────────────────────────────────────┐
+// │          DecorativeObjectsBuilder.ts                       │
+// ├────────────────────────────────────────────────────────────┤
+// │ Builds decorative Hub objects (pingpong, tower, stadium). │
+// │ These objects are visual-only and non-interactive.        │
+// │ Keeps scene builder logic split and easier to maintain.   │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import decorative builders and loading dependencies
 
 import { Scene, ShadowGenerator } from '@babylonjs/core';
 import { SCENE_CONFIG } from '../../../config/HubConfig';
@@ -32,26 +38,26 @@ export interface DecorObjects {
 }
 
 export class DecorativeObjectsBuilder {
-	// crea todos los decorados y registra su carga en la cola de progreso
-	// retorna referencias pa que SceneEntityManager las exponga al ProximitySystem
-	// queue -> LoadingProgress pa añadir cada objeto al sistema de loading
+	// STEP 2: Build all decorative objects and register their load tasks
+	// Returns references so SceneEntityManager can expose them externally
+	// loadingQueue = LoadingProgress queue for ordered async loading
 	public static build(
 		scene: Scene,
 		shadow: ShadowGenerator | null,
 		loadingQueue: LoadingProgress
 	): DecorObjects {
-		// mesa de ping pong
+		// STEP 3: Create standalone decorative assets
 		const pingpong = new PingPongTable(scene, SCENE_CONFIG.pingpong.pos, SCENE_CONFIG.pingpong.scale, SCENE_CONFIG.pingpong.rotation, shadow);
 		loadingQueue.add('Loading ping pong table', () => pingpong.ready());
 
-		// torre monica
+		// Torre Monica
 		const torre = new TorreMonica(scene, SCENE_CONFIG.torre.pos, SCENE_CONFIG.torre.scale, SCENE_CONFIG.torre.rotation, shadow);
 		loadingQueue.add('Loading Torre Monica', () => torre.ready());
-		// estadio la rosaleda
+		// La Rosaleda stadium
 		const rosaleda = new LaRosaleda(scene, SCENE_CONFIG.rosaleda.pos, SCENE_CONFIG.rosaleda.scale, shadow, SCENE_CONFIG.rosaleda.rotation);
 		loadingQueue.add('Loading Stadium', () => rosaleda.ready());
 
-		// arcade
+		// Arcade machine
 		const arcade = new Arcade(scene, SCENE_CONFIG.arcade.pos, SCENE_CONFIG.arcade.scale, shadow, SCENE_CONFIG.arcade.rotation);
 		loadingQueue.add('Loading Arcade 3D', () => arcade.ready());
 
@@ -135,6 +141,7 @@ export class DecorativeObjectsBuilder {
 		);
 		loadingQueue.add('Loading Pedestal',() => pedestalTrophy.ready());
 
+		// STEP 4: Build repeated decoration groups from config arrays
 		const streetLamps: Atrezzo[] = SCENE_CONFIG.streetLamps.items.map((item) => {
 			const streetLamp = new Atrezzo(
 				scene,
@@ -190,6 +197,7 @@ export class DecorativeObjectsBuilder {
 			loadingQueue.add('Loading Columns',() => column.ready());
 			return column;
 		});
+		// STEP 5: Return full decorative object registry
 		return {
 			arcade,
 			pingpong,
@@ -210,3 +218,8 @@ export class DecorativeObjectsBuilder {
 		};
 	}
 }
+
+// ===== MINI DICTIONARY =====
+// decorative object -> visual object without direct interaction behavior
+// loading queue -> ordered async execution list for asset readiness
+// registry -> returned object containing references to built instances

@@ -25,6 +25,7 @@ export const CAMERA_DYNAMICS = {
 	// STEP 3: Manual keyboard rotation speeds.
 	horizontalSpeed: 0.03,						// Left/right camera rotation speed.
 	verticalSpeed: 0.03,   						// Up/down camera rotation speed.
+	followSmoothness: 0.12,
 	// STEP 4: Dynamic zoom behavior.
 	// The camera can adapt its distance depending on nearby obstacles or free space.
 	zoom: {

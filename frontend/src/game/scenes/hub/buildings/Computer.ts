@@ -1,6 +1,12 @@
-// Computer — ordenador gaming con materiales PBR del hub
-// modelo Draco comprimido (23MB -> 1.5MB)
-// -X en la escala corrige el flip horizontal del modelo
+// ┌────────────────────────────────────────────────────────────┐
+// │                    Computer.ts                             │
+// ├────────────────────────────────────────────────────────────┤
+// │ Gaming computer object with PBR material tuning.          │
+// │ Loads Draco-compressed model and configures surface types.│
+// │ Uses mirrored X scale to fix source orientation.          │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import computer model dependencies
 
 import { Scene, Mesh, Vector3, SceneLoader, ShadowGenerator, Color3, PBRMaterial } from '@babylonjs/core';
 import '@babylonjs/loaders';
@@ -10,6 +16,7 @@ export class Computer extends InteractiveObject {
 	private readonly targetScale: Vector3;
 	private readonly targetRotation: number;
 
+	// STEP 2: Store desired transform and start async load
 	constructor(
 		scene: Scene,
 		position: Vector3,
@@ -23,6 +30,7 @@ export class Computer extends InteractiveObject {
 		this.loadPromise = this.load();
 	}
 
+	// STEP 3: Load mesh and configure PBR materials per mesh role
 	protected async load(): Promise<void> {
 		try {
 			const result = await SceneLoader.ImportMeshAsync('', '/models/', 'NewComputer.glb', this.scene);
@@ -32,14 +40,14 @@ export class Computer extends InteractiveObject {
 			}
 			this.rootMesh = root as Mesh;
 			this.rootMesh.position = this.position.clone();
-			// -X invierte horizontalmente pa corregir orientacion del modelo
+			// Negative X mirrors model to correct source orientation
 			this.rootMesh.scaling = new Vector3(-this.targetScale.x, this.targetScale.y, this.targetScale.z);
 			this.rootMesh.addRotation(0, this.targetRotation, 0);
 			this.rootMesh.computeWorldMatrix(true);
 			this.storeModelMeshes(result.meshes);
 			this.setupShadows(result.meshes);
 			this.createColliderFromModelMesh(this.rootMesh, 'computer_collider');
-			// ajustes PBR segun tipo de mesh
+			// PBR tuning by mesh semantic (screen/frame/body)
 			this.glbMeshes.forEach(mesh => {
 				if (mesh.material instanceof PBRMaterial) {
 					const mat = mesh.material as PBRMaterial;
@@ -64,3 +72,8 @@ export class Computer extends InteractiveObject {
 		}
 	}
 }
+
+// ===== MINI DICTIONARY =====
+// PBR -> physically based rendering material model
+// metallic/roughness -> key PBR parameters for reflective response
+// emissive -> self-illuminated color contribution

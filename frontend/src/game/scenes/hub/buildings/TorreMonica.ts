@@ -1,4 +1,12 @@
-// TorreMonica — torre de malaga del hub
+// ┌────────────────────────────────────────────────────────────┐
+// │                  TorreMonica.ts                            │
+// ├────────────────────────────────────────────────────────────┤
+// │ Torre Monica landmark object for the Hub scene.           │
+// │ Loads GLB and applies configured transform/shadow setup.  │
+// │ Extends InteractiveObject base utilities.                 │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import tower dependencies
 
 import { Scene, Mesh, Vector3, SceneLoader, ShadowGenerator } from '@babylonjs/core';
 import '@babylonjs/loaders/glTF';
@@ -8,6 +16,7 @@ export class TorreMonica extends InteractiveObject {
 	private readonly targetScale: Vector3;
 	private readonly targetRotation: number;
 
+	// STEP 2: Store transform defaults and start loading
 	constructor(
 		scene: Scene,
 		position: Vector3,
@@ -21,6 +30,7 @@ export class TorreMonica extends InteractiveObject {
 		this.loadPromise = this.load();
 	}
 
+	// STEP 3: Load model and initialize collider/shadow behavior
 	protected async load(): Promise<void> {
 		try {
 			const result = await SceneLoader.ImportMeshAsync('', '/models/TorreMonica.glb', '', this.scene);
@@ -42,3 +52,7 @@ export class TorreMonica extends InteractiveObject {
 		}
 	}
 }
+
+// ===== MINI DICTIONARY =====
+// landmark -> notable decorative structure in world scene
+// root mesh -> top mesh used as transform anchor

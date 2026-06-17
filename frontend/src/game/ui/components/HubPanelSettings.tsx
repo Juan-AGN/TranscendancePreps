@@ -1,9 +1,18 @@
-// HubPanelSettings — panel de opciones del hub 3D
+// ┌────────────────────────────────────────────────────────────┐
+// │               HubPanelSettings.tsx                         │
+// ├────────────────────────────────────────────────────────────┤
+// │ Settings panel for 3D Hub gameplay options.               │
+// │ Controls speed, camera sensitivity, and player size.      │
+// │ Persists values through global game settings store.       │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import settings and translation dependencies
 import type { ReactNode } from "react";
 import { useGameSettingsStore, type SpeedPreset, type SensitivityPreset, type SizePreset } from "../../config/gameSettingsStore";
 import { useTranslation } from 'react-i18next';
 
 function SettingOption({ title, children }: { title: string; children: ReactNode }) {
+	// STEP 2: Reusable settings row layout
 	return (
 		<div className="flex items-center justify-between p-3 border-b border-gray-100 last:border-0">
 			<span className="text-sm font-medium text-gray-700">{title}</span>
@@ -21,6 +30,7 @@ function OptionButtons({
 	value: string;
 	onChange: (v: string) => void;
 }) {
+	// STEP 3: Render grouped option toggle buttons
 	return (
 		<div className="flex gap-1">
 			{options.map((opt) => (
@@ -39,6 +49,7 @@ function OptionButtons({
 }
 
 export function HubPanelSettings() {
+	// STEP 4: Read/store settings state and actions
 	const { t } = useTranslation();
 	const {
 		moveSpeed, setMoveSpeed,
@@ -46,6 +57,7 @@ export function HubPanelSettings() {
 		playerSize, setPlayerSize,
 	} = useGameSettingsStore();
 
+	// STEP 5: Render setting sections
 	return (
 		<div className="p-1">
 			<SettingOption title={t('hubPanelSettings.playerSpeed')}>
@@ -86,3 +98,8 @@ export function HubPanelSettings() {
 		</div>
 	);
 }
+
+// ===== MINI DICTIONARY =====
+// preset -> predefined option value used by gameplay systems
+// global store -> shared app state container
+// toggle button group -> set of mutually selectable values

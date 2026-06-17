@@ -1,63 +1,74 @@
-// COLLISION SYSTEM -- sistema de colisiones con raycast
-// aqui compruebo si delante del personaje hay algo solido
-// idea: lanzo un rayo invisible hacia delante y pregunto "choco o no?" asi evito meter al personaje dentro de objetos
+// ┌────────────────────────────────────────────────────────────┐
+// │               CollisionSystem.ts                           │
+// ├────────────────────────────────────────────────────────────┤
+// │ Collision detection system using raycasts.                │
+// │ Checks if there is a solid object in front of player.     │
+// │ Prevents moving character inside world objects.           │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import Babylon.js collision primitives
 
 import { Scene, Vector3, Ray, AbstractMesh } from '@babylonjs/core';
 
-export interface CollisionResult {// resultado que devuelvo al comprobar colision
-	hasCollision: boolean; // si hay choque o no
-	hitDistance: number; // a que distancia esta el impacto
-	hitMesh: AbstractMesh | null; // mesh golpeado (si existe)
+// STEP 2: Define collision check result contract
+export interface CollisionResult {
+	hasCollision: boolean; // Whether there is a collision
+	hitDistance: number; // Distance to hit point
+	hitMesh: AbstractMesh | null; // Hit mesh (if any)
 }
 
 export class CollisionSystem {
 
-	private scene: Scene; // escena donde estan todos los colliders
+	private scene: Scene; // Scene containing all colliders
 	private collisionDistance: number; 
-	// lookahead = cuanto mira el rayo hacia delante
-	// esto NO es el paso de movimiento, es la distancia de deteccion
+	// lookahead = how far the ray checks forward
+	// this is NOT movement step size, it is detection distance
+
+	// STEP 3: Initialize system with scene and default lookahead
 	constructor(scene: Scene, collisionDistance: number = 1.5) {
 		this.scene = scene;
 		this.collisionDistance = collisionDistance;
 	}
 
-	// ─── CHECK GENERAL 
+	// STEP 4: Generic collision check from origin + direction
 	public checkCollision(
 		origin: Vector3,
 		direction: Vector3,
 		maxDistance?: number
 	): CollisionResult {
-		const checkDistance = maxDistance ?? this.collisionDistance;// uso la distancia dada o, si no viene, mi distancia base
-		// si no hay direccion real, no tiene sentido lanzar rayo
+		const checkDistance = maxDistance ?? this.collisionDistance; // Use provided distance or fallback to base value
+		// If there is no real direction, raycast is meaningless
 		if (direction.lengthSquared() === 0) {
 			return { hasCollision: false, hitDistance: 0, hitMesh: null };
 		}
-		const rayOrigin = origin.clone(); // clono origen pa no tocar el original
-		rayOrigin.y += 1; // subo el rayo a la cintura del personaje
-		// si lo dejara en el suelo → podria fallar segun collider/suelo
+
+		// STEP 5: Build ray from character waist height
+		const rayOrigin = origin.clone(); // Clone origin to avoid mutating caller vector
+		rayOrigin.y += 1; // Raise ray to character waist level
+		// If cast from ground level, it can miss depending on collider/ground setup
+
 		const ray = new Ray(
 			rayOrigin,
 			direction.clone().normalize(),
 			checkDistance
 		);
-		// creo el rayo:
-		// - origen = donde empiezo
-		// - direccion normalizada = solo direccion, sin fuerza rara
-		// - longitud = hasta donde quiero mirar
+		// Ray setup:
+		// - origin = where cast starts
+		// - normalized direction = direction only, no magnitude noise
+		// - length = how far to check
 
-		// pickWithRay lanza el rayo contra la escena
+		// STEP 6: Cast ray against scene and filter only collider meshes
 		const hit = this.scene.pickWithRay(
 			ray,
 			(mesh) => !!mesh.metadata?.isCollider,
 			true
 		);
 
-		// filtro: solo quiero meshes que tengan metadata.isCollider = true
-		// asi ignoro suelo, decoracion, etc
+		// Filter: only meshes with metadata.isCollider = true
+		// This ignores ground, decorations, etc.
 		// true = fastCheck
-		// Babylon para al primer impacto
-		// eso es mas rapido (importantisimo si esto va cada frame)
-		// si golpea algo de verdad dentro del rango → hay colision
+		// Babylon stops at first hit, faster for per-frame checks
+		// If something is hit inside range => collision
 		if (hit?.hit && hit.pickedMesh && hit.distance < checkDistance) {
 			return {
 				hasCollision: true,
@@ -65,7 +76,8 @@ export class CollisionSystem {
 				hitMesh: hit.pickedMesh
 			};
 		}
-		// si no golpea nada → camino libre
+
+		// STEP 7: No hit => free path
 		return {
 			hasCollision: false,
 			hitDistance: checkDistance,
@@ -73,25 +85,24 @@ export class CollisionSystem {
 		};
 	}
 
-	// ─── CHECK DE MOV
+	// STEP 8: Movement-specific check between current and intended positions
 	public checkMove(currentPos: Vector3, newPos: Vector3): CollisionResult {
 
-		const direction = newPos.subtract(currentPos); // saco vector desde donde estoy hasta donde quiero ir
+		const direction = newPos.subtract(currentPos); // Vector from current position to intended position
 		if (direction.length() < 0.01) {
 			return { hasCollision: false, hitDistance: 0, hitMesh: null };
 		}
-		// si apenas me muevo, no hace falta comprobar nada
+		// If movement is minimal, no need to check
 		return this.checkCollision(currentPos, direction, this.collisionDistance);
-		// IMPORTANTE: uso lookahead fijo, no el paso real del frame
-		// si usara el paso pequeño (~0.3), el rayo miraria demasiado corto
-		// y no veria bien el obstaculo antes del choque
+		// IMPORTANT: use fixed lookahead, not raw frame movement
+		// Using tiny frame step (~0.3) makes ray too short and misses obstacle anticipation
 	}
 }
 
-// ===== MINI DICCIONARIO =====
-// ray -> rayo invisible pa detectar impactos
-// raycast -> lanzar un rayo y ver que toca
-// lookahead -> distancia que miro hacia delante
-// metadata -> datos extra del mesh
-// fastCheck -> para en el primer impacto (mas rapido)
-// AbstractMesh -> tipo base de objeto 3D en Babylon
+// ===== MINI DICTIONARY =====
+// ray -> invisible line used to detect impacts
+// raycast -> cast a ray and detect what it hits
+// lookahead -> distance checked ahead of movement
+// metadata -> extra custom data attached to mesh
+// fastCheck -> stop at first hit (faster)
+// AbstractMesh -> base 3D object type in Babylon

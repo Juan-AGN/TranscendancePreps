@@ -1,7 +1,14 @@
-// GROUND TEXT HOLOGRAM -- letras 3D planas en el suelo, emergen suavemente desde abajo
-// rotation.x = +PI/2 → cara del texto apunta hacia ARRIBA (legible desde encima)
-// animacion: las letras suben desde bajo el suelo hasta el nivel 0
-// sin panel de fondo → solo letras neon
+// ┌────────────────────────────────────────────────────────────┐
+// │            SkyTextHologram.ts                              │
+// ├────────────────────────────────────────────────────────────┤
+// │ Creates flat 3D text holograms that emerge from ground.    │
+// │ Handles font loading, mesh creation, and animations.       │
+// │ Supports show/hide with smooth emergence effects.          │
+// └────────────────────────────────────────────────────────────┘
+
+// Text orientation: rotation.x = +PI/2 → text face points UP (readable from above)
+// Animation: letters rise smoothly from below ground to level 0
+// No background panel → only neon letters
 
 import { Scene, Mesh, MeshBuilder, Vector3, StandardMaterial, Color3, Animation, EasingFunction, SineEase } from '@babylonjs/core';
 import earcut from 'earcut';
@@ -19,14 +26,16 @@ import {
 	HOLOGRAM_FRAMES_DOWN,
 } from '../config/HologramConfig';
 
-export class SkyTextHologram { // Define la clase que se encarga de crear, mostrar, ocultar y destruir el holograma de texto
-	private scene: Scene; // Guarda la escena de Babylon donde existe el holograma
-	private label: string; // Guarda el texto que se va a mostrar, por ejemplo "PONG" o "SETTINGS"
-	private glowColor: Color3; // Guarda el color brillante/emissive del holograma
-	private textMesh: Mesh | null = null; // Guarda la malla del texto 3D una vez creada; empieza en null porque tarda en cargarse
-	private groundY: number = 0; // Guarda la altura Y final donde debe quedar apoyado el texto, normalmente el nivel del suelo
-	private isVisible: boolean = false; // Indica si el holograma se considera visible lógicamente
-	private waitingToShow: boolean = false; // Sirve para recordar que alguien call a show() antes de que el texto terminara de cargarse
+export class SkyTextHologram {
+	// Class responsible for creating, showing, hiding, and destroying text holograms
+
+	private scene: Scene; // Stores the Babylon scene where the hologram exists
+	private label: string; // Stores the text to display, e.g. "PONG" or "SETTINGS"
+	private glowColor: Color3; // Stores the bright/emissive color of the hologram
+	private textMesh: Mesh | null = null; // Stores the 3D text mesh once created; starts null (slow to load)
+	private groundY: number = 0; // Stores the final Y height where text should rest (usually ground level)
+	private isVisible: boolean = false; // Tracks if hologram is logically visible
+	private waitingToShow: boolean = false; // Remember if show() was called before text finished loading
 
 	constructor(
 		scene: Scene,
@@ -34,8 +43,8 @@ export class SkyTextHologram { // Define la clase que se encarga de crear, mostr
 		emissiveColor: Color3,
 		position: Vector3,
 	) {
-		this.scene     = scene;
-		this.label     = label;
+		this.scene = scene;
+		this.label = label;
 		this.glowColor = emissiveColor;
 		this.loadFontAndCreateTextMesh(position);
 	}
@@ -52,58 +61,59 @@ export class SkyTextHologram { // Define la clase que se encarga de crear, mostr
 				this.scene,
 			) as Mesh;
 
-			if (!mesh) { // Comprueba si Babylon devolvió null o algo no valid al crear el texto
-				//console.warn(`[Hologram3D] CreateText devolvio null para "${this.label}"`); // Muestra aviso en consola para saber q texto fallo
-				return; // Sale del método porque no puede continuar sin mesh
-			} // Cierra el if
+			if (!mesh) {
+				// Check if Babylon returned null or invalid when creating text
+				//console.warn(`[Hologram3D] CreateText returned null for "${this.label}"`); // Show warning to debug
+				return; // Exit since no mesh to continue with
+			}
 
-			// contorno negro gordo
+			// Thick black outline
 			mesh.renderOutline = false;
-			mesh.outlineColor  = new Color3(0, 0, 0);
-			mesh.outlineWidth  = HOLOGRAM_OUTLINE_WIDTH;
+			mesh.outlineColor = new Color3(0, 0, 0);
+			mesh.outlineWidth = HOLOGRAM_OUTLINE_WIDTH;
 
-			this.groundY     = position.y;
-			mesh.position    = new Vector3(position.x, this.groundY + HOLOGRAM_EMERGE_FROMSKY, position.z);
-			mesh.rotation.x  = 0;
+			this.groundY = position.y;
+			mesh.position = new Vector3(position.x, this.groundY + HOLOGRAM_EMERGE_FROMSKY, position.z);
+			mesh.rotation.x = 0;
 
-			mesh.billboardMode = Mesh.BILLBOARDMODE_Y; // Rota en el eje Y para siempre mirar al jugador
-			mesh.isVisible = false; // Lo deja oculto hasta que alguien llame a show()
-			mesh.isPickable = false; // Evita que el texto intercepte clics o raycasts; asi el edificio sigue siendo clicable
+			mesh.billboardMode = Mesh.BILLBOARDMODE_Y; // Always rotate on Y axis to face player
+			mesh.isVisible = false; // Keep hidden until someone calls show()
+			mesh.isPickable = false; // Prevent text from intercepting clicks/raycasts so building stays clickable
 
-			// material solido con relieve visible:
-			// - cara frontal casi blanca (diffuse) → la luz de escena crea claroscuro en el relieve
-			// - especular brillante → cantos y aristas captan la luz
-			// - emissive muy suave con el color del objeto → tinte identidad sin aplanar el relieve
+			// Solid material with visible relief:
+			// - Front face nearly white (diffuse) → scene lighting creates shadow relief
+			// - Bright specular → edges catch light
+			// - Subtle emissive with object color → identity tint without flattening relief
 			const mat = new StandardMaterial(`hologram3d_mat_${this.label}`, this.scene);
 			const g = this.glowColor;
-			mat.diffuseColor  = new Color3(
+			mat.diffuseColor = new Color3(
 				0.85 + g.r * 0.15,
 				0.85 + g.g * 0.15,
 				0.85 + g.b * 0.15,
-			); // casi blanco con ligero tinte del color del objeto
+			); // Nearly white with slight color tint
 			mat.specularColor = new Color3(g.r * 0.8, g.g * 0.8, g.b * 0.8);
-			mat.specularPower = 64;  // reflejo concentrado en aristas → da efecto brillante/lacado
-			mat.emissiveColor = new Color3(g.r * 0.08, g.g * 0.08, g.b * 0.08); // tinte identidad muy sutil
+			mat.specularPower = 64; // Concentrated reflection on edges → glossy/lacquered effect
+			mat.emissiveColor = new Color3(g.r * 0.08, g.g * 0.08, g.b * 0.08); // Subtle identity tint
 			mesh.material = mat;
 
-			this.textMesh = mesh; // Guarda la referencia al texto ya creado en la propiedad de la clase
+			this.textMesh = mesh; // Store reference to created text
 
 			if (this.waitingToShow) {
 				this.waitingToShow = false;
-				mesh.isVisible     = true;
+				mesh.isVisible = true;
 				this.animateEmerge(this.groundY, HOLOGRAM_FRAMES_DOWN);
 			}
 
-		} catch (err) { // Captura cualquier error ocurrido en fetch, json() o CreateText
-			//console.error(`[Hologram3D] Error creando texto "${this.label}":`, err); // Muestra el error completo en consola para depurar
-		} // Cierra el catch
-	} // Cierra el metodo de creación
+		} catch (err) {
+			// Catch any error from fetch, json(), or CreateText
+			//console.error(`[Hologram3D] Error creating text "${this.label}":`, err); // Show full error for debugging
+		}
+	}
 
 	private animateEmerge(targetY: number, frames: number, onEnd?: () => void): void {
 		if (!this.textMesh)
 			return;
-
-		// SineEase IN → empieza MUY lento (sensacion de peso/gravedad) y va acelerando
+		// SineEase OUT → starts VERY slow (weight/gravity feel) and accelerates
 		const ease = new SineEase();
 		ease.setEasingMode(EasingFunction.EASINGMODE_EASEOUT);
 
@@ -121,34 +131,36 @@ export class SkyTextHologram { // Define la clase que se encarga de crear, mostr
 		);
 	}
 
-	public show(): void { // Metodo publico para mostrar el holograma
+	public show(): void {
+		// Public method to show the hologram
 		if (this.isVisible)
-			return; // Si ya está visible , no hace nada para evitar repetir la animation
-		this.isVisible = true; // Marca el holograma como visible
+			return; // Already visible, avoid repeating animation
 
-		if (!this.textMesh) { // Comprueba si el texto aun no se ha creado porque la fuente sigue cargando
-			this.waitingToShow = true; // Guarda la intención de mostrarlo + tarde cuando termine la carga
-			return; // Sale del metodo porque todavía no puede mostrar nada
-		} // Cierra el if
+		this.isVisible = true; // Mark as visible
 
+		if (!this.textMesh) {
+			// Check if text hasn't created yet (font still loading)
+			this.waitingToShow = true; // Remember to show after loading completes
+			return; // Can't show yet
+		}
 		this.textMesh.position.y = this.groundY + HOLOGRAM_EMERGE_FROMSKY;
-		this.textMesh.isVisible  = true;
+		this.textMesh.isVisible = true;
 		this.animateEmerge(this.groundY, HOLOGRAM_FRAMES_DOWN);
-	} // Cierra show()
+	}
 
-	public hide(): void { // metodo publico para ocultar el holograma
+	public hide(): void {
+		// Public method to hide the hologram
 		if (!this.isVisible)
-			return; // Si ya ta oculto  no hace nada
-		this.isVisible = false; // Marca el holograma como oculto 
-		this.waitingToShow = false; // Cancela cualquier show pendiente que hubiera quedado guardado
+			return; // Already hidden, nothing to do
+		this.isVisible = false; // Mark as hidden
+		this.waitingToShow = false; // Cancel any pending show
 		if (!this.textMesh)
-			return; // Si aun no existe el mesh, no hay nada que ocultar
-
+			return; // Nothing to hide if mesh doesn't exist
 		this.animateEmerge(this.groundY + HOLOGRAM_EMERGE_FROMSKY, HOLOGRAM_FRAMES_UP, () => {
 			if (this.textMesh)
 				this.textMesh.isVisible = false;
 		});
-	} // Cierra hide()
+	}
 
 	public cleanUp(): void {
 		this.textMesh?.dispose();

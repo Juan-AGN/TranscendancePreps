@@ -624,9 +624,12 @@ export function ChatWidget() {
 									<div className="relative flex-1">
 										<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
 										<input
+											id="chat-search-conversations"
+											name="chatSearchConversations"
+											type="search"
+											autoComplete="off"
 											placeholder={t('chat.searchConversations')}
-											className="w-full rounded-full bg-gray-100 pl-7 pr-2 py-1.5 text-xs text-gray-600 outline-none
-												max-sm:text-[0.7rem]" />
+											className="w-full rounded-full bg-gray-100 pl-7 pr-2 py-1.5 text-xs text-gray-600 outline-nonemax-sm:text-[0.7rem]" />
 									</div>
 									<button className="text-gray-400 hover:text-gray-600 transition-colors">
 										<SquarePen className="w-4 h-4" />
@@ -643,11 +646,15 @@ export function ChatWidget() {
 											<div className="mb-2 text-sm font-bold max-sm:text-[0.85rem]">{t('chat.createGroup')}</div>
 
 											<input
+												id="chat-group-title"
+												name="chatGroupTitle"
+												type="text"
+												autoComplete="off"
 												value={groupTitle}
 												onChange={(e) => setGroupTitle(e.target.value)}
 												placeholder={t('chat.groupName')}
 												className="mb-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none
-														max-sm:px-2 max-sm:py-1.5 max-sm:text-[0.8rem]"/>
+													max-sm:px-2 max-sm:py-1.5 max-sm:text-[0.8rem]"/>
 
 											<div className="mb-2 max-h-32 overflow-auto rounded-lg border border-gray-100 p-2">
 												{friends.length === 0 && (
@@ -661,9 +668,11 @@ export function ChatWidget() {
 														key={f.id}
 														className="mb-1 flex cursor-pointer items-center gap-2 text-sm max-sm:text-[0.78rem]">
 														<input
+															id={`chat-group-friend-${f.id}`}
+															name="chatGroupFriends"
 															type="checkbox"
 															checked={selectedGroupIds.includes(String(f.id))}
-															onChange={() => toggleGroupFriend(f.id)}/>
+															onChange={() => toggleGroupFriend(f.id)} />
 														<span>{f.name}</span>
 														<span className="text-xs text-gray-500">{f.email}</span>
 													</label>
@@ -857,7 +866,7 @@ export function ChatWidget() {
 
 														{isFriend ? (
 															<button onClick={() => openDmWith(u.id)}
-															className="shrink-0 rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold
+																className="shrink-0 rounded-lg border border-gray-300 px-3 py-1 text-sm font-bold
 																	max-sm:max-w-[4.6rem] max-sm:overflow-hidden max-sm:text-ellipsis max-sm:px-2 max-sm:text-[0.68rem]">
 																DM
 															</button>
@@ -906,14 +915,18 @@ export function ChatWidget() {
 
 								<div className="px-4 py-3 flex items-center gap-2">
 									<input
+										id="chat-message-input"
+										name="chatMessage"
+										type="text"
+										autoComplete="off"
 										value={input}
 										onChange={(e) => setInput(e.target.value)}
 										placeholder={t('chat.typeMessage')}
 										className="flex-1 rounded-full bg-gray-100 px-4 py-2 text-sm outline-none text-gray-700 placeholder-gray-400"
-										onKeyDown={(e) => { 
+										onKeyDown={(e) => {
 											if (e.key === "Enter")
 												sendMessage();
-											}}/>
+										}} />
 									<button
 										onClick={sendMessage}
 										className="flex-shrink-0 h-14 w-14 border rounded-full bg-black/80 flex items-center justify-center

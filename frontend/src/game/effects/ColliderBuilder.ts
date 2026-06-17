@@ -1,21 +1,24 @@
-// COLLIDER BUILDER -- fabrica de colliders invisibles (cajas/cilindros)
-// este archivo SOLO crea geometria de colision
-// lo separo porque:
-// - los objetos no deben saber COMO se fabrica un collider
-// - si cambio la estrategia de colision → solo toco aqui
-// - me ahorro repetir codigo en todos los objetos
+// ┌────────────────────────────────────────────────────────────┐
+// │               ColliderBuilder.ts                           │
+// ├────────────────────────────────────────────────────────────┤
+// │ Factory for creating invisible collision geometry.         │
+// │ Separates collider creation logic for clean architecture.  │
+// │ Handles boxes and cylinders with optional debug visuals.   │
+// └────────────────────────────────────────────────────────────┘
 
 import { Scene, Mesh, MeshBuilder, Vector3, StandardMaterial, Color3 } from '@babylonjs/core';
-import { DEBUG_CONFIG } from '../config/DebugConfig'; // flags de debug (ver colliders o no)
+import { DEBUG_CONFIG } from '../config/DebugConfig'; // Debug flags (show colliders or not)
 
-export interface BoxDimensions {// medidas de una caja de colision
-	width: number; // ancho en X
-	height: number; // alto en Y
-	depth: number; // fondo en Z
+export interface BoxDimensions {
+	// Dimensions of a collision box
+	width: number; // Width on X axis
+	height: number; // Height on Y axis
+	depth: number; // Depth on Z axis
 }
 
 
-export class ColliderBuilder {// clase utilitaria (static) pa crear colliders easy
+export class ColliderBuilder {
+	// Utility class (static) for easy collider creation
 
 	public static createBox(
 		scene: Scene,
@@ -25,34 +28,35 @@ export class ColliderBuilder {// clase utilitaria (static) pa crear colliders ea
 		yOffset = 0,
 		debugMode = false
 	): Mesh {
-
-		// creo una caja con las medidas dadas
+		// Create a box with the given dimensions
 		const collider = MeshBuilder.CreateBox(id, {
 			width: dims.width,
 			height: dims.height,
 			depth: dims.depth,
 		}, scene);
 
-		// coloco el collider en la escena X y Z salen del centro del objeto Y la ajusto aparte con yOffset
+		// Position the collider in the scene
+		// X and Z come from the center of the object, Y is adjusted separately with yOffset
 		collider.position = new Vector3(center.x, yOffset, center.z);
 
-		// metadata = datos extra pegados al mesh aqui marco este mesh como collider
+		// Metadata = extra data attached to the mesh
+		// Mark this mesh as a collider
 		collider.metadata = { isCollider: true };
-		// IMPORTANTE: el raycast de Babylon solo detecta meshes pickables
-		// si esto fuera false → CollisionSystem no lo veria
+		// IMPORTANT: Babylon's raycast only detects pickable meshes
+		// If this were false → CollisionSystem wouldn't see it
 		collider.isPickable = true;
 
 		// ===== DEBUG VISUAL =====
-		// si activo debug → lo enseño en rojo wireframe si no → invisible total
+		// If debug is enabled → show in red wireframe
+		// Otherwise → invisible
 		if (debugMode || DEBUG_CONFIG.showColliders) {
-
 			const mat = new StandardMaterial(`${id}_debug_mat`, scene);
-			mat.wireframe = true;// solo enseño lineas (sin relleno)asi veo forma y tamaño exactos
-			mat.emissiveColor = new Color3(1, 0, 0);// rojo brillante pa que cante rapido
+			mat.wireframe = true; // Only show lines (no fill) to see exact shape and size
+			mat.emissiveColor = new Color3(1, 0, 0); // Bright red for visibility
 			collider.material = mat;
 			collider.isVisible = true;
 		} else {
-			collider.isVisible = false;// collider invisible en juego normal
+			collider.isVisible = false; // Collider invisible in normal gameplay
 		}
 		return collider;
 	}
@@ -66,20 +70,23 @@ export class ColliderBuilder {// clase utilitaria (static) pa crear colliders ea
 		yOffset = 0,
 		debugMode = false
 	): Mesh {
-		// creo un cilindro de colision
+		// Create a collision cylinder
 		const collider = MeshBuilder.CreateCylinder(id, {
 			diameter: radius * 2,
 			height,
 		}, scene);
 
-		collider.position = new Vector3(center.x, yOffset, center.z);// lo coloco en su sitio
-		collider.metadata = { isCollider: true };// lo marco como collider pa que el sistema lo detecte
-		collider.isPickable = true;// lo hago detectable por raycast
+		// Position the collider in place
+		collider.position = new Vector3(center.x, yOffset, center.z);
+		// Mark as collider for system detection
+		collider.metadata = { isCollider: true };
+		// Make it detectable by raycast
+		collider.isPickable = true;
 		// ===== DEBUG VISUAL =====
 		if (debugMode || DEBUG_CONFIG.showColliders) {
 			const mat = new StandardMaterial(`${id}_debug_mat`, scene);
-			mat.wireframe = true; // solo lineas
-			mat.emissiveColor = new Color3(1, 0, 0); // rojo debug
+			mat.wireframe = true; // Lines only
+			mat.emissiveColor = new Color3(1, 0, 0); // Red debug color
 			collider.material = mat;
 			collider.isVisible = true;
 		} else {
@@ -89,13 +96,13 @@ export class ColliderBuilder {// clase utilitaria (static) pa crear colliders ea
 	}
 }
 
-// ===== MINI DICCIONARIO =====
-// collider -> forma invisible pa detectar colision
-// metadata -> datos extra pegados al mesh
-// isPickable -> permite que raycast lo detecte
-// raycast -> lanzar un rayo invisible pa ver que toca
-// wireframe -> solo lineas, sin relleno
-// emissive -> color que brilla por si solo
-// static -> metodo que uso sin hacer new
-// diameter -> diametro (ancho total del cilindro)
-// offset -> desplazamiento extra
+// ===== MINI DICTIONARY =====
+// collider → invisible shape for collision detection
+// metadata → extra data attached to the mesh
+// isPickable → allows raycast detection
+// raycast → cast an invisible ray to detect what it touches
+// wireframe → lines only, no fill
+// emissive → self-emitting color
+// static → method used without instantiation (new)
+// diameter → width of cylinder
+// offset → extra displacement

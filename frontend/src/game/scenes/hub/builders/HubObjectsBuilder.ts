@@ -1,5 +1,12 @@
-// HubObjectsBuilder — crea y registra todos los objetos interactivos del hub
-// para añadir un nuevo objeto clickable: crear clase + 1 linea en el array 'interactives'
+// ┌────────────────────────────────────────────────────────────┐
+// │               HubObjectsBuilder.ts                         │
+// ├────────────────────────────────────────────────────────────┤
+// │ Builds and registers all interactive Hub objects.          │
+// │ Connects load queue completion with click registration.    │
+// │ New clickable objects are added via one interactives entry.│
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import interactive object builders and registration dependencies
 
 import { Scene, ShadowGenerator } from '@babylonjs/core';
 import { SCENE_CONFIG } from '../../../config/HubConfig';
@@ -18,6 +25,7 @@ export interface NavigationObjects {
 }
 
 export class HubObjectsBuilder {
+	// STEP 2: Create interactive objects and register them in loading queue
 	public static build(
 		scene: Scene,
 		shadow: ShadowGenerator | null,
@@ -35,14 +43,15 @@ export class HubObjectsBuilder {
 		const lafarola = new LaFarola(scene, SCENE_CONFIG.lafarola.pos, SCENE_CONFIG.lafarola.scale, shadow, SCENE_CONFIG.lafarola.rotation);
 		const computer = new Computer(scene, SCENE_CONFIG.computer.pos, SCENE_CONFIG.computer.scale, SCENE_CONFIG.computer.rotation, shadow);
 
-		// para añadir un objeto clickable nuevo: solo añadir 1 entrada aqui
+		// STEP 3: Central list for clickable route/object pairs
+		// To add a new clickable object, add one entry here
 		const interactives = [
 			{ obj: townhouse, route: SCENE_CONFIG.townhouse.route },
-			{ obj: trophy, route: SCENE_CONFIG.trophy.route },
 			{ obj: lafarola, route: SCENE_CONFIG.lafarola.route },
 			{ obj: computer, route: SCENE_CONFIG.computer.route },
 		];
 
+		// STEP 4: Wait each object load and register clickable root mesh
 		interactives.forEach(({ obj, route }) => {
 			loadingQueue.add(`Loading ${route}`, async () => {
 				await obj.ready();
@@ -51,7 +60,12 @@ export class HubObjectsBuilder {
 					menuInteraction.registerClickableObject(route, mesh, obj);
 			});
 		});
-
+		// STEP 5: Return navigation object references
 		return { townhouse, trophy, lafarola, computer };
 	}
 }
+
+// ===== MINI DICTIONARY =====
+// interactive object -> object that can trigger route/panel actions
+// clickable registration -> mapping mesh clicks to navigation behavior
+// root mesh -> top-level mesh used as interaction anchor

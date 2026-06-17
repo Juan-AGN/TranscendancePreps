@@ -1,49 +1,59 @@
-// CAMERA CONTROLLER -- controla la camara (rotar, follow, zoom, input)
-// aqui manejo TODO el comportamiento de la camara en runtime (no config)
-// importamos de babilon.js las 3 tools que necesitamos auqi
-//  ArcR.. camara para 3a persona, Scene, el lugar(universo()) donde se desallra todo, Vector, calcular las posiciones
+// ┌────────────────────────────────────────────────────────────┐
+// │            CameraController.ts                             │
+// ├────────────────────────────────────────────────────────────┤
+// │ Manages camera behavior (rotation, follow, zoom, input).   │
+// │ Handles all runtime camera logic (not configuration).      │
+// │ Uses ArcRotateCamera for third-person orbital view.        │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import Babylon.js camera and core tools
+// ArcRotateCamera = orbital camera for third-person view
+// Scene = the "universe" container where all meshes, lights, textures, and cameras exist
+// Vector3 = 3D position/direction calculations
 import { ArcRotateCamera, Scene, Vector3 } from "@babylonjs/core";
 import { CAMERA_CONFIG, CAMERA_DYNAMICS } from "../config/CameraConfig";
-// SCENE: El "Universo" del juego.
-//  Viene de Babylon.js (@babylonjs/core).
-// Es un objeto contenedor (como un struct gigante).
-//  tiene: Listas (arrays) de todos los meshes, luces, texturas y camaras activas.
-// PqLa cámara necesita "registrarse" en estas listas para existir y ser renderizada.
 
-// Definimos el plano de control de camara // expor como siempre
+// Scene explanation:
+// The "Universe" of the game. Comes from Babylon.js (@babylonjs/core).
+// It's a container object (like a giant struct).
+// Contains: Arrays of all active meshes, lights, textures, and cameras.
+// Reason: Camera must "register" in these arrays to exist and be rendered.
+
+// STEP 2: Define camera controller class
 export class CameraController {
 	private camera: ArcRotateCamera;
 	private scene: Scene;
-	private lastWheelZoomAt: number = -Infinity;
-	//private.. solo las funciones de aqui {} can modify estas variables. protegemos el motor grafico
+	// private = only functions in this class {} can modify these variables
+	// Protects the graphics engine from external interference
 
-	//constructor es el metodo de inicialiazion. se ejecuta auto cada vez que se hace new Clase()...
+	// STEP 3: Constructor - initialization method
+	// Executed automatically each time: new CameraController()
 	constructor(scene: Scene, targetPosition: Vector3 = Vector3.Zero()) {
-		//pasamos por parametro lo q necesita la clase...
-		// le dmos la pos inicial y si no la hay la ponemos a 0
+		// Pass what the class needs via parameters
+		// If no position given, default to origin (0, 0, 0)
 		this.scene = scene;
-		// Vinculamos la escena recibida a nuestra propi de clase para usarla globalmente en este objeto.
+		// Link the received scene to our class property for global use
 
-		// creamos la camara y la guardamos en 'this.camera' para poder controlarla luego.
-		// es una camara orbital: gira alrededor de un punto central.
-		//    Si no hiciéramos 'this.camera =', la cámara se crearía dentro de esta función
-		//    pero se PERDERÍA inmediatamente al terminar el constructor (Scope local).
+		// STEP 4: Create and store camera reference
+		// Orbital camera: rotates around a central point
+		// If we didn't assign to 'this.camera', it would be created but lost (scope)
 		this.camera = new ArcRotateCamera(
-			`camera`,                      // nombre interno de la camara
+			`camera`,                      // Internal camera name
 			CAMERA_CONFIG.initialHorizontalAngle,
 			CAMERA_CONFIG.initialVerticalAngle,
 			CAMERA_CONFIG.initialDistance,
-			targetPosition,                 // el objetivo: el punto central al que miramos fijamente
-			this.scene                     // la escena: le decimos en que mundo debe aparecer
+			targetPosition,                 // Target: central point we look at
+			this.scene                     // Scene: where camera should appear
 		);
-		// Desconectamos el control por defecto (ratón/teclado) de la cámara.
-		// Si no hacemos esto, al pulsar las teclas para mover al PERSONAJE,
-		// Babylon también movería la cámara a la vez, creando un conflicto.
+
+		// STEP 5: Disconnect default controls
+		// Babylon's default lets mouse/keyboard move camera automatically
+		// Without this, pressing keys for CHARACTER movement would also move camera
+		// Creating a conflict
 		this.camera.inputs.clear();
 
-
-		// LIMITES FISICOS (CLAMPING)
-		// Babylon restringe estos valores automaticamente (como un if > max then = max).
+		// STEP 6: Set physical limits (CLAMPING)
+		// Babylon automatically restricts these values (like: if > max then = max)
 		// ZOOM (RADIUS)
 		this.camera.lowerRadiusLimit = CAMERA_CONFIG.minZoomDistance;
 		this.camera.upperRadiusLimit = CAMERA_CONFIG.maxZoomDistance;
@@ -51,33 +61,35 @@ export class CameraController {
 		this.camera.upperBetaLimit = CAMERA_CONFIG.maxVerticalAngle;
 	}
 
-	// API PUBLICA ( COMO Un ARCHIVO .H)
-	// Son las funciones q permitimos q otros archivos llame from outside
-	// Getter pa sacar el puntero.
-	// Necesario pq 'this.camera' es privada (protected).
+	// ─── PUBLIC API (like a .h file)
+	// These are functions other files are allowed to call from outside
+
+	// STEP 7: Getter for camera reference
+	// Necessary because 'this.camera' is private (protected)
 	public getCamera(): ArcRotateCamera {
 		return this.camera;
 	}
 
-	// Enganchar controles.
-	// canvas: Es el rectangulo negro de la web
-	// Tipo 'HTMLCanvasElement': Le dice al compilador q esto es un <canvas> valido.
-	// Le decimos a la camara: Escucha los clicks SOLO! dentro d este rectangulo.
+	// STEP 8: Attach mouse controls
+	// canvas = the black rectangle on the webpage
+	// HTMLCanvasElement type = tells compiler this is a valid <canvas>
+	// Tells camera: Listen for clicks ONLY within this rectangle
 	public enableMouseControl(canvas: HTMLCanvasElement): void {
-		// Babylon.js usa esto internamente pa empezar a leer el raton.
+		// Babylon.js uses this internally to start reading mouse input
 		this.camera.attachControl(canvas, true);
 	}
 
-	// Desenganchar controles.
-	// La usamos pa la UI. Si abres un menu, cortas la conexion aqui
-	// pa que el raton deje de mover la camara y solo mueva el cursor.
+	// STEP 9: Detach mouse controls
+	// Used for UI. If you open a menu, cut the connection here
+	// so mouse stops moving camera and only moves cursor
 	public disableMouseControl(): void {
 		this.camera.detachControl();
 	}
 
-	// LOGICA DE MOVIMIENTO (MANUAL)
-	// Rotar horizontal (Alpha).
-	// direction: TS nos obliga a usar 'left' o 'right' (Enum estricto).
+	// ─── MOVEMENT LOGIC (MANUAL)
+
+	// STEP 10: Rotate camera horizontally (Alpha)
+	// direction: TypeScript forces us to use 'left' or 'right' (strict Enum)
 	public rotateHorizontal(direction: 'left' | 'right', speed: number = CAMERA_DYNAMICS.horizontalSpeed): void {
 		if (direction === 'left') {
 			this.camera.alpha += speed;
@@ -86,44 +98,40 @@ export class CameraController {
 		}
 	}
 
-	// Rotar vertical (Beta) + clamping
+	// STEP 11: Rotate camera vertically (Beta) + clamping
 	public rotateVertical(direction: 'up' | 'down', speed: number = CAMERA_DYNAMICS.verticalSpeed): void {
 		if (direction === 'up') {
-			this.camera.beta -= speed; // Subir
+			this.camera.beta -= speed; // Rotate up
 		} else {
-			this.camera.beta += speed; // Bajar
+			this.camera.beta += speed; // Rotate down
 		}
 
-		// CLAMP MANUAL (Freno de seguridad).
-		// Forzamos con mates (min/max) q el valor nunca se salga de rango.
-		// Es redundante con el constructor pro evita bugs si forzamos el valor a mano.
+		// MANUAL CLAMP (safety brake)
+		// Force with math (min/max) so value never leaves range
+		// Redundant with constructor but prevents bugs if forced manually
 		this.camera.beta = Math.max(
 			this.camera.lowerBetaLimit || 0.1,
 			Math.min(this.camera.upperBetaLimit || Math.PI / 2, this.camera.beta)
 		);
 	}
 
-	// FISICA (SUAVIZADO)
-	// Perseguir al objetivo (LERP).
-	// Se llama 60 veces por segundo.
-	// En vez de teletransportar la camara (=), calculamos la distancia
-	// y nos movemos solo un 12% (smoothness). Da efecto de muelle.
+	// ─── PHYSICS (SMOOTHING)
+
+	// STEP 12: Follow target (LERP smoothing)
+	// Called 60 times per second
+	// Instead of teleporting camera (=), calculate distance
+	// and move only 12% (smoothness). Creates spring effect
 	public followTarget(targetPos: Vector3, smoothness: number = CAMERA_DYNAMICS.followSmoothness): void {
 		this.camera.target.x += (targetPos.x - this.camera.target.x) * smoothness;
-		this.camera.target.y = 0; // Altura fija.
+		this.camera.target.y = 0; // Fixed height
 		this.camera.target.z += (targetPos.z - this.camera.target.z) * smoothness;
 	}
 
-	// Zoom inteligente (Logica de juego)(raycast).
-	// Si el raycast dice q hay pared cerca (<15), hacemos zoom in automatico.
+	// STEP 13: Smart zoom (gameplay logic with raycast)
+	// If raycast says wall is close (<15), auto zoom in
 	public adjustZoomDistance(minDistanceToObjects: number): void {
-		// Valores de zoom segun proximidad a objetos
-		const { zoom, wheel } = CAMERA_DYNAMICS;
-
-		// Tras usar la rueda, dejamos un tiempo de control manual antes de reactivar el auto-zoom.
-		const msSinceWheel = Date.now() - this.lastWheelZoomAt;
-		if (msSinceWheel < wheel.autoResumeDelayMs)
-			return;
+		// Zoom values based on proximity to objects
+		const { zoom } = CAMERA_DYNAMICS;
 
 		let targetDistance: number = zoom.defaultDistance;
 
@@ -135,44 +143,20 @@ export class CameraController {
 		} else if (minDistanceToObjects > zoom.zoomOutDistance) {
 			targetDistance = zoom.farDistance;
 		}
-
-		const zoomSmoothnessAZD = this.lastWheelZoomAt === -Infinity
-			? zoom.zoomSmoothness
-			: wheel.autoReturnSmoothness;
-		//const oldDistance = this.camera.radius;
-		this.camera.radius += (targetDistance - this.camera.radius) * zoomSmoothnessAZD;
-		//console.log('📹 Camera radius:', oldDistance.toFixed(1), '→', this.camera.radius.toFixed(1), 'target:', targetDistance);
+		// Smoothly interpolate to target distance
+		this.camera.radius += (targetDistance - this.camera.radius) * zoom.zoomSmoothness;
 	}
-
-	// EVENTOS DEL NAVEGADOR (INTERRUPCIONES)
-	// Configuracion manual de la rueda del raton.
-	public setupWheelZoom(canvas: HTMLCanvasElement): void {
-
-		// addEventListener: Funcion estandar de JS (no es Babylon).
-		// Es un "Hook". Le decimos al navegador: "Cuando pase 'wheel', ejecuta esto".
-		canvas.addEventListener('wheel', (event) => {
-
-			// preventDefault: IMPORTANTE.
-			// Bloquea la funcion normal del navegador.
-			// Sin esto, al hacer zoom, tambien bajaria la barra de scroll de la web.
-			event.preventDefault();
-
-			const { wheel } = CAMERA_DYNAMICS;
-			this.lastWheelZoomAt = Date.now();
-			// deltaY: Dato del evento q dice cuanto giro la rueda fisica.
-			this.camera.radius += event.deltaY * wheel.wheelSensitivity * wheel.zoomSpeed;
-
-			if (this.camera.radius < wheel.minDistance)
-				this.camera.radius = wheel.minDistance;
-			if (this.camera.radius > wheel.maxDistance)
-				this.camera.radius = wheel.maxDistance;
-		});
-	}
-
 }
 
-//LERP Linear Interpolation = Es una tecnica matematica de suavizado.
-// En vez de pegar la camara de golpe a la posicion del jugador (teletransporte),
-// calculamos la diferencia de distancia y nos movemos solo un 12% en cada frame.
-// EFECTO VISUAL: La camara persigue al jugador como si estuviera atada con una goma elastica.
-// Empieza rapido cuando estas lejos y frena suavemente al llegar. Evita mareos.
+// ===== MINI DICTIONARY =====
+// LERP = Linear Interpolation = mathematical smoothing technique
+// Instead of snapping camera to player position (teleport),
+// calculate distance difference and move only a percentage each frame.
+// VISUAL EFFECT: Camera chases player as if tied with rubber band.
+// Starts fast when far, slows smoothly when close. Prevents motion sickness.
+// ArcRotateCamera = orbital camera rotating around a target point
+// Alpha = horizontal rotation angle
+// Beta = vertical rotation angle
+// Radius = distance from target
+// Raycast = invisible ray to detect what it touches
+// Clamping = restricting values between min/max limits

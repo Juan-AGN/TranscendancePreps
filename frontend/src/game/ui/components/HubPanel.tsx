@@ -1,3 +1,12 @@
+// ┌────────────────────────────────────────────────────────────┐
+// │                   HubPanel.tsx                             │
+// ├────────────────────────────────────────────────────────────┤
+// │ Generic modal panel wrapper for Hub overlays.             │
+// │ Handles close-on-backdrop and close button behavior.      │
+// │ Renders custom children content in panel body.            │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import React types
 import type { ReactNode } from 'react';
 
 interface HubPanelProps {
@@ -7,14 +16,15 @@ interface HubPanelProps {
 }
 
 export function HubPanel({ onClose, title, children }: HubPanelProps) {
+	// STEP 2: Render dismissible modal panel
 	return (
 		<div
 			className="absolute inset-0 z-50 flex items-center justify-center bg-black/40"
-			onClick={onClose}
+			onClick={onClose} // Backdrop click closes panel
 		>
 			<div
 				className="w-full max-w-md rounded-xl bg-white shadow-xl"
-				onClick={(e) => e.stopPropagation()}
+				onClick={(e) => e.stopPropagation()} // Prevent close when clicking inside panel
 			>
 				<div className="flex items-center justify-between border-b px-4 py-3">
 					<h2 className="text-lg font-semibold">{title}</h2>

@@ -38,7 +38,7 @@ export const SCENE_CONFIG = {
 		pos: new Vector3(-30, 2, -30),				 // left back area
 		scale: 7,
 		rotation: 0,
-		route: '/tournament' 						// opens tournaments
+		//route: '/tournament' 						// opens tournaments
 	},
 
 	computer: {
