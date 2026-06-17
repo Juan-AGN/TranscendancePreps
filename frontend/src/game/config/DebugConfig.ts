@@ -1,12 +1,14 @@
-// DEBUG CONFIG -- flags de debug pa el motor 3D (cosas de ayuda visual)
-// usar solo en dev, antes de production TODO en false
+// ┌────────────────────────────────────────────────────────────┐
+// │                    DebugConfig.ts                          │
+// ├────────────────────────────────────────────────────────────┤
+// │ Defines debug flags for the 3D engine and Hub scene.       │
+// │ Controls optional visual helpers such as collider display. │
+// │ It does NOT change gameplay logic when flags are disabled. │
+// └────────────────────────────────────────────────────────────┘
 
 export const DEBUG_CONFIG = {
 
-	showColliders: false, // muestra colliders invisibles en escena (wireframe rojo), pa ver collisions y ajustar sizes/positions, solo visual no afecta game logic
+	showColliders: false,
 
 } as const;
 
-// ===== MINI DICCIONARIO =====
-// collider -> forma invisible pa detectar colisiones
-// wireframe -> malla sin relleno (solo lineas)

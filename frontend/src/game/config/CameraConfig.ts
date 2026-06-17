@@ -1,70 +1,54 @@
-// CAMERA CONFIG -- config base de la camara (limites + posicion inicial)
-// aqui solo definimos COMO empieza y hasta donde puede ir
-// NO hay movimiento aqui, solo valores base
-
+// ┌────────────────────────────────────────────────────────────┐
+// │                    CameraConfig.ts                         │
+// ├────────────────────────────────────────────────────────────┤
+// │ Defines base camera limits, initial position and dynamics. │
+// │ Controls zoom range, vertical angles, follow and wheel use.│
+// │ It does NOT move the camera directly or read user input.   │
+// └────────────────────────────────────────────────────────────┘
+// STEP 1: Define static camera limits and initial position.
+// These values describe how the camera starts and the safe limits it must respect.
 export const CAMERA_CONFIG = {
-	minZoomDistance: 15,				// zoom minimo → camara pegada al personae
-	maxZoomDistance: 80,				// zoom maximo → camara super lejos (modo dron)
+	minZoomDistance: 15,						// Minimum zoom distance from the player.
+	maxZoomDistance: 80, 						// Maximum zoom distance from the player.
 
-	minVerticalAngle: Math.PI / 6,	// limite abajo → no puede mirar demasiado al suelo
-	maxVerticalAngle: Math.PI / 2.1,	// limite arriba → no puede mirar al cielo del todo
+	minVerticalAngle: Math.PI / 6,				// Lowest vertical angle allowed.
+	maxVerticalAngle: Math.PI / 2.1,			// Highest vertical angle allowed.
 
-	initialHorizontalAngle: -Math.PI / 2, // hacia donde mira al empezar (giro inicial)
-	initialVerticalAngle: Math.PI / 3,    // inclinacion inicial (ni muy arriba ni muy abajo)
-	initialDistance: 35,                 // distancia inicial al personaje (valor equilibrado)
+	initialHorizontalAngle: -Math.PI / 2, 		// Initial horizontal camera direction.
+	initialVerticalAngle: Math.PI / 3,  		// Initial vertical camera inclination.
+	initialDistance: 35,               			// Initial distance from the player.
 } as const;
 
-// CAMERA DYNAMICS -- comportamiento en tiempo real
-// aqui ya va la shisha: movimiento, follow, zoom automatico y scroll
-
+// STEP 2: Define runtime camera behavior.
+// These values are used by the camera controller while the scene is running.
 export const CAMERA_DYNAMICS = {
-
-	// ===== CONTROL MANUAL (teclado) =====
-	// que tan rapido gira o inclina la camara con WASD
-	horizontalSpeed: 0.03,   // velocidad al girar izquierda/derecha (A/D)
-	verticalSpeed: 0.03,     // velocidad al mirar arriba/abajo (W/S)
-
-
-	// ===== FOLLOW =====
-	// lo suave que sigue al personaje (tipo lerp)
-	// bajo = suave pero lento, alto = rapido pero brusco
-	followSmoothness: 0.12,  // valor equilibrado
-
-	// ===== ZOOM DINAMICO =====
-	// la camara se adapta sola segun lo cerca que haya cosas
+	// STEP 3: Manual keyboard rotation speeds.
+	horizontalSpeed: 0.03,						// Left/right camera rotation speed.
+	verticalSpeed: 0.03,   						// Up/down camera rotation speed.
+	// STEP 4: Dynamic zoom behavior.
+	// The camera can adapt its distance depending on nearby obstacles or free space.
 	zoom: {
-
-		defaultDistance: 35,    // distancia normal cuando no pasa nada raro
-
-		closeDistance: 30,      // se acerca si hay cosas cerca (pa ver mejor)
-		farDistance: 40,        // se aleja si hay espacio (pa ver mas mapa)
-
-		zoomInDistance: 15,     // si estas MUY cerca → empieza a acercarse fuerte
-		zoomMinDistance: 25,    // zona intermedia → suaviza transicion
-		zoomOutDistance: 30,    // empieza a alejarse cuando hay sitio
-
-		zoomSmoothness: 0.05,   // suavizado del zoom (bajo = mantequilla, alto = brusco)
+		defaultDistance: 35,   					// Normal distance when no special condition is active.
+		closeDistance: 30,    					// Distance used when the camera needs to move closer. 
+		farDistance: 40, 						// Distance used when there is enough space behind the player.
+		zoomInDistance: 15,						// Distance threshold for stronger zoom-in behavior.
+		zoomMinDistance: 25, 					// Intermediate distance used to smooth transitions.
+		zoomOutDistance: 30, 					// Distance threshold for zoom-out behavior.
+		zoomSmoothness: 0.05,					// Smoothness used when changing zoom distance.
 	},
 
-
-	// ===== RUEDA DEL RATON =====
-	// control manual con scroll (override del automatico)
+	// STEP 5: Mouse wheel zoom behavior.
+	// Manual wheel input temporarily overrides automatic zoom behavior.
 	wheel: {
-
-		zoomSpeed: 2,            // cuanto cambia la distancia por scroll
-		wheelSensitivity: 0.01,  // sensibilidad del scroll (deltaY → zoom)
-		autoResumeDelayMs: 2500, // tiempo de espera antes de devolver control al zoom automatico
-		autoReturnSmoothness: 0.02, // que tan suave vuelve tras usar la rueda
-
-		minDistance: 15,         // limite minimo (no atravesar al personaje)
-		maxDistance: 80,         // limite maximo (dont go a Marte)
+		zoomSpeed: 2,       
+		wheelSensitivity: 0.01, 
+		autoResumeDelayMs: 2500, 
+		autoReturnSmoothness: 0.02,
+		minDistance: 15,    
+		maxDistance: 80,
 	},
 } as const;
-
-
-// ===== MINI DICCIONARIO =====
-
-// lerp -> interpolacion suave entre valores (movimiento progresivo)
-// deltaY -> valor que da el scroll (cuanto has girado la rueda)
-// as const -> bloquea los valores (TypeScript no deja modificarlos)
-// dynamic -> cosas que cambian en tiempo real
+// STEP 7: Small terminology notes.
+// lerp: smooth interpolation between two values.
+// deltaY: wheel event value that represents scroll direction and intensity.
+// as const: tells TypeScript these config values are readonly literal values.
