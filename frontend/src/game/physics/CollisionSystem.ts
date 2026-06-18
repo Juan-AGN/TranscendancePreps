@@ -1,9 +1,9 @@
 // ┌────────────────────────────────────────────────────────────┐
 // │               CollisionSystem.ts                           │
 // ├────────────────────────────────────────────────────────────┤
-// │ Collision detection system using raycasts.                │
-// │ Checks if there is a solid object in front of player.     │
-// │ Prevents moving character inside world objects.           │
+// │ Collision detection system using raycasts.                 │
+// │ Checks if there is a solid object in front of player.      │
+// │ Prevents moving character inside world objects.            │
 // └────────────────────────────────────────────────────────────┘
 
 // STEP 1: Import Babylon.js collision primitives

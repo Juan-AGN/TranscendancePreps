@@ -2,8 +2,8 @@
 // │                   HubButton.tsx                            │
 // ├────────────────────────────────────────────────────────────┤
 // │ Interactive Hub button with visual preview behavior.       │
-// │ Default image switches to video on hover.                 │
-// │ Encapsulates hover playback logic (play/pause/reset).     │
+// │ Default image switches to video on hover.                  │
+// │ Encapsulates hover playback logic (play/pause/reset).      │
 // └────────────────────────────────────────────────────────────┘
 
 // STEP 1: Import React state and refs

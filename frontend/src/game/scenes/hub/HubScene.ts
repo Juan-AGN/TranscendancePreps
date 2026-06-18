@@ -15,7 +15,8 @@ import '@babylonjs/loaders/glTF';  // GLTF/GLB loader
 DracoCompression.Configuration.decoder = {
 	wasmUrl: 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/draco_wasm_wrapper.js',
 	wasmBinaryUrl: 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/draco_decoder.wasm',
-	fallbackUrl: 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/draco_decoder.js'};
+	fallbackUrl: 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/draco_decoder.js'
+};
 // Core systems
 import { CameraController } from '../../engine/CameraController';
 import { KeyboardInput } from '../../engine/InputHandler';
@@ -33,7 +34,6 @@ import { GameLoop } from '../../engine/GameLoop';
 // Entity managers
 import { HubSceneBuilder } from './HubSceneBuilder';
 import { HologramController } from '../../effects/HologramController';
-
 import { SkySetup } from '../../config/SkySetup';
 import { GroundSetup } from '../../config/GroundSetup';
 
@@ -95,21 +95,27 @@ export class HubScene {
 		this.setupEnvironment();
 		// 2) Input and camera controls setup
 		this.setupControls();
-		// 3) Menu interaction setup
-		// Pass scene plus route redirection callback
-		this.clickHandler = new HubObjectClickHandler(this.scene, (route) => this.redirectTo(route));
-		// 4) Initialize scene builder (entity manager)
+		// 3) Runtime systems needed before interaction and game loop
+		this.collisionSystem = new CollisionSystem(this.scene, 1.5);
+		// Proximity effects: GlowEffectManager creates layer, ProximitySystem manages ranges
+		this.glowEffect = new GlowEffectManager(this.scene);
+		this.proximitySystem = new ProximitySystem(this.glowEffect);
+		// 4) Menu interaction setup
+		// The click handler receives a proximity filter:
+		// objects can only be activated when ProximitySystem says they are in range.
+		this.clickHandler = new HubObjectClickHandler(this.scene,
+			(route) => this.redirectTo(route),
+			(entity) => this.proximitySystem.isObjectInRange(entity)
+		);
+		// 5) Initialize scene builder after click handler exists
+		// The builder registers clickable objects into the click handler.
 		this.sceneBuilder = new HubSceneBuilder(
 			this.scene,                                      // Target scene
 			this.lightingSetup.getShadowGenerator(),        // Shadow system
 			this.clickHandler                               // Menu interaction system
 		);
-		// 5) Create character and runtime systems
-		this.collisionSystem = new CollisionSystem(this.scene, 1.5);
-		// Proximity effects: GlowEffectManager creates layer, ProximitySystem manages ranges
-		this.glowEffect = new GlowEffectManager(this.scene);
-		this.proximitySystem = new ProximitySystem(this.glowEffect);
-		// Game loop is created now, character movement is assigned after character load
+		// 6) Create game loop
+		// Character movement will be assigned later when the character finishes loading.
 		this.gameLoop = new GameLoop(
 			this.scene,
 			this.inputHandler,
@@ -117,6 +123,7 @@ export class HubScene {
 			this.sceneBuilder,
 			this.proximitySystem
 		);
+		// 7) Queue character creation and configure movement when ready
 		this.sceneBuilder.createCharacter((character) => {
 			// Create character movement system
 			this.playerMovement = new PlayerMovement(
@@ -134,11 +141,11 @@ export class HubScene {
 				this.lightingSetup.getShadowGenerator()?.addShadowCaster(mesh);
 			}
 		});
-		// 6) Create menu/world objects (queue tasks, do not load yet)
-		// Interactive objects (townhouse, trophy, etc.)
+		// 8) Create interactive and decorative world objects
 		this.sceneBuilder.createNavigationObjects();
 		// Decorative objects (pingpong, tower, etc.)
 		this.sceneBuilder.createDecorationObjects();
+		// 9) Start gameplay update loop and render loop
 		this.gameLoop.start();         // Per-frame gameplay logic
 		this.startRendering();         // Per-frame rendering
 	}
@@ -210,7 +217,7 @@ export class HubScene {
 			this.skySetup.dispose();
 		}
 		// Dispose holograms
-		this.hologramManager.dispose();		
+		this.hologramManager.dispose();
 		// Dispose scene and engine
 		this.scene.dispose();   // Destroy scene
 		this.engine.dispose();  // Destroy engine

@@ -1,9 +1,9 @@
 // ┌────────────────────────────────────────────────────────────┐
 // │               HubPanelSettings.tsx                         │
 // ├────────────────────────────────────────────────────────────┤
-// │ Settings panel for 3D Hub gameplay options.               │
-// │ Controls speed, camera sensitivity, and player size.      │
-// │ Persists values through global game settings store.       │
+// │ Settings panel for 3D Hub gameplay options.                │
+// │ Controls speed, camera sensitivity, and player size.       │
+// │ Persists values through global game settings store.        │
 // └────────────────────────────────────────────────────────────┘
 
 // STEP 1: Import settings and translation dependencies

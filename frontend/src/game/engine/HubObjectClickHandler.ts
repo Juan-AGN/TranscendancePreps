@@ -20,12 +20,18 @@ export class HubObjectClickHandler {
 	private navigateToRoute: (route: string) => void;                      // Function to navigate pages
 	// (route: string) => void = receives a route, returns nothing
 	// This callback comes from outside (React Router)
+	private canInteract?: (entity: any) => boolean;
 
 	// STEP 3: Constructor - initialize with scene and navigation callback
-	constructor(scene: Scene, navigateToRoute: (route: string) => void) {
-		this.scene = scene;                         // Store the Babylon scene
-		this.navigateToRoute = navigateToRoute;    // Store the navigation function
-		this.registerClickHandlers();               // Setup click event listeners
+	constructor(
+		scene: Scene,
+		navigateToRoute: (route: string) => void,
+		canInteract?: (entity: any) => boolean
+	) {
+		this.scene = scene;
+		this.navigateToRoute = navigateToRoute;
+		this.canInteract = canInteract;
+		this.registerClickHandlers();
 	}
 
 	// STEP 4: Register pointer event listeners
@@ -54,6 +60,8 @@ export class HubObjectClickHandler {
 						// The collider (invisible physics box) always receives click before GLB
 						// Without this check, we'd never match and click would be lost
 						if (collider && picked === collider) {
+							if (this.canInteract && !this.canInteract(clickableObjects.entity))
+								continue;
 							this.navigateToRoute(route);
 							break;
 						}
@@ -72,6 +80,8 @@ export class HubObjectClickHandler {
 							node = node.parent;
 						}
 						if (found) {
+							if (this.canInteract && !this.canInteract(clickableObjects.entity))
+								continue;
 							this.navigateToRoute(route);
 							break;
 						}

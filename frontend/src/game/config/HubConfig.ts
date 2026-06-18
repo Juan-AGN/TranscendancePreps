@@ -45,7 +45,7 @@ export const SCENE_CONFIG = {
 		pos: new Vector3(-30, 4.5, 30), 			// left front
 		scale: 5, 									// large size so it looks good
 		rotation: -Math.PI / 3,
-		route: 'panel:login'
+		route: '/login'
 	},
 
 	lafarola: {

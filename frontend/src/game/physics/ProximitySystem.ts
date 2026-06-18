@@ -2,7 +2,7 @@
 // │               ProximitySystem.ts                           │
 // ├────────────────────────────────────────────────────────────┤
 // │ Detects whether player is near interactive objects.        │
-// │ Toggles glow and callbacks on enter/exit range.           │
+// │ Toggles glow and callbacks on enter/exit range.            │
 // │ Centralizes proximity logic for all registered targets.    │
 // └────────────────────────────────────────────────────────────┘
 
@@ -96,6 +96,15 @@ export class ProximitySystem {
 				this.glowManager.updatePulse(target.glowConfig);
 			}
 		}
+	}
+
+	public isObjectInRange(interactiveObject: InteractiveObject): boolean {
+		for (const target of this.proximityTargets) {
+			if (target.interactiveObject === interactiveObject) {
+				return target.isHighlighted;
+			}
+		}
+		return false;
 	}
 
 	// STEP 10: Force disable all active highlights (cleanup/pause/scene switch)
