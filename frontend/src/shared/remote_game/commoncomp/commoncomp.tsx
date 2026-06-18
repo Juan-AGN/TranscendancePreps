@@ -78,7 +78,7 @@ export function Singledivgame({ Component }: { Component: ComponentType }) {
 	return (
 		<OlympusShell>
 			<OlympusPanel
-				className="w-full max-w-3xl min-h-[20rem] sm:min-h-[24rem] lg:min-h-[22rem]">
+				className="flex w-full items-center justify-center max-w-3xl min-h-[20rem]sm:min-h-[24rem] lg:min-h-[22rem]">
 				<Component />
 			</OlympusPanel>
 		</OlympusShell>

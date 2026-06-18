@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useRef, useEffect } from "react";
 import type { GameSession, GameResults } from "./types/types";
 import { useNotification } from './notifications';
-import {  useLobby } from './lobby';
+import { useLobby } from './lobby';
 import { LobbyAction } from './types/types';
 import { Singledivgame } from './commoncomp/commoncomp';
 import { Gamehandler } from "./gamestate/gamestate";
@@ -19,9 +19,9 @@ const apiBaselob = `wss://${noport}:8889/api/game`
 const WsContext = createContext<WsContextType | null>(null);
 
 type WsContextType = {
-    game : GameSession | null;
+    game: GameSession | null;
     addGame: (g: GameSession | null) => void;
-    result : GameResults | null;
+    result: GameResults | null;
 }
 
 export const useHeldKey = () => {
@@ -56,7 +56,10 @@ export const useHeldKey = () => {
 
 export function NoLoggedError() {
     const { t } = useTranslation();
-    return (<p className="align-middle h-full w-full text-center justify-center items-center content-center">{t('remoteGame.accountRequired')}</p>)
+    return (
+        <p className="w-full text-center text-red-400 font-semibold">
+            {t('remoteGame.accountRequired')}
+        </p>)
 }
 
 export const WsProvider = ({
@@ -68,22 +71,20 @@ export const WsProvider = ({
     const { names, lobby, addLobby } = useLobby();
     const heldKey = useHeldKey();
     const heldKeyRef = useRef(null);
-    const [ game, setGame ] = useState< GameSession | null >(null);
-    const [ result, setResults ] = useState< GameResults | null >(null);
+    const [game, setGame] = useState<GameSession | null>(null);
+    const [result, setResults] = useState<GameResults | null>(null);
 
-	useEffect(() => {
-		heldKeyRef.current = heldKey;
-	}, [heldKey]);
+    useEffect(() => {
+        heldKeyRef.current = heldKey;
+    }, [heldKey]);
 
     async function lobbyupdate(msg: any) {
         const me = await names.getme();
 
-        if (msg.action == "LEAVE" || msg.action == "LEAVESPECTATOR")
-        {
-            if (msg.user === me)
-            {
+        if (msg.action == "LEAVE" || msg.action == "LEAVESPECTATOR") {
+            if (msg.user === me) {
                 addLobby(null);
-                return ;
+                return;
             }
         }
 
@@ -93,7 +94,7 @@ export const WsProvider = ({
             addNotification(`Lobby ruleset changed.`);
 
         if (msg.user === me)
-            return ;
+            return;
 
         if (msg.action === LobbyAction.HOST)
             addNotification(`User ${await names.checknameupdate(msg.user)} became the host.`);
@@ -109,9 +110,9 @@ export const WsProvider = ({
             addNotification(`User ${await names.checknameupdate(msg.user)} switched to spectator.`);
     }
 
-	const addGame = (g: GameSession | null) => {
-		setGame(g);
-	};
+    const addGame = (g: GameSession | null) => {
+        setGame(g);
+    };
 
     useEffect(() => {
         if (lobby === null)
@@ -119,8 +120,7 @@ export const WsProvider = ({
     }, [lobby]);
 
     useEffect(() => {
-        if (token)
-        {
+        if (token) {
             const socket = new WebSocket(`${apiBaselob}/?token=${token}`);
 
             socket.onerror = () => {
@@ -135,28 +135,27 @@ export const WsProvider = ({
 
             socket.onmessage = (event) => {
                 const msg = JSON.parse(event.data);
-                    if (msg.type == "LOBBYUPDATE")
-                        lobbyupdate(msg);
-                    if (msg.type == "GAMESTATE")
-                    {
-                        setGame(msg.game);
+                if (msg.type == "LOBBYUPDATE")
+                    lobbyupdate(msg);
+                if (msg.type == "GAMESTATE") {
+                    setGame(msg.game);
 
-                        if (heldKeyRef.current) {
-                            const keyMap = {
-                                KeyW: "W",
-                                KeyA: "A",
-                                KeyS: "S",
-                                KeyD: "D",
-                            };
+                    if (heldKeyRef.current) {
+                        const keyMap = {
+                            KeyW: "W",
+                            KeyA: "A",
+                            KeyS: "S",
+                            KeyD: "D",
+                        };
 
-                            socket.send(keyMap[heldKeyRef.current]);
-                        }
+                        socket.send(keyMap[heldKeyRef.current]);
                     }
-                    if (msg.type == "GAMERESULT")
-                    {
-                        setGame(null);
-                        setResults(msg.results);
-                    }};
+                }
+                if (msg.type == "GAMERESULT") {
+                    setGame(null);
+                    setResults(msg.results);
+                }
+            };
 
             return () => {
             };
@@ -168,7 +167,7 @@ export const WsProvider = ({
     else if (!game)
         return (<WsContext.Provider value={{ game, addGame, result }}>{children}</WsContext.Provider>);
     else
-        return (<WsContext.Provider value={{ game, addGame, result }}><Gamehandler/></WsContext.Provider>);
+        return (<WsContext.Provider value={{ game, addGame, result }}><Gamehandler /></WsContext.Provider>);
 };
 
 export const useWs = () => {
