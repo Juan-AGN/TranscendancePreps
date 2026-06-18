@@ -1,14 +1,20 @@
-//HubLoginSettings.tsx para el loginhub
+// ┌────────────────────────────────────────────────────────────┐
+// │                HubLoginPanel.tsx                           │
+// ├────────────────────────────────────────────────────────────┤
+// │ Hub login panel component.                                 │
+// │ Renders username/password inputs and login action button.  │
+// │ Uses i18n labels for translated UI text.                   │
+// └────────────────────────────────────────────────────────────┘
 
-import type { ReactNode } from 'react'; // tipo q repres cualquier cosas q react puede renderizar dentro de un comp
-import { useState } from 'react';		//hook para save info q puede cambiar dentro del componente
+// STEP 1: Import React and translation dependencies
+
+import type { ReactNode } from 'react'; // Type for any renderable React children content
+import { useState } from 'react';		// Hook for mutable component-local state
 import { useTranslation } from 'react-i18next';
 
 
-function LoginOpts({					//funcion  que devuelve un jsx. com reutilizable
-	title,
-	children
-}: {
+// STEP 2: Reusable row component for label + control
+function LoginOpts({ title, children }: {
 	title: string;
 	children: ReactNode
 }) {
@@ -20,13 +26,14 @@ function LoginOpts({					//funcion  que devuelve un jsx. com reutilizable
 	);
 }
 
-export function HubPanelLogin() {				//comp princpipal de login
-
+// STEP 3: Main login panel component
+export function HubPanelLogin() {
 
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const { t } = useTranslation();
 
+	// STEP 4: Placeholder login handler (wire real auth later)
 	function testHandleLogin() {
 		void username;
 		void password;
@@ -42,8 +49,7 @@ export function HubPanelLogin() {				//comp princpipal de login
 					value={username}
 					onChange={(e) => setUsername(e.target.value)}
 					placeholder={t('hubPanelLogin.enterUsername')}
-					className="w-full rounded border px-3 py-2 outline-none"	
-				>
+					className="w-full rounded border px-3 py-2 outline-none">
 				</input>
 			</LoginOpts>
 
@@ -51,27 +57,29 @@ export function HubPanelLogin() {				//comp princpipal de login
 				<input
 					id="hub-login-password"
 					name="hubLoginPassword"
-					type="text"
+					type="password"
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}
 					placeholder={t('hubPanelLogin.enterPassword')}
-					className="w-full rounded border px-3 py-2 outline-none"	
-				>
+					className="w-full rounded border px-3 py-2 outline-none">
 				</input>
 			</LoginOpts>
 
 			<LoginOpts title="">
 				<button
 					onClick={testHandleLogin}
-					className="rounded border px-4 py-2 font-bold"
-				>
+					className="rounded border px-4 py-2 font-bold">
 					{t('hubPanelLogin.logIn')}
 				</button>
 			</LoginOpts>
 		</div>
     )
-
 }
+
+// ===== MINI DICTIONARY =====
+// i18n -> internationalization system for localized text
+// placeholder -> helper text displayed in empty input
+// local state -> component-scoped data managed via useState
 
 
 

@@ -1,67 +1,72 @@
-// SCENE CONFIG -- config central del hub 3D (donde va cada cosa)
-// aqui coloco todos los objetos: posicion, escala, rotacion y rutas
-// 
+// ┌────────────────────────────────────────────────────────────┐
+// │                     HubConfig.ts                           │
+// ├────────────────────────────────────────────────────────────┤
+// │ Defines the central layout configuration for the 3D Hub.   │
+// │ Controls object positions, scales, rotations, routes and   │
+// │ model paths used by Hub builders.                          │
+// │ It does NOT create meshes or handle interactions directly. │
+// └────────────────────────────────────────────────────────────┘
 
 import { Vector3 } from '@babylonjs/core'; // vector 3D (x, y, z)
-
+// STEP 1: Define the full 3D Hub scene layout.
+// Each object contains the values needed by builders to place it in the scene.
 export const SCENE_CONFIG = {
-
 	character: {
-		pos: new Vector3(0, 0, 0) // personaje empieza en el centro del mapa (spawn)
+		pos: new Vector3(0, 0, 0), 					// Player spawn position. 
 	},
 
 	pingpong: {
-		pos: new Vector3(30, 3.5, 30), // mesa colocada a la derecha y un pelin elevada
-		scale: 6, // tamaño de la mesa (bastante grande)
-		rotation: Math.PI / 4 // diagonal hacia el centro
+		pos: new Vector3(30, 3.5, 30), 				// table placed on the right and slightly elevated
+		scale: 6, 									// table size (quite large)
+		rotation: Math.PI / 4 						// diagonal towards the center
 	},
 
 	torre: {
-		pos: new Vector3(-70, 12, 0), // torre a la izquierda y alta en Y
-		scale: 13, // escala grande (monumento)
+		pos: new Vector3(-70, 12, 0), 				// tower on the left and high in Y
+		scale: 13, 									// large scale (monument)
 		rotation: 0
 	},
 
 	townhouse: {
-		pos: new Vector3(0, 7, 70), // al fondo del mapa
+		pos: new Vector3(0, 7, 70),					// at the back of the map
 		scale: 12,
 		rotation: Math.PI / 2,
-		route: 'panel:settings' // al interactuar → abre panel settings en el hub 3D
+		route: 'panel:settings'						// on interaction → opens settings panel in 3D hub
 	},
 
 	trophy: {
-		pos: new Vector3(-30, 2, -30), // zona izquierda atras
+		pos: new Vector3(-30, 2, -30),				 // left back area
 		scale: 7,
 		rotation: 0,
-		route: '/tournament' // abre torneos
+		//route: '/tournament' 						// opens tournaments
 	},
 
 	computer: {
-		pos: new Vector3(-30, 4.5, 30), // izquierda delante
-		scale: 5, // tamaño grande pa que se vea bien
+		pos: new Vector3(-30, 4.5, 30), 			// left front
+		scale: 5, 									// large size so it looks good
 		rotation: -Math.PI / 3,
 		route: 'panel:login'
 	},
 
 	lafarola: {
-		pos: new Vector3(70, 9.5, 0), // derecha y elevada (farola alta)
-		scale: 10, // tamaño grande
-		rotation: 0, // sin rotacion (mirando default)
-		route: 'panel:chat' // abre el chat global
+		pos: new Vector3(70, 9.5, 0), 				// right and elevated (tall lamp)
+		scale: 10,									// large size
+		rotation: 0, 								// no rotation (default look)
+		route: 'panel:chat' 						// opens global chat
 	},
 
 	rosaleda: {
-		pos: new Vector3(0, 4.5, -75), // atras del todo
-		scale: 18, // estadio grande
-		rotation: Math.PI , // rotacion completa (realmente igual a 0 pero por si acaso)
+		pos: new Vector3(0, 4.5, -75), 				// at the very back
+		scale: 18, 									// large stadium
+		rotation: Math.PI , 						// full rotation (really same as 0 but just in case)
 		route: '/remote-game'
 	},
 
 	arcade: {
-		pos: new Vector3(30, 5.5, -30), // derecha atras
-		scale: 4, // mas pequeño (maquina arcade)
-		rotation: -Math.PI / 4, // girado 90º a la izquierda
-		route: '/game' // abre la pantalla del juego arcade 2D
+		pos: new Vector3(30, 5.5, -30), 			// right back
+		scale: 4, 									// smaller (arcade machine)
+		rotation: -Math.PI / 4,					 	// rotated 90º to the left
+		route: '/game' 								// opens 2D arcade game screen
 	},
 
 	totemIsra: {
@@ -285,8 +290,8 @@ export const SCENE_CONFIG = {
 } as const;
 
 
-// ===== MINI DICCIONARIO =====
+// ===== MINI DICTIONARY =====
 
-// spawn -> punto donde aparece el personaje
-// Math.PI -> 180 grados (usado pa rotaciones)
-// Vector3 -> punto o direccion en 3D
+// spawn -> point where the character appears
+// Math.PI -> 180 degrees (used for rotations)
+// Vector3 -> point or direction in 3D

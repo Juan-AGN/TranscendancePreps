@@ -1,67 +1,81 @@
-// Gestiona la iluminacion de la escena (ambiental y direccional)
-// Centraliza la creacion de luces y sombras para todo el Hub
-// Evita duplicar configuraciones de iluminacion en otros archivos
+// ┌────────────────────────────────────────────────────────────┐
+// │                LightingSetup.ts                            │
+// ├────────────────────────────────────────────────────────────┤
+// │ Configures scene lighting (ambient + directional).        │
+// │ Centralizes light and shadow creation for the Hub.        │
+// │ Avoids duplicated lighting configuration in other files.  │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import Babylon lighting dependencies
 
 import { Scene, HemisphericLight, DirectionalLight, ShadowGenerator, Vector3, Color3 } from '@babylonjs/core';
-// Hemis... simila la luz del cielo
-// Directional... proyecta sombras(da realismo)
-// Shadow... sistema q Calcula sombras
-// Vector3 Vec matematico para babilon // Color3 color RGB sin alpha
+// HemisphericLight simulates sky/ambient light
+// DirectionalLight projects main scene shadows
+// ShadowGenerator computes dynamic shadow maps
+// Vector3 is Babylon's 3D vector type; Color3 is RGB without alpha
 
 
-//exportamos para hacer la clase (centralizar la ilum)
+// STEP 2: Define lighting setup class
 export class LightingSetup {
-    private scene : Scene;                               	//Guarda la scena dnde se aplicaran luces
+    private scene : Scene;                               	// Scene where lights will be applied
     public shadowGenerator : ShadowGenerator | null = null;	
-	// publica pq que otros objs necesitan acc a ella | null pq puede estar empty al principio
+	// Public because other systems need access; null before initialization
 
+	// STEP 3: Receive scene dependency
 	constructor(scene: Scene) {
 		this.scene = scene;
 	}
-	// LightingSetup no crea la Scene: la recibe ya creada. Ej: el hub y el juego pueden tener escenas distintas pero misma iluminación.
-	// Esto mantiene el code modular y evita errores por escenas globales.
-	// guaradamos la scena dentro de este objeto
+	// LightingSetup does not create the scene; it receives an existing one.
+	// This keeps code modular and avoids global-scene coupling issues.
 
+	// STEP 4: Create ambient + directional lights and shadow generator
 	public setupLights(): void {
-		// Simula la luz del cielo y evita zonas completamente negras
-    	// Se usa como base para que los modelos GLB no se vean planos
+		// Simulate sky light and avoid fully black areas
+    	// Serves as base lighting so GLB models do not look flat
 		const ambientLight = new HemisphericLight(
-			'ambient',					// name interno de la luz
-			new Vector3(0, 1, 0),		// direccion dsde arriba
-			this.scene					// escena donde se aplica
+			'ambient',					// Internal light name
+			new Vector3(0, 1, 0),		// Light direction from above
+			this.scene					// Target scene
 		);
-        ambientLight.intensity = 0.5;	// intensidad media (con HDRI activo)
+        ambientLight.intensity = 0.5;	// Medium intensity with HDRI enabled
         ambientLight.groundColor = new Color3(0.9, 0.9, 0.9);
-		// color de rebote del suelo, hace sombras mas realistas
+		// Ground bounce tint for more natural shadow response
 
-        // Luz direccional (the sun) // Es la luz principal del hub/juego y la que genera sombras
+        // Main directional light (sun-like) for volume and shadow casting
         const directionalLight = new DirectionalLight(
 			'sun',
 			new Vector3(-1, -2, -1),
 			this.scene
 		);
-        directionalLight.position = new Vector3(20, 40, 20); // posicion usada para calcular correctamente las sombras
-        directionalLight.intensity = 0.9;					// intensidad media (con HDRI activo) 					// mas fuerte que la ambiental para marcar volumen
+        directionalLight.position = new Vector3(20, 40, 20); // Position used for shadow projection
+        directionalLight.intensity = 0.9;					// Stronger than ambient to define shape volume
 
-        // Generador de sombras
+        // Create shadow generator
         this.shadowGenerator = new ShadowGenerator(
-			512,											// resolucion del mapa de sombras (equilibrio calidad/rendimiento)
-			directionalLight								// luz que genera las sombras
+			512,											// Shadow map resolution (quality/performance balance)
+			directionalLight								// Light source producing shadows
 		); 
-        this.shadowGenerator.useBlurExponentialShadowMap = true;	// suaviza los bordes de las sombras (menos pixelado)			
-        this.shadowGenerator.blurKernel = 16;						// nivel de desenfoque de la sombra (mas alto = mas suave)											
-        this.shadowGenerator.darkness = 0.4;						// intensidad de la sombra, evita sombras demasiado negras
+        this.shadowGenerator.useBlurExponentialShadowMap = true;	// Smooth shadow edges (less pixelation)			
+        this.shadowGenerator.blurKernel = 16;						// Shadow blur amount (higher = softer)
+        this.shadowGenerator.darkness = 0.4;						// Shadow darkness, avoids overly black shadows
     }
 
+    // STEP 5: Expose shadow generator for external systems
     public getShadowGenerator(): ShadowGenerator | null {
-		// Devuelve el ShadowGenerator creado en setupLights
-    	// otros sistemas (carga de modelos, suelo, props) lo usan para asignar sombras
-    	// puede ser null si las luces aun no se han inicializado
+		// Returns ShadowGenerator created in setupLights
+    	// Other systems (model loading, props, ground) use this to register casters/receivers
+    	// Can be null if lighting was not initialized yet
         return this.shadowGenerator;
     }
-	//Este getter expone el ShadowGenerator d forma controlada
-	// pra q otros sistemas puedan asignar sombras a los meshes una vez cargados,
-	// sin acoplar la logica de ilum con la de carga de modelos.
+	// This getter exposes ShadowGenerator in a controlled way
+	// so other systems can assign shadows after meshes load,
+	// without coupling lighting setup to model loading logic.
 }
+
+// ===== MINI DICTIONARY =====
+// ambient light -> global base light filling dark areas
+// directional light -> parallel light rays, sun-like source
+// shadow map -> texture used to determine shadowed pixels
+// blur kernel -> softness factor for shadow edges
 
 

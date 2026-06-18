@@ -1,4 +1,12 @@
-// Atrezzo — props decorativos reutilizables del hub
+// ┌────────────────────────────────────────────────────────────┐
+// │                     Atrezzo.ts                             │
+// ├────────────────────────────────────────────────────────────┤
+// │ Reusable decorative prop class for Hub scene assets.      │
+// │ Loads configurable model path with transform/shadows.     │
+// │ Extends InteractiveObject shared utilities.               │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import decorative prop dependencies
 
 import { Scene, Mesh, Vector3, SceneLoader, ShadowGenerator } from '@babylonjs/core';
 import '@babylonjs/loaders/glTF';
@@ -9,6 +17,7 @@ export class Atrezzo extends InteractiveObject {
 	private readonly targetScale: Vector3;
 	private readonly targetRotation: number;
 
+	// STEP 2: Capture model/transform configuration and start load
 	constructor(
 		scene: Scene,
 		position: Vector3,
@@ -24,6 +33,7 @@ export class Atrezzo extends InteractiveObject {
 		this.loadPromise = this.load();
 	}
 
+	// STEP 3: Load model and apply visual/collider setup
 	protected async load(): Promise<void> {
 		try {
 			const result = await SceneLoader.ImportMeshAsync('', this.modelPath, '', this.scene);
@@ -51,3 +61,8 @@ export class Atrezzo extends InteractiveObject {
 		}
 	}
 }
+
+// ===== MINI DICTIONARY =====
+// prop -> decorative scene element
+// model path -> source URI used by SceneLoader
+// world matrix -> final transform matrix used for rendering/picking

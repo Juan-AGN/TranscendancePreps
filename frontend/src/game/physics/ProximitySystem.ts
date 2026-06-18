@@ -1,7 +1,12 @@
-// PROXIMITY SYSTEM -- detecta si el player esta cerca de objetos interactivos
-// este sistema solo sabe una cosa:
-// "esta el jugador lo bastante cerca como pa activar algo o no?"
-// si entra en rango -> enciendo glow / callbacks  si sale -> apago glow / callbacks
+// ┌────────────────────────────────────────────────────────────┐
+// │               ProximitySystem.ts                           │
+// ├────────────────────────────────────────────────────────────┤
+// │ Detects whether player is near interactive objects.        │
+// │ Toggles glow and callbacks on enter/exit range.           │
+// │ Centralizes proximity logic for all registered targets.    │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import proximity dependencies
 
 import { Vector3 } from '@babylonjs/core';
 import { InteractiveObject } from '../scenes/hub/buildings/InteractiveObject';
@@ -9,29 +14,30 @@ import { GlowEffectManager } from '../effects/HighlightEffect';
 import { DEFAULT_HIGHLIGHT } from '../config/HighlightConfig';
 import type { GlowEffectConfig } from '../config/HighlightConfig';
 
-// datos de cada objeto que vigilo en proximidad
+// STEP 2: Define tracked data for each proximity target
 export interface ProximityTarget {
-	interactiveObject: InteractiveObject; // objeto 3D real que estoy vigilando
-	distanceReferenceObject?: InteractiveObject; // objeto opcional para medir distancia (ej: pedestal)
-	activationDistance: number; // distancia a la que activo el glow
-	glowConfig: GlowEffectConfig; // color + velocidad + tamaño del pulso
-	isHighlighted: boolean; // estado actual (asi no activo/desactivo cada frame como un loco)
-	onEnterRange?: () => void; // callback opcional al entrar en rango
-	onExitRange?: () => void; // callback opcional al salir de rango
+	interactiveObject: InteractiveObject; // Real 3D object being tracked
+	distanceReferenceObject?: InteractiveObject; // Optional distance anchor object (e.g., pedestal)
+	activationDistance: number; // Distance threshold to enable glow
+	glowConfig: GlowEffectConfig; // Glow color + pulse speed + blur size
+	isHighlighted: boolean; // Current state (prevents toggling every frame)
+	onEnterRange?: () => void; // Optional callback when entering range
+	onExitRange?: () => void; // Optional callback when exiting range
 }
 
 export class ProximitySystem {
-	private glowManager: GlowEffectManager; // gestor comun del glow para todos los objetos
-	private proximityTargets: ProximityTarget[] = []; // lista de objetos registrados
+	private glowManager: GlowEffectManager; // Shared glow manager for all objects
+	private proximityTargets: ProximityTarget[] = []; // Registered targets list
 
+	// STEP 3: Initialize with shared glow manager
 	constructor(glowManager: GlowEffectManager) {
-		this.glowManager = glowManager; // guardo el sistema de glow
+		this.glowManager = glowManager; // Store glow system reference
 	}
 
-	// registro un objeto pa que el sistema lo vigile en cada frame
-	// activationDistance = cuando se enciende el aura
-	// glowConfig = como se ve ese aura
-	// onEnterRange / onExitRange = extras tipo holograma show/hide
+	// STEP 4: Register an object for per-frame proximity checks
+	// activationDistance = distance where aura starts
+	// glowConfig = visual style of aura
+	// onEnterRange / onExitRange = optional extras (e.g., hologram show/hide)
 	public registerObject(
 		interactiveObject: InteractiveObject,
 		activationDistance: number,
@@ -49,44 +55,50 @@ export class ProximitySystem {
 			onEnterRange,
 			onExitRange,
 		});
-		// lo meto en la lista y ya queda fichado pa revisarlo siempre
+		// Stored in list and checked every frame from now on
 	}
 
-	// esto lo llamo cada frame desde el game loop le paso la posicion del jugador y reviso todos los objetos
+	// STEP 5: Per-frame update called from game loop
+	// Receives player position and checks all registered targets
 	public update(playerPosition: Vector3): void {
+		// STEP 6: Evaluate each target distance and desired state
 		for (const target of this.proximityTargets) {
 			const referencePosition = target.distanceReferenceObject?.position ?? target.interactiveObject.position;
 			const distanceToObject = Vector3.Distance(
 				playerPosition,
 				referencePosition
 			);
-			// calculo la distancia real player -> objeto
-			const shouldActivateGlow = distanceToObject < target.activationDistance;// si estoy mas cerca que el limite -> deberia estar encendido
+			// Compute real distance from player to target reference
+			const shouldActivateGlow = distanceToObject < target.activationDistance; // If closer than threshold => should be active
 			
-			// solo actuo si hay cambio de estado ... esto es IMPORTANTE:
-			// si no, estaria llamando enable/disable cada frame sin parar y eso seria gasto tonto + posibles bugs visuales
+			// Only act on state transitions. IMPORTANT:
+			// Otherwise enable/disable would run every frame (wasted work + visual glitches)
 			if (shouldActivateGlow !== target.isHighlighted) {
-				if (shouldActivateGlow) {// caso: acabo de entrar en rango
-					const objectMeshes = target.interactiveObject.getModelMeshes();// saco los meshes reales del objeto
-					//si el GLB aun no ha cargado, no puedo meter glow todavia, mejor esperar al siguiente frame y volver a probar
+				if (shouldActivateGlow) { // Case: just entered range
+					// STEP 7: Activate glow + enter callback
+					const objectMeshes = target.interactiveObject.getModelMeshes(); // Fetch real object meshes
+					// If GLB is not loaded yet, cannot apply glow now. Retry next frame.
 					if (objectMeshes.length === 0)
 						continue;
-					target.isHighlighted = true;// marco estado interno pa no repetir la activacion
-					this.glowManager.enableGlow(objectMeshes, target.glowConfig);// enciendo glow con su config concreta
-					target.onEnterRange?.();// si hay callback extra, lo lanzo, ejemplo: mostrar holograma
-				} else {// caso: acabo de salir del rango	
-					target.isHighlighted = false;// actualizo estado primero
-					this.glowManager.disableGlow(target.interactiveObject.getModelMeshes()); // apago el glow del objeto
-					target.onExitRange?.();// callback opcional al salir
+					target.isHighlighted = true; // Update internal state to avoid duplicate activations
+					this.glowManager.enableGlow(objectMeshes, target.glowConfig); // Enable glow with target config
+					target.onEnterRange?.(); // Trigger optional callback (e.g., show hologram)
+				} else { // Case: just exited range
+					// STEP 8: Deactivate glow + exit callback
+					target.isHighlighted = false; // Update state first
+					this.glowManager.disableGlow(target.interactiveObject.getModelMeshes()); // Disable object glow
+					target.onExitRange?.(); // Optional callback on exit
 				}
 			}
-			// si esta activo, animo el pulso del glow... asi el aura "respira" mientras estoy cerca
+
+			// STEP 9: Animate pulse while target remains active
 			if (target.isHighlighted) {
 				this.glowManager.updatePulse(target.glowConfig);
 			}
 		}
 	}
-	// apago todos los highlights de golpe..util pa cleanup, pause, cambio de escena, etc
+
+	// STEP 10: Force disable all active highlights (cleanup/pause/scene switch)
 	public deactivateAll(): void {
 		for (const target of this.proximityTargets) {
 			if (target.isHighlighted) {
@@ -97,7 +109,7 @@ export class ProximitySystem {
 	}
 }
 
-// ===== MINI DICCIONARIO =====
-// callback -> funcion que se ejecuta cuando pasa algo
-// frame -> cada vuelta del render
-// state change -> cambio de estado (apagado -> encendido o al reves)
+// ===== MINI DICTIONARY =====
+// callback -> function executed when an event happens
+// frame -> one render loop iteration
+// state change -> transition between inactive and active

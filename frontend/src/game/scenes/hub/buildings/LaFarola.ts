@@ -1,8 +1,12 @@
-/**
- * LaFarola modelo glb el faro malaga
- * Carga modelo GLB, aplica transformaciones y configura sombras
- * Extiende InteractiveObject: tiene collider, glow y ready()
- */
+// ┌────────────────────────────────────────────────────────────┐
+// │                    LaFarola.ts                             │
+// ├────────────────────────────────────────────────────────────┤
+// │ La Farola landmark model for Hub scene.                   │
+// │ Loads GLB, applies transforms, shadows and collider.      │
+// │ Extends InteractiveObject for shared runtime behavior.    │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import landmark dependencies
 
 import { Scene, Vector3, Mesh, SceneLoader, ShadowGenerator } from '@babylonjs/core';
 import '@babylonjs/loaders/glTF';
@@ -12,6 +16,7 @@ export class LaFarola extends InteractiveObject {
 	private readonly targetScale: Vector3;
 	private readonly targetRotation: number;
 
+	// STEP 2: Store desired transform and trigger model loading
 	constructor(
 		scene: Scene,
 		position: Vector3,
@@ -25,6 +30,7 @@ export class LaFarola extends InteractiveObject {
 		this.loadPromise = this.load();
 	}
 
+	// STEP 3: Load model and finalize mesh setup
 	protected async load(): Promise<void> {
 		try {
 			const result = await SceneLoader.ImportMeshAsync('', '/models/lafarola.glb', '', this.scene);
@@ -39,11 +45,16 @@ export class LaFarola extends InteractiveObject {
 			this.rootMesh.isPickable = true;
 			this.rootMesh.computeWorldMatrix(true);
 
-			this.storeModelMeshes(result.meshes);           // llena glbMeshes -> glow
-			this.setupShadows(result.meshes);               // sombras en todos los meshes
+			this.storeModelMeshes(result.meshes);           // Populate GLB mesh cache for glow/effects
+			this.setupShadows(result.meshes);               // Enable shadow behavior across imported meshes
 			this.createColliderFromModelMesh(this.rootMesh, 'lafarola_collider');
 		} catch (error) {
 			void error;
 		}
 	}
 }
+
+// ===== MINI DICTIONARY =====
+// landmark -> recognizable world object in scene
+// pickable -> mesh can be selected by pointer raycasts
+// transform -> position, rotation and scale settings

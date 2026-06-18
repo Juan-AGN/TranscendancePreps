@@ -1,21 +1,27 @@
-//useBabylonScene - Hook custom de React pa gestionar la escena 3D de Babylon
-//Crea, inicializa y limpia la escena del Hub 3D
-//Maneja el progreso de carga y sincroniza con el store global
+// ┌────────────────────────────────────────────────────────────┐
+// │               useBabylonScene.ts                           │
+// ├────────────────────────────────────────────────────────────┤
+// │ React hook that manages Babylon Hub scene lifecycle.       │
+// │ Creates, initializes, and disposes the 3D scene.          │
+// │ Reports loading progress and syncs global store state.     │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import React/Babylon integration dependencies
 
 import { useEffect, useRef } from 'react';
 import { HubScene } from '../../scenes/hub/HubScene';
 import { useGameStore } from '../../../shared/store/gameStore';
-// Interface q define los props del hook (parametros de entrada)
+
+// STEP 2: Define hook input contract
 interface UseBabylonSceneProps {
-	canvasId: string;  // id del canvas HTML donde se renderiza el 3D
+	canvasId: string;  // HTML canvas id where 3D is rendered
 	enabled?: boolean;
-	onProgress?: (progress: number, label: string) => void;  // callback opcional pa reportar progreso
-	onComplete?: () => void;  // callback opcional cuando termina la carga
-	onPanelOpen?: (panelId: string) => void;  // callback pa abrir panel react desde la escena 3D
+	onProgress?: (progress: number, label: string) => void;  // Optional progress callback
+	onComplete?: () => void;  // Optional callback fired when loading ends
+	onPanelOpen?: (panelId: string) => void;  // Callback to open React panel from 3D scene
 }
 
-//Hook pa crear y gestionar la escena 3D de Babylon
-// Maneja el ciclo de vida completo: creacion, carga, cleanup 
+// STEP 3: Create hook for full 3D scene lifecycle (create/load/cleanup)
 export const useBabylonScene = ({
 	canvasId,
 	enabled = true,
@@ -23,106 +29,105 @@ export const useBabylonScene = ({
 	onComplete,
 	onPanelOpen
 }: UseBabylonSceneProps) => {
-	// useRef -> guarda la referencia a la escena 3D sin causar re-renders
-	// al cambiar sceneRef.current, React NO vuelve a renderizar el componente
-	const sceneRef = useRef<HubScene | null>(null);  // referencia persistente a la escena
-	const isInitializingRef = useRef(false);         // evita doble init en paralelo
+	// STEP 4: Hold mutable scene/init state with refs (no re-renders)
+	const sceneRef = useRef<HubScene | null>(null);  // Persistent scene reference
+	const isInitializingRef = useRef(false);         // Prevent parallel double initialization
 
-	// Obtenemos la func del store pa marcar q el Hub esta listo
+	// STEP 5: Get store action to mark Hub readiness
 	const setHubReady = useGameStore(state => state.setHubReady);
 
-	// useEffect -> ejecuta codigo cuando el componente se monta/desmonta
-	// se ejecuta 1 vez cuando el componente aparece en pantalla
+	// STEP 6: Initialize scene on mount and dispose on unmount
 	useEffect(() => {
 		if (!enabled)
 			return;
 
-		// Si ya existe una escena activa o hay una inicializacion en curso, no duplicamos.
+		// Avoid duplicate init if scene already exists or init is in progress
 		if (sceneRef.current || isInitializingRef.current) {
 			return;
 		}
-		// Flag pa evitar actualizaciones de estado si el componente se desmonta
-		// esto previene memory leaks y warnings de React
+		// Cancellation flag prevents state updates after unmount
 		let isCancelled = false;
 		isInitializingRef.current = true;
-		//Inicializa la escena 3D de forma asincrona
+
+		// STEP 7: Async scene bootstrap
 		const initScene = async () => {
 			try {
-				// Creamos la escena 3D con callback de progreso
-				// le pasamos una func q se ejecuta cada vez q carga un asset
+				// Create HubScene with progress callback
 				const scene = new HubScene(canvasId, (loaded, total, currentLabel) => {
-					// Si el componente ya se desmonto, no hacemos nada
+					// Ignore updates if component already unmounted
 					if (isCancelled)
 						return;
 
-					// Calculamos el porcentaje de carga (ej: 5/10 = 50%)
+					// Compute loading percentage (e.g., 5/10 = 50%)
 					const percentage = Math.round((loaded / total) * 100);
-					// Creamos el label informativo pa mostrar al usuario
+					// Build progress label for UI
 					const label = `${currentLabel}...  ${loaded}/${total}`;
 
-					
-					// Ejecutamos el callback de progreso si existe
-					// ?. -> optional chaining (solo llama si onProgress no es undefined)
+					// Call progress callback if provided
 					onProgress?.(percentage, label);
 				}, (panelId) => {
 					if (!isCancelled)
 						onPanelOpen?.(panelId);
 				});
 
-				// Si el componente se desmonto durante la creacion, limpiamos y salimos
+				// If unmounted during creation, cleanup and exit
 				if (isCancelled) {
-					scene.dispose();  // liberamos memoria
+					scene.dispose();  // Release memory/resources
 					return;
 				}
 
-				// Guardamos la referencia a la escena pa poder limpiarla despues
+				// Store active scene reference for later cleanup
 				sceneRef.current = scene;
 
-				// Cargamos todos los assets (modelos 3D, texturas, etc)
-				// esto es asincrono, puede tardar varios segundos
+				// Load all scene assets (models, textures, etc.)
 				await scene.loadAssets();
 
-				// Si el componente se desmonto durante la carga, limpiamos y salimos
+				// If unmounted while loading, cleanup and exit
 				if (isCancelled) {
 					scene.dispose();
 					return;
 				}
 
-				// Todo cargado correctamente
-				onProgress?.(100, 'Completado');  // reportamos 100% de progreso
-				setHubReady(true);  // marcamos en el store global q el Hub esta listo
-				onComplete?.();  // ejecutamos callback de finalizacion si existe
+				// Successfully loaded
+				onProgress?.(100, 'Completed');
+				setHubReady(true);  // Mark Hub ready in global store
+				onComplete?.();
 
 			} catch (error) {
-				// Si algo fallo durante la inicializacion o carga
+				// Handle initialization/load failure
 				if (!isCancelled) {
 					void error;
-					onProgress?.(100, 'Error de carga');  // reportamos error
-					onComplete?.();  // ejecutamos callback igualmente pa desbloquear UI
+					onProgress?.(100, 'Loading error');
+					onComplete?.();  // Still complete to unblock UI flow
 				}
 			} finally {
 				isInitializingRef.current = false;
 			}
 		};
 
-		// Iniciamos la carga de la escena
+		// Start async scene initialization
 		initScene();
-		// Cleanup function -> se ejecuta cuando el componente se desmonta
-		// esto es CRITICO pa evitar memory leaks en aplicaciones React
+
+		// STEP 8: Cleanup on unmount
 		return () => {
-			isCancelled = true;  // marcamos q el componente ya no existe
+			isCancelled = true;  // Mark component as disposed
 			isInitializingRef.current = false;
-			// Si existe una escena activa, la limpiamos
+			// Dispose active scene if present
 			if (sceneRef.current) {
-				sceneRef.current.dispose();  // libera memoria (engine, scene, meshes, etc)
-				sceneRef.current = null;  // eliminamos la referencia
+				sceneRef.current.dispose();  // Release engine, scene, meshes, etc.
+				sceneRef.current = null;  // Clear reference
 			}
 		};
 	}, [canvasId, enabled]);
-	// Array de dependencias -> solo canvasId
-	// NO incluimos onProgress/onComplete xq cambian en cada render y causan bucle infinito
-	// usamos las referencias mas recientes con closures
-	// Devolvemos un objeto con la referencia a la escena
-	// otros componentes pueden acceder a sceneRef.current si necesitan la escena
+	// Dependency array includes stable initialization keys only
+	// We intentionally avoid volatile callbacks to prevent re-init loops
+	// Return current scene reference for optional external access
 	return { scene: sceneRef.current };
 };
+
+// ===== MINI DICTIONARY =====
+// hook -> reusable React logic function
+// ref -> mutable value holder that does not trigger render
+// lifecycle -> mount/update/unmount phases
+// cleanup -> resource disposal when component unmounts
+// optional chaining (?.) -> invoke only if value exists

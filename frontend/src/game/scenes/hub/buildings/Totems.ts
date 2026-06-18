@@ -1,4 +1,12 @@
-// Totems — clase reutilizable para estatuas decorativas del hub
+// ┌────────────────────────────────────────────────────────────┐
+// │                     Totems.ts                              │
+// ├────────────────────────────────────────────────────────────┤
+// │ Reusable totem/statue object for Hub decorations.         │
+// │ Loads arbitrary model path with transform + collider.     │
+// │ Reuses InteractiveObject base loading/shadow patterns.    │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import totem dependencies
 
 import { Scene, Mesh, Vector3, SceneLoader, ShadowGenerator } from '@babylonjs/core';
 import '@babylonjs/loaders/glTF';
@@ -9,6 +17,7 @@ export class Totems extends InteractiveObject {
     private readonly targetScale: Vector3;
     private readonly targetRotation: number;
 
+	// STEP 2: Capture model/transform settings and start loading
     constructor(
         scene: Scene,
         position: Vector3,
@@ -24,6 +33,7 @@ export class Totems extends InteractiveObject {
         this.loadPromise = this.load();
     }
 
+    // STEP 3: Load model and finalize runtime setup
     protected async load(): Promise<void> {
         try {
             const result = await SceneLoader.ImportMeshAsync('', this.modelPath, '', this.scene);
@@ -51,3 +61,7 @@ export class Totems extends InteractiveObject {
         }
     }
 }
+
+// ===== MINI DICTIONARY =====
+// reusable class -> generic class used for multiple configured instances
+// modelPath -> path to GLB asset passed per instance

@@ -1,27 +1,29 @@
-// ENVIRONMENT CONFIG -- config del entorno base (suelo + luz HDRI)
-// define como se ve el mundo: color, reflejos y luz global (look general de la escena)
-
+// ┌────────────────────────────────────────────────────────────┐
+// │                 EnvironmentConfig.ts                       │
+// ├────────────────────────────────────────────────────────────┤
+// │ Defines base environment settings for the 3D Hub scene.    │
+// │ Controls ground size, ground material and HDRI lighting.   │
+// │ It does NOT create meshes or apply materials directly.     │
+// └────────────────────────────────────────────────────────────┘
+// STEP 1: Define the base visual environment for the 3D world.
+// These values are consumed later by the environment setup files.
 export const ENVIRONMENT_CONFIG = {
-
-	// ===== GROUND =====
+	// STEP 2: Define ground material and size settings.
 	ground: {
-		size: 200,  // tamaño del suelo (ancho/alto), cuanto mas grande mas mundo visible
-		baseColor: [0.98, 0.98, 0.98] as [number, number, number],  // color base RGB (0-1), casi blanco pero no nuclear
-		reflectionColor: [0.05, 0.05, 0.05] as [number, number, number], // fuerza del reflejo, bajo = mate, alto = espejo
-		reflectionSharpness: 10,  // nitidez del reflejo, bajo = blur, alto = mas definido
+		size: 200,										// Ground width and height in scene units.
+		baseColor: [0.98, 0.98, 0.98] as [number, number, number],
+		reflectionColor: [0.05, 0.05, 0.05] as [number, number, number],
+		reflectionSharpness: 10, 
 	},
-
-	// ===== HDRI (luz global) =====
+	// STEP 3: Define HDRI environment lighting settings.
 	hdri: {
-		texturePath: '/environment/studio.env',  // archivo HDRI (da luz + reflejos globales), cambia esto y cambia todo el mood
-		lightIntensity: 0.8,  // intensidad de luz global, mas alto = mas brillo, mas bajo = mas oscuro
+		texturePath: '/environment/studio.env', 			// Environment texture used for global lighting and reflections.
+		lightIntensity: 0.8, 
 	},
 
 } as const;
-
-
-// ===== MINI DICCIONARIO =====
-// hdri -> textura de entorno que da luz realista
-// sharpness -> que tan definido se ve algo (nitidez)
-// intensity -> fuerza de la luz
-// rgb -> colores en rojo/verde/azul (0 a 1)
+// STEP 4: Small terminology notes.
+// HDRI: environment texture used to provide realistic lighting and reflections.
+// sharpness: how defined or blurred a reflection appears.
+// intensity: strength of the emitted or reflected light.
+// RGB: red, green and blue color components.

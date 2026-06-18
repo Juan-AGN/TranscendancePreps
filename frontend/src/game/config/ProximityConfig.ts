@@ -1,48 +1,38 @@
-// PROXIMITY CONFIG -- tabla de proximidad de objetos del hub (los q NO tienen hologram)
-// aqui decido que objetos detectan cercania, a que distancia y con que glow
-// si quiero añadir/quitar algo → solo toco este archivo
+// ┌────────────────────────────────────────────────────────────┐
+// │                    PlayerConfig.ts                         │
+// ├────────────────────────────────────────────────────────────┤
+// │ Defines player model, animation and movement configuration.│
+// │ Controls stickman path, scale, mesh filters and map limits.│
+// │ It does NOT load the model or move the player directly.    │
+// └────────────────────────────────────────────────────────────┘
 
-import { ProximitySystem } from '../physics/ProximitySystem'; // sistema que detecta cercania
-import { HubSceneBuilder } from '../scenes/hub/HubSceneBuilder'; // donde viven los objetos del hub
-import { DEFAULT_HIGHLIGHT, GREEN_HIGHLIGHT } from './HighlightConfig'; // colores del aura
-import type { GlowEffectConfig } from './HighlightConfig'; // tipo del glow
+// STEP 1: Define the player model path and base scale.
+// The GLB file is served from the public/models folder.
+export const STICKMAN_GLB_PATH = '/models/stickman.glb';
+export const STICKMAN_SCALE = 3;
 
-// tipo de cada entrada de la tabla
-interface ProximityEntry {
-	key: keyof HubSceneBuilder; // nombre del objeto dentro del builder
-	distance: number;           // a que distancia se activa el aura
-	config: GlowEffectConfig;   // como se ve el glow
-}
+// STEP 2: Define mesh name filters used to detect stickman mesh parts.
+// These filters help apply logic only to the correct meshes inside the GLB.
+export const STICKMAN_MESH_NAME_FILTERS = [
+	'Simple',
+	'Object_',
+	'primitive',
+] as const;
 
-// objetos decorativos (sin hologram)
-// los de hologram los gestiona otro sistema (HologramManager)
-const DECORATIVE_ENTRIES: ProximityEntry[] = [
-	{ key: 'pingpong', distance: 12, config: DEFAULT_HIGHLIGHT }, // mesa pingpong
-	{ key: 'torre',    distance: 20, config: GREEN_HIGHLIGHT   }, // torre
-];
+// STEP 3: Define animation names used by the player character.
+export const STICKMAN_ANIM_RUN = 'run';
+export const STICKMAN_ANIM_IDLE = 'idle';
 
+// STEP 4: Define player movement and map boundary settings.
+export const CHARACTER_CONFIG = {
+	moveSpeed: 0.3,
+	positionSmoothness: 0.25,
+	minMapLimit: -90,
+	maxMapLimit: 90,
+	trophyRotationSpeed: 0.005,
+} as const;
 
-export class ProximityConfig {
-
-	// registro todos los decorativos en el sistema de proximidad
-	static registerDecoratives(
-		proximitySystem: ProximitySystem,
-		entityManager: HubSceneBuilder,
-	): void {
-
-		for (const entry of DECORATIVE_ENTRIES) { // recorro la tabla
-			const obj = entityManager[entry.key] as any; // saco el objeto real desde el builder
-			if (obj) proximitySystem.registerObject(obj, entry.distance, entry.config); // si existe lo registro
-		}
-	}
-}
-
-// ===== MINI DICCIONARIO =====
-// proximity -> detectar cuando estoy cerca de algo
-// entry -> una fila de datos
-// key -> nombre del objeto en el builder
-// register -> registrar en el sistema
-// glow -> aura visual
-// decorative -> objeto decorativo (sin interaccion avanzada)
-// system -> clase que gestiona algo (logica)
-// builder -> clase que crea/guarda objetos
+// STEP 5: Small terminology notes.
+// idle: animation/state used when the character is not moving.
+// lerp: smooth interpolation between two positions.
+// frame: one render update tick, usually around 60 times per second.

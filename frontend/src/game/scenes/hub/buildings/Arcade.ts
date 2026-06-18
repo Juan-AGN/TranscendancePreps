@@ -1,4 +1,12 @@
-// Arcade — maquina arcade retro del hub
+// ┌────────────────────────────────────────────────────────────┐
+// │                     Arcade.ts                              │
+// ├────────────────────────────────────────────────────────────┤
+// │ Retro arcade machine object for the Hub scene.            │
+// │ Loads GLB, applies transform, shadows and collider.       │
+// │ Extends InteractiveObject shared behavior.                │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import arcade dependencies
 
 import { Scene, Mesh, Vector3, SceneLoader, ShadowGenerator } from '@babylonjs/core';
 import '@babylonjs/loaders/glTF';
@@ -8,6 +16,7 @@ export class Arcade extends InteractiveObject {
 	private readonly targetScale: Vector3;
 	private readonly targetRotation: number;
 
+	// STEP 2: Store desired transform and start async load
 	constructor(
 		scene: Scene,
 		position: Vector3,
@@ -21,6 +30,7 @@ export class Arcade extends InteractiveObject {
 		this.loadPromise = this.load();
 	}
 
+	// STEP 3: Load model and configure runtime mesh behavior
 	protected async load(): Promise<void> {
 		try {
 			const result = await SceneLoader.ImportMeshAsync('', '/models/arcade.glb', '', this.scene);
@@ -41,3 +51,8 @@ export class Arcade extends InteractiveObject {
 		}
 	}
 }
+
+// ===== MINI DICTIONARY =====
+// GLB -> binary glTF 3D model format
+// collider -> invisible mesh used for collisions/click hits
+// shadow caster -> mesh that contributes to dynamic shadows

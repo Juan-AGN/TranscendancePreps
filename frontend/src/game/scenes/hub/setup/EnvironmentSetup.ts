@@ -1,27 +1,36 @@
-// EnviormenSetupEste archivo gestiona el entorno basico de la escena:
-// suelo, materiales y entorno HDR para reflejos e iluminacion global
+// ┌────────────────────────────────────────────────────────────┐
+// │               EnvironmentSetup.ts                          │
+// ├────────────────────────────────────────────────────────────┤
+// │ Configures core scene environment resources.              │
+// │ Creates ground/material and HDR environment lighting.     │
+// │ Centralizes visual setup for reflections and ambience.    │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import environment dependencies
 
 import { Scene, MeshBuilder, StandardMaterial, Color3, CubeTexture } from '@babylonjs/core';
 import { ENVIRONMENT_CONFIG } from '../../../config/EnvironmentConfig';
-// MeshBuilder... crea geometria basica (suelo, cajas, etc)
-// StandardMaterial... material clasico de Babylon
-// Color3... color RGB sin alpha
-// CubeTexture... textura en cubo (HDRI / environment)
+// MeshBuilder creates basic geometry (ground, boxes, etc.)
+// StandardMaterial is Babylon's classic material
+// Color3 is RGB color without alpha
+// CubeTexture is cubemap texture (HDRI / environment)
 
-// exportamos la clase para centralizar entorno (suelo + entorno HDR)
+// STEP 2: Define environment setup class
 export class EnvironmentSetup {
-	private scene: Scene;          // Guarda la scena donde se aplicara el entorno
+	private scene: Scene;          // Scene where environment is applied
 
+	// STEP 3: Receive scene dependency
 	constructor(scene: Scene) {
 		this.scene = scene;
 	}
-	// EnvironmentSetup no crea la Scene, la recibe ya creada
-	// Asi el hub y el juego pueden tener entornos distintos si hace falta
-	// mantiene el codigo modular y sin dependencias globales
+	// EnvironmentSetup does not create the scene; it receives it
+	// This allows hub/game scenes to share logic with different instances
+	// Keeps code modular and avoids global dependencies
 
+	// STEP 4: Create and configure scene ground
 	public setupGround(): void {
-		// Creamos el suelo base del hub/juego
-		// Es grande para que no se vea el limite al moverse por el entorno
+		// Create the base ground for hub/game
+		// Large enough so scene borders are not visible during movement
 		const ground = MeshBuilder.CreateGround(
 			'ground',
 			{ width: ENVIRONMENT_CONFIG.ground.size, height: ENVIRONMENT_CONFIG.ground.size },
@@ -37,13 +46,14 @@ export class EnvironmentSetup {
 		groundMat.specularPower = ENVIRONMENT_CONFIG.ground.reflectionSharpness;
 
 		ground.material = groundMat;
-		// asignamos el material al suelo
+		// Assign material to ground
 		ground.receiveShadows = true;
-		// el suelo recibe las sombras de los modelos GLB
+		// Ground receives shadows cast by GLB models
 	}
 
+	// STEP 5: Configure HDR environment texture and intensity
 	public setupHDRI(): void {
-		// HDRI pa iluminacion global y reflejos (formato .env compatible con Babylon)
+		// HDRI for global lighting and reflections (.env format for Babylon)
 		const hdrTexture = CubeTexture.CreateFromPrefilteredData(
 			ENVIRONMENT_CONFIG.hdri.texturePath,
 			this.scene
@@ -52,3 +62,9 @@ export class EnvironmentSetup {
 		this.scene.environmentIntensity = ENVIRONMENT_CONFIG.hdri.lightIntensity;
 	}
 }
+
+// ===== MINI DICTIONARY =====
+// HDRI -> High Dynamic Range environment image for realistic lighting
+// cubemap -> texture projected on six faces around scene
+// specular -> reflective light response on a material
+// environment intensity -> multiplier for environment lighting strength

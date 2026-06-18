@@ -1,8 +1,12 @@
-/**
- * TownHouse modelo glb edificio polo malaga
- * Carga modelo GLB del edificio, aplica transformaciones y lo hace clickable
- * Extiende InteractiveObject: tiene collider, glow y ready()
- */
+// ┌────────────────────────────────────────────────────────────┐
+// │                    TownHouse.ts                            │
+// ├────────────────────────────────────────────────────────────┤
+// │ TownHouse interactive building for Hub navigation.        │
+// │ Loads GLB, detaches real mesh and applies final transform.│
+// │ Extends InteractiveObject (collider, glow, ready flow).   │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import townhouse dependencies
 
 import { Scene, Vector3, Mesh, SceneLoader, ShadowGenerator } from '@babylonjs/core';
 import '@babylonjs/loaders/glTF';
@@ -12,6 +16,7 @@ export class TownHouse extends InteractiveObject {
 	private readonly targetScale: number;
 	private readonly targetRotation: number;
 
+	// STEP 2: Store transform config and start async loading
 	constructor(
 		scene: Scene,
 		position: Vector3,
@@ -25,6 +30,7 @@ export class TownHouse extends InteractiveObject {
 		this.loadPromise = this.load();
 	}
 
+	// STEP 3: Load model, detach usable mesh and setup interaction
 	protected async load(): Promise<void> {
 		try {
 			const result = await SceneLoader.ImportMeshAsync(
@@ -35,8 +41,8 @@ export class TownHouse extends InteractiveObject {
 			if (result.meshes.length === 0) {
 				return;
 			}
-			// Desparentamos el mesh real del __root__ pa eliminar transforms bakeados
-			// (igual que la version original: realMesh.parent = null)
+			// Detach real mesh from __root__ to avoid inherited baked transforms
+			// (matches original behavior: realMesh.parent = null)
 			const realMeshes = result.meshes.filter(
 				m => m.name !== '__root__' && m.getClassName() === 'Mesh'
 			) as Mesh[];
@@ -48,7 +54,7 @@ export class TownHouse extends InteractiveObject {
 			target.isPickable = true;
 
 			this.rootMesh = target;                                // getRootMesh() y collider
-			this.storeModelMeshes(result.meshes);                 // glbMeshes -> glow
+			this.storeModelMeshes(result.meshes);                 // GLB meshes for glow/effects
 			this.setupShadows(result.meshes);
 			this.createColliderFromModelMesh(target, 'townhouse_collider');
 		} catch (error) {
@@ -56,3 +62,7 @@ export class TownHouse extends InteractiveObject {
 		}
 	}
 }
+
+// ===== MINI DICTIONARY =====
+// __root__ -> Babylon import root node, often not the visual mesh to interact with
+// detach parent -> remove inherited transform chain from utility root

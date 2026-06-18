@@ -1,74 +1,73 @@
-// HUBBUTTON - boton interactivo del hub con preview visual (imagen -> video en hover)
-// actua como UI component, no decide logica externa (solo ejecuta onClick)
-// 3 things ->
-//   - muestra imagen por defecto
-//   - cambia a video cuando hay hover
-//   - controla video (play, pause, reset)
+// ┌────────────────────────────────────────────────────────────┐
+// │                   HubButton.tsx                            │
+// ├────────────────────────────────────────────────────────────┤
+// │ Interactive Hub button with visual preview behavior.       │
+// │ Default image switches to video on hover.                 │
+// │ Encapsulates hover playback logic (play/pause/reset).     │
+// └────────────────────────────────────────────────────────────┘
 
-// pq existe:
-//   - para reutilizar mismo boton en game/settings/etc
-//   - para no repetir logica de hover + video en cada sitio
+// STEP 1: Import React state and refs
 
 import { useState, useRef } from 'react';
 
-// props -> lo q puedes cambiar desde fuera sin tocar este archivo
+// STEP 2: Define configurable component props
 interface HubButtonProps {
-	onClick: () => void              // accion externa (navegar, cambiar escena, etc)
-	imgSrc?: string                 // imagen base (sin hover)
-	imgAlt?: string                 // texto alternativo
-	ringSrc?: string                // anillo decorativo (opcional)
-	videoSrc?: string               // video q aparece en hover
+	onClick: () => void              // External action (navigate, open panel, etc.)
+	imgSrc?: string                 // Base image shown when not hovered
+	imgAlt?: string                 // Alt text
+	ringSrc?: string                // Optional decorative ring image
+	videoSrc?: string               // Hover preview video source
 }
 
 export function HubButton({
 	onClick,
-	imgSrc = '/images/WorldPong3D.png',    // imagen por defecto si no se pasa otra
-	imgAlt = 'Enter 3D',            // alt por defecto
-	ringSrc = '/images/ring.png',          // anillo (puedes cambiarlo o quitarlo)
-	videoSrc = '/videos/videoPong.mp4',    // video hover (cuidado con peso)
+	imgSrc = '/images/WorldPong3D.png',    // Default image if none provided
+	imgAlt = 'Enter 3D',            // Default alt text
+	ringSrc = '/images/ring.png',          // Ring decoration (optional)
+	videoSrc = '/videos/videoPong.mp4',    // Hover video (keep file size reasonable)
 }: HubButtonProps) {
 
-	// ===== ESTADO =====
+	// ===== STEP 3: STATE =====
 
 	const [isHovered, setIsHovered] = useState(false);   
-	// controla todo el comportamiento visual
-	// true = estamos encima -> se ve el video
-	// false = no -> se ve la imagen
+	// Controls visual state
+	// true = hover active -> show video
+	// false = no hover -> show image
 
 	const videoRef = useRef<HTMLVideoElement>(null);     
-	// referencia al <video> para controlarlo manual
-	// sin esto no podrias hacer play/pause/reset
+	// Ref to <video> element for manual playback control
+	// Needed for play/pause/reset operations
 
-	// ===== EVENTOS =====
+	// ===== STEP 4: EVENT HANDLERS =====
 
-	const handleMouseEnter = () => {                     // cuando el raton entra
-		setIsHovered(true);                              // activa hover (cambia UI)
+	const handleMouseEnter = () => {                     // Mouse enters button area
+		setIsHovered(true);                              // Activate hover visuals
 		if (videoRef.current) {                          
-			videoRef.current.play();                     // reproducimos video
+			videoRef.current.play();                     // Start video preview
 		}
 	};
 
-	const handleMouseLeave = () => {                     // cuando el raton sale
-		setIsHovered(false);                             // quitamos hover (vuelve imagen)
+	const handleMouseLeave = () => {                     // Mouse leaves button area
+		setIsHovered(false);                             // Restore image state
 		if (videoRef.current) {
-			videoRef.current.pause();                    // pausamos video
-			videoRef.current.currentTime = 0;            // lo reiniciamos (si no seguiria)
+			videoRef.current.pause();                    // Pause preview
+			videoRef.current.currentTime = 0;            // Reset to start
 		}
 	};
 
-	// ===== RENDER =====
+	// ===== STEP 5: RENDER =====
 
 	return (
 		<div className="relative inline-flex items-center justify-center">  
-		{/* contenedor centrado + permite capas (anillo, video, imagen) */}
+		{/* Centered container with layered elements (ring, video, image) */}
 
-			{/* anillo decorativo (solo si existe) */}
+			{/* Decorative ring (render only if source exists) */}
 			{ringSrc && (
 				<img
 					src={ringSrc}
 					alt="Ring decoration"
 					className="absolute pointer-events-none select-none"  
-					// no interactua con clicks (no bloquea el boton)
+					// Non-interactive layer so it does not block button clicks
 					style={{
 						objectFit: 'contain',
 						width: '30rem',
@@ -76,17 +75,17 @@ export function HubButton({
 						maxWidth: 'none',
 						scale: 1.4,
 						transformOrigin: '50% 50%',
-						animation: 'spin 8s linear infinite',            
-						// rotacion continua
+						animation: 'spin 8s linear infinite',
+						// Continuous rotation
 					}}
 				/>
 			)}
 
 			<button
 				type="button"                             
-				onClick={onClick}                         // ejecuta accion externa (este componente no decide)
-				onMouseEnter={handleMouseEnter}           // activa hover
-				onMouseLeave={handleMouseLeave}           // desactiva hover
+				onClick={onClick}                         // Execute external action
+				onMouseEnter={handleMouseEnter}           // Activate hover state
+				onMouseLeave={handleMouseLeave}           // Deactivate hover state
 				className="
                 relative z-10
                 w-full py-10
@@ -97,33 +96,33 @@ export function HubButton({
                 transition-transform duration-500 ease-out
                 hover:scale-105                         
                 active:scale-95"
-				// hover = crece, click = se hunde
+				// Hover scales up, active press scales down
 			>
 
-				{/* VIDEO -> visible solo en hover */}
+				{/* Video layer visible only during hover */}
 				<video
 					ref={videoRef}                        
 					src={videoSrc}                        
 					loop                                   
 					muted                                  
-					// muted necesario para autoplay en navegadores
+					// muted is required for autoplay behavior in most browsers
 
 					className={`
                     w-90 h-90
                     rounded-full object-cover
                     transition-opacity duration-250 ease-in-out
-                    ${isHovered ? 'opacity-100' : 'opacity-0'}  
-                    // si hover -> visible
-                    // si no -> invisible
+					${isHovered ? 'opacity-100' : 'opacity-0'}
+					// Hover on -> visible
+					// Hover off -> hidden
                    `}
 					style={{
 						objectPosition: '50% 35%',
-						position: 'absolute'              
-						// se coloca encima de la imagen
+						position: 'absolute'
+						// Layered above image
 					}}
 				/>
 
-				{/* IMAGEN -> visible cuando NO hay hover */}
+				{/* Image layer visible when hover is not active */}
 				<img
 					src={imgSrc}                          
 					alt={imgAlt}
@@ -131,8 +130,8 @@ export function HubButton({
                     w-90 h-90
                     rounded-full object-cover
                     transition-opacity duration-250 ease-in-out
-                    ${isHovered ? 'opacity-0' : 'opacity-100'}  
-                    // se oculta cuando aparece el video
+					${isHovered ? 'opacity-0' : 'opacity-100'}
+					// Hidden when video appears
                    `}
 					style={{ objectPosition: '50% 26%' }}
 				/>
@@ -143,14 +142,8 @@ export function HubButton({
 }
 
 
-// ===== RESUMEN MENTAL =====
-// este componente es:
-// boton + imagen + video + hover + click
-//
-// flujo:
-// no hover -> se ve imagen
-// hover -> se muestra video + play()
-// salir -> pause + reset + vuelve imagen
-//
-// importante:
-// NO elimina video/imagen -> solo cambia opacidad (mejor UX)
+// ===== MINI DICTIONARY =====
+// hover -> cursor-over interaction state
+// layered UI -> stacked visual elements in same area
+// ref -> direct handle to DOM/video element
+// opacity swap -> smooth visual transition without unmounting elements

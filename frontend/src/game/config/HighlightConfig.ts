@@ -1,54 +1,48 @@
-// HIGHLIGHT CONFIG -- config del aura/brillo de objetos del hub
-// aqui solo definimos COMO se ve el glow (color, velocidad, tamaño)
-// no se aplica nada aqui, solo datos pa que el sistema lo use
-
+// ┌────────────────────────────────────────────────────────────┐
+// │                  HighlightConfig.ts                        │
+// ├────────────────────────────────────────────────────────────┤
+// │ Defines glow/highlight presets for interactive Hub objects.│
+// │ Controls glow color, pulse speed and blur size range.      │
+// │ It does NOT apply the effect directly to scene meshes.     │
+// └────────────────────────────────────────────────────────────┘
 import { Color3 } from '@babylonjs/core'; // Color3 = RGB de Babylon (0-1)
 
-// forma del config del glow (plantilla pa todos)
+// ════════ TYPE: GlowEffectConfig: Shape of a glow/highlight preset. ════════
+// Each preset defines how the glow effect should look and animate.
 export interface GlowEffectConfig {
-	color: Color3;          // color del aura
-	animationSpeed: number; // velocidad del pulso (mas alto = mas nervioso)
-	minBlurSize: number;    // tamaño minimo del aura (cuando se contrae)
-	maxBlurSize: number;    // tamaño maximo del aura (cuando se expande)
+	color: Color3;
+	animationSpeed: number;
+	minBlurSize: number;   
+	maxBlurSize: number;   
 }
-
-
-// ===== DEFAULT (cian) =====
-// pa objetos interactivos normales (townhouse, pingpong, etc)
-
+// STEP 1: Define the default cyan highlight.
+// Used for normal interactive Hub objects.
 export const DEFAULT_HIGHLIGHT: GlowEffectConfig = {
-	color: new Color3(0.0, 0.9, 1.0), // 42 azul
-	animationSpeed: 0.0014,             // pulso medio (ni lento ni loco)
-	minBlurSize: 0.5,                  // minimo del aura
-	maxBlurSize: 4.5,                  // maximo (bastante visible)
+	color: new Color3(0.0, 0.9, 1.0),
+	animationSpeed: 0.0014,
+	minBlurSize: 0.5,
+	maxBlurSize: 4.5,
 };
-
-
-// ===== GOLD (trofeo) =====
-// pa cosas importantes (premios, highlights top)
-
+// STEP 2: Define the gold highlight.
+// Used for important or reward-like objects.
 export const GOLD_HIGHLIGHT: GlowEffectConfig = {
-	color: new Color3(1.0, 0.75, 0.1), // dorado elegante
-	animationSpeed: 0.003,             // mas rapido (llama mas la atencion)
-	minBlurSize: 1.0,                  // mas compacto al minimo
-	maxBlurSize: 3.5,                  // expansion moderada
+	color: new Color3(1.0, 0.75, 0.1),
+	animationSpeed: 0.003,            
+	minBlurSize: 1.0,             
+	maxBlurSize: 3.5,                
 };
 
-
-// ===== GREEN =====
-// pa settings, arcade, rosaleda, computer (cosas activables)
-
+// STEP 3: Define the green highlight.
+// Used for activable objects such as settings, arcade or navigation props.
 export const GREEN_HIGHLIGHT: GlowEffectConfig = {
-	color: new Color3(0.2, 1.0, 0.4), // verde lima brillante
-	animationSpeed: 0.0015,           // mas calmado (relajado)
-	minBlurSize: 1.0,                 // minimo
-	maxBlurSize: 3.0,                 // maximo contenido
+	color: new Color3(0.2, 1.0, 0.4),
+	animationSpeed: 0.0015,
+	minBlurSize: 1.0,
+	maxBlurSize: 3.0, 
 };
-
-
-// ===== MINI DICCIONARIO =====
-// glow -> brillo/aura alrededor del objeto
-// blur -> difuminado del aura
-// animationSpeed -> velocidad del pulso del glow
-// highlight -> resaltar algo visualmente
-// Color3 -> color en formato RGB (0 a 1)
+// STEP 4: Small terminology notes.
+// glow: visible light aura around an object.
+// blur: softness or spread of the glow.
+// animationSpeed: speed of the glow pulse animation.
+// highlight: visual effect used to draw attention to an object.
+// Color3: Babylon RGB color format using values from 0 to 1.

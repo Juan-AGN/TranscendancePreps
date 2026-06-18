@@ -1,8 +1,12 @@
-/**
- * Trophy modelo glb trofeo dorado 
- * Carga modelo GLB del trofeo, aplica transformaciones y lo hace clickable
- * Extiende InteractiveObject: tiene collider, glow y ready()
- */
+// ┌────────────────────────────────────────────────────────────┐
+// │                      Trophy.ts                             │
+// ├────────────────────────────────────────────────────────────┤
+// │ Trophy interactive object used in the Hub scene.          │
+// │ Loads GLB, applies transform and click/collider behavior. │
+// │ Extends InteractiveObject shared functionality.           │
+// └────────────────────────────────────────────────────────────┘
+
+// STEP 1: Import trophy dependencies
 
 import { Scene, Vector3, Mesh, SceneLoader, ShadowGenerator } from '@babylonjs/core';
 import '@babylonjs/loaders';
@@ -11,6 +15,7 @@ import { InteractiveObject } from './InteractiveObject';
 export class Trophy extends InteractiveObject {
 	private readonly targetScale: number;
 
+	// STEP 2: Store scale config and begin async loading
 	constructor(
 		scene: Scene,
 		position: Vector3,
@@ -22,13 +27,14 @@ export class Trophy extends InteractiveObject {
 		this.loadPromise = this.load();
 	}
 
+	// STEP 3: Load model, choose real mesh and configure collider
 	protected async load(): Promise<void> {
 		try {
 			const result = await SceneLoader.ImportMeshAsync('', '/models/trphy.glb', '', this.scene);
 			if (result.meshes.length === 0) {
 				return;
 			}
-			// Desparentamos el mesh real igual que la version original
+			// Detach real mesh from utility root (same behavior as original)
 			const realMeshes = result.meshes.filter(
 				m => m.name !== '__root__' && m.getClassName() === 'Mesh'
 			) as Mesh[];
@@ -39,7 +45,7 @@ export class Trophy extends InteractiveObject {
 			target.isPickable = true;
 
 			this.rootMesh = target;
-			this.storeModelMeshes(result.meshes);           // glbMeshes -> glow
+			this.storeModelMeshes(result.meshes);           // GLB meshes for glow/effects
 			this.setupShadows(result.meshes);
 			this.createColliderFromModelMesh(target, 'trophy_collider');
 		} catch (error) {
@@ -47,11 +53,15 @@ export class Trophy extends InteractiveObject {
 		}
 	}
 
-	// GameLoop llama esto cada frame para que el trofeo gire continuamente
+	// STEP 4: Called from GameLoop each frame for continuous spin
 	public rotate(angle: number): void {
 		if (this.rootMesh) {
 			this.rootMesh.addRotation(0, angle, 0);
 		}
 	}
 }
+
+// ===== MINI DICTIONARY =====
+// continuous rotation -> incremental rotation applied every frame
+// angle (radians) -> rotation amount in radian units
 

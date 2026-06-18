@@ -1,54 +1,59 @@
-// HOLOGRAM CONTROLLER -- crea hologramas y los conecta con proximidad
-// este archivo es el puente entre:
-//   - config (HologramConfig)
-//   - objetos reales (HubSceneBuilder)
-//   - sistema de proximidad (ProximitySystem)
-// RESPONSABILIDAD:
-// leer la tabla HUB_OBJECTS → crear hologramas → enganchar show/hide
-// aqui NO hay render ni fisica → solo orquestasssion
+// ┌────────────────────────────────────────────────────────────┐
+// │           HologramController.ts                            │
+// ├────────────────────────────────────────────────────────────┤
+// │ Orchestrates hologram creation and proximity system.       │
+// │ Bridges config, scene objects, and proximity detection.    │
+// │ Handles show/hide callbacks based on player proximity.     │
+// └────────────────────────────────────────────────────────────┘
+
 import { Scene } from '@babylonjs/core';
-import { SkyTextHologram } from './SkyTextHologram'; // clase que crea el texto 3D
-import { ProximitySystem } from '../physics/ProximitySystem'; // sistema que detecta cercania
-import { HubSceneBuilder } from '../scenes/hub/HubSceneBuilder'; // donde viven los objetos del hub
+import { SkyTextHologram } from './SkyTextHologram'; // Class that creates 3D text
+import { ProximitySystem } from '../physics/ProximitySystem'; // System that detects proximity
+import { HubSceneBuilder } from '../scenes/hub/HubSceneBuilder'; // Where hub objects live
 import { HUB_OBJECTS } from '../config/HologramConfig';
 
 export class HologramController {
 
 	private holograms: Map<string, SkyTextHologram> = new Map();
-	// guardo todos los hologramas creados  key = label (ej: SETTINGS) esto me sirve pa limpiarlos luego (dispose)
+	// Store all created holograms
+	// key = label (e.g., SETTINGS)
+	// Used for cleanup (dispose) later
 
-	// ─── SETUP 
-	// crea hologramas + los registra en proximidad
-	// IMPORTANTE:  esto hay que llamarlo DESPUES de cargar los meshes (executeLoadTasks)
-	// si no → obj.getRootMesh() devuelve null y no funciona
+	// ─── SETUP
+	// Create holograms + register them in proximity system
+	// IMPORTANT: Call this AFTER loading meshes (executeLoadTasks)
+	// Otherwise obj.getRootMesh() returns null
 	setup(
 		scene: Scene,
 		entityManager: HubSceneBuilder,
 		proximitySystem: ProximitySystem,
 	): void {
-		for (const def of HUB_OBJECTS) {// recorro la tabla central (HUB_OBJECTS)
-			const obj = (entityManager as any)[def.key];// saco el objeto real usando la key (ej: 'townhouse')
+		for (const def of HUB_OBJECTS) {
+			// Iterate through the central table (HUB_OBJECTS)
+			const obj = (entityManager as any)[def.key]; // Get real object using key (e.g., 'townhouse')
 			const proximityRef = def.proximityKey ? (entityManager as any)[def.proximityKey] : undefined;
 			if (!obj)
-				continue; // si no existe → paso (puede que no haya cargado)
-			// ─── CASO CON HOLOGRAMA
+				continue; // If doesn't exist → skip (may not have loaded yet)
+			// ─── CASE WITH HOLOGRAM
 			if (def.hologram) {
 				const { label, color, position } = def.hologram;
 				const hologram = new SkyTextHologram(scene, label, color, position);
-				this.holograms.set(label, hologram); // lo guardo pa poder limpiarlo luego
-				proximitySystem.registerObject(// registro el objeto en proximidad
+				this.holograms.set(label, hologram); // Store for later cleanup
+				proximitySystem.registerObject(
+					// Register object in proximity
 					obj,
 					def.activeDistance,
 					def.glowConfig,
-					() => hologram.show(), // cuando entro → aparece texto
-					() => hologram.hide(), // cuando salgo → desaparece
+					() => hologram.show(), // On entry → text appears
+					() => hologram.hide(), // On exit → text disappears
 					proximityRef,
 				);
-				// CLAVE: aqui conecto logica → visual proximity detecta → hologram reacciona
+				// KEY: Logic → Visual connection
+				// Proximity detects → Hologram reacts
 			}
-			// ─── CASO SIN HOLOGRAMA 
+			// ─── CASE WITHOUT HOLOGRAM
 			else {
-				// solo aura (sin texto)
+				// Only aura (no text)
 				proximitySystem.registerObject(
 					obj,
 					def.activeDistance,
@@ -57,19 +62,19 @@ export class HologramController {
 					undefined,
 					proximityRef,
 				);
-				// estos objetos solo brillan, no tienen texto
+				// These objects only glow, no text
 			}
 		}
 	}
 
 	dispose(): void {
 		this.holograms.forEach(h => h.cleanUp());
-		// IMPORTANTISIMO: cada holograma tiene meshes → si no libero → memory leak GPU
-		this.holograms.clear();// limpio el mapa (referencias fuera)	
+		// CRITICAL: Each hologram has meshes → if not freed → GPU memory leak
+		this.holograms.clear(); // Clear map references
 	}
 }
 
-// ===== MINI DICCIONARIO =====
-// map -> estructura key → value (rapido pa buscar)
-// callback -> funcion que se ejecuta cuando pasa algo
-// rootMesh -> mesh principal del objeto
+// ===== MINI DICTIONARY =====
+// map → key → value structure (fast lookup)
+// callback → function executed when something happens
+// rootMesh → main mesh of the object

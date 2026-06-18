@@ -60,10 +60,8 @@ function Login() {
 				navigate('/profile');
 			}
 		}
-
 		checkSession();
-	}, []);
-	// The empty [] means "run only once when the component mounts"
+	}, [navigate]);
 
 	// ========================================================================
 	// FUNCTION: DO LOGIN

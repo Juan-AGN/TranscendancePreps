@@ -1,8 +1,10 @@
-// HIGHLIGHT EFFECT -- gestor del aura/brillo (Glow) de objetos 3D
-// este archivo SOLO se encarga de como se ve el glow (render), no de cuando se activa
-// separo esto porque:
-// - los objetos no deben saber nada de shaders/efectos
-// - si cambio el sistema de glow → solo toco aqui (clean architecture)
+// ┌────────────────────────────────────────────────────────────┐
+// │            HighlightEffect.ts                              │
+// ├────────────────────────────────────────────────────────────┤
+// │ Manages glow/aura visual effects for 3D objects.           │
+// │ Handles rendering only, not activation logic.             │
+// │ Supports pulsing animations and debug modes.              │
+// └────────────────────────────────────────────────────────────┘
 
 import { Scene, HighlightLayer, Mesh } from '@babylonjs/core';
 import { DEFAULT_HIGHLIGHT, type GlowEffectConfig } from '../config/HighlightConfig';
@@ -11,30 +13,29 @@ export { DEFAULT_HIGHLIGHT, GOLD_HIGHLIGHT, GREEN_HIGHLIGHT } from '../config/Hi
 
 export class GlowEffectManager {
 
-	private GlowLayer: HighlightLayer; 
-	// HighlightLayer = sistema interno de Babylon que dibuja glow sobre meshes
+	private GlowLayer: HighlightLayer;
+	// HighlightLayer = Babylon's internal system for rendering glow on meshes
 
 	constructor(scene: Scene) {
-
-		// creo la capa de glow
+		// Create the glow layer
 		this.GlowLayer = new HighlightLayer('highlightLayer', scene, {
-
 			mainTextureRatio: 0.5,
-			// resolucion interna del efecto
-			// 1 = calidad alta (mas caro)  0.5 = mas blur + mejor rendimiento (lo prefiero pa glow)
+			// Internal resolution of the effect
+			// 1 = high quality (expensive) 0.5 = more blur + better performance (preferred for glow)
 			blurHorizontalSize: 3.0,
-			blurVerticalSize: 3.0, // tamaño base del blur (lo gordo del aura)
+			blurVerticalSize: 3.0, // Base blur size (controls glow thickness)
 			alphaBlendingMode: 2,
-			// modo aditivo: los colores se suman → mas brillo tipo neon sin esto → glow apagado
+			// Additive mode: colors are summed → more neon brightness
+			// Without this → glow looks dull
 		});
 
-		// activo glow interior y exterior
+		// Enable both inner and outer glow
 		this.GlowLayer.innerGlow = true;
 		this.GlowLayer.outerGlow = true;
-		// sin esto → solo tendria glow parcial (cutre)
+		// Without this → only partial glow (cheap looking)
 	}
 
-	// ─── ACTIVAR GLOW 
+	// ─── ENABLE GLOW
 
 	public enableGlow(
 		meshes: Mesh[],
@@ -42,64 +43,63 @@ export class GlowEffectManager {
 	): void {
 
 		if (meshes.length === 0)
-			return; // no hay nada → no hago nada
+			return; // Nothing to do
 
-		// addMesh aplica glow a cada mesh
+		// addMesh applies glow to each mesh
 		meshes.forEach(mesh =>
 			this.GlowLayer.addMesh(mesh, glowConfig.color, false)
 		);
 
-		// IMPORTANTE: false = ignora emissive del material original  → glow SIEMPRE visible
-		// si fuera true → dependeria del material (puede fallar)
+		// IMPORTANT: false = ignores original material's emissive
+		// → glow ALWAYS visible
+		// If true → would depend on material (can fail)
 	}
 
-	// ─── DESACTIVAR GLOW 
+	// ─── DISABLE GLOW
 	public disableGlow(meshes: Mesh[]): void {
-
 		meshes.forEach(mesh =>
 			this.GlowLayer.removeMesh(mesh)
 		);
-		// limpio glow del meshsi no hago esto → se queda brillando para siempre
+		// Clean glow from meshes
+		// If not done → they keep glowing forever
 	}
 
-	// ─── ANIMACION DEL PULSO 
+	// ─── PULSE ANIMATION
 	public updatePulse(config: GlowEffectConfig = DEFAULT_HIGHLIGHT): void {
-
-		// Date.now() → tiempo actual en ms
-		// lo multiplico por speed → controlo velocidad del pulso
+		// Date.now() → current time in milliseconds
+		// Multiply by speed → controls pulse speed
 		const animatedTime = Date.now() * config.animationSpeed;
-		const middleValue = (config.maxBlurSize + config.minBlurSize) / 2;// saco el rango medio del blur
-		const amplitude = (config.maxBlurSize - config.minBlurSize) / 2;// saco amplitud (cuanto oscila)
-		const currentBlur = middleValue + Math.sin(animatedTime) * amplitude;// uso sin() pa hacer un ciclo suave (-1 → 1)
+		const middleValue = (config.maxBlurSize + config.minBlurSize) / 2; // Get middle of blur range
+		const amplitude = (config.maxBlurSize - config.minBlurSize) / 2; // Get amplitude (oscillation amount)
+		const currentBlur = middleValue + Math.sin(animatedTime) * amplitude; // Use sin() for smooth cycle (-1 → 1)
 
-		// aplico el blur animado
+		// Apply animated blur
 		this.GlowLayer.blurHorizontalSize = currentBlur;
 		this.GlowLayer.blurVerticalSize = currentBlur;
-		// RESULTADO:
-		// el glow "respira" (se expande y contrae)
-		// sin esto → glow estatico (menos vida)
+		// RESULT:
+		// The glow "breathes" (expands and contracts)
+		// Without this → static glow (less lively)
 	}
 
 	public getGlowLayer(): HighlightLayer {
-		return this.GlowLayer; // acceso directo por si quiero tocar cosas avanzadas
+		return this.GlowLayer; // Direct access in case advanced tweaking is needed
 	}
 
 	public cleanUp(): void {
-
 		this.GlowLayer.dispose();
-		// IMPORTANTISIMO:
-		// libero recursos GPU si no → memory leaks + bajada de rendimiento con el tiempo
+		// CRITICAL:
+		// Free GPU resources or risk memory leaks + performance degradation over time
 	}
 }
 
-// ===== MINI DICCIONARIO =====
-// highlightLayer -> sistema de Babylon pa glow
-// glow -> brillo/aura alrededor del objeto
-// blur -> difuminado del glow
-// emissive -> color que emite luz
-// additive -> mezcla sumando luz (mas brillo)
-// pulse -> animacion de latido (expandir/contraer)
-// sin() -> funcion que oscila (ideal pa animaciones)
-// dispose -> liberar memoria GPU
-// render -> dibujar en pantalla
-// shader -> logica grafica (nivel bajo)
+// ===== MINI DICTIONARY =====
+// highlightLayer → Babylon's glow system
+// glow → brightness/aura around object
+// blur → glow diffusion
+// emissive → self-emitting color
+// additive → blending by adding light (more brightness)
+// pulse → breathing animation (expand/contract)
+// sin() → oscillating function (ideal for animations)
+// dispose → free GPU memory
+// render → draw on screen
+// shader → graphics logic (low level)
