@@ -259,7 +259,7 @@ function Login() {
 
                     <div className="px-[clamp(1rem,3vw,2rem)] py-[clamp(0.75rem,2.5vh,1.5rem)]">
                         {activeTab === 'login' && (
-                            <div>
+                            <form onSubmit={e => { e.preventDefault(); doLogin(); }}>
                                 {loginAlert && (
                                     <div className={`mb-5 rounded-xl border px-4 py-3 text-sm ${loginAlert.tipo === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
                                         {loginAlert.tipo === 'success' ? '✅ ' : '❌ '}
@@ -300,11 +300,11 @@ function Login() {
                                         <IntroButtons label="Login 42" />
                                     </a>
                                 </div>
-                            </div>
+                            </form>
                         )}
 
                         {activeTab === 'register' && (
-                            <div>
+                            <form onSubmit={e => { e.preventDefault(); doRegister(); }}>
                                 {registerAlert && (
                                     <div className={`mb-5 rounded-xl border px-4 py-3 text-sm ${registerAlert.tipo === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
                                         {registerAlert.tipo === 'success' ? '✅ ' : '❌ '}
@@ -350,7 +350,7 @@ function Login() {
                                 <div className="mt-[clamp(1.6rem,2vh,1.5rem)] flex flex-wrap items-center justify-center gap-[clamp(0.4rem,1.5vw,1rem)]">
                                     <IntroButtons label="Create Account" onCLick={doRegister} />
                                 </div>
-                            </div>
+                            </form>
                         )}
                     </div>    
                 </div>
