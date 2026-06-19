@@ -536,7 +536,7 @@ function Profile() {
             {modalOpen && (
                 // Clicking the dark backdrop closes the modal
                 <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm" onClick={e => e.target === e.currentTarget && setModalOpen(false)}>
-                    <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-yellow-500/45 bg-white/90 p-6 shadow-[0_20px_60px_rgba(90,60,20,0.28)] md:p-8">
+                    <form onSubmit={e => { e.preventDefault(); saveChanges(); }} className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-yellow-500/45 bg-white/90 p-6 shadow-[0_20px_60px_rgba(90,60,20,0.28)] md:p-8">
                         <h2 className="mb-6 text-2xl font-bold text-yellow-900">✏️ Edit Profile</h2>
 
                         <div className="mb-4">
@@ -568,6 +568,7 @@ function Profile() {
                                 className="w-full rounded-xl border border-yellow-500/35 bg-white/85 px-4 py-3 text-yellow-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
                                 placeholder="Leave blank to keep unchanged"
                                 maxLength={64}
+                                autoComplete="new-password"
                                 value={editPassword}
                                 onChange={e => setEditPassword(e.target.value)}
                             />
@@ -587,7 +588,7 @@ function Profile() {
                                 Save Changes
                             </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             )}
         </div>

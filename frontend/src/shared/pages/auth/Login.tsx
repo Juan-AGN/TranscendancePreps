@@ -287,6 +287,7 @@ function Login() {
                                         className={inputClass}
                                         placeholder="Your password"
                                         maxLength={64}
+                                        autoComplete="current-password"
                                         value={loginPassword}
                                         onChange={e => setLoginPassword(e.target.value)}
                                         onKeyDown={e => e.key === 'Enter' && doLogin()}
@@ -343,6 +344,7 @@ function Login() {
                                         className={inputClass}
                                         placeholder="Minimum 8 characters"
                                         maxLength={64}
+                                        autoComplete="new-password"
                                         value={registerPassword}
                                         onChange={e => setRegisterPassword(e.target.value)}
                                     />
