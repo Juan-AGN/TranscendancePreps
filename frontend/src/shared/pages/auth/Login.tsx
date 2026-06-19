@@ -248,9 +248,9 @@ function Login() {
 						</button>
 					</div>
 
-                    <div className="px-[clamp(1rem,3vw,2rem)] py-[clamp(0.75rem,2.5vh,1.5rem)]">
-                        {activeTab === 'login' && (
-                            <form onSubmit={e => { e.preventDefault(); doLogin(); }}>
+					<div className="px-[clamp(1rem,3vw,2rem)] py-[clamp(0.75rem,2.5vh,1.5rem)]">
+						{activeTab === 'login' && (
+							<form onSubmit={e => { e.preventDefault(); doLogin(); }}>
 								{loginAlert && (
 									<div className={`mb-5 rounded-xl border px-4 py-3 text-sm ${loginAlert.tipo === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
 										{loginAlert.tipo === 'success' ? '✅ ' : '❌ '}
@@ -288,24 +288,26 @@ function Login() {
 									/>
 								</div>
 
-                                <div className="mt-[clamp(2.6rem,2vh,1.5rem)] flex flex-wrap items-center justify-center gap-[clamp(0.4rem,1.5vw,1rem)]">
-                                    <IntroButtons label={t('auth.login.buttons.signIn')} onClick={doLogin} />
-                                    <span className="text-xs text-slate-400">{t('auth.login.separatorOr')}</span>
-									<a href={`${API_URL}/auth/42`} className="block no-underline">
-										<IntroButtons label={t('auth.login.buttons.login42')} />
-									</a>
-                                </div>
-                            </form>
-                        )}
+								<div className="mt-[clamp(2.6rem,2vh,1.5rem)] flex flex-wrap items-center justify-center gap-[clamp(0.4rem,1.5vw,1rem)]">
+									<IntroButtons label={t('auth.login.buttons.signIn')} onClick={doLogin} />
+									<span className="text-xs text-slate-400">{t('auth.login.separatorOr')}</span>
+									<IntroButtons
+										label={t('auth.login.buttons.login42')}
+										onClick={() => {
+											window.location.href = `${API_URL}/auth/42`;
+										}}/>
+								</div>
+							</form>
+						)}
 
-                        {activeTab === 'register' && (
-                            <form onSubmit={e => { e.preventDefault(); doRegister(); }}>
-                                {registerAlert && (
-                                    <div className={`mb-5 rounded-xl border px-4 py-3 text-sm ${registerAlert.tipo === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
-                                        {registerAlert.tipo === 'success' ? '✅ ' : '❌ '}
-                                        {registerAlert.message}
-                                    </div>
-                                )}
+						{activeTab === 'register' && (
+							<form onSubmit={e => { e.preventDefault(); doRegister(); }}>
+								{registerAlert && (
+									<div className={`mb-5 rounded-xl border px-4 py-3 text-sm ${registerAlert.tipo === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
+										{registerAlert.tipo === 'success' ? '✅ ' : '❌ '}
+										{registerAlert.message}
+									</div>
+								)}
 
 								<div className="mx-auto max-w-sm w-full mb-[clamp(0.5rem,2vh,1rem)] ">
 									<label htmlFor="register-name" className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.name')}</label>
@@ -335,8 +337,8 @@ function Login() {
 									/>
 								</div>
 
-                                <div className="mx-auto max-w-sm w-full mb-[clamp(0.5rem,2vh,1rem)]">
-                                    <label htmlFor="register-password" className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.password')}</label>
+								<div className="mx-auto max-w-sm w-full mb-[clamp(0.5rem,2vh,1rem)]">
+									<label htmlFor="register-password" className="mb-[clamp(0.25rem,0.8vh,0.5rem)] block text-[clamp(0.7rem,1.5vw,0.875rem)] font-semibold text-slate-700">{t('auth.login.fields.password')}</label>
 									<input
 										id="register-password"
 										name="registerPassword"
@@ -351,12 +353,12 @@ function Login() {
 								<div className="mt-[clamp(1.6rem,2vh,1.5rem)] flex flex-wrap items-center justify-center gap-[clamp(0.4rem,1.5vw,1rem)]">
 									<IntroButtons label={t('auth.login.buttons.createAccount')} onClick={doRegister} />
 								</div>
-                            </form>
-                        )}
-                    </div>    
-                </div>
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 z-20">
+							</form>
+						)}
+					</div>
+				</div>
+			</div>
+			<div className="absolute bottom-0 left-0 right-0 z-20">
 				<Footer />
 			</div>
 		</div>

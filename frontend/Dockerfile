@@ -18,6 +18,7 @@ COPY . .
  
 # Build the React.js application (outputs to /app/dist)
 RUN npm install && npx vite build
+#RUN npm run build
  
  
 # =========================================

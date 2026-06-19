@@ -11,7 +11,8 @@ type IntroButtonsProps = {
 // ════════ COMPONENT: IntroButtons: Render a styled intro action button. ════════
 export function IntroButtons({ label, onClick }: IntroButtonsProps) {
 	return (
-		<button onClick={onClick}
+		<button type="button" 
+			onClick={onClick}
 			className=" group relative overflow-hidden whitespace-nowrap text-[#9b7431] text-[clamp(0.72rem,0.9vw,0.95rem)]
 				px-[clamp(1.1rem,4vw,5rem)] py-[clamp(0.55rem,1.2vw,1rem)] rounded-full font-medium
 				border-2 border-[#c9952f] bg-white/[0.78] backdrop-blur-xl tracking-[0.15em] uppercase

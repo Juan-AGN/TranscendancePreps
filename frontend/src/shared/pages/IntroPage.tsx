@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { IntroButtons } from "../components/Buttons/IntroButtons";
+import { API_URL } from "./auth/config";
 
 // STEP 1: Define splash animation timings.
 const LOGO_DELAY_MS = 200;
@@ -59,7 +60,7 @@ export function SplashScreen() {
 				<div className={`w-full flex flex-wrap items-center justify-center py-[clamp(1rem,3.6vh,2.5rem)] gap-[clamp(0.6rem,1.8vw,2rem)] transition-all duration-2700 ease-out
 						${showButtons ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
 							<IntroButtons label={t('splash.guest')} onClick={() => navigate("start")} />
-							<IntroButtons label={t('splash.login42')} onClick={() => navigate("Login42")} />
+							<IntroButtons label={t('splash.login42')} onClick={() => { window.location.href = `${API_URL}/auth/42`;}}/>
 							<IntroButtons label={t('splash.login')} onClick={() => navigate("login")} />
 				</div>
 				<p className={`text-center text-yellow-600 text-[clamp(0.62rem,1.05vw,1rem)] py-[clamp(0.4rem,2vh,1.8rem)] tracking-[0.14em] uppercase font-light px-3

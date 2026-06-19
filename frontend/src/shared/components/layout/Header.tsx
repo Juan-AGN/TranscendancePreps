@@ -95,21 +95,21 @@ export function Header() {
 			className="relative z-30"
 			onMouseEnter={() => {
 				if (!isTouchDevice)
-					setOpenSubmenu(id)
+					setOpenSubmenu(id);
 			}}
 			onMouseLeave={() => {
 				if (!isTouchDevice)
-					setOpenSubmenu(null)
+					setOpenSubmenu(null);
 			}} >
 			<button
 				type="button"
 				onFocus={() => {
 					if (!isTouchDevice)
-						setOpenSubmenu(id)
+						setOpenSubmenu(id);
 				}}
 				onClick={() => {
 					if (isTouchDevice)
-						toggleSubmenu(id)
+						toggleSubmenu(id);
 				}}
 				className={`flex items-center gap-1  ${linkClass}`}
 				aria-expanded={openSubmenu === id} >

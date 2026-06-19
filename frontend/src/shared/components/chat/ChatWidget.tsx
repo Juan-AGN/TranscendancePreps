@@ -115,7 +115,7 @@ export function ChatWidget() {
 	const [loadingFriends, setLoadingFriends] = useState(false);
 	const [loadingPending, setLoadingPending] = useState(false);
 
-	// Permite abrir el chat desde cualquier parte (ej: objeto interactivo del hub)
+	
 	useEffect(() => {
 		const openFromHub = () => setOpen(true);
 		window.addEventListener("chat:open", openFromHub as EventListener);

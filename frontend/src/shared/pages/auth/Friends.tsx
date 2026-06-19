@@ -253,7 +253,7 @@ function Friends() {
 	// ========================================================================
 	return (
 		<div className="relative min-h-screen bg-cover bg-center bg-no-repeat px-4 pb-6 pt-32"
-			style={{ backgroundImage: "url('bgFriends.png')" }}>
+			style={{ backgroundImage: "url('/images/bgFriends.png')" }}>
 			<div className="hidden dark:block absolute inset-0 bg-black/70 pointer-events-none" />
 
 			<div className="relative z-10 mx-auto max-w-6xl min-h-[65vh] overflow-hidden rounded-3xl border border-yellow-500/45 bg-white/[0.07] backdrop-blur-[55px]
