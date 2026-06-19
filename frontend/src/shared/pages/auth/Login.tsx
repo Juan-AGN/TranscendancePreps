@@ -280,6 +280,7 @@ function Login() {
 										name="loginPassword"
 										type="password"
 										className={inputClass}
+										autoComplete="current-password"
 										placeholder={t('auth.login.placeholders.loginPassword')}
 										maxLength={64}
 										value={loginPassword}
@@ -346,6 +347,7 @@ function Login() {
 										className={inputClass}
 										placeholder={t('auth.login.placeholders.registerPassword')}
 										maxLength={64}
+										autoComplete="new-password"
 										value={registerPassword}
 										onChange={e => setRegisterPassword(e.target.value)}
 									/>
