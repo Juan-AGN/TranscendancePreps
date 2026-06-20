@@ -109,7 +109,6 @@ function Login() {
 			}
 
 		} catch (error) {
-			console.error('Network error:', error);
 			setLoginAlert({ message: t('auth.login.alerts.login.serverUnavailable'), tipo: 'error' });
 		}
 	}
@@ -189,7 +188,6 @@ function Login() {
 			}
 
 		} catch (error) {
-			console.error('Network error:', error);
 			setRegisterAlert({ message: t('auth.login.alerts.register.serverUnavailable'), tipo: 'error' });
 		}
 	}

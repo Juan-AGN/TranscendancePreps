@@ -101,7 +101,7 @@ function Friends() {
 			setFriendsList(data.friends || []);
 
 		} catch (error) {
-			console.error('Error loading friends:', error);
+			alert('Error loading friends');
 		}
 	}
 
@@ -117,7 +117,7 @@ function Friends() {
 			setRequestsList(data.requests || []);
 
 		} catch (error) {
-			console.error('Error loading requests:', error);
+			alert('Error loading requests');
 		}
 	}
 
@@ -143,7 +143,7 @@ function Friends() {
 			setSearchResults(results);
 
 		} catch (error) {
-			console.error('Error searching:', error);
+			alert('Error searching users');
 		}
 	}
 
@@ -165,7 +165,6 @@ function Friends() {
 			}
 
 		} catch (error) {
-			console.error('Error:', error);
 			alert(t('friendsPage.alerts.errorSendingRequest'));
 		}
 	}
@@ -191,7 +190,6 @@ function Friends() {
 			}
 
 		} catch (error) {
-			console.error('Error:', error);
 			alert(t('friendsPage.alerts.errorAcceptingRequest'));
 		}
 	}
@@ -217,7 +215,6 @@ function Friends() {
 			}
 
 		} catch (error) {
-			console.error('Error:', error);
 			alert(t('friendsPage.alerts.errorRejectingRequest'));
 		}
 	}
@@ -243,7 +240,6 @@ function Friends() {
 			}
 
 		} catch (error) {
-			console.error('Error:', error);
 			alert(t('friendsPage.alerts.errorRemovingFriend'));
 		}
 	}

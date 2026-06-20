@@ -119,7 +119,6 @@ function Profile() {
             setUser(data);  // before: document.getElementById('profileName').textContent = ...
 
         } catch (error) {
-            console.error('Error:', error);
             showNotification(t('profilePage.alerts.errorLoadingProfile'), 'error');
         }
     }
@@ -143,7 +142,7 @@ function Profile() {
             setFriends(data.friends || []);
 
         } catch (error) {
-            console.error('Error:', error);
+            showNotification('Error loading friends', 'error');
         }
     }
 
@@ -178,7 +177,6 @@ function Profile() {
             );
 
         } catch (error) {
-            console.error('Error:', error);
             showNotification(t('profilePage.alerts.errorChangingStatus'), 'error');
         }
     }
@@ -251,7 +249,6 @@ function Profile() {
             showNotification(t('profilePage.alerts.profileUpdated'), 'success');
 
         } catch (error) {
-            console.error('Error:', error);
             showNotification(t('profilePage.alerts.errorUpdatingProfile'), 'error');
         }
     }
@@ -304,7 +301,6 @@ function Profile() {
             showNotification(t('profilePage.alerts.avatarUpdated'), 'success');
 
         } catch (error) {
-            console.error('Error:', error);
             showNotification(t('profilePage.alerts.errorUploadingAvatar'), 'error');
         }
     }
@@ -328,7 +324,6 @@ function Profile() {
                 });
             }
         } catch (error) {
-            console.error('Error changing status:', error);
         }
 
         // Clear localStorage and redirect to login
