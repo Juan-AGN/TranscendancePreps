@@ -584,12 +584,14 @@ function Profile() {
 
                         <div className="mt-6 flex gap-3">
                             <button
+                                type="button"
                                 className="flex-1 rounded-xl bg-rose-500 px-4 py-3 font-semibold text-white transition hover:bg-rose-600"
                                 onClick={() => setModalOpen(false)}
                             >
                                 {t('profilePage.edit.cancel')}
                             </button>
                             <button
+                                type="submit"
                                 className="flex-1 rounded-xl bg-emerald-500 px-4 py-3 font-semibold text-white transition hover:bg-emerald-600"
                                 onClick={saveChanges}
                             >
