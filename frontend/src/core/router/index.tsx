@@ -159,6 +159,10 @@ const routes: RouteObject[] = [
 				element: <Login />,
 			},
 			{
+				path: 'Login42',
+				element: <Login />,
+			},
+			{
 				path: 'profile',
 				element: <Profile />,
 			},
