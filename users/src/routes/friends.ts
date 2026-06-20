@@ -394,6 +394,12 @@ export async function friendsRoutes(server: FastifyInstance) {
                 error: 'Search must be at least 2 characters long'
             });
         }
+
+        if (query.length > 50) {
+            return reply.status(400).send({
+                error: 'Search query cannot exceed 50 characters'
+            });
+        }
         
         // Search users by name or email
         const foundUsers = await prismaClient.user.findMany({

@@ -374,6 +374,7 @@ function Friends() {
 							<input
 								type="text"
 								placeholder={t('friendsPage.search.placeholder')}
+								maxLength={50}
 								value={searchInput}
 								onChange={e => setSearchInput(e.target.value)}
 								onKeyDown={e => e.key === 'Enter' && searchUsers()}
