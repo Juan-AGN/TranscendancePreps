@@ -263,6 +263,25 @@ function Profile() {
         const file = event.target.files?.[0];
         if (!file || !user) return;
 
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            showNotification('Only JPEG, PNG, GIF or WEBP images are allowed', 'error');
+            return;
+        }
+
+        // Validate file size: min 1KB, max 2MB
+        const minSize = 1024;
+        const maxSize = 2 * 1024 * 1024;
+        if (file.size < minSize) {
+            showNotification('Image must be at least 1KB', 'error');
+            return;
+        }
+        if (file.size > maxSize) {
+            showNotification('Image cannot exceed 2MB', 'error');
+            return;
+        }
+
         const token = localStorage.getItem('token');
 
         try {
