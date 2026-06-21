@@ -4,6 +4,7 @@ export function clearSession() {
 	localStorage.removeItem('token');
 	localStorage.removeItem('userId');
 	localStorage.removeItem('userName');
+	window.dispatchEvent(new Event('auth:changed'));
 }
 
 export async function validateSession(): Promise<boolean> {

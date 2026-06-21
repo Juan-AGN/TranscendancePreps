@@ -96,6 +96,7 @@ function Login() {
 				localStorage.setItem('token', data.token);
 				localStorage.setItem('userId', data.user.id);
 				localStorage.setItem('userName', data.user.name);
+				window.dispatchEvent(new Event('auth:changed'));
 
 				setLoginAlert({ message: t('auth.login.alerts.login.successRedirect'), tipo: 'success' });
 

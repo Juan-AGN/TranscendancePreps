@@ -1,12 +1,10 @@
 services:
   web:
     image: nginx
-    #image: transcendence-nginx-local
     build:
       context: ./nginx
     ports:
-      -  "8889:443"
-    #command: [nginx-debug, '-g', 'daemon off;']
+      - "8889:443"
     networks:
       - transcendence_nginx_network
 
@@ -26,10 +24,7 @@ services:
     networks:
       - transcendence_nginx_network
 
-  # start of auth containers
-  # ==========================================================================
-  # CONTAINER 1: DATABASE (PostgreSQL)
-  # ==========================================================================
+  # Users/Auth database
   db:
     image: postgres:16-alpine
     container_name: transcendence_db
@@ -48,9 +43,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ==========================================================================
-  # CONTAINER 2: BACKEND (Fastify + Prisma + TypeScript)
-  # ==========================================================================
+  # Users/Auth backend
   backend:
     build:
       context: ./users/
@@ -67,30 +60,53 @@ services:
       FORTY_TWO_REDIRECT_URI: ${FORTY_TWO_REDIRECT_URI}
       FRONTEND_URL: ${FRONTEND_URL}
     volumes:
-      # Only persist avatars and prisma, do not overwrite dist/
       - avatars_data:/app/public/avatars
-
     depends_on:
       db:
         condition: service_healthy
     networks:
       - transcendence_network
       - transcendence_nginx_network
-  # ==========================================================================
-  # CONTAINER 3: SOCIAL CHAT (Express + Prisma + TypeScript)
-  # ==========================================================================
+
+  # Dedicated chat database. It is independent from the Users/Auth database.
+  chat-db:
+    image: postgres:16-alpine
+    container_name: transcendence_chat_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${CHAT_POSTGRES_USER:-chat_user}
+      POSTGRES_PASSWORD: ${CHAT_POSTGRES_PASSWORD:-chat_password}
+      POSTGRES_DB: ${CHAT_POSTGRES_DB:-chat_db}
+    volumes:
+      - chat_postgres_data:/var/lib/postgresql/data
+    networks:
+      - transcendence_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Social chat backend
   social-chat-back:
     container_name: social-chat-back
     build:
       context: ./social-chat/back
+    restart: always
     environment:
       PORT: 8890
-      DATABASE_URL: ${CHAT_DATABASE_URL}
+      DATABASE_URL: "postgresql://${CHAT_POSTGRES_USER:-chat_user}:${CHAT_POSTGRES_PASSWORD:-chat_password}@chat-db:5432/${CHAT_POSTGRES_DB:-chat_db}?schema=public"
       JWT_SECRET: ${JWT_SECRET}
       USERS_INTERNAL_URL: http://backend:3000
     depends_on:
-      db:
+      chat-db:
         condition: service_healthy
+      backend:
+        condition: service_started
     networks:
       - transcendence_network
       - transcendence_nginx_network
@@ -108,5 +124,7 @@ networks:
 volumes:
   postgres_data:
     driver: local
+  chat_postgres_data:
+    driver: local
   avatars_data:
-      driver: local
+    driver: local
