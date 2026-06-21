@@ -1,511 +1,540 @@
 {
-	"header": {
-		"home": "Home",
-		"world3d": "3D World",
-		"arcade": "Arcade",
-		"game": "Game",
-		"quickPlay": "Quick Play",
-		"about": "Tech & Project",
-		"info": "Info",
-		"creators": "Creators",
-		"settings": "Settings",
-		"login": "Login",
-		"profile": "Profile",
-		"logout": "Logout",
-		"languageSwitch": "Change language",
-		"languageChangeTo": "Change language to {{language}}",
-		"openMenu": "Open menu",
-		"closeMenu": "Close menu"
-	},
-	"footer": {
-		"brand": "TRANSCENDENCE",
-		"project": "Students Project ",
-		"privacy": "Privacy Policy",
-		"terms": "Terms of Service",
-		"copyright": "© 2026 Transcendence"
-	},
-	"startGate": {
-		"title": "PROJECT 42",
-		"subtitle": "Enter a new Pong experience",
-		"enter3d": "Explore 3D World",
-		"arcade": "Arcade",
-		"tech": "Tech Info",
-		"creators": "Creators",
-		"onlineGame": "Online Game"
-	},
-	"splash": {
-		"tagline": "3D HUB · ARCADE PONG · REALTIME BATTLES · 42 PROJECT",
-		"version": "v1.0 - · - realtime pong experience - · - 42 malaga",
-		"guest": "Guest",
-		"login42": "42 Login",
-		"login": "Login"
-	},
-	"auth": {
-		"login": {
-			"title": "Identity Verification",
-			"tabs": {
-				"signIn": "Sign In",
-				"signUp": "Sign Up"
-			},
-			"fields": {
-				"name": "Name",
-				"email": "Email",
-				"password": "Password"
-			},
-			"placeholders": {
-				"loginEmail": "your@email.com",
-				"loginPassword": "Your password",
-				"registerName": "Your full name",
-				"registerPassword": "Minimum 6 characters"
-			},
-			"buttons": {
-				"signIn": "Sign In",
-				"login42": "Login 42",
-				"createAccount": "Create Account"
-			},
-			"separatorOr": "- or -",
-			"alerts": {
-				"login": {
-					"fillCredentials": "Please fill in the email and password",
-					"successRedirect": "Login successful! Redirecting...",
-					"invalidCredentials": "Incorrect email or password",
-					"serverUnavailable": "Cannot connect to the server"
-				},
-				"register": {
-					"fillAll": "Please fill in all fields",
-					"emailInvalid": "The email format is not valid",
-					"passwordMinLength": "The password must be at least 8 characters long",
-					"successCreated": "Account created! You can now sign in",
-					"errorCreate": "Error creating the account",
-					"serverUnavailable": "Cannot connect to the server"
-				}
-			}
-		}
-	},
-	"sections": {
-		"3d": {
-			"explore": "Explore"
-		},
-		"arcade": {
-			"welcome": "Welcome to Retro Arcade Pong",
-			"simple": "Our game is simple & easy...",
-			"challenge": "but the challenge is elite!",
-			"skills": "speed, precision, focus,",
-			"noMistakes": "and no room for mistakes.",
-			"ready": "Are you ready?",
-			"enterBtn": "Arcade Arena"
-		},
-		"tech": {
-			"title": "Tech & Project",
-			"subtitle": "About the project",
-			"desc1": "Transcendence is a modern reinterpretation of the classic Pong experience, combining competitive gameplay, a retro arcade spirit, and an immersive 3D hub. The project mixes frontend, backend, real-time interaction and visual design to create a complete digital experience where users can explore, play, compete and connect inside the same platform.",
-			"desc2": "The goal was not only to build a game, but to create a full universe around it: a navigable 3D environment, a polished interface, structured backend logic, auth system, game modes, and a visual identity inspired by futuristic arcade culture."
-		},
-		"creators": {
-			"technicalLead": "Technical Lead",
-			"projectManager": "Project Manager",
-			"backendDev": "Backend Developer",
-			"productOwner": "Product Owner"
-		}
-	},
-	"privacy": {
-		"title": "Privacy Policy",
-		"updated": "May 2026",
-		"s1Title": "1. Who We Are",
-		"s1Text": "Transcendence is a final project developed by four students at 42 Málaga. It includes a 3D hub, a competitive Pong game and user accounts. This is an academic project, not a commercial product.",
-		"s2Title": "2. Data We Collect",
-		"s2Text": "We store your username, email address, hashed password, game statistics and a session token. No payment or location data is collected.",
-		"s3Title": "3. How We Use It",
-		"s3Text": "Solely to run the application — authentication, profiles and game features. We do not share or sell your data with anyone.",
-		"s4Title": "4. Cookies",
-		"s4Text": "We use a single session cookie to keep you logged in. No tracking or advertising cookies. Logging out removes it immediately.",
-		"s5Title": "5. Security",
-		"s5Text": "Passwords are hashed with bcrypt and the application runs in an isolated Docker environment. This is a student project — avoid reusing passwords from other services.",
-		"s6Title": "6. Third-party Login",
-		"s6Text": "You can log in using your 42 account via OAuth. In that case, we only receive your 42 username and ID. We do not have access to your 42 password or any other data from their platform.",
-		"s7Title": "7. Account Deletion",
-		"s7Text": "You can delete your account at any time from the settings page. All associated data will be permanently removed.",
-		"s8Title": "8. Who Can Use This",
-		"s8Text": "This application is intended for 42 Málaga students and evaluators. Access outside that context is not officially supported.",
-		"footer": "Transcendence — 42 Málaga · 2026"
-	},
-	"terms": {
-		"title": "Terms of Service",
-		"updated": "May 2026",
-		"s1Title": "1. About This Project",
-		"s1Text": "Transcendence is an academic project developed by four students at 42 Málaga. By using the platform you accept these terms. This is not a commercial service.",
-		"s2Title": "2. Who Can Use It",
-		"s2Text": "This platform is intended for 42 Málaga students and evaluators. Access outside that context is not officially supported.",
-		"s3Title": "3. Your Account",
-		"s3Text": "You are responsible for your account and credentials. Do not share your password. Any activity under your account is your responsibility.",
-		"s4Title": "4. Acceptable Use",
-		"s4Text": "Do not attempt to exploit the platform, harass other users or use automated tools to interact with the service. Play fair.",
-		"s5Title": "5. Usernames & Content",
-		"s5Text": "Usernames and profile content must not be offensive or discriminatory. We may remove accounts that violate this.",
-		"s6Title": "6. Availability",
-		"s6Text": "This is a student project with no uptime guarantee. The service may go offline or change at any time.",
-		"s7Title": "7. Liability",
-		"s7Text": "Transcendence is an educational project. We are not liable for data loss, service interruptions or any damages arising from its use.",
-		"s8Title": "8. Account Deletion",
-		"s8Text": "You can delete your account at any time from the settings page. Accounts that violate these terms may be removed without notice.",
-		"footer": "Transcendence — 42 Málaga · 2026"
-	},
-	"arcade2d": {
-		"menu": {
-			"title": "ARCADE",
-			"home": "HOME",
-			"game": "GAME",
-			"settings": "SETTINGS",
-			"login": "LOGIN"
-		},
-		"game": {
-			"title": "GAME MODE",
-			"1player": "1 PLAYER LOCAL",
-			"2player": "2 PLAYER LOCAL",
-			"spectator": "SPECTATOR MODE",
-			"back": "← BACK"
-		},
-		"settings": {
-			"title": "SETTINGS",
-			"gameSetting": "GAME SETTINGS",
-			"audio": "AUDIO",
-			"display": "DISPLAY",
-			"back": "← BACK"
-		},
-		"gameSettings": {
-			"title": "GAME SETTINGS",
-			"scorelimit": "SCORE LIMIT",
-			"paddlesize": "PADDLE SIZE",
-			"ballspeed": "BALL SPEED",
-			"back": "← BACK"
-		},
-		"audioSettings": {
-			"title": "AUDIO SETTINGS",
-			"music": "MUSIC",
-			"sfx": "SFX",
-			"back": "← BACK"
-		},
-		"displaySettings": {
-			"title": "DISPLAY SETTINGS",
-			"ballcolor": "BALL COLOR",
-			"paddlecolor": "PADDLE COLOR",
-			"ballsize": "BALL SIZE",
-			"balltrail": "BALL TRAIL",
-			"back": "← BACK",
-			"green": "GREEN",
-			"white": "WHITE",
-			"yellow": "YELLOW",
-			"red": "RED",
-			"cyan": "CYAN"
-		},
-		"common": {
-			"back": "← BACK"
-		},
-		"hud": {
-			"player1": "PLAYER 1",
-			"player2": "PLAYER 2",
-			"computer": "COMPUTER",
-			"spectator1": "SPECTATOR 1",
-			"spectator2": "SPECTATOR 2"
-		},
-		"canvas": {
-			"pressSpaceToStart": "PRESS SPACE TO START",
-			"paused": "PAUSED",
-			"pressSpaceToResume": "Press SPACE to resume",
-			"playerWins": "{{player}} WINS!",
-			"pressRToRestart": "Press R to restart"
-		}
-	},
-	"hubPanelLogin": {
-		"username": "USERNAME",
-		"enterUsername": "Enter username",
-		"password": "PASSWORD",
-		"enterPassword": "Enter password",
-		"logIn": "LOG IN"
-	},
-	"hubPanelSettings": {
-		"playerSpeed": "PLAYER SPEED",
-		"cameraSensitivity": "CAMERA SENSITIVITY",
-		"playerSize": "PLAYER SIZE",
-		"slow": "SLOW",
-		"medium": "MEDIUM",
-		"fast": "FAST",
-		"low": "LOW",
-		"high": "HIGH",
-		"small": "SMALL",
-		"normal": "NORMAL",
-		"big": "BIG"
-	},
-	"remoteGame": {
-		"accountRequired": "This feature requires a user account. Please log in and try again.",
-		"enterLobbyName": "Enter lobby name..."
-	},
-	"friendsPage": {
-		"title": "Friends Management",
-		"avatarAlt": "Avatar",
-		"tabs": {
-			"friends": "Friends",
-			"pendingRequests": "Pending Requests",
-			"searchUsers": "Search Users"
-		},
-		"status": {
-			"online": "🟢 Online",
-			"offline": "⚫ Offline"
-		},
-		"actions": {
-			"remove": "Remove",
-			"accept": "Accept",
-			"reject": "Reject",
-			"addFriend": "Add friend"
-		},
-		"search": {
-			"placeholder": "Search by name or email...",
-			"button": "Search"
-		},
-		"empty": {
-			"noFriends": "You have no friends yet",
-			"searchUsersToAdd": "Search for users to add",
-			"noPendingRequests": "You have no pending requests",
-			"pendingNotified": "You will be notified when you receive one",
-			"noUsersFound": "No users found",
-			"tryDifferentTerm": "Try a different search term"
-		},
-		"alerts": {
-			"typeMin2": "Type at least 2 characters to search",
-			"requestSent": "Request sent successfully",
-			"errorSendingRequest": "Error sending request",
-			"requestAccepted": "Request accepted. You are now friends",
-			"errorAcceptingRequest": "Error accepting request",
-			"requestRejected": "Request rejected",
-			"errorRejectingRequest": "Error rejecting request",
-			"friendRemoved": "Friend removed successfully",
-			"errorRemovingFriend": "Error removing friend"
-		},
-		"confirms": {
-			"rejectRequest": "Are you sure you want to reject this request?",
-			"removeFriend": "Are you sure you want to remove this friend?"
-		}
-	},
-	"profilePage": {
-		"loadingProfile": "Loading profile...",
-		"avatarAlt": "Avatar",
-		"status": {
-			"online": "🟢 Online",
-			"offline": "🔴 Offline"
-		},
-		"actions": {
-			"editProfile": "Edit Profile",
-			"changeAvatar": "Change Avatar",
-			"myFriends": "My Friends",
-			"disconnect": "Disconnect",
-			"connect": "Connect",
-			"logOut": "Log Out"
-		},
-		"overview": {
-			"title": "Profile Overview",
-			"status": "Status",
-			"availableToFriends": "You are available to your friends",
-			"lastConnection": "Last Connection",
-			"memberSince": "Member Since",
-			"olympusCitizen": "Olympus Citizen",
-			"totalFriends": "Total Friends",
-			"buildNetwork": "Build your network"
-		},
-		"friends": {
-			"title": "My Friends",
-			"empty": "You have no friends yet"
-		},
-		"edit": {
-			"title": "Edit Profile",
-			"name": "Name",
-			"email": "Email",
-			"newPasswordOptional": "New Password (optional)",
-			"leaveBlank": "Leave blank to keep unchanged",
-			"cancel": "Cancel",
-			"saveChanges": "Save Changes"
-		},
-		"alerts": {
-			"errorLoadingProfile": "Error loading profile",
-			"onlineNow": "You are now online",
-			"offlineNow": "You are now offline",
-			"errorChangingStatus": "Error changing status",
-			"profileUpdated": "Profile updated successfully",
-			"errorUpdatingProfile": "Error updating profile",
-			"avatarUpdated": "Avatar updated successfully",
-			"errorUploadingAvatar": "Error uploading avatar"
-		}
-	},
-	"chat": {
-		"title": "Chat",
-		"openChat": "Open chat",
-		"close": "Close",
-		"tabs": {
-			"chats": "Chats",
-			"friends": "Friends",
-			"online": "Online",
-			"offline": "Offline"
-		},
-		"selectConversation": "Select a conversation",
-		"searchConversations": "Search conversations...",
-		"createGroup": "Create group",
-		"groupName": "Group name",
-		"createGroupButton": "+ Create group",
-		"noFriendsAvailable": "No friends available",
-		"loading": "Loading...",
-		"noConversationsYet": "No conversations yet",
-		"noMessagesPreview": "(no messages)",
-		"removeConversation": "Remove conversation",
-		"pendingRequests": "Pending requests",
-		"loadingPending": "Loading pending...",
-		"noPendingRequests": "No pending requests",
-		"accept": "Accept",
-		"reject": "Reject",
-		"friendsOnline": "Friends Online",
-		"loadingFriends": "Loading friends...",
-		"noFriendsOnline": "No friends online",
-		"friendsOffline": "Friends Offline",
-		"noFriendsOffline": "No friends offline",
-		"loadingOnlineUsers": "Loading online users...",
-		"noOneOnline": "No one online",
-		"requestSent": "Request sent",
-		"sendFriendRequest": "Send friend request",
-		"requested": "Requested",
-		"add": "Add",
-		"loadingOfflineUsers": "Loading offline users...",
-		"noOfflineUsers": "No offline users",
-		"loadingMessages": "Loading messages...",
-		"noMessagesYet": "No messages yet",
-		"typeMessage": "Type a message..."
-	},
-	"lobbies": {
-		"player": "Player",
-		"lobbyNeeded": "Lobby needed",
-		"lastGameResults": "Last Game Results",
-		"lobby": "Lobby",
-		"owner": "Owner",
-		"players": "Players",
-		"spectators": "Spectators",
-		"currentRules": "Current Rules",
-		"previewRules": "Preview Rules",
-		"changeRules": "Change Rules",
-		"submitRules": "Submit Rules",
-		"defaultRules": "Default Rules",
-		"live": "Live",
-		"template": "Template",
-		"start": "START",
-		"startGame": "START GAME",
-		"toPlayer": "TO PLAYER",
-		"watch": "WATCH",
-		"toSpectator": "TO SPECTATOR",
-		"rulesShort": "RULES",
-		"seeRules": "SEE RULES",
-		"leave": "LEAVE",
-		"create": "CREATE",
-		"badLobbyName": "Bad lobby name input.",
-		"presets": {
-			"customSliders": "Custom sliders",
-			"customRules": "Custom rules",
-			"bulletHell": "Bullet hell",
-			"macroBulletHell": "Macro bullet hell",
-			"closeQuarters": "Close quarters",
-			"longHall": "Long hall",
-			"giantBall": "Giant ball"
-		},
-		"rules": {
-			"timeNewBall": "Time for new ball",
-			"ballSpeed": "Ball speed",
-			"playerCollision": "Player collision",
-			"playerHitbox": "Player hitbox",
-			"playerSpeed": "Player speed",
-			"ballHitbox": "Ball hitbox",
-			"ballHitboxModifier": "Ball hitbox modifier",
-			"ballSpeedModifier": "Ball speed modifier",
-			"hitboxModifier": "Hitbox modifier",
-			"speedModifier": "Speed modifier",
-			"borderX": "Border X",
-			"borderY": "Border Y",
-			"maxBalls": "Max balls",
-			"maxBallsInfinite": "Max n of balls (0 for infinite)",
-			"infinite": "Infinite",
-			"enabled": "Enabled",
-			"disabled": "Disabled"
-		},
-		"user": "User",
-		"host": "Host",
-		"open": "Open",
-		"title": "LOBBIES",
-		"subtitle": "Choose a room to join or create a new one below.",
-		"unableToReach": "Unable to reach lobbies, try again later!",
-		"noLobbiesAvailable": "No lobbies available",
-		"avatarAlt": "Avatar"
-	},
-	"settingsPage": {
-		"title": "Settings",
-		"tabs": {
-			"general": "General",
-			"social": "Social",
-			"environment": "Environment",
-			"system": "System"
-		},
-		"general": {
-			"subtitle": "General application preferences",
-			"theme": {
-				"title": "Theme Mode",
-				"desc": "Choose between light or dark",
-				"light": "Light",
-				"dark": "Dark"
-			},
-			"textSize": {
-				"title": "Text Size",
-				"desc": "Choose small, medium or large text across the interface.",
-				"small": "Small",
-				"medium": "Medium",
-				"large": "Large"
-			},
-			"language": {
-				"title": "Language",
-				"desc": "Select the language used across Transcendence."
-			}
-		},
-		"social": {
-			"subtitle": "Manage your social activity and privacy",
-			"friends": {
-				"title": "Friend Requests",
-				"desc": "Receive notifications when someone sends you a friend request."
-			},
-			"match": {
-				"title": "Match Invitations",
-				"desc": "Get notified when another player invites you to play."
-			},
-			"visibility": {
-				"title": "Profile Visibility",
-				"desc": "Choose whether your profile is visible to other players.",
-				"public": "Public",
-				"private": "Private"
-			}
-		},
-		"environment": {
-			"subtitle": "Adjust the visual and sound behavior of the interface",
-			"volume": {
-				"title": "Master Volume",
-				"desc": "Control overall game and interface sound level."
-			},
-			"effects": {
-				"title": "Effects Sound",
-				"desc": "Enable or disable game effects sounds."
-			}
-		},
-		"system": {
-			"subtitle": "Transcendence system information",
-			"version": {
-				"title": "Version",
-				"desc": "Current application version."
-			},
-			"server": {
-				"title": "Server Status",
-				"desc": "Backend connection status.",
-				"connected": "Connected"
-			}
-		}
-	}
+  "header": {
+    "home": "Home",
+    "world3d": "3D World",
+    "arcade": "Arcade",
+    "game": "Game",
+    "quickPlay": "Quick Play",
+    "about": "Tech & Project",
+    "info": "Info",
+    "creators": "Creators",
+    "settings": "Settings",
+    "login": "Login",
+    "profile": "Profile",
+    "logout": "Logout",
+    "languageSwitch": "Change language",
+    "languageChangeTo": "Change language to {{language}}",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "footer": {
+    "brand": "TRANSCENDENCE",
+    "project": "Students Project ",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "copyright": "© 2026 Transcendence"
+  },
+  "startGate": {
+    "title": "PROJECT 42",
+    "subtitle": "Enter a new Pong experience",
+    "enter3d": "Explore 3D World",
+    "arcade": "Arcade",
+    "tech": "Tech Info",
+    "creators": "Creators",
+    "onlineGame": "Online Game"
+  },
+  "splash": {
+    "tagline": "3D HUB · ARCADE PONG · REALTIME BATTLES · 42 PROJECT",
+    "version": "v1.0 - · - realtime pong experience - · - 42 malaga",
+    "guest": "Guest",
+    "login42": "42 Login",
+    "login": "Login"
+  },
+  "auth": {
+    "login": {
+      "title": "Identity Verification",
+      "tabs": {
+        "signIn": "Sign In",
+        "signUp": "Sign Up"
+      },
+      "fields": {
+        "name": "Name",
+        "email": "Email",
+        "password": "Password"
+      },
+      "placeholders": {
+        "loginEmail": "your@email.com",
+        "loginPassword": "Your password",
+        "registerName": "Your full name",
+        "registerPassword": "Minimum 6 characters"
+      },
+      "buttons": {
+        "signIn": "Sign In",
+        "login42": "Login 42",
+        "createAccount": "Create Account"
+      },
+      "separatorOr": "- or -",
+      "alerts": {
+        "login": {
+          "fillCredentials": "Please fill in the email and password",
+          "successRedirect": "Login successful! Redirecting...",
+          "invalidCredentials": "Incorrect email or password",
+          "serverUnavailable": "Cannot connect to the server"
+        },
+        "register": {
+          "fillAll": "Please fill in all fields",
+          "emailInvalid": "The email format is not valid",
+          "passwordMinLength": "The password must be at least 8 characters long",
+          "successCreated": "Account created! You can now sign in",
+          "errorCreate": "Error creating the account",
+          "serverUnavailable": "Cannot connect to the server"
+        }
+      }
+    }
+  },
+  "sections": {
+    "3d": {
+      "explore": "Explore"
+    },
+    "arcade": {
+      "welcome": "Welcome to Retro Arcade Pong",
+      "simple": "Our game is simple & easy...",
+      "challenge": "but the challenge is elite!",
+      "skills": "speed, precision, focus,",
+      "noMistakes": "and no room for mistakes.",
+      "ready": "Are you ready?",
+      "enterBtn": "Arcade Arena"
+    },
+    "tech": {
+      "title": "Tech & Project",
+      "subtitle": "About the project",
+      "desc1": "Transcendence is a modern reinterpretation of the classic Pong experience, combining competitive gameplay, a retro arcade spirit, and an immersive 3D hub. The project mixes frontend, backend, real-time interaction and visual design to create a complete digital experience where users can explore, play, compete and connect inside the same platform.",
+      "desc2": "The goal was not only to build a game, but to create a full universe around it: a navigable 3D environment, a polished interface, structured backend logic, auth system, game modes, and a visual identity inspired by futuristic arcade culture."
+    },
+    "creators": {
+      "technicalLead": "Technical Lead",
+      "projectManager": "Project Manager",
+      "backendDev": "Backend Developer",
+      "productOwner": "Product Owner"
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "updated": "May 2026",
+    "s1Title": "1. Who We Are",
+    "s1Text": "Transcendence is a final project developed by four students at 42 Málaga. It includes a 3D hub, a competitive Pong game and user accounts. This is an academic project, not a commercial product.",
+    "s2Title": "2. Data We Collect",
+    "s2Text": "We store your username, email address, hashed password, game statistics and a session token. No payment or location data is collected.",
+    "s3Title": "3. How We Use It",
+    "s3Text": "Solely to run the application — authentication, profiles and game features. We do not share or sell your data with anyone.",
+    "s4Title": "4. Cookies",
+    "s4Text": "We use a single session cookie to keep you logged in. No tracking or advertising cookies. Logging out removes it immediately.",
+    "s5Title": "5. Security",
+    "s5Text": "Passwords are hashed with bcrypt and the application runs in an isolated Docker environment. This is a student project — avoid reusing passwords from other services.",
+    "s6Title": "6. Third-party Login",
+    "s6Text": "You can log in using your 42 account via OAuth. In that case, we only receive your 42 username and ID. We do not have access to your 42 password or any other data from their platform.",
+    "s7Title": "7. Account Deletion",
+    "s7Text": "You can delete your account at any time from the settings page. All associated data will be permanently removed.",
+    "s8Title": "8. Who Can Use This",
+    "s8Text": "This application is intended for 42 Málaga students and evaluators. Access outside that context is not officially supported.",
+    "footer": "Transcendence — 42 Málaga · 2026"
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "updated": "May 2026",
+    "s1Title": "1. About This Project",
+    "s1Text": "Transcendence is an academic project developed by four students at 42 Málaga. By using the platform you accept these terms. This is not a commercial service.",
+    "s2Title": "2. Who Can Use It",
+    "s2Text": "This platform is intended for 42 Málaga students and evaluators. Access outside that context is not officially supported.",
+    "s3Title": "3. Your Account",
+    "s3Text": "You are responsible for your account and credentials. Do not share your password. Any activity under your account is your responsibility.",
+    "s4Title": "4. Acceptable Use",
+    "s4Text": "Do not attempt to exploit the platform, harass other users or use automated tools to interact with the service. Play fair.",
+    "s5Title": "5. Usernames & Content",
+    "s5Text": "Usernames and profile content must not be offensive or discriminatory. We may remove accounts that violate this.",
+    "s6Title": "6. Availability",
+    "s6Text": "This is a student project with no uptime guarantee. The service may go offline or change at any time.",
+    "s7Title": "7. Liability",
+    "s7Text": "Transcendence is an educational project. We are not liable for data loss, service interruptions or any damages arising from its use.",
+    "s8Title": "8. Account Deletion",
+    "s8Text": "You can delete your account at any time from the settings page. Accounts that violate these terms may be removed without notice.",
+    "footer": "Transcendence — 42 Málaga · 2026"
+  },
+  "arcade2d": {
+    "menu": {
+      "title": "ARCADE",
+      "home": "HOME",
+      "game": "GAME",
+      "settings": "SETTINGS",
+      "login": "LOGIN"
+    },
+    "game": {
+      "title": "GAME MODE",
+      "1player": "1 PLAYER LOCAL",
+      "2player": "2 PLAYER LOCAL",
+      "spectator": "SPECTATOR MODE",
+      "back": "← BACK"
+    },
+    "settings": {
+      "title": "SETTINGS",
+      "gameSetting": "GAME SETTINGS",
+      "audio": "AUDIO",
+      "display": "DISPLAY",
+      "back": "← BACK"
+    },
+    "gameSettings": {
+      "title": "GAME SETTINGS",
+      "scorelimit": "SCORE LIMIT",
+      "paddlesize": "PADDLE SIZE",
+      "ballspeed": "BALL SPEED",
+      "back": "← BACK"
+    },
+    "audioSettings": {
+      "title": "AUDIO SETTINGS",
+      "music": "MUSIC",
+      "sfx": "SFX",
+      "back": "← BACK"
+    },
+    "displaySettings": {
+      "title": "DISPLAY SETTINGS",
+      "ballcolor": "BALL COLOR",
+      "paddlecolor": "PADDLE COLOR",
+      "ballsize": "BALL SIZE",
+      "balltrail": "BALL TRAIL",
+      "back": "← BACK",
+      "green": "GREEN",
+      "white": "WHITE",
+      "yellow": "YELLOW",
+      "red": "RED",
+      "cyan": "CYAN"
+    },
+    "common": {
+      "back": "← BACK"
+    },
+    "hud": {
+      "player1": "PLAYER 1",
+      "player2": "PLAYER 2",
+      "computer": "COMPUTER",
+      "spectator1": "SPECTATOR 1",
+      "spectator2": "SPECTATOR 2"
+    },
+    "canvas": {
+      "pressSpaceToStart": "PRESS SPACE TO START",
+      "paused": "PAUSED",
+      "pressSpaceToResume": "Press SPACE to resume",
+      "playerWins": "{{player}} WINS!",
+      "pressRToRestart": "Press R to restart"
+    }
+  },
+  "hubPanelLogin": {
+    "username": "USERNAME",
+    "enterUsername": "Enter username",
+    "password": "PASSWORD",
+    "enterPassword": "Enter password",
+    "logIn": "LOG IN"
+  },
+  "hubPanelSettings": {
+    "playerSpeed": "PLAYER SPEED",
+    "cameraSensitivity": "CAMERA SENSITIVITY",
+    "playerSize": "PLAYER SIZE",
+    "slow": "SLOW",
+    "medium": "MEDIUM",
+    "fast": "FAST",
+    "low": "LOW",
+    "high": "HIGH",
+    "small": "SMALL",
+    "normal": "NORMAL",
+    "big": "BIG"
+  },
+  "remoteGame": {
+    "accountRequired": "This feature requires a user account. Please log in and try again.",
+    "enterLobbyName": "Enter lobby name..."
+  },
+  "friendsPage": {
+    "title": "Friends Management",
+    "avatarAlt": "Avatar",
+    "tabs": {
+      "friends": "Friends",
+      "pendingRequests": "Pending Requests",
+      "searchUsers": "Search Users"
+    },
+    "status": {
+      "online": "🟢 Online",
+      "offline": "⚫ Offline"
+    },
+    "actions": {
+      "remove": "Remove",
+      "accept": "Accept",
+      "reject": "Reject",
+      "addFriend": "Add friend"
+    },
+    "search": {
+      "placeholder": "Search by name or email...",
+      "button": "Search"
+    },
+    "empty": {
+      "noFriends": "You have no friends yet",
+      "searchUsersToAdd": "Search for users to add",
+      "noPendingRequests": "You have no pending requests",
+      "pendingNotified": "You will be notified when you receive one",
+      "noUsersFound": "No users found",
+      "tryDifferentTerm": "Try a different search term"
+    },
+    "alerts": {
+      "typeMin2": "Type at least 2 characters to search",
+      "requestSent": "Request sent successfully",
+      "errorSendingRequest": "Error sending request",
+      "requestAccepted": "Request accepted. You are now friends",
+      "errorAcceptingRequest": "Error accepting request",
+      "requestRejected": "Request rejected",
+      "errorRejectingRequest": "Error rejecting request",
+      "friendRemoved": "Friend removed successfully",
+      "errorRemovingFriend": "Error removing friend"
+    },
+    "confirms": {
+      "rejectRequest": "Are you sure you want to reject this request?",
+      "removeFriend": "Are you sure you want to remove this friend?"
+    }
+  },
+  "profilePage": {
+    "loadingProfile": "Loading profile...",
+    "avatarAlt": "Avatar",
+    "status": {
+      "online": "🟢 Online",
+      "offline": "🔴 Offline"
+    },
+    "actions": {
+      "editProfile": "Edit Profile",
+      "changeAvatar": "Change Avatar",
+      "myFriends": "My Friends",
+      "disconnect": "Disconnect",
+      "connect": "Connect",
+      "logOut": "Log Out"
+    },
+    "overview": {
+      "title": "Profile Overview",
+      "status": "Status",
+      "availableToFriends": "You are available to your friends",
+      "lastConnection": "Last Connection",
+      "memberSince": "Member Since",
+      "olympusCitizen": "Olympus Citizen",
+      "totalFriends": "Total Friends",
+      "buildNetwork": "Build your network"
+    },
+    "friends": {
+      "title": "My Friends",
+      "empty": "You have no friends yet"
+    },
+    "edit": {
+      "title": "Edit Profile",
+      "name": "Name",
+      "email": "Email",
+      "newPasswordOptional": "New Password (optional)",
+      "leaveBlank": "Leave blank to keep unchanged",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes"
+    },
+    "alerts": {
+      "errorLoadingProfile": "Error loading profile",
+      "onlineNow": "You are now online",
+      "offlineNow": "You are now offline",
+      "errorChangingStatus": "Error changing status",
+      "profileUpdated": "Profile updated successfully",
+      "errorUpdatingProfile": "Error updating profile",
+      "avatarUpdated": "Avatar updated successfully",
+      "errorUploadingAvatar": "Error uploading avatar"
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "openChat": "Open chat",
+    "close": "Close",
+    "tabs": {
+      "chats": "Chats",
+      "friends": "Friends",
+      "online": "Online",
+      "offline": "Offline"
+    },
+    "selectConversation": "Select a conversation",
+    "searchConversations": "Search conversations...",
+    "loading": "Loading...",
+    "noConversationsYet": "No conversations yet",
+    "noMessagesPreview": "(no messages)",
+    "removeConversation": "Remove conversation",
+    "pendingRequests": "Pending requests",
+    "loadingPending": "Loading pending...",
+    "noPendingRequests": "No pending requests",
+    "accept": "Accept",
+    "reject": "Reject",
+    "friendsOnline": "Friends Online",
+    "loadingFriends": "Loading friends...",
+    "noFriendsOnline": "No friends online",
+    "friendsOffline": "Friends Offline",
+    "noFriendsOffline": "No friends offline",
+    "loadingOnlineUsers": "Loading online users...",
+    "noOneOnline": "No one online",
+    "requestSent": "Request sent",
+    "sendFriendRequest": "Send friend request",
+    "requested": "Requested",
+    "add": "Add",
+    "loadingOfflineUsers": "Loading offline users...",
+    "noOfflineUsers": "No offline users",
+    "loadingMessages": "Loading messages...",
+    "noMessagesYet": "No messages yet",
+    "typeMessage": "Type a message...",
+    "userUnavailable": "User unavailable",
+    "otherUserDeletedConversation": "The other user deleted this conversation.",
+    "cannotSendDeletedConversation": "You cannot send messages because the other user deleted the conversation.",
+    "removeConfirm": "Remove this conversation from your chat list?",
+    "newConversation": "Start a new conversation",
+    "noSearchResults": "No conversations match your search",
+    "back": "Back",
+    "you": "You",
+    "send": "Send message",
+    "messageCounter": "{{count}}/{{max}} characters",
+    "errors": {
+      "authTokenMissing": "You must sign in to use the chat.",
+      "authTokenInvalid": "Your chat session has expired. Please sign in again.",
+      "otherUserIdRequired": "The user required to start the conversation is missing.",
+      "selfDmNotAllowed": "You cannot open a conversation with yourself.",
+      "invalidConversationId": "The conversation identifier is invalid.",
+      "conversationNotFound": "The conversation does not exist or is no longer available.",
+      "conversationUnavailable": "You do not have access to this conversation.",
+      "messageIdRequired": "The message identifier is invalid.",
+      "messageContentRequired": "The message has no content.",
+      "messageEmpty": "You cannot send an empty message.",
+      "messageTooLong": "The message exceeds the {{max}} character limit.",
+      "messageNotFound": "The message does not exist in this conversation.",
+      "otherUserNotAvailable": "The other user is no longer available.",
+      "otherUserDeletedConversation": "The other user deleted this conversation.",
+      "userIdsRequired": "No user identifiers were provided.",
+      "tooManyUserIds": "Only {{maxIds}} users can be queried at once.",
+      "usersServiceUnavailable": "The users service is currently unavailable.",
+      "payloadTooLarge": "The request sent to the chat is too large.",
+      "invalidJson": "The request sent to the chat has an invalid format.",
+      "internal": "An internal chat error occurred.",
+      "unknown": "An unknown chat error occurred."
+    }
+  },
+  "lobbies": {
+    "player": "Player",
+    "lobbyNeeded": "Lobby needed",
+    "lastGameResults": "Last Game Results",
+    "lobby": "Lobby",
+    "owner": "Owner",
+    "players": "Players",
+    "spectators": "Spectators",
+    "currentRules": "Current Rules",
+    "previewRules": "Preview Rules",
+    "changeRules": "Change Rules",
+    "submitRules": "Submit Rules",
+    "defaultRules": "Default Rules",
+    "live": "Live",
+    "template": "Template",
+    "start": "START",
+    "startGame": "START GAME",
+    "toPlayer": "TO PLAYER",
+    "watch": "WATCH",
+    "toSpectator": "TO SPECTATOR",
+    "rulesShort": "RULES",
+    "seeRules": "SEE RULES",
+    "leave": "LEAVE",
+    "create": "CREATE",
+    "badLobbyName": "Bad lobby name input.",
+    "presets": {
+      "customSliders": "Custom sliders",
+      "customRules": "Custom rules",
+      "bulletHell": "Bullet hell",
+      "macroBulletHell": "Macro bullet hell",
+      "closeQuarters": "Close quarters",
+      "longHall": "Long hall",
+      "giantBall": "Giant ball"
+    },
+    "rules": {
+      "timeNewBall": "Time for new ball",
+      "ballSpeed": "Ball speed",
+      "playerCollision": "Player collision",
+      "playerHitbox": "Player hitbox",
+      "playerSpeed": "Player speed",
+      "ballHitbox": "Ball hitbox",
+      "ballHitboxModifier": "Ball hitbox modifier",
+      "ballSpeedModifier": "Ball speed modifier",
+      "hitboxModifier": "Hitbox modifier",
+      "speedModifier": "Speed modifier",
+      "borderX": "Border X",
+      "borderY": "Border Y",
+      "maxBalls": "Max balls",
+      "maxBallsInfinite": "Max n of balls (0 for infinite)",
+      "infinite": "Infinite",
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "user": "User",
+    "host": "Host",
+    "open": "Open",
+    "title": "LOBBIES",
+    "subtitle": "Choose a room to join or create a new one below.",
+    "unableToReach": "Unable to reach lobbies, try again later!",
+    "noLobbiesAvailable": "No lobbies available",
+    "avatarAlt": "Avatar"
+  },
+  "settingsPage": {
+    "title": "Settings",
+    "tabs": {
+      "general": "General",
+      "social": "Social",
+      "environment": "Environment",
+      "system": "System"
+    },
+    "general": {
+      "subtitle": "General application preferences",
+      "theme": {
+        "title": "Theme Mode",
+        "desc": "Choose between light or dark",
+        "light": "Light",
+        "dark": "Dark"
+      },
+      "textSize": {
+        "title": "Text Size",
+        "desc": "Choose small, medium or large text across the interface.",
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large"
+      },
+      "language": {
+        "title": "Language",
+        "desc": "Select the language used across Transcendence."
+      }
+    },
+    "social": {
+      "subtitle": "Manage your social activity and privacy",
+      "friends": {
+        "title": "Friend Requests",
+        "desc": "Receive notifications when someone sends you a friend request."
+      },
+      "match": {
+        "title": "Match Invitations",
+        "desc": "Get notified when another player invites you to play."
+      },
+      "visibility": {
+        "title": "Profile Visibility",
+        "desc": "Choose whether your profile is visible to other players.",
+        "public": "Public",
+        "private": "Private"
+      }
+    },
+    "environment": {
+      "subtitle": "Adjust the visual and sound behavior of the interface",
+      "volume": {
+        "title": "Master Volume",
+        "desc": "Control overall game and interface sound level."
+      },
+      "effects": {
+        "title": "Effects Sound",
+        "desc": "Enable or disable game effects sounds."
+      }
+    },
+    "system": {
+      "subtitle": "Transcendence system information",
+      "version": {
+        "title": "Version",
+        "desc": "Current application version."
+      },
+      "server": {
+        "title": "Server Status",
+        "desc": "Backend connection status.",
+        "connected": "Connected"
+      }
+    }
+  }
 }

@@ -1,83 +1,98 @@
-import http from "http";
+import type { Server } from "http";
 import jwt from "jsonwebtoken";
 import { WebSocket, WebSocketServer } from "ws";
+import { ChatErrorCode } from "./types";
 
 const clients = new Map<string, Set<WebSocket>>();
+const WS_AUTH_ERROR_CLOSE_CODE = 4401;
 
-function addClient(userId: string, ws: WebSocket) {
-  let set = clients.get(userId);
+function addClient(userId: string, socket: WebSocket): void {
+  let userSockets = clients.get(userId);
 
-  if (!set) {
-    set = new Set<WebSocket>();
-    clients.set(userId, set);
+  if (!userSockets) {
+    userSockets = new Set<WebSocket>();
+    clients.set(userId, userSockets);
   }
 
-  set.add(ws);
+  userSockets.add(socket);
 }
 
-function removeClient(userId: string, ws: WebSocket) {
-  const set = clients.get(userId);
-  if (!set) return;
+function removeClient(userId: string, socket: WebSocket): void {
+  const userSockets = clients.get(userId);
 
-  set.delete(ws);
+  if (!userSockets) {
+    return;
+  }
 
-  if (set.size === 0) {
+  userSockets.delete(socket);
+
+  if (userSockets.size === 0) {
     clients.delete(userId);
   }
 }
 
-export function sendToUser(userId: string, payload: unknown) {
-  const set = clients.get(userId);
-  if (!set) return;
+export function sendToUser(userId: string, payload: unknown): void {
+  const userSockets = clients.get(userId);
 
-  const message = JSON.stringify(payload);
+  if (!userSockets) {
+    return;
+  }
 
-  for (const ws of set) {
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(message);
+  const serializedPayload = JSON.stringify(payload);
+
+  for (const socket of userSockets) {
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(serializedPayload);
     }
   }
 }
 
-export function setupWebSocket(server: http.Server) {
-  const wss = new WebSocketServer({
+export function setupWebSocket(server: Server): void {
+  const webSocketServer = new WebSocketServer({
     server,
     path: "/chat/ws",
   });
 
-  wss.on("connection", (ws, req) => {
+  webSocketServer.on("connection", (socket, request) => {
     try {
-      const url = new URL(req.url || "", "http://localhost");
-      const token = url.searchParams.get("token");
+      const requestUrl = new URL(request.url ?? "", "http://localhost");
+      const token = requestUrl.searchParams.get("token");
 
       if (!token) {
-        ws.close();
+        socket.close(
+          WS_AUTH_ERROR_CLOSE_CODE,
+          String(ChatErrorCode.AUTH_TOKEN_MISSING),
+        );
         return;
       }
 
       const decoded = jwt.verify(
         token,
-        process.env.JWT_SECRET || "super-secure-secret"
-      ) as { id: number; email: string };
+        process.env.JWT_SECRET || "super-secure-secret",
+      ) as { id: number | string; email?: string };
 
       const userId = String(decoded.id);
+      addClient(userId, socket);
 
-      addClient(userId, ws);
+      socket.send(
+        JSON.stringify({
+          type: "connected",
+          userId,
+        }),
+      );
 
-      ws.send(JSON.stringify({
-        type: "connected",
-        userId,
-      }));
-
-      ws.on("close", () => {
-        removeClient(userId, ws);
+      socket.on("close", () => {
+        removeClient(userId, socket);
       });
 
-      ws.on("error", () => {
-        removeClient(userId, ws);
+      socket.on("error", () => {
+        removeClient(userId, socket);
       });
     } catch {
-      ws.close();
+      socket.close(
+        WS_AUTH_ERROR_CLOSE_CODE,
+        String(ChatErrorCode.AUTH_TOKEN_INVALID),
+      );
     }
   });
 }

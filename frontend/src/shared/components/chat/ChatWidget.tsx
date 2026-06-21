@@ -1,14 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { Send, Search, SquarePen, X } from 'lucide-react';
+import { ArrowLeft, Send, Search, SquarePen, X } from 'lucide-react';
 import { OlympusButton } from '../Buttons/ProfileButton';
+import {
+	CHAT_MESSAGE_MAX_LENGTH,
+	ChatApiError,
+	ChatErrorCode,
+	getChatErrorTranslationKey,
+} from './chatErrors';
 
 type ConversationItem = {
 	id: number;
-	type: "DM" | "GROUP";
-	title: string | null;
 	members: string[];
 	otherUserIds: string[];
+	otherUserDeleted: boolean;
+	unreadCount: number;
 	lastMessage: null | { id: number; senderId: string; content: string; createdAt: string };
 	updatedAt: string;
 	createdAt: string;
@@ -55,14 +61,46 @@ const AUTH_API = "/api/auth";
 
 async function chatApi<T>(path: string, init?: RequestInit): Promise<T> {
 	const token = getToken();
-	if (!token) throw new Error("Missing token. Please login first.");
+	if (!token) {
+		throw new ChatApiError(
+			ChatErrorCode.AUTH_TOKEN_MISSING,
+			401,
+			"AUTH_TOKEN_MISSING",
+		);
+	}
 
 	const headers = new Headers(init?.headers || {});
 	headers.set("Content-Type", "application/json");
 	headers.set("Authorization", `Bearer ${token}`);
 
 	const res = await fetch(`${CHAT_API}${path}`, { ...init, headers });
-	if (!res.ok) throw new Error((await res.text().catch(() => "")) || `Chat failed (${res.status})`);
+
+	if (!res.ok) {
+		let payload: {
+			code?: unknown;
+			error?: unknown;
+			details?: unknown;
+		} = {};
+
+		try {
+			payload = await res.json() as typeof payload;
+		} catch {
+			// Older endpoints may return plain text.
+		}
+
+		const code = typeof payload.code === "number"
+			? payload.code
+			: ChatErrorCode.INTERNAL_ERROR;
+		const backendName = typeof payload.error === "string"
+			? payload.error
+			: "INTERNAL_ERROR";
+		const details = payload.details && typeof payload.details === "object"
+			? payload.details as Record<string, unknown>
+			: undefined;
+
+		throw new ChatApiError(code, res.status, backendName, details);
+	}
+
 	return (await res.json()) as T;
 }
 
@@ -82,13 +120,35 @@ async function usersApi<T>(path: string, init?: RequestInit): Promise<T> {
 
 export function ChatWidget() {
 	const { t } = useTranslation();
+
+	function getDisplayError(error: unknown): string {
+		if (error instanceof ChatApiError) {
+			const maxLength = typeof error.details?.maxLength === "number"
+				? error.details.maxLength
+				: CHAT_MESSAGE_MAX_LENGTH;
+			const maxIds = typeof error.details?.maxIds === "number"
+				? error.details.maxIds
+				: 50;
+
+			return t(getChatErrorTranslationKey(error.code), {
+				max: maxLength,
+				maxIds,
+			});
+		}
+
+		if (error instanceof Error && error.message) {
+			return error.message;
+		}
+
+		return t('chat.errors.unknown');
+	}
 	const [open, setOpen] = useState(false);
 	const [tab, setTab] = useState<"chats" | "friends" | "online" | "offline">("chats");
-	const [badgeCount, setBadgeCount] = useState(0);
-	const [groupTitle, setGroupTitle] = useState("");
-	const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
-
-	const myUserId = getMyUserId();
+	const [messageBadgeCount, setMessageBadgeCount] = useState(0);
+	const [pendingBadgeCount, setPendingBadgeCount] = useState(0);
+	const [sessionToken, setSessionToken] = useState<string | null>(() => getToken());
+	const [myUserId, setMyUserId] = useState<number | null>(() => getMyUserId());
+	const [search, setSearch] = useState("");
 
 	// Chat state
 	const [conversations, setConversations] = useState<ConversationItem[]>([]);
@@ -107,7 +167,7 @@ export function ChatWidget() {
 	const [sentRequests, setSentRequests] = useState<Record<number, true>>({});
 
 	// UI
-	const [, setError] = useState<string | null>(null);
+	const [error, setError] = useState<string | null>(null);
 	const [loadingConvs, setLoadingConvs] = useState(false);
 	const [loadingMsgs, setLoadingMsgs] = useState(false);
 	const [loadingOnline, setLoadingOnline] = useState(false);
@@ -115,7 +175,32 @@ export function ChatWidget() {
 	const [loadingFriends, setLoadingFriends] = useState(false);
 	const [loadingPending, setLoadingPending] = useState(false);
 
-	
+	const openRef = useRef(open);
+	const selectedIdRef = useRef(selectedId);
+
+	useEffect(() => {
+		openRef.current = open;
+	}, [open]);
+
+	useEffect(() => {
+		selectedIdRef.current = selectedId;
+	}, [selectedId]);
+
+	useEffect(() => {
+		const updateSession = () => {
+			setSessionToken(getToken());
+			setMyUserId(getMyUserId());
+		};
+
+		window.addEventListener("auth:changed", updateSession);
+		window.addEventListener("storage", updateSession);
+
+		return () => {
+			window.removeEventListener("auth:changed", updateSession);
+			window.removeEventListener("storage", updateSession);
+		};
+	}, []);
+
 	useEffect(() => {
 		const openFromHub = () => setOpen(true);
 		window.addEventListener("chat:open", openFromHub as EventListener);
@@ -125,14 +210,6 @@ export function ChatWidget() {
 		};
 	}, []);
 
-	// Seen helpers for unread badge
-	function getSeenId(convId: number): number {
-		const v = localStorage.getItem(`chat:lastSeen:${convId}`);
-		return v ? Number(v) : 0;
-	}
-	function setSeenId(convId: number, msgId: number) {
-		localStorage.setItem(`chat:lastSeen:${convId}`, String(msgId));
-	}
 
 	const onlineSet = useMemo(() => new Set(onlineUsers.map((u) => u.id)), [onlineUsers]);
 	const friendSet = useMemo(() => new Set(friends.map((f) => f.id)), [friends]);
@@ -145,11 +222,28 @@ export function ChatWidget() {
 	const selectedTitle = useMemo(() => {
 		if (!selected)
 			return t('chat.selectConversation');
-		if (selected.type === "GROUP")
-			return selected.title || `Group #${selected.id}`;
 		const otherId = selected.otherUserIds[0];
-		return userMap[otherId]?.name || `User ${otherId}`;
+		if (!otherId)
+			return t('chat.userUnavailable');
+		return userMap[otherId]?.name || t('chat.userUnavailable');
 	}, [selected, userMap, t]);
+
+	const filteredConversations = useMemo(() => {
+		const value = search.trim().toLowerCase();
+		if (!value)
+			return conversations;
+
+		return conversations.filter((conversation) => {
+			const otherId = conversation.otherUserIds[0];
+			const title = otherId
+				? (userMap[otherId]?.name || t('chat.userUnavailable'))
+				: t('chat.userUnavailable');
+			const preview = conversation.lastMessage?.content || '';
+			return title.toLowerCase().includes(value) || preview.toLowerCase().includes(value);
+		});
+	}, [conversations, search, t, userMap]);
+
+	const totalBadgeCount = messageBadgeCount + pendingBadgeCount;
 
 	const onlineFriends = useMemo(() => friends.filter((f) => onlineSet.has(f.id)), [friends, onlineSet]);
 	const offlineFriends = useMemo(() => friends.filter((f) => !onlineSet.has(f.id)), [friends, onlineSet]);
@@ -180,19 +274,45 @@ export function ChatWidget() {
 		try {
 			const data = await chatApi<{ conversations: ConversationItem[] }>("/conversations");
 			setConversations(data.conversations);
+			setMessageBadgeCount(
+				data.conversations.reduce((total, conversation) => total + conversation.unreadCount, 0)
+			);
 
-			// resolve user ids to names (for DM titles)
 			const idsToResolve: string[] = [];
-			for (const c of data.conversations) {
-				for (const id of c.members) idsToResolve.push(String(id));
+			for (const conversation of data.conversations) {
+				for (const id of conversation.members)
+					idsToResolve.push(String(id));
 			}
 			await resolveUsers(idsToResolve);
 
-			if (data.conversations.length && selectedId === null) setSelectedId(data.conversations[0].id);
-		} catch (e: any) {
-			setError(e?.message || "Failed to load conversations");
+			setSelectedId((current) => {
+				if (current && data.conversations.some((conversation) => conversation.id === current))
+					return current;
+				return data.conversations[0]?.id ?? null;
+			});
+		} catch (e: unknown) {
+			setError(getDisplayError(e));
 		} finally {
 			setLoadingConvs(false);
+		}
+	}
+
+	async function markConversationRead(conversationId: number, messageId: number) {
+		try {
+			await chatApi(`/conversations/${conversationId}/read`, {
+				method: "PATCH",
+				body: JSON.stringify({ messageId }),
+			});
+			setConversations((current) =>
+				current.map((conversation) =>
+					conversation.id === conversationId
+						? { ...conversation, unreadCount: 0 }
+						: conversation
+				)
+			);
+			await loadConversations();
+		} catch {
+			// The next sync will restore the correct unread count.
 		}
 	}
 
@@ -204,23 +324,27 @@ export function ChatWidget() {
 				`/conversations/${conversationId}/messages?limit=50`
 			);
 
-			// Prisma devuelve DESC (más nuevo primero)
-			const newestId = data.messages?.[0]?.id;
-			if (newestId) setSeenId(conversationId, newestId);
-
-			// UI los muestra ASC
 			setMessages([...data.messages].reverse());
-		} catch (e: any) {
-			setError(e?.message || "Failed to load messages");
+
+			const newestId = data.messages?.[0]?.id;
+			if (newestId && openRef.current)
+				await markConversationRead(conversationId, newestId);
+		} catch (e: unknown) {
+			setError(getDisplayError(e));
 		} finally {
 			setLoadingMsgs(false);
 		}
 	}
 
 	async function sendMessage() {
-		if (!selectedId) return;
+		if (!selectedId || selected?.otherUserDeleted) return;
 		const content = input.trim();
 		if (!content) return;
+
+		if (content.length > CHAT_MESSAGE_MAX_LENGTH) {
+			setError(t('chat.errors.messageTooLong', { max: CHAT_MESSAGE_MAX_LENGTH }));
+			return;
+		}
 
 		setError(null);
 		setInput("");
@@ -231,93 +355,40 @@ export function ChatWidget() {
 				body: JSON.stringify({ content }),
 			});
 
-			setMessages((prev) => [...prev, msg]);
-			// marcar visto el propio mensaje también
-			setSeenId(selectedId, msg.id);
+			setMessages((prev) => {
+				if (prev.some((message) => message.id === msg.id))
+					return prev;
+				return [...prev, msg];
+			});
 
 			await loadConversations();
-		} catch (e: any) {
-			setError(e?.message || "Failed to send message");
+		} catch (e: unknown) {
+			setError(getDisplayError(e));
 			setInput(content);
+			await loadConversations();
 		}
 	}
 
 	async function openDmWith(userId: number) {
 		setError(null);
-		const data = await chatApi<{ conversationId: number; created: boolean }>(`/dm`, {
-			method: "POST",
-			body: JSON.stringify({ otherUserId: String(userId) }),
-		});
-
-		setTab("chats");
-		setSelectedId(data.conversationId);
-
-		await loadConversations();
-		await loadMessages(data.conversationId);
-	}
-
-	async function createGroup(title: string, memberIds: string[]) {
 		try {
-			setError(null);
-
-			const clean = Array.from(new Set(memberIds.map((s) => String(s).trim()).filter(Boolean)));
-
-			if (!title.trim()) {
-				setError("Group title is required");
-				return;
-			}
-			if (clean.length === 0) {
-				setError("You must add at least 1 member id");
-				return;
-			}
-
-			const data = await chatApi<{ conversation: { id: number } }>(`/groups`, {
+			const data = await chatApi<{ conversationId: number; created: boolean; restored?: boolean }>(`/dm`, {
 				method: "POST",
-				body: JSON.stringify({ title: title.trim(), memberIds: clean }),
+				body: JSON.stringify({ otherUserId: String(userId) }),
 			});
 
-			const convId = data?.conversation?.id;
-			if (!convId) throw new Error("Invalid response: missing conversation id");
-
 			setTab("chats");
-			setSelectedId(convId);
+			setSelectedId(data.conversationId);
 
 			await loadConversations();
-			await loadMessages(convId);
-		} catch (err: any) {
-			setError(err?.message || "Failed to create group");
+			await loadMessages(data.conversationId);
+		} catch (e: unknown) {
+			setError(getDisplayError(e));
 		}
-	}
-	function toggleGroupFriend(id: number) {
-		const value = String(id);
-
-		setSelectedGroupIds((prev) => {
-			if (prev.includes(value)) {
-				return prev.filter((x) => x !== value);
-			}
-			return [...prev, value];
-		});
-	}
-
-	async function createGroupFromFriends() {
-		if (!groupTitle.trim()) {
-			setError("Group title is required");
-			return;
-		}
-
-		if (selectedGroupIds.length === 0) {
-			setError("Select at least one friend");
-			return;
-		}
-
-		await createGroup(groupTitle.trim(), selectedGroupIds);
-
-		setGroupTitle("");
-		setSelectedGroupIds([]);
 	}
 
 	async function deleteConversationForMe(conversationId: number) {
-		const ok = window.confirm("Remove this conversation from your chat list?");
+		const ok = window.confirm(t('chat.removeConfirm'));
 		if (!ok) return;
 
 		try {
@@ -333,8 +404,8 @@ export function ChatWidget() {
 			}
 
 			await loadConversations();
-		} catch (err: any) {
-			setError(err?.message || "Failed to delete conversation");
+		} catch (err: unknown) {
+			setError(getDisplayError(err));
 		}
 	}
 
@@ -345,8 +416,8 @@ export function ChatWidget() {
 			const data = await usersApi<{ total: number; users: OnlineUser[] }>(`/users/filter/online`);
 			const list = (data.users || []).filter((u) => !myUserId || u.id !== myUserId);
 			setOnlineUsers(list);
-		} catch (e: any) {
-			setError(e?.message || "Failed to load online users");
+		} catch (e: unknown) {
+			setError(getDisplayError(e));
 		} finally {
 			setLoadingOnline(false);
 		}
@@ -358,8 +429,8 @@ export function ChatWidget() {
 		try {
 			const data = await usersApi<{ total: number; users: OnlineUser[] }>(`/users`);
 			setAllUsers(data.users || []);
-		} catch (e: any) {
-			setError(e?.message || "Failed to load users");
+		} catch (e: unknown) {
+			setError(getDisplayError(e));
 		} finally {
 			setLoadingAll(false);
 		}
@@ -372,8 +443,8 @@ export function ChatWidget() {
 		try {
 			const data = await usersApi<{ total: number; friends: FriendUser[] }>(`/users/${myUserId}/my_friends`);
 			setFriends(data.friends || []);
-		} catch (e: any) {
-			setError(e?.message || "Failed to load friends");
+		} catch (e: unknown) {
+			setError(getDisplayError(e));
 		} finally {
 			setLoadingFriends(false);
 		}
@@ -385,9 +456,11 @@ export function ChatWidget() {
 		setError(null);
 		try {
 			const data = await usersApi<{ total: number; requests: PendingRequest[] }>(`/users/${myUserId}/pending_requests`);
-			setPending(data.requests || []);
-		} catch (e: any) {
-			setError(e?.message || "Failed to load pending requests");
+			const requests = data.requests || [];
+			setPending(requests);
+			setPendingBadgeCount(requests.length);
+		} catch (e: unknown) {
+			setError(getDisplayError(e));
 		} finally {
 			setLoadingPending(false);
 		}
@@ -400,8 +473,8 @@ export function ChatWidget() {
 			await usersApi(`/users/${myUserId}/send_request/${friendId}`, { method: "POST" });
 			setSentRequests((prev) => ({ ...prev, [friendId]: true }));
 			await loadPending();
-		} catch (e: any) {
-			setError(e?.message || "Failed to send friend request");
+		} catch (e: unknown) {
+			setError(getDisplayError(e));
 		}
 	}
 
@@ -413,8 +486,8 @@ export function ChatWidget() {
 			await loadPending();
 			await loadFriends();
 			await loadOnline();
-		} catch (e: any) {
-			setError(e?.message || "Failed to accept request");
+		} catch (e: unknown) {
+			setError(getDisplayError(e));
 		}
 	}
 
@@ -424,73 +497,128 @@ export function ChatWidget() {
 		try {
 			await usersApi(`/users/${myUserId}/reject_request/${friendId}`, { method: "DELETE" });
 			await loadPending();
-		} catch (e: any) {
-			setError(e?.message || "Failed to reject request");
+		} catch (e: unknown) {
+			setError(getDisplayError(e));
 		}
 	}
 
-	// Load initial data when opening
+	// Start notifications as soon as a valid session exists, even with the widget closed.
 	useEffect(() => {
-		if (!open) return;
+		if (!sessionToken) {
+			setConversations([]);
+			setMessages([]);
+			setSelectedId(null);
+			setMessageBadgeCount(0);
+			setPendingBadgeCount(0);
+			return;
+		}
+
 		loadConversations();
-		loadOnline();
-	}, [open]);
+		loadPending();
+	}, [sessionToken, myUserId]);
 
+	// One WebSocket connection per authenticated session.
 	useEffect(() => {
-		const token = localStorage.getItem("token");
-		if (!token) return;
+		if (!sessionToken) return;
 
-		const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-		const ws = new WebSocket(
-			`${protocol}://${window.location.host}/api/chat/ws?token=${encodeURIComponent(token)}`
-		);
+		let stopped = false;
+		let reconnectTimer: number | null = null;
+		let ws: WebSocket | null = null;
 
-		ws.onmessage = (event) => {
-			const data = JSON.parse(event.data);
+		const connect = () => {
+			const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+			ws = new WebSocket(
+				`${protocol}://${window.location.host}/api/chat/ws?token=${encodeURIComponent(sessionToken)}`
+			);
 
-			if (data.type === "message:new") {
-				const msg = data.message;
+			ws.onmessage = (event) => {
+				try {
+					const data = JSON.parse(String(event.data)) as {
+						type?: string;
+						conversationId?: number;
+						message?: MessageItem;
+					};
 
-				if (selectedId === data.conversationId) {
-					setMessages((prev) => {
-						const exists = prev.some((m) => m.id === msg.id);
-						if (exists) return prev;
-						return [...prev, msg];
-					});
+					if (data.type === "message:new" && data.message && data.conversationId) {
+						const isOpenConversation =
+							openRef.current && selectedIdRef.current === data.conversationId;
 
-					setSeenId(data.conversationId, msg.id);
+						if (isOpenConversation) {
+							setMessages((prev) => {
+								if (prev.some((message) => message.id === data.message?.id))
+									return prev;
+								return [...prev, data.message as MessageItem];
+							});
+							markConversationRead(data.conversationId, data.message.id);
+						} else {
+							setMessageBadgeCount((count) => count + 1);
+						}
+
+						loadConversations();
+						return;
+					}
+
+					if (
+						data.type === "conversation:new" ||
+						data.type === "conversation:member-hidden" ||
+						data.type === "conversation:member-restored"
+					) {
+						loadConversations();
+					}
+				} catch {
+					// Ignore malformed WebSocket payloads.
+				}
+			};
+
+			ws.onclose = (event) => {
+				const errorCode = Number(event.reason);
+				const authenticationFailed =
+					errorCode === ChatErrorCode.AUTH_TOKEN_MISSING ||
+					errorCode === ChatErrorCode.AUTH_TOKEN_INVALID;
+
+				if (authenticationFailed) {
+					setError(
+						t(getChatErrorTranslationKey(errorCode), {
+							max: CHAT_MESSAGE_MAX_LENGTH,
+							maxIds: 50,
+						}),
+					);
+					return;
 				}
 
-				loadConversations();
-			}
+				if (!stopped)
+					reconnectTimer = window.setTimeout(connect, 2000);
+			};
 		};
 
-		ws.onerror = () => {
-			console.log("WebSocket error");
-		};
+		connect();
 
 		return () => {
-			ws.close();
+			stopped = true;
+			if (reconnectTimer !== null)
+				window.clearTimeout(reconnectTimer);
+			ws?.close();
 		};
-	}, [selectedId]);
-	// Load messages when selecting a conversation
+	}, [sessionToken]);
+
+	// Load messages only when the widget is open and a chat is selected.
 	useEffect(() => {
 		if (!open || !selectedId) return;
 		loadMessages(selectedId);
 	}, [open, selectedId]);
 
-	// Load data when switching tabs
 	useEffect(() => {
 		if (!open) return;
 
+		if (tab === "chats")
+			loadConversations();
 		if (tab === "friends") {
 			loadFriends();
 			loadPending();
 			loadOnline();
 		}
-		if (tab === "online") {
+		if (tab === "online")
 			loadOnline();
-		}
 		if (tab === "offline") {
 			loadAllUsers();
 			loadOnline();
@@ -498,60 +626,20 @@ export function ChatWidget() {
 		}
 	}, [open, tab]);
 
-	// Refresh online list every 10s when looking at Online or Friends
 	useEffect(() => {
-		if (!open) return;
-		if (tab !== "online" && tab !== "friends") return;
+		if (!open || (tab !== "online" && tab !== "friends")) return;
 
-		loadOnline();
 		const id = window.setInterval(loadOnline, 10_000);
 		return () => window.clearInterval(id);
-	}, [open, tab]);
+	}, [open, tab, myUserId]);
 
-	// Badge polling (unread msgs + pending requests)
+	// Friend-request badge can still use light polling; messages are immediate through WS.
 	useEffect(() => {
-		const t = localStorage.getItem("token");
-		if (!t) return;
+		if (!sessionToken || !myUserId) return;
 
-		let stopped = false;
-
-		const tick = async () => {
-			try {
-				const convs = await chatApi<{ conversations: ConversationItem[] }>("/conversations");
-				let unread = 0;
-
-				const myId = localStorage.getItem("userId") || "";
-
-				for (const c of convs.conversations) {
-					if (!c.lastMessage) continue;
-
-					const seen = getSeenId(c.id);
-					const lastId = c.lastMessage.id;
-					const mine = myId ? c.lastMessage.senderId === String(myId) : false;
-
-					if (!mine && lastId > seen) unread += 1;
-				}
-
-				let pendingCount = 0;
-				const uid = localStorage.getItem("userId");
-				if (uid) {
-					const p = await usersApi<{ requests: any[] }>(`/users/${uid}/pending_requests`);
-					pendingCount = p.requests?.length || 0;
-				}
-
-				if (!stopped) setBadgeCount(unread + pendingCount);
-			} catch {
-				// ignore
-			}
-		};
-
-		tick();
-		const id = window.setInterval(tick, 10_000);
-		return () => {
-			stopped = true;
-			window.clearInterval(id);
-		};
-	}, []);
+		const id = window.setInterval(loadPending, 15_000);
+		return () => window.clearInterval(id);
+	}, [sessionToken, myUserId]);
 
 	return (
 		<>
@@ -564,9 +652,9 @@ export function ChatWidget() {
 					aria-label={t('chat.openChat')}
 					title={t('chat.title')}>
 					<span className="text-lg md:text-2xl">💬</span>
-					{badgeCount > 0 && (
+					{totalBadgeCount > 0 && (
 						<span className="absolute -top-1 -right-1 rounded-full bg-red-600 text-white text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-[1px] md:py-[2px]">
-							{badgeCount > 99 ? "99+" : badgeCount}
+							{totalBadgeCount > 99 ? "99+" : totalBadgeCount}
 						</span>
 					)}
 				</button>
@@ -615,10 +703,18 @@ export function ChatWidget() {
 								<X className="w-4 h-4" />
 							</button>
 						</div>
+
+						{error && (
+							<div className="border-b border-red-200 bg-red-50 px-4 py-2 text-xs text-red-700">
+								{error}
+							</div>
+						)}
+
 						{/*body*/}
 						<div className="grid min-h-0 grid-cols-[16rem_1fr] p-1 max-sm:grid-cols-1">
-							<div className="flex min-h-0 min-w-0 w-full flex-col border-r border-white/35 bg-white/60
-									max-sm:border-r-0">
+							<div className={`flex min-h-0 min-w-0 w-full flex-col border-r border-white/35 bg-white/60 max-sm:border-r-0 ${
+								selectedId && tab === "chats" ? "max-sm:hidden" : ""
+							}`}>
 								<div className="border-b border-gray-100 px-4 py-3 flex items-center gap-2
 										max-sm:px-2 max-sm:py-2 max-sm:gap-1.5">
 									<div className="relative flex-1">
@@ -628,10 +724,12 @@ export function ChatWidget() {
 											name="chatSearchConversations"
 											type="search"
 											autoComplete="off"
+											value={search}
+											onChange={(e) => setSearch(e.target.value)}
 											placeholder={t('chat.searchConversations')}
-											className="w-full rounded-full bg-gray-100 pl-7 pr-2 py-1.5 text-xs text-gray-600 outline-nonemax-sm:text-[0.7rem]" />
+											className="w-full rounded-full bg-gray-100 pl-7 pr-2 py-1.5 text-xs text-gray-600 outline-none max-sm:text-[0.7rem]" />
 									</div>
-									<button className="text-gray-400 hover:text-gray-600 transition-colors">
+									<button onClick={() => setTab("friends")} className="text-gray-400 hover:text-gray-600 transition-colors" title={t('chat.newConversation')}>
 										<SquarePen className="w-4 h-4" />
 									</button>
 								</div>
@@ -640,71 +738,25 @@ export function ChatWidget() {
 
 								{/* scroll content */}
 								<div className="flex-1 overflow-auto p-2 max-sm:p-1.5">
-									{/* New group only on Friends */}
-									{tab === "friends" && (
-										<div className="mb-3 rounded-xl border border-gray-200 bg-white p-3 max-sm:p-2">
-											<div className="mb-2 text-sm font-bold max-sm:text-[0.85rem]">{t('chat.createGroup')}</div>
-
-											<input
-												id="chat-group-title"
-												name="chatGroupTitle"
-												type="text"
-												autoComplete="off"
-												value={groupTitle}
-												onChange={(e) => setGroupTitle(e.target.value)}
-												placeholder={t('chat.groupName')}
-												className="mb-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none
-													max-sm:px-2 max-sm:py-1.5 max-sm:text-[0.8rem]"/>
-
-											<div className="mb-2 max-h-32 overflow-auto rounded-lg border border-gray-100 p-2">
-												{friends.length === 0 && (
-													<div className="text-xs text-gray-500">
-														{t('chat.noFriendsAvailable')}
-													</div>
-												)}
-
-												{friends.map((f) => (
-													<label
-														key={f.id}
-														className="mb-1 flex cursor-pointer items-center gap-2 text-sm max-sm:text-[0.78rem]">
-														<input
-															id={`chat-group-friend-${f.id}`}
-															name="chatGroupFriends"
-															type="checkbox"
-															checked={selectedGroupIds.includes(String(f.id))}
-															onChange={() => toggleGroupFriend(f.id)} />
-														<span>{f.name}</span>
-														<span className="text-xs text-gray-500">{f.email}</span>
-													</label>
-												))}
-											</div>
-
-											<button
-												onClick={createGroupFromFriends}
-												className="w-full rounded-lg bg-black px-3 py-2 text-sm font-bold text-white max-sm:px-2 max-sm:py-1.5 max-sm:text-[0.82rem]">
-												{t('chat.createGroupButton')}
-											</button>
-										</div>
-									)}
 
 									{/* CHATS */}
 									{tab === "chats" && (
 										<>
 											{loadingConvs && <div className="p-2 text-gray-600">{t('chat.loading')}</div>}
 											{!loadingConvs && conversations.length === 0 && <div className="p-2 text-gray-600">{t('chat.noConversationsYet')}</div>}
+											{!loadingConvs && conversations.length > 0 && filteredConversations.length === 0 && (
+												<div className="p-2 text-gray-600">{t('chat.noSearchResults')}</div>
+											)}
 
-											{conversations.map((c) => {
+											{filteredConversations.map((c) => {
 												const active = c.id === selectedId;
-
-												let title = "";
-												if (c.type === "GROUP") {
-													title = c.title || `Group #${c.id}`;
-												} else {
-													const otherId = c.otherUserIds[0];
-													title = userMap[otherId]?.name || `User ${otherId}`;
-												}
-
-												const preview = c.lastMessage ? c.lastMessage.content : t('chat.noMessagesPreview');
+												const otherId = c.otherUserIds[0];
+												const title = otherId
+													? (userMap[otherId]?.name || t('chat.userUnavailable'))
+													: t('chat.userUnavailable');
+												const preview = c.otherUserDeleted
+													? t('chat.otherUserDeletedConversation')
+													: (c.lastMessage ? c.lastMessage.content : t('chat.noMessagesPreview'));
 
 												return (
 													<div
@@ -716,8 +768,15 @@ export function ChatWidget() {
 														<button
 															onClick={() => setSelectedId(c.id)}
 															className="min-w-0 flex-1 text-left">
-															<div className="text-sm font-bold mb-1 truncate">{title}</div>
-															<div className="text-xs opacity-80 truncate">{preview}</div>
+															<div className="mb-1 flex items-center gap-2">
+																<div className="min-w-0 flex-1 truncate text-sm font-bold">{title}</div>
+																{c.unreadCount > 0 && (
+																	<span className="rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+																		{c.unreadCount > 99 ? "99+" : c.unreadCount}
+																	</span>
+																)}
+															</div>
+															<div className="truncate text-xs opacity-80">{preview}</div>
 														</button>
 
 														<button
@@ -889,8 +948,24 @@ export function ChatWidget() {
 							</div>
 
 							{/* RIGHT PANEL (messages) */}
-							<div className="flex flex-col min-h-0 bg-white/60 max-sm:hidden">
-								<div className=" px-3 py-2 font-bold">{selectedTitle}</div>
+							<div className={`flex flex-col min-h-0 bg-white/60 ${
+								selectedId && tab === "chats" ? "max-sm:flex" : "max-sm:hidden"
+							}`}>
+								<div className="flex items-center gap-2 px-3 py-2 font-bold">
+									<button
+										onClick={() => setSelectedId(null)}
+										className="hidden rounded-full p-1 text-gray-500 hover:bg-gray-100 max-sm:block"
+										title={t('chat.back')}>
+										<ArrowLeft className="h-4 w-4" />
+									</button>
+									<span className="truncate">{selectedTitle}</span>
+								</div>
+
+								{selected?.otherUserDeleted && (
+									<div className="mx-3 mb-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+										{t('chat.otherUserDeletedConversation')}
+									</div>
+								)}
 
 								<div className="flex-1 overflow-auto border-1 rounded-[2rem] border-yellow-400/30 p-3">
 									{loadingMsgs && <div className="text-gray-600">{t('chat.loadingMessages')}</div>}
@@ -904,7 +979,7 @@ export function ChatWidget() {
 													className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm shadow-sm ${mine ? "bg-black text-white" : "bg-white border border-gray-200 text-gray-900"
 														}`}>
 													<div className="mb-1 text-[11px] opacity-75">
-														{(userMap[m.senderId]?.name || `User ${m.senderId}`)} · {new Date(m.createdAt).toLocaleString()}
+														{(mine ? t('chat.you') : (userMap[m.senderId]?.name || t('chat.userUnavailable')))} · {new Date(m.createdAt).toLocaleString()}
 													</div>
 													<div className="whitespace-pre-wrap">{m.content}</div>
 												</div>
@@ -913,24 +988,42 @@ export function ChatWidget() {
 									})}
 								</div>
 
-								<div className="px-4 py-3 flex items-center gap-2">
-									<input
-										id="chat-message-input"
-										name="chatMessage"
-										type="text"
-										autoComplete="off"
-										value={input}
-										onChange={(e) => setInput(e.target.value)}
-										placeholder={t('chat.typeMessage')}
-										className="flex-1 rounded-full bg-gray-100 px-4 py-2 text-sm outline-none text-gray-700 placeholder-gray-400"
-										onKeyDown={(e) => {
-											if (e.key === "Enter")
-												sendMessage();
-										}} />
+								<div className="px-4 py-3 flex items-end gap-2">
+									<div className="min-w-0 flex-1">
+										<input
+											id="chat-message-input"
+											name="chatMessage"
+											type="text"
+											autoComplete="off"
+											value={input}
+											maxLength={CHAT_MESSAGE_MAX_LENGTH}
+											onChange={(e) => {
+												setInput(e.target.value);
+												setError(null);
+											}}
+											placeholder={selected?.otherUserDeleted ? t('chat.cannotSendDeletedConversation') : t('chat.typeMessage')}
+											disabled={!selectedId || !!selected?.otherUserDeleted}
+											aria-describedby="chat-message-counter"
+											className="w-full rounded-full bg-gray-100 px-4 py-2 text-sm outline-none text-gray-700 placeholder-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
+											onKeyDown={(e) => {
+												if (e.key === "Enter" && !e.nativeEvent.isComposing)
+													sendMessage();
+											}} />
+										<div
+											id="chat-message-counter"
+											className="mt-1 pr-2 text-right text-[10px] text-gray-500">
+											{t('chat.messageCounter', {
+												count: input.length,
+												max: CHAT_MESSAGE_MAX_LENGTH,
+											})}
+										</div>
+									</div>
 									<button
 										onClick={sendMessage}
+										disabled={!selectedId || !!selected?.otherUserDeleted || input.trim().length === 0}
+										title={t('chat.send')}
 										className="flex-shrink-0 h-14 w-14 border rounded-full bg-black/80 flex items-center justify-center
-													text-white  hover:bg-yellow-400/50 transition-all cursor-pointer">
+													text-white hover:bg-yellow-400/50 transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-40">
 										<Send className="w-6 h-6" />
 									</button>
 								</div>

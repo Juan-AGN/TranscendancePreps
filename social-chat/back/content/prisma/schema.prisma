@@ -6,32 +6,28 @@ datasource db {
   provider = "postgresql"
 }
 
-enum ConversationType {
-  DM
-  GROUP
-}
-
 model Conversation {
-  id        Int              @id @default(autoincrement())
-  type      ConversationType
-  title     String?
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  members   ConversationMember[]
-  messages  Message[]
+  members  ConversationMember[]
+  messages Message[]
 }
 
 model ConversationMember {
-  id             Int      @id @default(autoincrement())
-  conversationId Int
-  userId         String
-  createdAt      DateTime @default(now())
+  id                Int       @id @default(autoincrement())
+  conversationId    Int
+  userId            String
+  createdAt         DateTime  @default(now())
+  hiddenAt          DateTime?
+  lastReadMessageId Int?
 
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@unique([conversationId, userId])
   @@index([userId])
+  @@index([userId, hiddenAt])
 }
 
 model Message {
@@ -41,7 +37,7 @@ model Message {
   content        String
   createdAt      DateTime @default(now())
 
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@index([conversationId, createdAt])
 }
