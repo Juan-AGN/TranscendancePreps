@@ -74,7 +74,7 @@
 				"register": {
 					"fillAll": "Please fill in all fields",
 					"emailInvalid": "The email format is not valid",
-					"passwordMinLength": "The password must be at least 6 characters long",
+					"passwordMinLength": "The password must be at least 8 characters long",
 					"successCreated": "Account created! You can now sign in",
 					"errorCreate": "Error creating the account",
 					"serverUnavailable": "Cannot connect to the server"
