@@ -60,6 +60,7 @@ function Profile() {
 
     // Floating notification state
     const [notification, setNotification] = useState<{ message: string; tipo: 'success' | 'error' } | null>(null);
+
     const { t } = useTranslation();
 
     const navigate = useNavigate();

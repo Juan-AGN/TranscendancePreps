@@ -5,9 +5,9 @@
 // │ It manages the responsive menu, language selector, user    │
 // │ submenu, session links and logout action.                  │
 // └────────────────────────────────────────────────────────────┘
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { clearSession } from '../../pages/auth/session';
 
@@ -30,9 +30,35 @@ export function Header() {
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [openSubmenu, setOpenSubmenu] = useState<Submenu>(null)
 	const [langMenuOpen, setLangMenuOpen] = useState(false)
+	const navigate = useNavigate()
 
 	// Step 2: Load translation helpers and read the current stored session.
 	const { t, i18n } = useTranslation()
+    const [searchParams, setSearchParams] = useSearchParams();
+
+	useEffect(() => {
+	if (localStorage.getItem("token") === null && searchParams.get("token")) 
+	{
+		localStorage.setItem("token", searchParams.get("token"));
+
+		const newParams = new URLSearchParams(searchParams);
+
+		if (searchParams.get("userName")) {
+			localStorage.setItem("userName", searchParams.get("userName"));
+			newParams.delete("userName");
+		}
+
+		if (searchParams.get("userId")) {
+			localStorage.setItem("userId", searchParams.get("userId"));
+			newParams.delete("userId");
+		}
+
+		newParams.delete("token");
+
+		setSearchParams(newParams, { replace: true });
+	}
+	}, [searchParams, setSearchParams]);
+
 	const userName = localStorage.getItem('userName');
 	const isLogged = !!localStorage.getItem('token');
 

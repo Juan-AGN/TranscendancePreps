@@ -123,7 +123,7 @@ export async function authRoutes(server: FastifyInstance) {
                         name:        fortyTwoUserData.login,
                         email:       fortyTwoUserData.email,
                         password:    null,   // OAuth users have no password
-                        avatar:      fortyTwoUserData.image?.link || '/avatars/default-avatar.svg',
+                        avatar:      '/avatars/default-avatar.svg',
                         fortyTwoId:  fortyTwoUserData.id,
                         onlineStatus: true
                     }
@@ -147,7 +147,7 @@ export async function authRoutes(server: FastifyInstance) {
             // The frontend will read it and save it in localStorage
             const frontendUrl = process.env.FRONTEND_URL || 'https://localhost:8889';
             return reply.redirect(
-                `${frontendUrl}/profile?token=${token}&userId=${user.id}`
+                `${frontendUrl}/profile?token=${token}&userId=${user.id}&userName=${user.name}`
             );
 
         } catch (error) {
