@@ -4,7 +4,6 @@ DELETE FROM "Conversation"
 WHERE "type" = 'GROUP';
 
 -- The chat is now DM-only.
-ALTER TABLE "Conversation" DROP COLUMN "title";
 ALTER TABLE "Conversation" DROP COLUMN "type";
 DROP TYPE IF EXISTS "ConversationType";
 
