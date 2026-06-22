@@ -34,29 +34,32 @@ export function Header() {
 
 	// Step 2: Load translation helpers and read the current stored session.
 	const { t, i18n } = useTranslation()
-    const [searchParams, setSearchParams] = useSearchParams();
+	const [searchParams, setSearchParams] = useSearchParams();
 
 	useEffect(() => {
-	if (localStorage.getItem("token") === null && searchParams.get("token")) 
-	{
-		localStorage.setItem("token", searchParams.get("token"));
+		const token = searchParams.get("token");
+		const userName = searchParams.get("userName");
+		const userId = searchParams.get("userId");
 
-		const newParams = new URLSearchParams(searchParams);
+		if (localStorage.getItem("token") === null && token !== null) {
+			localStorage.setItem("token", token);
 
-		if (searchParams.get("userName")) {
-			localStorage.setItem("userName", searchParams.get("userName"));
-			newParams.delete("userName");
+			const newParams = new URLSearchParams(searchParams);
+
+			if (userName !== null ) {
+				localStorage.setItem("userName", userName);
+				newParams.delete("userName");
+			}
+
+			if (userId !== null ) {
+				localStorage.setItem("userId", userId);
+				newParams.delete("userId");
+			}
+
+			newParams.delete("token");
+
+			setSearchParams(newParams, { replace: true });
 		}
-
-		if (searchParams.get("userId")) {
-			localStorage.setItem("userId", searchParams.get("userId"));
-			newParams.delete("userId");
-		}
-
-		newParams.delete("token");
-
-		setSearchParams(newParams, { replace: true });
-	}
 	}, [searchParams, setSearchParams]);
 
 	const userName = localStorage.getItem('userName');
@@ -205,7 +208,7 @@ export function Header() {
 									onClick={() => {
 										clearSession();
 										closeMenu();
-										window.location.href = '/start';
+										navigate('/start');
 									}}
 									className={menuLinkClass}>
 									{t('header.logout')}
@@ -258,9 +261,9 @@ export function Header() {
 							<button
 								type="button"
 								onClick={() => {
-									clearSession()
-									closeMenu()
-									window.location.href = '/start'
+									clearSession();
+									closeMenu();
+									navigate('/start');
 								}}
 								className={mobileLinkClass}>
 								{t('header.logout')}
