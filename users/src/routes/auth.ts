@@ -38,8 +38,8 @@ export async function authRoutes(server: FastifyInstance) {
     // After the user accepts on the Intra, 42 calls this URL
     // with a temporary 'code' that we exchange for an access token
     // HTTP Method: GET
-    // URL: https://localhost:8889/api/auth/42/callback?code=XXXXXX
-    server.get('/auth/42/callback', async (request, reply) => {
+    // URL: https://localhost:8889/api/42/callback?code=XXXXXX
+    server.get('/42/callback', async (request, reply) => {
 
         try {
             // STEP 1: Get the 'code' that 42 sends in the URL
