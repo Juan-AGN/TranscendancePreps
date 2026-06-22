@@ -51,9 +51,10 @@ export async function authenticate(
     }
     
     // STEP 4: Verify and decode the token
-    const secret = process.env.JWT_SECRET || 'super-secure-secret';
+    const secret = process.env.JWT_SECRET;
+      if (!secret) throw new Error('JWT_SECRET is not configurate');    
     
-    const decoded = jwt.verify(token, secret) as {
+      const decoded = jwt.verify(token, secret) as {
       id: number;
       email: string;
     };
