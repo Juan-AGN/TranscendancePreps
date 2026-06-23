@@ -44,6 +44,26 @@ cp .env.example .env
 make
 ```
 
+### Environment variables
+Required values in `.env`:
+- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
+- `CHAT_POSTGRES_USER`, `CHAT_POSTGRES_PASSWORD`, `CHAT_POSTGRES_DB`
+- `DATABASE_URL`
+- `CHAT_DATABASE_URL`
+- `JWT_SECRET`
+- `PORT` (users backend)
+- `NODE_ENV`
+- `FORTY_TWO_CLIENT_ID`, `FORTY_TWO_CLIENT_SECRET`, `FORTY_TWO_REDIRECT_URI`
+- `FRONTEND_URL`
+
+### Access
+- Application frontend: `https://localhost:8889`
+- Auth backend (internal): `http://backend:3000`
+- Social chat backend (internal): `http://social-chat-back:8890`
+- Game chat backend (internal): `http://game-back:8888`
+
+> Note: Nginx exposes the application on port `8889` and routes traffic to internal services.
+
 ### Usage
 
 1. Create an account or log in with 42 OAuth.
@@ -86,8 +106,6 @@ make
 - **Role(s):** Product owner, Developer
 - **Responsibilities:** ...
 
-> Note: with a 4-person team, some members will hold multiple roles (e.g., PM + Developer, PO + Developer). Make sure all of PO, PM/Scrum Master, Tech Lead, and Developer are covered.
-
 ## Project Management
 
 - **Work organization / task distribution:** During the early stages of the project, tasks were distributed by reviewing the available modules and matching them with each team member’s interests and the technologies they wanted to learn. In the later stages, remaining features were assigned to the team member with the greatest overlap in the affected area. For example, the user connection status feature was assigned to cagarci2 because he had already implemented a global WebSocket for the chat service, making it more efficient to reuse that infrastructure rather than create a new one.
@@ -115,52 +133,69 @@ make
 ## Database Schema
 
 ### Users/Auth database
-- `User`
+- `User` (stored as `Usuario`)
   - `id` (primary key)
-  - `name`
-  - `email`
-  - `password` (hashed)
-  - `avatar`
-  - `onlineStatus`
-  - `lastConnection`
+  - `name` (stored as `nombre`)
+  - `email` (unique)
+  - `password` (hashed, nullable for OAuth-only accounts)
+  - `avatar` (defaults to `/avatars/default-avatar.svg`)
+  - `onlineStatus` (stored as `estadoOnline`, default `false`)
+  - `lastConnection` (stored as `ultimaConexion`)
   - `createdAt`
-- `Friendship`
+  - `fortyTwoId` (unique, nullable — links account to 42 OAuth)
+- `Friendship` (stored as `Amistad`)
   - `id`
-  - `requesterId` (FK → User)
-  - `receiverId` (FK → User)
-  - `status` (`pending`, `accepted`)
-  - `createdAt`
-
-### Social Chat database
-- `Conversation`
-  - `id`
-  - `type` (`DM`, `GROUP`)
-  - `title`
-  - `updatedAt`
-  - `createdAt`
-- `ConversationMember`
-  - `id`
-  - `conversationId` (FK → Conversation)
-  - `userId`
-  - `createdAt`
-- `Message`
-  - `id`
-  - `conversationId` (FK → Conversation)
-  - `senderId`
-  - `content`
+  - `requesterId` (stored as `solicitanteId`, FK → User)
+  - `receiverId` (stored as `receptorId`, FK → User)
+  - `status` (stored as `estado`, default `pendiente`)
   - `createdAt`
 
 **Relationships:**
-- Users can connect through friendships.
-- Conversations contain members and messages.
-- Groups are represented as conversations with a title and multiple members.
+- A `User` can send and receive multiple `Friendship` requests.
+- Each `Friendship` links two distinct users via `requesterId` and `receiverId`.
+- A `User` can authenticate locally (email/password) or via 42 OAuth (`fortyTwoId`).
+
+### Social Chat database
+- `Conversation`
+  - `id` (primary key)
+  - `createdAt`
+  - `updatedAt`
+- `ConversationMember`
+  - `id`
+  - `conversationId` (FK → Conversation, cascade delete)
+  - `userId`
+  - `createdAt`
+  - `hiddenAt` (nullable)
+  - `lastReadMessageId` (nullable)
+  - Unique constraint on `(conversationId, userId)`
+  - Indexed on `userId` and `(userId, hiddenAt)`
+- `Message`
+  - `id`
+  - `conversationId` (FK → Conversation, cascade delete)
+  - `senderId`
+  - `content`
+  - `createdAt`
+  - Indexed on `(conversationId, createdAt)`
+
+**Relationships:**
+- Each conversation is a DM between exactly two members.
+- A `ConversationMember` row is preserved even after a user hides a conversation, so the other participant's identity is never lost from message history.
+- `lastReadMessageId` per member drives the unread indicator.
+
+### Visual representation of both databases
 
 ```mermaid
 erDiagram
     User {
         int id
-        string email
         string name
+        string email
+        string password
+        string avatar
+        boolean onlineStatus
+        datetime lastConnection
+        datetime createdAt
+        int fortyTwoId
     }
 
     Friendship {
@@ -168,51 +203,37 @@ erDiagram
         int requesterId
         int receiverId
         string status
+        datetime createdAt
     }
+
+    User ||--o{ Friendship : requester
+    User ||--o{ Friendship : receiver
 
     Conversation {
         int id
-        string type
-        string title
+        datetime createdAt
+        datetime updatedAt
     }
 
     ConversationMember {
         int id
         int conversationId
-        int userId
+        string userId
+        datetime hiddenAt
+        int lastReadMessageId
     }
 
     Message {
         int id
         int conversationId
-        int senderId
+        string senderId
         string content
+        datetime createdAt
     }
 
-    User ||--o{ Friendship : requester
-    User ||--o{ Friendship : receiver
     Conversation ||--o{ ConversationMember : contains
     Conversation ||--o{ Message : contains
 ```
-
-### Environment variables
-Required values in `.env`:
-- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
-- `CHAT_POSTGRES_USER`, `CHAT_POSTGRES_PASSWORD`, `CHAT_POSTGRES_DB`
-- `DATABASE_URL`
-- `CHAT_DATABASE_URL`
-- `JWT_SECRET`
-- `PORT` (users backend)
-- `NODE_ENV`
-- `FORTY_TWO_CLIENT_ID`, `FORTY_TWO_CLIENT_SECRET`, `FORTY_TWO_REDIRECT_URI`
-- `FRONTEND_URL`
-
-### Access
-- Application frontend: `https://localhost:8889`
-- Auth backend (internal): `http://backend:3000`
-- Social chat backend (internal): `http://social-chat-back:8890`
-
-> Note: Nginx exposes the application on port `8889` and routes traffic to internal services.
 
 ## Features List
 
