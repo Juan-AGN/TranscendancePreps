@@ -232,7 +232,7 @@ Required values in `.env`:
 |---|---|---|---|---|
 | Framework on frontend and backend | Major | 2 | Web | druiz-ca, cagarci2, juan-ant, albelope |
 | Realtime WebSocket communication | Major | 2 | Web | druiz-ca, cagarci2 |
-| Social interaction | Minor | 1 | Web | druiz-ca, cagarci2 |
+| Social interaction | Major | 2 | Web | druiz-ca, cagarci2 |
 | ORM/database access | Minor | 1 | Web | druiz-ca, cagarci2 |
 | Reusable components | Minor | 1 | Web | albelope |
 | Multiple languages | Minor | 1 | Accessibility and Internationalization | albelope |
@@ -247,7 +247,7 @@ Required values in `.env`:
 | Spectator mode | Minor | 1 | Gaming | juan-ant |
 | Backend as microservices | Major | 2 | DevOps | druiz-ca, cagarci2, juan-ant, albelope |
 
-**Total points:** 23 / 14 minimum
+**Total points:** 24 / 14 minimum
 
 ### Justifications
 
