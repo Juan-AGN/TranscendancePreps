@@ -232,7 +232,7 @@ Required values in `.env`:
 |---|---|---|---|---|
 | Framework on frontend and backend | Major | 2 | Web | druiz-ca, cagarci2, juan-ant, albelope |
 | Realtime WebSocket communication | Major | 2 | Web | druiz-ca, cagarci2 |
-| Social interaction | Major | 2 | Web | druiz-ca, cagarci2 |
+| User interaction | Major | 2 | Web | druiz-ca, cagarci2 |
 | ORM/database access | Minor | 1 | Web | druiz-ca, cagarci2 |
 | Reusable components | Minor | 1 | Web | albelope |
 | Multiple languages | Minor | 1 | Accessibility and Internationalization | albelope |
@@ -241,13 +241,13 @@ Required values in `.env`:
 | OAuth 2.0 | Minor | 1 | User Management | druiz-ca |
 | Complete web-based game | Major | 2 | Gaming | juan-ant, albelope |
 | Remote players | Major | 2 | Gaming | juan-ant |
-| Multiplayer (2+) | Major | 2 | Gaming | juan-ant |
-| 3D graphics | Minor | 1 | Gaming | albelope |
-| Customization options | Minor | 1 | Gaming | juan-ant |
+| Multiplayer (more than two players)) | Major | 2 | Gaming | juan-ant |
+| 3D graphics | Major | 2 | Gaming | albelope |
+| Customization options | Minor | 1 | Gaming | juan-ant, albelope |
 | Spectator mode | Minor | 1 | Gaming | juan-ant |
 | Backend as microservices | Major | 2 | DevOps | druiz-ca, cagarci2, juan-ant, albelope |
 
-**Total points:** 24 / 14 minimum
+**Total points:** 25 / 14 minimum
 
 ### Justifications
 
