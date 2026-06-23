@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by juan-ant, <login2>, <login3>, <login4>.*
+*This project has been created as part of the 42 curriculum by albelope, juan-ant, druiz-ca, cagarci2.*
 
 # ft_transcendence
 
@@ -20,32 +20,80 @@
 - Game lobby management and realtime game logic.
 - Docker Compose stack for local development and service orchestration.
 
+## Instructions
+
+### Prerequisites
+- Docker Engine and Docker Compose installed.
+- `.env` file created from `.env.example`.
+- Optional: Node.js to run individual services locally.
+
+### Setup & Run
+```bash
+git clone <repo-url>
+cd <repo folder>
+cp .env.example .env
+# fill in required values in .env
+docker compose up --build
+```
+Or with Makefile:
+```bash
+git clone <repo-url>
+cd <repo folder>
+cp .env.example .env
+# fill in required values in .env
+make
+```
+
+### Usage
+
+1. Create an account or log in with 42 OAuth.
+2. Add friends.
+3. Open the chat interface.
+4. Create or join a game lobby.
+5. Start a match or spectate an existing one.
+
+## Resources
+
+- [Babylon documentation](https://doc.babylonjs.com/)
+- [React tsx documentation](https://react.dev/learn/typescript)
+- [Node documentation (w/ libraries)](https://nodejs.org/api/all.html)
+- [Stack overflow](https://stackoverflow.com/questions)
+- [Fastify Documentation](https://fastify.dev/docs/latest/)
+- [Express Documentation](https://expressjs.com/)
+- [Prisma Documentation](https://www.prisma.io/docs)
+
+**AI usage:**
+- AI was used for researching unfamiliar technologies, debugging specific implementation issues, brainstorming architectural approaches, and improving documentation.
+- AI image generation tools were used to create some visual assets and placeholder graphics.
+- AI-assisted translation was used for multilingual content.
+- All architectural decisions, implementation, integration, testing, and final code review were performed by the team members.
+
 ## Team Information
 
-### <Name / login1>
-- **Role(s):** PO / PM / Tech Lead / Developer
+### albelope
+- **Role(s):** Technical Lead, Developer
 - **Responsibilities:** ...
 
-### <Name / login2>
-- **Role(s):**
+### juan-ant
+- **Role(s):** Project manager, Developer
+- **Responsibilities:** Organizing meetings, planning sessions, establishing deadlines and roadmaps, ensuring team communication, and developing the remote game.
+
+### druiz-ca
+- **Role(s):** Technical lead, Developer
 - **Responsibilities:** ...
 
-### <Name / login3>
-- **Role(s):**
-- **Responsibilities:** ...
-
-### <Name / login4>
-- **Role(s):**
+### cagarci2
+- **Role(s):** Product owner, Developer
 - **Responsibilities:** ...
 
 > Note: with a 4-person team, some members will hold multiple roles (e.g., PM + Developer, PO + Developer). Make sure all of PO, PM/Scrum Master, Tech Lead, and Developer are covered.
 
 ## Project Management
 
-- **Work organization / task distribution:** ...
-- **Meetings (frequency, format):** ...
-- **Project management tools used (GitHub Issues, Trello, etc.):** ...
-- **Communication channels (Discord, Slack, etc.):** ...
+- **Work organization / task distribution:** During the early stages of the project, tasks were distributed by reviewing the available modules and matching them with each team member’s interests and the technologies they wanted to learn. In the later stages, remaining features were assigned to the team member with the greatest overlap in the affected area. For example, the user connection status feature was assigned to cagarci2 because he had already implemented a global WebSocket for the chat service, making it more efficient to reuse that infrastructure rather than create a new one.
+- **Meetings (frequency, format):** One meeting per week minimum, always held in person.
+- **Project management tools used:** GitHub Issues and commits, a Discord server, and Notion during the early stages of the project.
+- **Communication channels:** Discord and WhatsApp.
 
 ## Technical Stack
 
@@ -107,20 +155,44 @@
 - Conversations contain members and messages.
 - Groups are represented as conversations with a title and multiple members.
 
-## Instructions
+```mermaid
+erDiagram
+    User {
+        int id
+        string email
+        string name
+    }
 
-### Prerequisites
-- Docker Engine and Docker Compose installed.
-- `.env` file created from `.env.example`.
-- Optional: Node.js to run individual services locally.
+    Friendship {
+        int id
+        int requesterId
+        int receiverId
+        string status
+    }
 
-### Setup & Run
-```bash
-git clone <repo-url>
-cd <repo folder>
-cp .env.example .env
-# fill in required values in .env
-docker compose up --build
+    Conversation {
+        int id
+        string type
+        string title
+    }
+
+    ConversationMember {
+        int id
+        int conversationId
+        int userId
+    }
+
+    Message {
+        int id
+        int conversationId
+        int senderId
+        string content
+    }
+
+    User ||--o{ Friendship : requester
+    User ||--o{ Friendship : receiver
+    Conversation ||--o{ ConversationMember : contains
+    Conversation ||--o{ Message : contains
 ```
 
 ### Environment variables
@@ -151,7 +223,7 @@ Required values in `.env`:
 | Friendship system | Send, accept, reject and remove friends. | druiz-ca |
 | Social chat | DM chat. | cagarci2 |
 | Game backend | Lobby creation, game session management and realtime gameplay. | juan-ant |
-| Dront with reusable assets, consistant styles, translations and 3d graphics | One-command orchestration for all services. | albelope |
+| Frontend with reusable assets, consistent styles, translations, and 3D graphics | Shared frontend architecture and visual experience. | albelope |
 | Docker Compose stack | One-command orchestration for all services. | druiz-ca, cagarci2, juan-ant, albelope |
 
 ## Modules
@@ -164,7 +236,7 @@ Required values in `.env`:
 | ORM/database access | Minor | 1 | Web | druiz-ca, cagarci2 |
 | Reusable components | Minor | 1 | Web | albelope |
 | Multiple languages | Minor | 1 | Accessibility and Internationalization | albelope |
-| Aditional browsers | Minor | 1 | Accessibility and Internationalization | albelope |
+| Additional browsers | Minor | 1 | Accessibility and Internationalization | albelope |
 | Standard user management and authentication | Major | 2 | User Management | druiz-ca |
 | OAuth 2.0 | Minor | 1 | User Management | druiz-ca |
 | Complete web-based game | Major | 2 | Gaming | juan-ant, albelope |
@@ -233,15 +305,28 @@ Required values in `.env`:
 
 **Customization options**
 - Why we chose it: players should be able to adjust settings for more variety in their games.
-- How it was implemented: settings pages are available in the frontend, including `Settings2DPage`, `GameSettings2DPage`, and display settings in the frontend local game and `game/back/content/src/rulesmanager.ts` adds an rulesmanager for a whole world of customization for the remote game.
+- How it was implemented: Settings pages are available in the frontend, including `Settings2DPage` and `GameSettings2DPage`. Additionally, `game/back/content/src/rulesmanager.ts` provides a rules manager that allows extensive customization of remote game settings.
 
 **Spectator mode**
 - Why we chose it: spectator functionality enhances the game experience and supports non-playing observers.
-- How it was implemented: the lobbyes of `game/back/content/src/lobbymanager.ts` lensures an working spectators experience via an spectators field in the lobby.
+- How it was implemented: The lobbies managed by `game/back/content/src/lobbymanager.ts` support spectator functionality through a dedicated spectators field within each lobby.
 
 **Backend as microservices**
 - Why we chose it: microservices make the app easier to scale and maintain by isolating auth, chat, game, and frontend concerns.
 - How it was implemented: `docker-compose.yml` defines separate containers for `frontend`, `backend`, `social-chat-back`, `game-back`, plus dedicated DB services and an Nginx proxy.
+```bash
+                Nginx
+                  |
+        +---------+---------+
+        |                   |
+     Frontend           Services
+                            |
+      +---------+-----------+----------+
+      |         |                      |
+   Users     Social Chat            Game
+      |           |                  |
+ PostgreSQL   PostgreSQL      Runtime State
+ ```
 
 ## Individual Contributions
 
@@ -249,9 +334,11 @@ Required values in `.env`:
 - Features/modules implemented: ...
 - Challenges faced and how they were overcome: ...
 
-### <Name / login2>
-- Features/modules implemented: ...
-- Challenges faced and how they were overcome: ...
+### juan-ant
+- Implemented remote game backend.
+- Developed multiplayer synchronization.
+- Added lobby and matchmaking systems.
+- Challenges: Managing real-time state synchronization, handling multiple ws instances of the same user, lobby parsing and validation, creating an versatile game that allows the cahngin of rules.
 
 ### <Name / login3>
 - Features/modules implemented: ...
@@ -261,20 +348,16 @@ Required values in `.env`:
 - Features/modules implemented: ...
 - Challenges faced and how they were overcome: ...
 
-## Resources
-
-- Documentation, articles, tutorials referenced: ...
-- **AI usage:** describe which AI tools were used, for which specific tasks/parts of the project, and how.
-
-## Privacy Policy & Terms of Service
-
-- Privacy Policy: link / location (e.g., footer)
-- Terms of Service: link / location (e.g., footer)
-
 ## Known Limitations
 
-- ...
+- HTTPS certificates are self-signed for local development.
+- OAuth login requires valid 42 API credentials.
+- Performance has primarily been tested on modern desktop browsers.
 
-## License / Credits
+## Credits
 
-- ...
+Created as part of the 42 School ft_transcendence project.
+
+## License
+
+This repository is provided for educational purposes.
