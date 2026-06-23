@@ -241,7 +241,7 @@ Required values in `.env`:
 | OAuth 2.0 | Minor | 1 | User Management | druiz-ca |
 | Complete web-based game | Major | 2 | Gaming | juan-ant, albelope |
 | Remote players | Major | 2 | Gaming | juan-ant |
-| Multiplayer (more than two players)) | Major | 2 | Gaming | juan-ant |
+| Multiplayer (more than two players) | Major | 2 | Gaming | juan-ant |
 | 3D graphics | Major | 2 | Gaming | albelope |
 | Customization options | Minor | 1 | Gaming | juan-ant, albelope |
 | Spectator mode | Minor | 1 | Gaming | juan-ant |
