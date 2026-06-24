@@ -68,20 +68,26 @@
 
 ### Users/Auth database
 - `User`
-  - `id` (primary key)
-  - `name`
-  - `email`
-  - `password` (hashed)
-  - `avatar`
-  - `onlineStatus`
-  - `lastConnection`
-  - `createdAt`
+  - `id` (primary key, autoincrement)
+  - `name` (unique, 3-20 characters)
+  - `email` (unique)
+  - `password` (hashed with bcrypt)
+  - `avatar` (image path, optional)
+  - `onlineStatus` (boolean, default: false)
+  - `lastConnection` (timestamp, updated on logout)
+  - `createdAt` (registration timestamp)
+  - `fortyTwoId` (OAuth ID, optional)
+
 - `Friendship`
-  - `id`
-  - `requesterId` (FK → User)
-  - `receiverId` (FK → User)
-  - `status` (`pending`, `accepted`)
-  - `createdAt`
+  - `id` (primary key, autoincrement)
+  - `requesterId` (FK → User: sender of friend request)
+  - `receiverId` (FK → User: receiver of friend request)
+  - `status` (`pending` or `accepted`)
+  - `createdAt` (request timestamp)
+
+**User relationships:**
+- User can send multiple friend requests (`sentRequests`)
+- User can receive multiple friend requests (`receivedRequests`)
 
 ### Social Chat database
 - `Conversation`
@@ -125,15 +131,27 @@ docker compose up --build
 
 ### Environment variables
 Required values in `.env`:
-- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
-- `CHAT_POSTGRES_USER`, `CHAT_POSTGRES_PASSWORD`, `CHAT_POSTGRES_DB`
-- `DATABASE_URL`
-- `CHAT_DATABASE_URL`
-- `JWT_SECRET`
-- `PORT` (users backend)
-- `NODE_ENV`
-- `FORTY_TWO_CLIENT_ID`, `FORTY_TWO_CLIENT_SECRET`, `FORTY_TWO_REDIRECT_URI`
-- `FRONTEND_URL`
+
+**Users/Auth Backend:**
+- `POSTGRES_USER` - PostgreSQL username
+- `POSTGRES_PASSWORD` - PostgreSQL password
+- `POSTGRES_DB` - PostgreSQL database name
+- `DATABASE_URL` - Prisma connection string for users DB
+- `JWT_SECRET` - Secret key for signing JWT tokens
+- `PORT` - Backend port (default 3000)
+- `FORTY_TWO_CLIENT_ID` - OAuth 42 application client ID
+- `FORTY_TWO_CLIENT_SECRET` - OAuth 42 application secret
+- `FORTY_TWO_REDIRECT_URI` - OAuth 42 callback redirect URL
+- `FRONTEND_URL` - Base frontend URL
+
+**Social Chat Backend:**
+- `CHAT_POSTGRES_USER` - PostgreSQL username for chat database
+- `CHAT_POSTGRES_PASSWORD` - PostgreSQL password for chat database
+- `CHAT_POSTGRES_DB` - PostgreSQL database name for chat
+- `CHAT_DATABASE_URL` - Prisma connection string for chat DB
+
+**General:**
+- `NODE_ENV` - Node environment (development/production)
 
 ### Access
 - Application frontend: `https://localhost:8889`
@@ -141,6 +159,42 @@ Required values in `.env`:
 - Social chat backend (internal): `http://social-chat-back:8890`
 
 > Note: Nginx exposes the application on port `8889` and routes traffic to internal services.
+
+## Users/Auth Backend API
+
+**Base path:** `/api/auth/` (routed through Nginx)
+
+### Authentication
+- `GET /auth/42` - Initiate 42 OAuth flow (no auth required)
+- `GET /auth/42/callback` - 42 OAuth callback handler (no auth required)
+- `GET /auth/me` - Validate JWT token (requires auth)
+- `POST /users/register` - Register new user (no auth required)
+- `POST /users/login` - Login and receive JWT token (no auth required)
+
+### User Profile
+- `GET /users/:userId` - Get user profile (requires auth)
+- `GET /users/search?query=xxx` - Search users by name or email (no auth required)
+- `GET /users/filter/online` - Get all online users (requires auth)
+- `PUT /users/:userId` - Update name, email, or password (requires auth, own user only)
+- `PUT /users/:userId/status` - Toggle online/offline status (requires auth, own user only)
+
+### Avatar Management
+- `POST /users/:userId/avatar` - Upload avatar image (requires auth, own user only)
+  - Validation: min 1KB, max 5MB, JPEG/PNG/GIF/WEBP only
+- `DELETE /users/:userId/avatar` - Restore default avatar (requires auth, own user only)
+
+### Friends System
+- `GET /users/:userId/my_friends` - List all accepted friends (requires auth)
+- `GET /users/:userId/pending_requests` - List pending friend requests (requires auth)
+- `POST /users/:userId/send_request/:friendId` - Send friend request (requires auth)
+- `POST /users/:userId/accept_request/:friendId` - Accept friend request (requires auth)
+- `DELETE /users/:userId/reject_request/:friendId` - Reject friend request (requires auth)
+- `DELETE /users/:userId/remove_friend/:friendId` - Remove friend (requires auth)
+
+**Input validation:**
+- Username: 3-20 characters
+- Email: valid format
+- Password: 8-64 characters (requires uppercase + number or special character)
 
 ## Features List
 

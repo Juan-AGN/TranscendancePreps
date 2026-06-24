@@ -36,7 +36,7 @@ export async function friendsRoutes(server: FastifyInstance) {
         
         // STEP 2: Verify that the user is not trying to add themselves
         if (myUserId === targetUserId) {
-            return reply.status(400).send({
+            return reply.status(409).send({
                 error: 'You cannot send a friend request to yourself'
             });
         }
@@ -73,11 +73,11 @@ export async function friendsRoutes(server: FastifyInstance) {
         
         if (existingRequest) {
             if (existingRequest.status === 'aceptada') {
-                return reply.status(400).send({
+                return reply.status(409).send({
                     error: 'You are already friends'
                 });
             } else {
-                return reply.status(400).send({
+                return reply.status(409).send({
                     error: 'A pending request already exists'
                 });
             }
@@ -274,7 +274,7 @@ export async function friendsRoutes(server: FastifyInstance) {
         
         // STEP 3: Verify that they are friends
         if (!friendshipToRemove) {
-            return reply.status(400).send({
+            return reply.status(404).send({
                 error: 'You are not friends'
             });
         }
