@@ -109,22 +109,32 @@ Todos los endpoints van prefijados con /api a través del proxy nginx.
 
 ## Esquema de base de datos
 
-User
-    - id (clave primaria, autoincremental)
-    - name (único, 3-20 carácteres)
-    - email (único)
-    - password (hasheada con bcrypt)
-    - avatar (ruta a la imagen, opcional)
-    - onlineStatus (booleano, por defecto: false)
-    - lastConnection (fecha y hora, se actualiza al hacer logout)
-    - createdAt (fecha y hora de registro)
+## Esquema de base de datos
 
-Friendship
-    - id (clave primaria, autoincremental)
-    - requesterId (FK -> User: quien envía la solicitud)
-    - receiverId (FK -> User: quien la recibe)
-    - status ('pendiente' o 'aceptada')
-    - createdAt (fecha y hora)
+### User
+- id (clave primaria, autoincremental)
+- name (único, 3-20 carácteres)
+- email (único)
+- password (hasheada con bcrypt)
+- avatar (ruta a la imagen, opcional)
+- onlineStatus (booleano, por defecto: false)
+- lastConnection (fecha y hora, se actualiza al hacer logout)
+- createdAt (fecha y hora de registro)
+
+### Friendship
+- id (clave primaria, autoincremental)
+- requesterId (Clave Foránea -> User: quien envía la solicitud)
+- receiverId (Clave Foránea -> User: quien la recibe)
+- status ('pendiente' o 'aceptada')
+- createdAt (fecha y hora)
+
+### Relaciones
+- **User → Friendship (one-to-many)**
+  - Un usuario puede tener múltiples solicitudes enviadas (`sentRequests`)
+  - Un usuario puede recibir múltiples solicitudes (`receivedRequests`)
+- **Friendship → User (many-to-one)**
+  - Cada solicitud tiene un `requester` (quien la envía)
+  - Cada solicitud tiene un `receiver` (quien la recibe)
 
 ## Funcionalidades implementadas
 

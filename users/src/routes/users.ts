@@ -83,7 +83,7 @@ export async function usersRoutes(server: FastifyInstance) {
         
         // If the email already exists, return error
         if (existingUser) {
-            return reply.status(400).send({
+            return reply.status(409).send({
                 error: 'This email is already registered'
             });
         }
