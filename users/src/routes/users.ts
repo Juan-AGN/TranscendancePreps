@@ -323,7 +323,7 @@ export async function usersRoutes(server: FastifyInstance) {
             
             // 'data.mimetype' -> Contains the file type to check if it is one of the allowed ones
             if (!allowedTypes.includes(data.mimetype)) { 
-                return reply.status(400).send({
+                return reply.status(415).send({
                     error: 'Only images are allowed (JPEG, PNG, GIF, WEBP)'
                 });
             }

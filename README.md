@@ -164,7 +164,8 @@ Required values in `.env`:
 
 ### druiz-ca
 - **Role(s):** Technical lead, Developer
-- **Responsibilities:** ...
+- **Responsibilities:** Designing and implementing the users microservice (authentication, profiles, avatars, friends system), database schema with Prisma/PostgreSQL, Docker infrastructure, and Nginx API routing for the users service.
+
 
 ### cagarci2
 - **Role(s):** Product owner, Developer
@@ -426,8 +427,13 @@ erDiagram
 - Challenges: Managing real-time state synchronization, handling multiple ws instances of the same user, lobby parsing and validation, creating an versatile game that allows the cahngin of rules.
 
 ### druiz-ca
-- Features/modules implemented: ...
-- Challenges faced and how they were overcome: ...
+- Implemented local and OAuth 42 authentication (register, login, JWT, 42 OAuth flow with callback).
+- Built full user profile API: profile read/update, avatar upload with type/size/magic-bytes validation, avatar deletion, online status toggle.
+- Developed the friends system: send, accept, reject and remove friend requests, list friends and pending requests, search users.
+- Designed and maintained the PostgreSQL database schema with Prisma ORM (User and Friendship models).
+- Set up the users microservice infrastructure: Fastify server, Prisma client, Dockerfile, and docker-compose integration with Nginx routing.
+- Challenges: Handling 42 OAuth edge cases (linking accounts already registered by email/password), validating file uploads by magic bytes instead of just extension to prevent spoofing, and managing JWT auth middleware across all protected routes.
+
 
 ### cagarci2
 - Features/modules implemented: ...
