@@ -415,7 +415,7 @@ erDiagram
 
 ## Individual Contributions
 
-### <Name / login1>
+### albelope
 - Features/modules implemented: ...
 - Challenges faced and how they were overcome: ...
 
@@ -425,11 +425,11 @@ erDiagram
 - Added lobby and matchmaking systems.
 - Challenges: Managing real-time state synchronization, handling multiple ws instances of the same user, lobby parsing and validation, creating an versatile game that allows the cahngin of rules.
 
-### <Name / login3>
+### druiz-ca
 - Features/modules implemented: ...
 - Challenges faced and how they were overcome: ...
 
-### <Name / login4>
+### cagarci2
 - Features/modules implemented: ...
 - Challenges faced and how they were overcome: ...
 
