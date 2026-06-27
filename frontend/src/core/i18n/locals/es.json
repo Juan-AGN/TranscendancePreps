@@ -373,6 +373,7 @@
     "noMessagesYet": "Aun no hay mensajes",
     "typeMessage": "Escribe un mensaje...",
     "userUnavailable": "Usuario no disponible",
+    "userLeftConversation": "{{name}} ha dejado la conversación.",
     "otherUserDeletedConversation": "El otro usuario ha eliminado esta conversación.",
     "cannotSendDeletedConversation": "No puedes enviar mensajes porque el otro usuario ha eliminado la conversación.",
     "removeConfirm": "¿Quieres eliminar esta conversación de tu lista de chats?",

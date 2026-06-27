@@ -58,6 +58,21 @@ function getMyUserId(): number | null {
 
 const CHAT_API = "/api/chat";
 const AUTH_API = "/api/auth";
+const CHAT_SYSTEM_SENDER_ID = "__chat_system__";
+const CHAT_MEMBER_LEFT_EVENT_PREFIX = "member-left:";
+
+function getMemberLeftUserId(
+	message: Pick<MessageItem, "senderId" | "content">,
+): string | null {
+	if (message.senderId !== CHAT_SYSTEM_SENDER_ID)
+		return null;
+
+	if (!message.content.startsWith(CHAT_MEMBER_LEFT_EVENT_PREFIX))
+		return null;
+
+	const userId = message.content.slice(CHAT_MEMBER_LEFT_EVENT_PREFIX.length).trim();
+	return userId.length > 0 ? userId : null;
+}
 
 async function chatApi<T>(path: string, init?: RequestInit): Promise<T> {
 	const token = getToken();
@@ -228,6 +243,15 @@ export function ChatWidget() {
 		return userMap[otherId]?.name || t('chat.userUnavailable');
 	}, [selected, userMap, t]);
 
+	const visibleMessages = useMemo(() => {
+		return messages.filter((message) => {
+			const leftUserId = getMemberLeftUserId(message);
+
+			// The leave notice is shown only to the participant who remained.
+			return !(leftUserId && myUserId && leftUserId === String(myUserId));
+		});
+	}, [messages, myUserId]);
+
 	const filteredConversations = useMemo(() => {
 		const value = search.trim().toLowerCase();
 		if (!value)
@@ -238,7 +262,16 @@ export function ChatWidget() {
 			const title = otherId
 				? (userMap[otherId]?.name || t('chat.userUnavailable'))
 				: t('chat.userUnavailable');
-			const preview = conversation.lastMessage?.content || '';
+
+			const leftUserId = conversation.lastMessage
+				? getMemberLeftUserId(conversation.lastMessage)
+				: null;
+			const preview = leftUserId
+				? t('chat.userLeftConversation', {
+					name: userMap[leftUserId]?.name || t('chat.userUnavailable'),
+				})
+				: (conversation.lastMessage?.content || '');
+
 			return title.toLowerCase().includes(value) || preview.toLowerCase().includes(value);
 		});
 	}, [conversations, search, t, userMap]);
@@ -337,7 +370,7 @@ export function ChatWidget() {
 	}
 
 	async function sendMessage() {
-		if (!selectedId || selected?.otherUserDeleted) return;
+		if (!selectedId) return;
 		const content = input.trim();
 		if (!content) return;
 
@@ -754,8 +787,13 @@ export function ChatWidget() {
 												const title = otherId
 													? (userMap[otherId]?.name || t('chat.userUnavailable'))
 													: t('chat.userUnavailable');
-												const preview = c.otherUserDeleted
-													? t('chat.otherUserDeletedConversation')
+												const leftUserId = c.lastMessage
+													? getMemberLeftUserId(c.lastMessage)
+													: null;
+												const preview = leftUserId
+													? t('chat.userLeftConversation', {
+														name: userMap[leftUserId]?.name || t('chat.userUnavailable'),
+													})
 													: (c.lastMessage ? c.lastMessage.content : t('chat.noMessagesPreview'));
 
 												return (
@@ -961,17 +999,27 @@ export function ChatWidget() {
 									<span className="truncate">{selectedTitle}</span>
 								</div>
 
-								{selected?.otherUserDeleted && (
-									<div className="mx-3 mb-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-										{t('chat.otherUserDeletedConversation')}
-									</div>
-								)}
 
 								<div className="flex-1 overflow-auto border-1 rounded-[2rem] border-yellow-400/30 p-3">
 									{loadingMsgs && <div className="text-gray-600">{t('chat.loadingMessages')}</div>}
-									{!loadingMsgs && selectedId && messages.length === 0 && <div className="text-gray-600">{t('chat.noMessagesYet')}</div>}
+									{!loadingMsgs && selectedId && visibleMessages.length === 0 && <div className="text-gray-600">{t('chat.noMessagesYet')}</div>}
 
-									{messages.map((m) => {
+									{visibleMessages.map((m) => {
+										const leftUserId = getMemberLeftUserId(m);
+
+										if (leftUserId) {
+											const userName = userMap[leftUserId]?.name || t('chat.userUnavailable');
+
+											return (
+												<div key={m.id} className="mb-3 flex justify-center px-2">
+													<div className="max-w-[90%] min-w-0 rounded-full bg-gray-100 px-4 py-2 text-center text-xs text-gray-600
+														whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+														{t('chat.userLeftConversation', { name: userName })}
+													</div>
+												</div>
+											);
+										}
+
 										const mine = myUserId ? m.senderId === String(myUserId) : false;
 										return (
 											<div key={m.id} className={`mb-3 flex ${mine ? "justify-end" : "justify-start"}`}>
@@ -981,7 +1029,7 @@ export function ChatWidget() {
 													<div className="mb-1 text-[11px] opacity-75">
 														{(mine ? t('chat.you') : (userMap[m.senderId]?.name || t('chat.userUnavailable')))} · {new Date(m.createdAt).toLocaleString()}
 													</div>
-													<div className="whitespace-pre-wrap">{m.content}</div>
+													<div className="min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{m.content}</div>
 												</div>
 											</div>
 										);
@@ -1001,8 +1049,8 @@ export function ChatWidget() {
 												setInput(e.target.value);
 												setError(null);
 											}}
-											placeholder={selected?.otherUserDeleted ? t('chat.cannotSendDeletedConversation') : t('chat.typeMessage')}
-											disabled={!selectedId || !!selected?.otherUserDeleted}
+											placeholder={t('chat.typeMessage')}
+											disabled={!selectedId}
 											aria-describedby="chat-message-counter"
 											className="w-full rounded-full bg-gray-100 px-4 py-2 text-sm outline-none text-gray-700 placeholder-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
 											onKeyDown={(e) => {
@@ -1020,7 +1068,7 @@ export function ChatWidget() {
 									</div>
 									<button
 										onClick={sendMessage}
-										disabled={!selectedId || !!selected?.otherUserDeleted || input.trim().length === 0}
+										disabled={!selectedId || input.trim().length === 0}
 										title={t('chat.send')}
 										className="flex-shrink-0 h-14 w-14 border rounded-full bg-black/80 flex items-center justify-center
 													text-white hover:bg-yellow-400/50 transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-40">

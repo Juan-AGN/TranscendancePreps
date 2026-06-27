@@ -8,6 +8,13 @@ export const CHAT_MESSAGE_MAX_LENGTH = 1000;
 export const CHAT_JSON_BODY_LIMIT = "16kb";
 export const CHAT_MAX_RESOLVE_USER_IDS = 50;
 
+/**
+ * Persisted chat event format. System events are stored in the Message table
+ * so that they survive reloads without requiring an additional Prisma model.
+ */
+export const CHAT_SYSTEM_SENDER_ID = "__chat_system__";
+export const CHAT_MEMBER_LEFT_EVENT_PREFIX = "member-left:";
+
 export enum ChatErrorCode {
   WORKED = 0,
 

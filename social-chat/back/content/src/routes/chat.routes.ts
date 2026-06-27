@@ -2,7 +2,9 @@ import { Request, Response, Router } from "express";
 import { prisma } from "../prisma";
 import {
   CHAT_MAX_RESOLVE_USER_IDS,
+  CHAT_MEMBER_LEFT_EVENT_PREFIX,
   CHAT_MESSAGE_MAX_LENGTH,
+  CHAT_SYSTEM_SENDER_ID,
   ChatErrorCode,
 } from "../types";
 import { getUserId } from "../utils/getUserId";
@@ -216,9 +218,39 @@ chatRouter.delete("/conversations/:id", async (req: Request, res: Response) => {
       return sendChatError(res, ChatErrorCode.CONVERSATION_NOT_FOUND);
     }
 
-    await prisma.conversationMember.update({
-      where: { id: membership.id },
-      data: { hiddenAt: new Date() },
+    const systemMessage = await prisma.$transaction(async (transaction: any) => {
+      await transaction.conversationMember.update({
+        where: { id: membership.id },
+        data: { hiddenAt: new Date() },
+      });
+
+      const createdMessage = await transaction.message.create({
+        data: {
+          conversationId,
+          senderId: CHAT_SYSTEM_SENDER_ID,
+          content: `${CHAT_MEMBER_LEFT_EVENT_PREFIX}${me}`,
+        },
+        select: {
+          id: true,
+          conversationId: true,
+          senderId: true,
+          content: true,
+          createdAt: true,
+        },
+      });
+
+      await transaction.conversation.update({
+        where: { id: conversationId },
+        data: { updatedAt: new Date() },
+      });
+
+      // Do not count the leave event as unread for the user who hid the chat.
+      await transaction.conversationMember.update({
+        where: { id: membership.id },
+        data: { lastReadMessageId: createdMessage.id },
+      });
+
+      return createdMessage;
     });
 
     const otherMembers = await prisma.conversationMember.findMany({
@@ -231,15 +263,21 @@ chatRouter.delete("/conversations/:id", async (req: Request, res: Response) => {
       },
     });
 
+    // Persist and broadcast the informational leave message to the participant
+    // who remains in the conversation.
     for (const member of otherMembers) {
       sendToUser(member.userId, {
-        type: "conversation:member-hidden",
+        type: "message:new",
         conversationId,
-        userId: me,
+        message: systemMessage,
       });
     }
 
-    return res.json({ conversationId, hiddenForUser: me });
+    return res.json({
+      conversationId,
+      hiddenForUser: me,
+      systemMessageId: systemMessage.id,
+    });
   } catch (error: unknown) {
     return handleChatError(res, error);
   }
@@ -434,7 +472,7 @@ chatRouter.get("/conversations/:id/members", async (req: Request, res: Response)
 
 /**
  * POST /chat/conversations/:id/messages
- * The sender gets the message through HTTP. Only the other active member gets it by WS.
+ * The sender gets the message through HTTP. The other member gets it by WS.
  */
 chatRouter.post("/conversations/:id/messages", async (req: Request, res: Response) => {
   try {
@@ -480,10 +518,6 @@ chatRouter.post("/conversations/:id/messages", async (req: Request, res: Respons
       return sendChatError(res, ChatErrorCode.OTHER_USER_NOT_AVAILABLE);
     }
 
-    if (otherMember.hiddenAt) {
-      return sendChatError(res, ChatErrorCode.OTHER_USER_DELETED_CONVERSATION);
-    }
-
     const message = await prisma.$transaction(async (transaction: any) => {
       const createdMessage = await transaction.message.create({
         data: {
@@ -514,6 +548,20 @@ chatRouter.post("/conversations/:id/messages", async (req: Request, res: Respons
         },
         data: {
           lastReadMessageId: createdMessage.id,
+        },
+      });
+
+      // A new message makes the recipient's hidden conversation visible again.
+      // Hiding a conversation is not equivalent to blocking its participant.
+      await transaction.conversationMember.update({
+        where: {
+          conversationId_userId: {
+            conversationId,
+            userId: otherMember.userId,
+          },
+        },
+        data: {
+          hiddenAt: null,
         },
       });
 

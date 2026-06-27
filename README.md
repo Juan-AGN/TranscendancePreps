@@ -168,8 +168,8 @@ Required values in `.env`:
 
 
 ### cagarci2
-- **Role(s):** Product owner, Developer
-- **Responsibilities:** ...
+- **Role(s):** Product Owner, Developer
+- **Responsibilities:** Defining and prioritizing requirements for the social features, designing and implementing the social chat microservice, integrating authenticated real-time WebSocket communication and frontend notifications, maintaining the chat data model and dedicated PostgreSQL service, and coordinating the chat integration across Docker Compose, Nginx, and the React frontend.
 
 ## Project Management
 
@@ -436,8 +436,14 @@ erDiagram
 
 
 ### cagarci2
-- Features/modules implemented: ...
-- Challenges faced and how they were overcome: ...
+- Designed and implemented the social chat microservice with Express, TypeScript, Prisma, and PostgreSQL.
+- Built direct-message creation and reuse, message persistence, cursor pagination, unread counters, and per-user conversation hiding and restoration.
+- Implemented an authenticated WebSocket hub for instant message notifications, online presence, multi-tab connections, and session-aware reconnection.
+- Integrated the global React chat widget with friends, online/offline lists, conversation search, notification badges, user-name resolution, and multilingual feedback.
+- Added shared numeric chat error codes for backend and frontend, JWT validation, request-size protection, a 1,000-character message limit, a 50-character search limit, and defensive frontend validation.
+- Added responsive message wrapping so long words, URLs, and continuous text cannot break the chat layout.
+- Separated chat persistence into its own PostgreSQL database and integrated the service through Docker Compose and Nginx HTTPS routing.
+- Challenges: Preventing duplicate messages between HTTP responses and WebSocket broadcasts, keeping unread state consistent, handling missing or expired tokens without reconnection loops, preserving participant identity when a conversation is hidden, synchronizing online presence across multiple browser tabs, and ensuring long messages cannot break the responsive frontend layout.
 
 ## Known Limitations
 

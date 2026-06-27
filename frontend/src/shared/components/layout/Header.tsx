@@ -31,10 +31,27 @@ export function Header() {
 	const [openSubmenu, setOpenSubmenu] = useState<Submenu>(null)
 	const [langMenuOpen, setLangMenuOpen] = useState(false)
 	const navigate = useNavigate()
+	const [sessionToken, setSessionToken] = useState<string | null>(() => localStorage.getItem('token'));
+	const [storedUserName, setStoredUserName] = useState<string | null>(() => localStorage.getItem('userName'));
 
 	// Step 2: Load translation helpers and read the current stored session.
 	const { t, i18n } = useTranslation()
 	const [searchParams, setSearchParams] = useSearchParams();
+
+	useEffect(() => {
+		const syncSession = () => {
+			setSessionToken(localStorage.getItem('token'));
+			setStoredUserName(localStorage.getItem('userName'));
+		};
+
+		window.addEventListener('auth:changed', syncSession);
+		window.addEventListener('storage', syncSession);
+
+		return () => {
+			window.removeEventListener('auth:changed', syncSession);
+			window.removeEventListener('storage', syncSession);
+		};
+	}, []);
 
 	useEffect(() => {
 		const token = searchParams.get("token");
@@ -59,11 +76,12 @@ export function Header() {
 			newParams.delete("token");
 
 			setSearchParams(newParams, { replace: true });
+			window.dispatchEvent(new Event('auth:changed'));
 		}
 	}, [searchParams, setSearchParams]);
 
-	const userName = localStorage.getItem('userName');
-	const isLogged = !!localStorage.getItem('token');
+	const userName = storedUserName;
+	const isLogged = !!sessionToken;
 
 	// Step 3: Detect touch devices to avoid hover-only submenu behavior.
 	const isTouchDevice = typeof window !== 'undefined'
