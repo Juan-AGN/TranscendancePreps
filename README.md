@@ -156,7 +156,7 @@ Required values in `.env`:
 
 ### albelope
 - **Role(s):** Technical Lead, Developer
-- **Responsibilities:** ...
+- **Responsibilities:** Designed and implemented the main React frontend structure, SPA routing, shared layouts, reusable UI components, responsive navigation, language support, settings pages, local 2D Pong interface, Babylon.js 3D hub integration, and visual assets.
 
 ### juan-ant
 - **Role(s):** Project manager, Developer
@@ -182,7 +182,7 @@ Required values in `.env`:
 
 | Layer | Technology | Why we chose it |
 |---|---|---|
-| Frontend | React, TypeScript, Vite, Tailwind CSS, Babylon.js, Zustand | Fast, modern UI with responsive styling and integrated 3D/game view.
+| Frontend | React, TypeScript, Vite, React Router, Tailwind CSS, Zustand, i18next, Babylon.js, Canvas 2D API | SPA frontend with routing, responsive UI, shared state, translations, local 2D rendering and 3D integration. |
 | Auth Backend | Fastify, TypeScript, Prisma, PostgreSQL, JWT, bcrypt | Secure user management with typed database access.
 | Social Chat | Express, TypeScript, Prisma, PostgreSQL, WebSockets | Independent chat service with REST APIs and realtime support.
 | Game Backend | Express, TypeScript, WebSocket | Realtime lobby and game session engine.
@@ -309,7 +309,7 @@ erDiagram
 | Friendship system | Send, accept, reject and remove friends. | druiz-ca |
 | Social chat | DM chat. | cagarci2 |
 | Game backend | Lobby creation, game session management and realtime gameplay. | juan-ant |
-| Frontend with reusable assets, consistent styles, translations, and 3D graphics | Shared frontend architecture and visual experience. | albelope |
+| Frontend SPA, UI/UX, 2D game interface and 3D hub | Route-based React frontend with reusable layouts, responsive design, translations, settings pages, local 2D Pong UI, Babylon.js hub and legal pages. | albelope |
 | Docker Compose stack | One-command orchestration for all services. | druiz-ca, cagarci2, juan-ant, albelope |
 
 ## Modules
@@ -387,7 +387,7 @@ erDiagram
 
 **3D graphics**
 - Why we chose it: 3D presentation adds depth to the game experience and meets the project’s visual requirements.
-- How it was implemented: Babylon.js is used in the frontend for the 3D hub and homepage globe.
+- How it was implemented: Babylon.js is used in the frontend to create a 3D hub with its own canvas, scene lifecycle, camera/player-related systems, imported models, visual effects, interactive objects, proximity checks, loading progress and cleanup logic.
 
 **Customization options**
 - Why we chose it: players should be able to adjust settings for more variety in their games.
@@ -417,8 +417,16 @@ erDiagram
 ## Individual Contributions
 
 ### albelope
-- Features/modules implemented: ...
-- Challenges faced and how they were overcome: ...
+- Implemented the main React + TypeScript frontend structure.
+- Built shared layouts, reusable UI components, responsive navigation, header, footer and visual page structure.
+- Developed the landing/start flow and section-based navigation.
+- Added multilingual support using i18next, react-i18next and browser language detection.
+- Persisted lightweight frontend preferences using Zustand and localStorage.
+- Built the local 2D Pong frontend using Canvas 2D API, keyboard input handling, a custom game loop, rendering logic, physics updates and display settings.
+- Integrated the Babylon.js 3D hub, including scene lifecycle, asset loading, player/camera-related logic, interactive objects, proximity checks, visual effects and cleanup/disposal.
+- Organized frontend visual assets such as images, videos and 3D models.
+- Added Privacy Policy and Terms of Service frontend pages.
+- Challenges: Organizing a large frontend that combined normal UI pages, a local 2D game and a Babylon.js 3D hub, separating frontend responsibilities from backend/security logic, handling route-based navigation,    avoiding unnecessary React re-renders in the Canvas game, managing the Babylon.js scene lifecycle correctly, and reviewing the frontend before evaluation to avoid broken routes, dead buttons, unused files, debug logs and unclear components.
 
 ### juan-ant
 - Implemented remote game backend.
