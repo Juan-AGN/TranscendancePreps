@@ -1,151 +1,155 @@
-# MÓDULO DE GESTIÓN DE USUARIOS - FT_TRANSCENDENCE
+# USER MANAGEMENT MODULE - FT_TRANSCENDENCE
 
-Tecnologías: Node.js, Fastify, TypeScript, PostgreSQL, Prisma, JWT, bcrypt, Docker
-
----
-
-## Descripción
-
-Este módulo gestiona todo lo relacionado con los usuarios del proyecto ft_transcendence:
-- Registro e inicio de sesión (local y OAuth con la intranet de 42)
-- Gestión del perfil (nombre, email, contraseña, avatar, estado (online/offline))
-- Gestión de amigos (enviar, aceptar, rechazar y eliminar solicitudes)
-- Búsqueda de usuarios
+Technologies: Node.js, Fastify, TypeScript, PostgreSQL, Prisma, JWT, bcrypt, Docker
 
 ---
 
-## Variables de entorno
+## Description
 
-Copiar .env.example a .env y rellenar los valores:
+This module manages everything related to the ft_transcendence project users:
+- Registration and login (local and OAuth with the 42 intranet)
+- Profile management (name, email, password, avatar, status (online/offline))
+- Friend management (send, accept, reject, and remove requests)
+- User search
 
-BASE DE DATOS: 
-    **POSTGRES_USER** - nombre de usuario de PostgreSQL
-    **POSTGRES_PASSWORD** — contraseña de PostgreSQL
-    **POSTGRES_DB** — nombre de la base de datos
-    **DATABASE_URL** — cadena de conexión completa a PostgreSQL (una ruta que combina las 3 anteriores para Prisma)
+---
 
-SEGURIDAD:
-    **JWT_SECRET** — clave secreta para firmar los tokens JWT
+## Environment Variables
 
-SERVIDOR:
-    **PORT** — puerto del backend (por defecto 3000)
+Copy .env.example to .env and fill in the values:
+
+DATABASE:
+- **POSTGRES_USER** - PostgreSQL username
+- **POSTGRES_PASSWORD** — PostgreSQL password
+- **POSTGRES_DB** — database name
+- **DATABASE_URL** — full connection string to PostgreSQL (a URL combining the previous 3 for Prisma)
+
+SECURITY:
+- **JWT_SECRET** — secret key for signing JWT tokens
+
+SERVER:
+- **PORT** — backend port (default 3000)
 
 OAUTH 42:
-    **FORTY_TWO_CLIENT_ID** — client ID de la aplicación OAuth de 42
-    **FORTY_TWO_CLIENT_SECRET** — client secret de la aplicación OAuth de 42
-    **FORTY_TWO_REDIRECT_URI** — URL de callback OAuth (https://localhost:8889/api/auth/42/callback)
+- **FORTY_TWO_CLIENT_ID** — client ID of the 42 OAuth application
+- **FORTY_TWO_CLIENT_SECRET** — client secret of the 42 OAuth application
+- **FORTY_TWO_REDIRECT_URI** — OAuth callback URL (https://localhost:8889/api/auth/42/callback)
 
 FRONTEND:
-    **FRONTEND_URL** — URL base del frontend (https://localhost:8889)
+- **FRONTEND_URL** — base URL of the frontend (https://localhost:8889)
 
+---
 
-## Endpoints de la API
+## API Endpoints
 
-Todos los endpoints van prefijados con /api a través del proxy nginx.
+All endpoints are prefixed with `/api` through the nginx proxy.
 
-### Autenticación
+### Authentication
 
-**GET /auth/42** - Iniciar flujo OAuth con la Intranet de 42 (sin auth)
-**GET /auth/42/callback** - Callback de OAuth 42, gestionado por el backend (sin auth)
-**GET /auth/me** - Validar el token JWT actual (requiere auth)
-**POST /users/register** - Registrar un nuevo usuario (sin auth)
-**POST /users/login** - Iniciar sesión y obtener token JWT (sin auth)
+- **GET /auth/42** - Start OAuth flow with the 42 Intranet (no auth)
+- **GET /auth/42/callback** - OAuth 42 callback, handled by the backend (no auth)
+- **GET /auth/me** - Validate the current JWT token (requires auth)
+- **POST /users/register** - Register a new user (no auth)
+- **POST /users/login** - Log in and get a JWT token (no auth)
 
+### Users
 
-### Usuarios
-**GET /users/:userId** - Obtener perfil de usuario por ID (requiere auth)
-**GET /users/search?query=xxx** - Buscar usuarios por nombre o email (sin auth)
-**GET /users/filter/online** - Obtener todos los usuarios onlines (requiere auth)
-**PUT /users/:userId** - Actualizar nombre, email o contraseña(requiere auth, solo para el propio usuario)
-**PUT /users/_userId/status** - Cambiar estado online/offline (requiere auth, solo el propoo usuario)
-
+- **GET /users/:userId** - Get user profile by ID (requires auth)
+- **GET /users/search?query=xxx** - Search users by name or email (no auth)
+- **GET /users/filter/online** - Get all online users (requires auth)
+- **PUT /users/:userId** - Update name, email, or password (requires auth, only for the user themselves)
+- **PUT /users/:userId/status** - Change online/offline status (requires auth, only the user themselves)
 
 ### Avatar
 
-**GET /users/:userId/avatar** - Obtener la URL del avatar (requiere auth)
-**POST /users/:userId/avatar** - subir una nueva imagen de avatar (requiere auth, solo para el propio usuario)
-**DELETE /users/:userId/avatar** - Restaurar al avatar por defecto (requiere auth, solo para el propio usuario)
+- **GET /users/:userId/avatar** - Get the avatar URL (requires auth)
+- **POST /users/:userId/avatar** - Upload a new avatar image (requires auth, only for the user themselves)
+- **DELETE /users/:userId/avatar** - Restore the default avatar (requires auth, only for the user themselves)
 
+### Friends
 
-### Amigos
+- **GET /users/:userId/my_friends** - List all accepted friends (requires auth)
+- **GET /users/:userId/pending_requests** - List pending received requests (requires auth)
+- **POST /users/:userId/send_request/:friendId** - Send a friend request (requires auth)
+- **POST /users/:userId/accept_request/:friendId** - Accept a friend request (requires auth)
+- **DELETE /users/:userId/reject_request/:friendId** - Reject a friend request (requires auth)
+- **DELETE /users/:userId/remove_friend/:friendId** - Remove someone as a friend (requires auth)
 
-**GET /users/:userId/my_friends** - Listar todos los amigos aceptado (requiere auth)
-**GET /users/:userId/pending_requests** - Listar solicitudes pendientes recibidas (requiere auth)
-**POST /users/:userId/send_request/:friendId** - Enviar solicitud de amistad (requiere auth)
-**POST /users/:userId/accept_request/:friendId** - Aceptar solicitud de amistad (requiere auth)
-**DELETE /users/:userId/reject_request/:friendId** - Rechazar solicitud de amistad (rquiere auth)
-**DELETE /users/:userId/remove_friend/:friendId** - Eliminar alguien de amigo (requiere auth)
+---
 
-
-## Como funciona la autencicación
+## How Authentication Works
 
 ### JWT
 
-1. El usuario hace login con POST /users/login enviando mail y contraseña
-2. El backend verifica la contraseña con bcrypt y devuelve un token JWT
-3. Ese token hay que enviarlo en cada petición protegida en la cabecera:
-    Authorization: Bearer <token>
-4. El token expira a los 7 días
+1. The user logs in via `POST /users/login` by sending email and password
+2. The backend verifies the password with bcrypt and returns a JWT token
+3. That token must be sent in every protected request in the header:
+   `Authorization: Bearer <token>`
+4. The token expires after 7 days
 
 ### OAuth 42
 
-1. El usuario pulsa "Login 42" y el frontend redirige a GET /api/auth/42
-2. El backend redirige a la página OAuth de la Intranet de 42
-3. El usuario autoriza la aplicación en la Intranet
-4. La Intranet redirige de vuelta a GET /api/auth/42/callback?code=xxx
-5. El backend vuelve a llamar a la API de 42 e intercambia el código por un token de acceso 6. El backend vuelve a llamar a la API de 42, ahora con permiso (token) para solicitar los datos del usuario 
-7. Si el usuario no existe en la base de datos, se crea automáticamente (busca por email)
-8. Se redirige al frontend con el JWT en la URL para que éste lo almacene en el localstorage
+1. The user clicks "Login 42" and the frontend redirects to `GET /api/auth/42`
+2. The backend redirects to the 42 Intranet OAuth page
+3. The user authorizes the application in the Intranet
+4. The Intranet redirects back to `GET /api/auth/42/callback?code=xxx`
+5. The backend calls the 42 API again and exchanges the code for an access token
+6. The backend calls the 42 API again, now with permission (token) to request the user's data
+7. If the user doesn't exist in the database, they are created automatically (looked up by email)
+8. The user is redirected to the frontend with the JWT in the URL so it can be stored in localStorage
 
+---
 
-## Seguridad implementada
+## Implemented Security
 
-- Las contraseñas se hashean con bcrypt (10 salt rounds)
-- La autenticación usa JWT firmado con JWT_SECRET, con expiración de 7 días.
-- Cada ruta protegida comprueba que el token pertenece al usuario que hace la petición.
-- Los avatares se validan con magic bytes (JPEG, PNG, GIF, WEBP), mínimo 1KB y máximo 5MB.
-- Los inputs están validados: nombre (3-20 carácteres), email(formato válido, máximo 254), contraseña(8-64 caracteres, requiere mayúscula y número o carácter especial).
-- El archivo .env nunca se sube al respositorio.
+- Passwords are hashed with bcrypt (10 salt rounds)
+- Authentication uses a JWT signed with `JWT_SECRET`, expiring after 7 days
+- Each protected route checks that the token belongs to the user making the request
+- Avatars are validated by magic bytes (JPEG, PNG, GIF, WEBP), minimum 1KB and maximum 5MB
+- Inputs are validated: name (3-20 characters), email (valid format, max 254), password (8-64 characters, requires an uppercase letter and a number or special character)
+- The `.env` file is never pushed to the repository
 
-## Esquema de base de datos
+---
 
-## Esquema de base de datos
+## Database Schema
 
 ### User
-- id (clave primaria, autoincremental)
-- name (único, 3-20 carácteres)
-- email (único)
-- password (hasheada con bcrypt)
-- avatar (ruta a la imagen, opcional)
-- onlineStatus (booleano, por defecto: false)
-- lastConnection (fecha y hora, se actualiza al hacer logout)
-- createdAt (fecha y hora de registro)
+- id (primary key, auto-increment)
+- name (unique, 3-20 characters)
+- email (unique)
+- password (hashed with bcrypt)
+- avatar (path to image, optional)
+- onlineStatus (boolean, default: false)
+- lastConnection (date and time, updated on logout)
+- createdAt (date and time of registration)
 
 ### Friendship
-- id (clave primaria, autoincremental)
-- requesterId (Clave Foránea -> User: quien envía la solicitud)
-- receiverId (Clave Foránea -> User: quien la recibe)
-- status ('pendiente' o 'aceptada')
-- createdAt (fecha y hora)
+- id (primary key, auto-increment)
+- requesterId (Foreign Key -> User: who sends the request)
+- receiverId (Foreign Key -> User: who receives it)
+- status ('pending' or 'accepted')
+- createdAt (date and time)
 
-### Relaciones
+### Relationships
 - **User → Friendship (one-to-many)**
-  - Un usuario puede tener múltiples solicitudes enviadas (`sentRequests`)
-  - Un usuario puede recibir múltiples solicitudes (`receivedRequests`)
+  - A user can have multiple sent requests (`sentRequests`)
+  - A user can receive multiple requests (`receivedRequests`)
 - **Friendship → User (many-to-one)**
-  - Cada solicitud tiene un `requester` (quien la envía)
-  - Cada solicitud tiene un `receiver` (quien la recibe)
+  - Each request has a `requester` (who sends it)
+  - Each request has a `receiver` (who receives it)
 
-## Funcionalidades implementadas
+---
 
-- Registro de usuarios con validación de campos
-- Login con JWT
-- Login con OAuth 42
-- Edición de perfil (nombre, email, constraseña)
-- Subida de avatar con validación de tipo y tamaño
-- Estado online/offline con timestamp de última conexión
-- Sistema de solicitudes de amistad
-- Búsqueda de usuarios por nombre o email
-- Rutas protegidas con middleware JWT
-- Límite de carácteres en front y back
-- Los errores se muestran al usuario
+## Implemented Features
+
+- User registration with field validation
+- Login with JWT
+- Login with OAuth 42
+- Profile editing (name, email, password)
+- Avatar upload with type and size validation
+- Online/offline status with last-connection timestamp
+- Friend request system
+- User search by name or email
+- Protected routes with JWT middleware
+- Character limits on frontend and backend
+- Errors are displayed to the user

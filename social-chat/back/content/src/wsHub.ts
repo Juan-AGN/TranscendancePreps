@@ -81,6 +81,16 @@ export function setupWebSocket(server: Server): void {
         }),
       );
 
+      fetch(`http://backend:3000/users/${decoded.id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ onlineStatus: true })
+      }).catch(() => {
+	    }).then(() => {});
+
       socket.on("close", () => {
         removeClient(userId, socket);
       });

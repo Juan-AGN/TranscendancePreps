@@ -744,7 +744,7 @@ export function ChatWidget() {
 						)}
 
 						{/*body*/}
-						<div className="grid min-h-0 grid-cols-[16rem_1fr] p-1 max-sm:grid-cols-1">
+						<div className="grid min-h-0 grid-cols-[16rem_1fr] p-1 max-sm:grid-cols-1 min-w-0">
 							<div className={`flex min-h-0 min-w-0 w-full flex-col border-r border-white/35 bg-white/60 max-sm:border-r-0 ${
 								selectedId && tab === "chats" ? "max-sm:hidden" : ""
 							}`}>
@@ -770,7 +770,7 @@ export function ChatWidget() {
 
 
 								{/* scroll content */}
-								<div className="flex-1 overflow-auto p-2 max-sm:p-1.5">
+								<div className="flex-1 overflow-auto p-2 max-sm:p-1.5 min-w-0">
 
 									{/* CHATS */}
 									{tab === "chats" && (
@@ -986,7 +986,7 @@ export function ChatWidget() {
 							</div>
 
 							{/* RIGHT PANEL (messages) */}
-							<div className={`flex flex-col min-h-0 bg-white/60 ${
+							<div className={`flex flex-col min-h-0 bg-white/60 min-w-0 ${
 								selectedId && tab === "chats" ? "max-sm:flex" : "max-sm:hidden"
 							}`}>
 								<div className="flex items-center gap-2 px-3 py-2 font-bold">
@@ -1000,7 +1000,7 @@ export function ChatWidget() {
 								</div>
 
 
-								<div className="flex-1 overflow-auto border-1 rounded-[2rem] border-yellow-400/30 p-3">
+								<div className="flex-1 overflow-auto border-1 rounded-[2rem] border-yellow-400/30 p-3 min-w-0">
 									{loadingMsgs && <div className="text-gray-600">{t('chat.loadingMessages')}</div>}
 									{!loadingMsgs && selectedId && visibleMessages.length === 0 && <div className="text-gray-600">{t('chat.noMessagesYet')}</div>}
 
@@ -1024,7 +1024,7 @@ export function ChatWidget() {
 										return (
 											<div key={m.id} className={`mb-3 flex ${mine ? "justify-end" : "justify-start"}`}>
 												<div
-													className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm shadow-sm ${mine ? "bg-black text-white" : "bg-white border border-gray-200 text-gray-900"
+													className={`max-w-[70%] min-w-0 rounded-2xl px-3 py-2 text-sm shadow-sm ${mine ? "bg-black text-white" : "bg-white border border-gray-200 text-gray-900"
 														}`}>
 													<div className="mb-1 text-[11px] opacity-75">
 														{(mine ? t('chat.you') : (userMap[m.senderId]?.name || t('chat.userUnavailable')))} · {new Date(m.createdAt).toLocaleString()}

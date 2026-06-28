@@ -158,6 +158,7 @@ export const WsProvider = ({
             };
 
             return () => {
+                socket.close();
             };
         }
     }, [token]);
