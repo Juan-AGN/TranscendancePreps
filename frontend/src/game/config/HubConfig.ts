@@ -18,13 +18,15 @@ export const SCENE_CONFIG = {
 	pingpong: {
 		pos: new Vector3(30, 3.5, 30), 				// table placed on the right and slightly elevated
 		scale: 6, 									// table size (quite large)
-		rotation: Math.PI / 4 						// diagonal towards the center
+		rotation: Math.PI / 4, 						// diagonal towards the center
+		route: 'remote-game'
 	},
 
 	torre: {
-		pos: new Vector3(-70, 12, 0), 				// tower on the left and high in Y
+		pos: new Vector3(-76, 12, 0), 				// tower on the left and high in Y
 		scale: 13, 									// large scale (monument)
-		rotation: 0
+		rotation: 0,
+		route: '/sections/tech'
 	},
 
 	townhouse: {
@@ -35,10 +37,10 @@ export const SCENE_CONFIG = {
 	},
 
 	trophy: {
-		pos: new Vector3(-30, 2, -30),				 // left back area
-		scale: 7,
+		pos: new Vector3(-30, 6.5, -30),				 // left back area
+		scale: 5.5,
 		rotation: 0,
-		//route: '/tournament' 						// opens tournaments
+		route: '/sections/creators' 						
 	},
 
 	computer: {

@@ -106,6 +106,26 @@ export class HubSceneBuilder {
 				this.menuInteraction.registerClickableObject(route, mesh, decor.rosaleda);
 			}
 		});
+
+		// Ping pong table must also trigger remote game navigation on click
+		this.loadingQueue.add('Preparing ping pong interaction', async () => {
+			await decor.pingpong.ready();
+			const mesh = decor.pingpong.getRootMesh();
+			const route = SCENE_CONFIG.pingpong.route;
+			if (mesh && route) {
+				this.menuInteraction.registerClickableObject(route, mesh, decor.pingpong);
+			}
+		});
+
+		// Torre Monica must also trigger tech section navigation on click
+		this.loadingQueue.add('Preparing Torre Monica interaction', async () => {
+			await decor.torre.ready();
+			const mesh = decor.torre.getRootMesh();
+			const route = SCENE_CONFIG.torre.route;
+			if (mesh && route) {
+				this.menuInteraction.registerClickableObject(route, mesh, decor.torre);
+			}
+		});
 	}
 
 	// STEP 6: Add dynamic shadows to key buildings after load

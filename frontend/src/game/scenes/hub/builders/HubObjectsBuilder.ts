@@ -47,6 +47,7 @@ export class HubObjectsBuilder {
 		// To add a new clickable object, add one entry here
 		const interactives = [
 			{ obj: townhouse, route: SCENE_CONFIG.townhouse.route },
+			{ obj: trophy, route: SCENE_CONFIG.trophy.route },
 			{ obj: lafarola, route: SCENE_CONFIG.lafarola.route },
 			{ obj: computer, route: SCENE_CONFIG.computer.route },
 		];

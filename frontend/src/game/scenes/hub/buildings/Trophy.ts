@@ -30,7 +30,7 @@ export class Trophy extends InteractiveObject {
 	// STEP 3: Load model, choose real mesh and configure collider
 	protected async load(): Promise<void> {
 		try {
-			const result = await SceneLoader.ImportMeshAsync('', '/models/trphy.glb', '', this.scene);
+			const result = await SceneLoader.ImportMeshAsync('', '/models/creators.glb', '', this.scene);
 			if (result.meshes.length === 0) {
 				return;
 			}

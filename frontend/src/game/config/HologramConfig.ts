@@ -12,29 +12,29 @@ import { DEFAULT_HIGHLIGHT } from './HighlightConfig';
 
 // STEP 1: Define 3D hologram text constants.
 // These values control font, animation timing, text size and outline.
-export const HOLOGRAM_FONT_URL         = 'https://assets.babylonjs.com/fonts/Droid%20Sans_Bold.json';
+export const HOLOGRAM_FONT_URL = 'https://assets.babylonjs.com/fonts/Droid%20Sans_Bold.json';
 //export const HOLOGRAM_FONT_URL = 'https://threejs.org/examples/fonts/helvetiker_bold.typeface.json';
 //export const HOLOGRAM_FONT_URL = 'https://threejs.org/examples/fonts/optimer_bold.typeface.json';
-export const HOLOGRAM_ANIM_FPS         = 60;    		
+export const HOLOGRAM_ANIM_FPS = 60;
 export const HOLOGRAM_GLYPH_RESOLUTION = 64;
-export const HOLOGRAM_TEXT_SIZE        = 1.5;  
-export const HOLOGRAM_TEXT_DEPTH       = 0.30; 
-export const HOLOGRAM_OUTLINE_WIDTH    = 0.32;  
-export const HOLOGRAM_EMERGE_FROMSKY     = 15.0;	
-export const HOLOGRAM_FRAMES_DOWN    = 60;  
-export const HOLOGRAM_FRAMES_UP      = 55;
+export const HOLOGRAM_TEXT_SIZE = 1.5;
+export const HOLOGRAM_TEXT_DEPTH = 0.30;
+export const HOLOGRAM_OUTLINE_WIDTH = 0.32;
+export const HOLOGRAM_EMERGE_FROMSKY = 15.0;
+export const HOLOGRAM_FRAMES_DOWN = 60;
+export const HOLOGRAM_FRAMES_UP = 55;
 // ════════ TYPE: HubObjectConfig: Interactive Hub object configuration. ════════
 // Each object can have proximity detection, glow configuration and optional 3D text.
 export interface HubObjectConfig {
-	key: string;             
-	proximityKey?: string;    
-	activeDistance: number; 
-	glowConfig: GlowEffectConfig; 
+	key: string;
+	proximityKey?: string;
+	activeDistance: number;
+	glowConfig: GlowEffectConfig;
 
 	hologram?: {
-		label: string;   
-		color: Color3;    
-		position: Vector3; 
+		label: string;
+		color: Color3;
+		position: Vector3;
 	};
 }
 // STEP 2: Define all interactive Hub objects.
@@ -52,7 +52,7 @@ export const HUB_OBJECTS: HubObjectConfig[] = [
 		hologram: {
 			label: 'SETTINGS',
 			color: new Color3(0, 0.9, 1),
-			position: new Vector3(0, 8, 50),
+			position: new Vector3(0, 8, 54),
 		},
 	},
 	{
@@ -61,7 +61,7 @@ export const HUB_OBJECTS: HubObjectConfig[] = [
 		activeDistance: 12,
 		glowConfig: DEFAULT_HIGHLIGHT,
 		hologram: {
-			label: 'TROPHY',
+			label: 'CREATORS',
 			color: new Color3(1, 0.6, 0),
 			position: new Vector3(-30, 9, -28),
 		},
@@ -89,12 +89,12 @@ export const HUB_OBJECTS: HubObjectConfig[] = [
 	},
 	{
 		key: 'rosaleda',
-		activeDistance: 17,
+		activeDistance: 25,
 		glowConfig: DEFAULT_HIGHLIGHT,
 		hologram: {
 			label: 'TOURNAMENT',
 			color: new Color3(0, 1, 0.5),
-			position: new Vector3(0, 7, -50),
+			position: new Vector3(0, 9, -70),
 		},
 	},
 	{
@@ -114,11 +114,21 @@ export const HUB_OBJECTS: HubObjectConfig[] = [
 		proximityKey: 'pedestalPingpong',
 		activeDistance: 12,
 		glowConfig: DEFAULT_HIGHLIGHT,
+		hologram: {
+			label: 'REMOTE GAME',
+			color: new Color3(0, 1, 0.5),
+			position: new Vector3(30, 8, 30),
+		}
 	},
 	{
 		key: 'torre',
 		activeDistance: 14,
 		glowConfig: DEFAULT_HIGHLIGHT,
+		hologram: {
+			label: 'TECH',
+			color: new Color3(0, 0.9, 1),
+			position: new Vector3(-70, 6, 0),
+		}
 	},
 ];
 // STEP 5: Small terminology notes.
