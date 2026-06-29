@@ -7,6 +7,6 @@
 // └────────────────────────────────────────────────────────────┘
 
 export const DEBUG_CONFIG = {
-	showColliders: true,
+	showColliders: false,
 } as const;
 
